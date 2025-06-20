@@ -28,6 +28,9 @@ const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
   : null;
 
+console.log('Stripe public key available:', !!import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+console.log('Stripe promise created:', !!stripePromise);
+
 export default function BookingModal({ item, isOpen, onClose }: BookingModalProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -42,11 +45,14 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   const createPaymentIntentMutation = useMutation({
     mutationFn: async (amount: number) => {
+      console.log('Creating payment intent for amount:', amount);
       return await api.createPaymentIntent(amount);
     },
     onSuccess: (data) => {
+      console.log('Payment intent created successfully:', data);
       setClientSecret(data.clientSecret);
       setShowPayment(true);
+      console.log('Switching to payment view');
     },
     onError: (error: any) => {
       toast({
@@ -104,6 +110,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   if (!item) return null;
 
   if (showPayment && clientSecret && stripePromise) {
+    console.log('Rendering payment modal with:', { showPayment, clientSecret: !!clientSecret, stripePromise: !!stripePromise });
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[500px]">
@@ -118,6 +125,23 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               itemTitle={item.title}
             />
           </Elements>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (showPayment && !stripePromise) {
+    console.error('Stripe not configured - missing public key');
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Payment Configuration Error</DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <p>Payment processing is not properly configured. Please contact support.</p>
+            <Button onClick={onClose} className="mt-4">Close</Button>
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -138,13 +162,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Booking form submitted');
     
     if (!user) {
+      console.log('User not authenticated, showing auth modal');
       setIsAuthModalOpen(true);
       return;
     }
     
     if (!startDate || !endDate) {
+      console.log('Missing dates:', { startDate, endDate });
       toast({
         title: "Error",
         description: "Please select both start and end dates.",
@@ -152,6 +179,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       });
       return;
     }
+
+    console.log('Initiating payment intent creation for total:', total);
 
     // Check if Stripe is configured
     if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
