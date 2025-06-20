@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
 import MyProfile from "@/pages/my-profile";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/item/:id" component={ItemDetails} />
       <Route path="/list-item" component={ListItem} />
       <Route path="/my-profile" component={MyProfile} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
