@@ -236,7 +236,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                 disabled={createBookingMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {createBookingMutation.isPending ? "Sending Request..." : user ? "Request to Book" : "Login to Book"}
+                {createBookingMutation.isPending ? "Sending Request..." : user ? "Reserve" : "Login to Book"}
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
