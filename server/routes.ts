@@ -338,8 +338,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Booking validation error:', error.errors);
         return res.status(400).json({ message: "Invalid booking data", errors: error.errors });
       }
+      console.error('Booking creation error:', error);
       res.status(500).json({ message: "Failed to create booking" });
     }
   });

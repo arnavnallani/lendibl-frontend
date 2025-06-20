@@ -82,13 +82,12 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    const booking: InsertBooking = {
+    const booking = {
       itemId: item.id,
-      renterId: user.id,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      totalPrice: total.toString(),
-      message,
+      startDate: startDate,
+      endDate: endDate,
+      totalPrice: total.toFixed(2),
+      message: message || "",
     };
 
     createBookingMutation.mutate(booking);
