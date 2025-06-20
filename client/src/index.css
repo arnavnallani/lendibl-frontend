@@ -100,11 +100,11 @@
   }
   
   .text-primary-dark-blue {
-    color: hsl(210, 100%, 40%);
+    color: hsl(210, 100%, 35%);
   }
   
   .bg-primary-dark-blue {
-    background-color: hsl(210, 100%, 40%);
+    background-color: hsl(210, 100%, 35%);
   }
   
   .text-secondary-black {
