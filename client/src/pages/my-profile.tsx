@@ -583,6 +583,25 @@ export default function MyProfile() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={itemForm.control}
+                  name="included"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>What's Included</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter what's included (one item per line)"
+                          {...field}
+                          value={field.value?.join('\n') || ''}
+                          onChange={(e) => field.onChange(e.target.value.split('\n').filter(item => item.trim()))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-sm text-muted-foreground">Enter each item on a new line</p>
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-between pt-4">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
