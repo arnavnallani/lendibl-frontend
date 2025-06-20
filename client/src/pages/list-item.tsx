@@ -18,7 +18,8 @@ import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
 
 const formSchema = insertItemSchema.extend({
-  price: z.string().min(1, "Price is required"),
+  price: z.coerce.number().min(0, "Price must be a positive number"),
+  categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
 });
 
@@ -49,7 +50,7 @@ export default function ListItem() {
       title: "",
       description: "",
       price: 0,
-      categoryId: undefined,
+      categoryId: "",
       ownerId: 1, // Mock owner ID
       images: [],
       location: "",
@@ -97,7 +98,7 @@ export default function ListItem() {
       price: Number(values.price),
       images: imageUrls,
       included: includedArray,
-      categoryId: parseInt(values.categoryId?.toString() || "1"),
+      categoryId: Number(values.categoryId),
       ownerId: user.id,
     };
 
