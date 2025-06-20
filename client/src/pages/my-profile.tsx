@@ -591,10 +591,14 @@ export default function MyProfile() {
                       <FormLabel>What's Included</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Enter what's included (one item per line)"
-                          {...field}
+                          placeholder="Enter what's included (one item per line)&#10;Example:&#10;Extra battery&#10;Memory card&#10;Carrying case"
                           value={field.value?.join('\n') || ''}
-                          onChange={(e) => field.onChange(e.target.value.split('\n').filter(item => item.trim()))}
+                          onChange={(e) => {
+                            const items = e.target.value.split('\n').filter(item => item.trim() !== '');
+                            field.onChange(items);
+                          }}
+                          className="min-h-[100px]"
+                          style={{ whiteSpace: 'pre-wrap' }}
                         />
                       </FormControl>
                       <FormMessage />
