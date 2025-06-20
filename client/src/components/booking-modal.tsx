@@ -117,7 +117,15 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
           <DialogHeader>
             <DialogTitle>Complete Payment</DialogTitle>
           </DialogHeader>
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <Elements 
+            stripe={stripePromise} 
+            options={{ 
+              clientSecret,
+              appearance: {
+                theme: 'stripe'
+              }
+            }}
+          >
             <PaymentForm 
               onSuccess={handlePaymentSuccess}
               onCancel={handlePaymentCancel}
@@ -196,8 +204,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    // Initialize payment flow
-    createPaymentIntentMutation.mutate(total);
+    // Initialize payment flow (convert dollars to cents)
+    const amountInCents = Math.round(total * 100);
+    console.log('Creating payment intent - Total:', total, 'Amount in cents:', amountInCents);
+    createPaymentIntentMutation.mutate(amountInCents);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";

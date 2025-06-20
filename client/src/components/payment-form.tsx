@@ -16,6 +16,8 @@ export default function PaymentForm({ onSuccess, onCancel, amount, itemTitle }: 
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  console.log('PaymentForm rendered with:', { stripe: !!stripe, elements: !!elements, amount, itemTitle });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Payment form submitted');
