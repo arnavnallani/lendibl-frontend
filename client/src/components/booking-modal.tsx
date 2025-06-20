@@ -52,7 +52,15 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       console.log('Payment intent created successfully:', data);
       setClientSecret(data.clientSecret);
       setShowPayment(true);
-      console.log('Switching to payment view');
+      console.log('Switching to payment view, showPayment:', true);
+    },
+    onError: (error) => {
+      console.error('Payment intent creation failed:', error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to initialize payment. Please try again.",
+        variant: "destructive",
+      });
     },
     onError: (error: any) => {
       toast({
@@ -109,33 +117,54 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   if (!item) return null;
 
-  if (showPayment && clientSecret && stripePromise) {
-    console.log('Rendering payment modal with:', { showPayment, clientSecret: !!clientSecret, stripePromise: !!stripePromise, total });
+  if (showPayment && clientSecret) {
+    console.log('Rendering payment modal with clientSecret:', !!clientSecret);
+    
+    // Simple fallback payment form without Stripe Elements for testing
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Complete Payment</DialogTitle>
           </DialogHeader>
-          <div className="text-xs text-gray-500 mb-2">
-            Debug: Payment modal rendered successfully
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Total Amount:</span>
+                <span className="text-xl font-bold text-primary-blue">${total.toFixed(2)}</span>
+              </div>
+              <p className="text-sm text-gray-medium mt-1">
+                Payment processing temporarily simplified for debugging
+              </p>
+            </div>
+            
+            <div className="text-center py-4">
+              <p className="text-gray-600 mb-4">
+                Debug: Payment modal is rendering correctly.
+                ClientSecret: {clientSecret ? 'Available' : 'Missing'}
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handlePaymentCancel}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  console.log('Test payment success triggered');
+                  handlePaymentSuccess();
+                }}
+                className="flex-1 bg-primary-blue hover:bg-primary-blue/90"
+              >
+                Test Payment Success
+              </Button>
+            </div>
           </div>
-          <Elements 
-            stripe={stripePromise} 
-            options={{ 
-              clientSecret,
-              appearance: {
-                theme: 'stripe'
-              }
-            }}
-          >
-            <PaymentForm 
-              onSuccess={handlePaymentSuccess}
-              onCancel={handlePaymentCancel}
-              amount={total}
-              itemTitle={item.title}
-            />
-          </Elements>
         </DialogContent>
       </Dialog>
     );
