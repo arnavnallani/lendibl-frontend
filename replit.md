@@ -129,6 +129,7 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Enhanced MyProfile page with edit profile functionality and navigation improvements
 - June 20, 2025: Implemented item management in profile - click items to edit or delete listings with comprehensive form validation and authorization checks
 - June 20, 2025: Created dedicated Settings page for personal information management with improved user experience and navigation from account dropdown
+- June 20, 2025: Fixed item ownership detection - items show green "Your Item" badge when user is logged in and owns the item, clicking owned items redirects to profile page for editing
 
 ## User Preferences
 

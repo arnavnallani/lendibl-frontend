@@ -58,13 +58,7 @@ export default function Home() {
     // Check if user owns the item
     const isOwner = user && item.ownerId === user.id;
     
-    console.log('Home handleItemClick Debug:', {
-      itemId: item.id,
-      itemOwnerId: item.ownerId,
-      userId: user?.id,
-      isOwner,
-      userObject: user
-    });
+    // Clean up debug logging
     
     if (isOwner) {
       // Navigate to profile page where editing works
