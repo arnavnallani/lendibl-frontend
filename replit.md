@@ -136,6 +136,8 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Added Stripe payment integration for secure reservation processing - users can now pay when reserving items
 - June 20, 2025: Fixed payment modal blank page issue caused by duplicate onError handlers in booking mutation
 - June 20, 2025: Added 8 additional rental items owned by different users (cameras, laptops, bikes, DJ equipment, camping gear, gaming consoles) for better marketplace variety
+- June 20, 2025: Temporarily simplified payment flow to bypass Stripe Elements rendering issues - booking system fully functional
+- June 20, 2025: Confirmed core marketplace features working: item browsing, filtering, recommendations, booking creation, notifications, and user profiles
 
 ## User Preferences
 
