@@ -1,8 +1,43 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertItemSchema, insertBookingSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+
+// WebSocket connection management
+const connectedClients = new Map<number, WebSocket[]>();
+
+function addClientConnection(userId: number, ws: WebSocket) {
+  if (!connectedClients.has(userId)) {
+    connectedClients.set(userId, []);
+  }
+  connectedClients.get(userId)!.push(ws);
+}
+
+function removeClientConnection(userId: number, ws: WebSocket) {
+  const clients = connectedClients.get(userId);
+  if (clients) {
+    const index = clients.indexOf(ws);
+    if (index > -1) {
+      clients.splice(index, 1);
+    }
+    if (clients.length === 0) {
+      connectedClients.delete(userId);
+    }
+  }
+}
+
+function notifyUser(userId: number, notification: any) {
+  const clients = connectedClients.get(userId);
+  if (clients) {
+    clients.forEach(ws => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(notification));
+      }
+    });
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Categories
@@ -123,6 +158,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBookingSchema.parse(req.body);
       const booking = await storage.createBooking(validatedData);
+      
+      // Get the item details to notify the owner
+      const item = await storage.getItem(validatedData.itemId);
+      if (item) {
+        // Send real-time notification to item owner
+        const notification = {
+          type: "booking_request",
+          id: Date.now(),
+          title: "New Rental Request",
+          message: `Someone wants to rent your ${item.title}`,
+          itemId: item.id,
+          bookingId: booking.id,
+          timestamp: new Date().toISOString(),
+          read: false
+        };
+        
+        notifyUser(item.ownerId, notification);
+      }
+      
       res.status(201).json(booking);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -192,5 +246,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Setup WebSocket server for real-time notifications
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws, req) => {
+    console.log('New WebSocket connection');
+    
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        
+        if (data.type === 'auth' && data.userId) {
+          // Associate this connection with a user
+          addClientConnection(data.userId, ws);
+          ws.send(JSON.stringify({ 
+            type: 'auth_success', 
+            message: 'Connected to notifications' 
+          }));
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      // Remove connection from all users when closed
+      connectedClients.forEach((clients, userId) => {
+        removeClientConnection(userId, ws);
+      });
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+    });
+  });
+
   return httpServer;
 }

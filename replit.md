@@ -33,18 +33,20 @@ The application uses PostgreSQL with the following main entities:
 ## Key Components
 
 ### Client-Side Components
-- **Header**: Navigation with search, mode toggle (renter/lister), and user controls
+- **Header**: Navigation with search, mode toggle (renter/lister), notifications, and user controls
 - **HeroSection**: Landing page with featured categories
 - **FilterBar**: Category, price, and location filtering
 - **ItemGrid**: Paginated item display with loading states
 - **ItemCard**: Individual item preview cards
 - **BookingModal**: Rental request interface
+- **NotificationBell**: Real-time notification center with WebSocket connection
 - **Form Components**: Comprehensive form system using shadcn/ui
 
 ### Server-Side Components
 - **Routes**: RESTful API endpoints for categories, items, and bookings
 - **Storage**: Abstract storage interface with PostgreSQL database implementation
 - **Database**: Drizzle ORM with Neon serverless PostgreSQL connection
+- **WebSocket Server**: Real-time notifications for rental requests
 - **Vite Integration**: Development server with HMR support
 
 ### Shared Components
@@ -65,6 +67,7 @@ The application uses PostgreSQL with the following main entities:
 - **View Details**: Detailed item view with owner information and booking option
 - **Make Booking**: Request rental with date selection and messaging
 - **List Item**: Create new rental listings with images and details
+- **Real-time Notifications**: Instant alerts for owners when rental requests are made
 
 ## External Dependencies
 
@@ -116,6 +119,7 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Migrated from in-memory storage to PostgreSQL database
 - June 20, 2025: Updated header to use custom Lendibl logo image
 - June 20, 2025: Enhanced UI with modern animations, glass morphism, gradients, and hover effects
+- June 20, 2025: Implemented real-time notifications with WebSocket for rental requests
 
 ## User Preferences
 

@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Search, Menu, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import NotificationBell from "./notification-bell";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 
 interface HeaderProps {
@@ -78,6 +79,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 <Link href="/list-item">List Items</Link>
               </Button>
             </div>
+
+            {/* Notifications */}
+            <NotificationBell userId={1} />
 
             {/* User Menu */}
             <div className="relative">
