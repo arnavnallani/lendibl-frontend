@@ -2,8 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertItemSchema, insertBookingSchema, insertUserSchema } from "@shared/schema";
+import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInteractionSchema } from "@shared/schema";
 import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
+import { recommendationEngine } from "./recommendation-engine";
 import { z } from "zod";
 
 // WebSocket connection management
@@ -170,13 +171,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/items/:id", async (req, res) => {
+  app.get("/api/items/:id", optionalAuth, async (req: AuthRequest, res) => {
     try {
       const id = parseInt(req.params.id);
       const item = await storage.getItem(id);
       
       if (!item) {
         return res.status(404).json({ message: "Item not found" });
+      }
+
+      // Track view interaction for recommendations
+      if (req.user) {
+        await recommendationEngine.trackInteraction(req.user.id, id, "view", 1.0);
       }
 
       res.json(item);
@@ -280,9 +286,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       const booking = await storage.createBooking(validatedData);
       
+      // Track rental interaction for recommendations
+      await recommendationEngine.trackInteraction(req.user!.id, validatedData.itemId, "rent", 3.0);
+      
       // Get the item details to notify the owner
       const item = await storage.getItem(validatedData.itemId);
       if (item) {
+        // Update user preferences based on rental
+        await recommendationEngine.updateUserPreferences(
+          req.user!.id,
+          item.categoryId,
+          { min: parseFloat(item.price) * 0.8, max: parseFloat(item.price) * 1.5 },
+          item.location
+        );
+        
         // Send real-time notification to item owner
         const notification = {
           type: "booking_request",
@@ -304,6 +321,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid booking data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create booking" });
+    }
+  });
+
+  // Recommendation endpoints
+  app.get("/api/recommendations", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      const recommendations = await recommendationEngine.getRecommendations(req.user!.id, limit);
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      res.status(500).json({ message: "Failed to get recommendations" });
+    }
+  });
+
+  app.post("/api/interactions", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { itemId, interactionType, weight } = req.body;
+      await recommendationEngine.trackInteraction(req.user!.id, itemId, interactionType, weight || 1.0);
+      res.json({ message: "Interaction tracked" });
+    } catch (error) {
+      console.error("Error tracking interaction:", error);
+      res.status(500).json({ message: "Failed to track interaction" });
+    }
+  });
+
+  app.get("/api/preferences", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const preferences = await storage.getUserPreferences(req.user!.id);
+      res.json(preferences || {});
+    } catch (error) {
+      console.error("Error getting preferences:", error);
+      res.status(500).json({ message: "Failed to get preferences" });
+    }
+  });
+
+  app.put("/api/preferences", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { categoryId, priceRange, location } = req.body;
+      await recommendationEngine.updateUserPreferences(req.user!.id, categoryId, priceRange, location);
+      res.json({ message: "Preferences updated" });
+    } catch (error) {
+      console.error("Error updating preferences:", error);
+      res.status(500).json({ message: "Failed to update preferences" });
     }
   });
 

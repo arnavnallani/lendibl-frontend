@@ -1,6 +1,6 @@
-import { users, items, categories, bookings, reviews, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -29,6 +29,15 @@ export interface IStorage {
   // Reviews
   getReviews(itemId?: number, userId?: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
+  
+  // User Interactions (for recommendations)
+  getUserInteractions(userId: number): Promise<UserInteraction[]>;
+  createUserInteraction(interaction: InsertUserInteraction): Promise<UserInteraction>;
+  
+  // User Preferences (for recommendations)
+  getUserPreferences(userId: number): Promise<UserPreferences | undefined>;
+  createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences>;
+  updateUserPreferences(userId: number, updates: Partial<UserPreferences>): Promise<UserPreferences | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -545,6 +554,49 @@ export class DatabaseStorage implements IStorage {
       .values(insertReview)
       .returning();
     return review;
+  }
+
+  // User Interactions (for recommendations)
+  async getUserInteractions(userId: number): Promise<UserInteraction[]> {
+    return await db
+      .select()
+      .from(userInteractions)
+      .where(eq(userInteractions.userId, userId))
+      .orderBy(desc(userInteractions.createdAt));
+  }
+
+  async createUserInteraction(interaction: InsertUserInteraction): Promise<UserInteraction> {
+    const [result] = await db
+      .insert(userInteractions)
+      .values(interaction)
+      .returning();
+    return result;
+  }
+
+  // User Preferences (for recommendations)
+  async getUserPreferences(userId: number): Promise<UserPreferences | undefined> {
+    const [result] = await db
+      .select()
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, userId));
+    return result || undefined;
+  }
+
+  async createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences> {
+    const [result] = await db
+      .insert(userPreferences)
+      .values(preferences)
+      .returning();
+    return result;
+  }
+
+  async updateUserPreferences(userId: number, updates: Partial<UserPreferences>): Promise<UserPreferences | undefined> {
+    const [result] = await db
+      .update(userPreferences)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userPreferences.userId, userId))
+      .returning();
+    return result || undefined;
   }
 }
 

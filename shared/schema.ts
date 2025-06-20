@@ -62,6 +62,27 @@ export const reviews = pgTable("reviews", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// User interaction tracking for recommendations
+export const userInteractions = pgTable("user_interactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  itemId: integer("item_id").references(() => items.id).notNull(),
+  interactionType: text("interaction_type").notNull(), // view, search, bookmark, rent
+  weight: decimal("weight", { precision: 3, scale: 2 }).default("1.0"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User preferences for better recommendations
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  preferredCategories: integer("preferred_categories").array().default([]),
+  priceRangeMin: decimal("price_range_min", { precision: 10, scale: 2 }),
+  priceRangeMax: decimal("price_range_max", { precision: 10, scale: 2 }),
+  preferredLocations: text("preferred_locations").array().default([]),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -93,6 +114,16 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
+export const insertUserInteractionSchema = createInsertSchema(userInteractions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({
+  id: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -108,6 +139,12 @@ export type InsertBooking = z.infer<typeof insertBookingSchema>;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
+
+export type UserInteraction = typeof userInteractions.$inferSelect;
+export type InsertUserInteraction = z.infer<typeof insertUserInteractionSchema>;
+
+export type UserPreferences = typeof userPreferences.$inferSelect;
+export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

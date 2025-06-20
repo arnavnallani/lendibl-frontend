@@ -5,11 +5,14 @@ import HeroSection from "@/components/hero-section";
 import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
+import RecommendationsSection from "@/components/recommendations-section";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function Home() {
+  const { user } = useAuth();
   const [currentMode, setCurrentMode] = useState<"renter" | "lister">("renter");
   const [filters, setFilters] = useState<{
     categoryId?: number;
@@ -19,6 +22,7 @@ export default function Home() {
   }>({});
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(true);
 
   const handleSearch = (query: string) => {
     setFilters(prev => ({ ...prev, search: query }));
@@ -30,6 +34,7 @@ export default function Home() {
 
   const handleFiltersChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
+    setShowRecommendations(Object.keys(newFilters).length === 0);
   };
 
   const handleItemClick = (item: ItemWithDetails) => {
@@ -51,11 +56,18 @@ export default function Home() {
       />
       
       {currentMode === "renter" ? (
-        <>
+        <div className="space-y-8">
           <HeroSection onCategorySelect={handleCategorySelect} />
+          
+          {user && showRecommendations && Object.keys(filters).length === 0 && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <RecommendationsSection onItemClick={handleItemClick} />
+            </div>
+          )}
+          
           <FilterBar onFiltersChange={handleFiltersChange} />
           <ItemGrid filters={filters} onItemClick={handleItemClick} />
-        </>
+        </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <div className="animate-slide-up">

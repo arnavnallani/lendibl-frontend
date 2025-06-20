@@ -54,4 +54,24 @@ export const api = {
     const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
     return res.json();
   },
+
+  // Recommendations
+  getRecommendations: async (limit?: number): Promise<any> => {
+    const params = limit ? `?limit=${limit}` : "";
+    const res = await apiRequest("GET", `/api/recommendations${params}`);
+    return res.json();
+  },
+
+  trackInteraction: async (itemId: number, interactionType: string, weight?: number): Promise<void> => {
+    await apiRequest("POST", "/api/interactions", { itemId, interactionType, weight });
+  },
+
+  getUserPreferences: async (): Promise<any> => {
+    const res = await apiRequest("GET", "/api/preferences");
+    return res.json();
+  },
+
+  updateUserPreferences: async (preferences: any): Promise<void> => {
+    await apiRequest("PUT", "/api/preferences", preferences);
+  },
 };
