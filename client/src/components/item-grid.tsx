@@ -3,7 +3,6 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ItemCard from "./item-card";
 import { api } from "@/lib/api";
-import { useAuth } from "@/hooks/use-auth";
 import type { ItemWithDetails } from "@shared/schema";
 
 interface ItemGridProps {
@@ -17,8 +16,6 @@ interface ItemGridProps {
 }
 
 export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
-  const { user } = useAuth();
-  
   const queryFilters = filters ? {
     categoryId: filters.categoryId,
     search: filters.search,
@@ -34,13 +31,10 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
     } : {}),
   } : undefined;
 
-  const { data: allItems = [], isLoading, error } = useQuery({
+  const { data: items = [], isLoading, error } = useQuery({
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
   });
-
-  // Filter out user's own items from the home page view
-  const items = user ? allItems.filter(item => item.ownerId !== user.id) : allItems;
 
   if (isLoading) {
     return (
