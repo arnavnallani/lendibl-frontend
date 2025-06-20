@@ -18,8 +18,8 @@ interface HeaderProps {
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [location] = useLocation();
   const { user, logout } = useAuth();
+  const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

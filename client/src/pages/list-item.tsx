@@ -79,6 +79,15 @@ export default function ListItem() {
   });
 
   const onSubmit = (values: FormValues) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to list an item.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const includedArray = values.includedItems
       ? values.includedItems.split('\n').filter(item => item.trim() !== '')
       : [];
@@ -89,7 +98,7 @@ export default function ListItem() {
       images: imageUrls,
       included: includedArray,
       categoryId: parseInt(values.categoryId?.toString() || "1"),
-      ownerId: user?.id || 1,
+      ownerId: user.id,
     };
 
     // Remove the helper field
