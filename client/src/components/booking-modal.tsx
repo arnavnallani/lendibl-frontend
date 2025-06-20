@@ -56,16 +56,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     },
     onError: (error) => {
       console.error('Payment intent creation failed:', error);
+      setShowPayment(false);
+      setClientSecret("");
       toast({
         title: "Payment Error",
         description: "Failed to initialize payment. Please try again.",
-        variant: "destructive",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Payment Setup Failed",
-        description: error.message || "Failed to initialize payment",
         variant: "destructive",
       });
     },
@@ -236,10 +231,17 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    // Initialize payment flow (convert dollars to cents)
-    const amountInCents = Math.round(total * 100);
-    console.log('Creating payment intent - Total:', total, 'Amount in cents:', amountInCents);
-    createPaymentIntentMutation.mutate(amountInCents);
+    // For debugging - skip payment and create booking directly
+    console.log('Skipping payment for debugging, creating booking directly');
+    const booking = {
+      itemId: item.id,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      totalPrice: total.toFixed(2),
+      message: message || "",
+      paymentConfirmed: false, // Mark as not paid for debugging
+    };
+    createBookingMutation.mutate(booking);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
