@@ -233,14 +233,14 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               {/* Submit Button */}
               <Button 
                 type="submit"
-                disabled={createBookingMutation.isPending}
+                disabled={createBookingMutation.isPending || createPaymentIntentMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {createBookingMutation.isPending ? "Sending Request..." : user ? "Reserve" : "Login to Book"}
+                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? "Reserve" : "Login to Book"}
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
-                {user ? "You will receive a full refund if: * You cancel anytime before the owner approves the request * The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
+                {user ? "You will receive a full refund if: • You cancel anytime before the owner approves the request • The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
               </p>
             </form>
           </div>

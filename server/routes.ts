@@ -389,6 +389,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe payment routes
+  app.post("/api/create-payment-intent", authenticateToken, async (req: AuthRequest, res) => {
+    if (!stripe) {
+      return res.status(503).json({ message: "Payment processing not available" });
+    }
+
+    try {
+      const { amount } = req.body;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          userId: req.user!.id.toString(),
+        },
+      });
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Payment intent creation failed:', error);
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
   // Recommendation endpoints
   app.get("/api/recommendations", authenticateToken, async (req: AuthRequest, res) => {
     try {

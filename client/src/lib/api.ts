@@ -95,4 +95,10 @@ export const api = {
     const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
     return res.json();
   },
+
+  // Payments
+  createPaymentIntent: async (amount: number): Promise<any> => {
+    const res = await apiRequest("POST", "/api/create-payment-intent", { amount });
+    return res.json();
+  },
 };

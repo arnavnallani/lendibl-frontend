@@ -132,6 +132,8 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Fixed item ownership detection - items show green "Your Item" badge when user is logged in and owns the item, clicking owned items redirects to profile page for editing
 - June 20, 2025: Enhanced item editing with photo management - users can now add/remove images in the edit modal with URL input and visual preview
 - June 20, 2025: Successfully implemented complete photo editing functionality in profile page - users can manage item images with visual preview, add new photos via URL, and remove existing photos
+- June 20, 2025: Implemented booking approval/decline functionality with real-time notifications and clickable renter profiles
+- June 20, 2025: Added Stripe payment integration for secure reservation processing - users can now pay when reserving items
 
 ## User Preferences
 
