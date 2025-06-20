@@ -232,10 +232,17 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    // Initialize payment flow (convert dollars to cents)
-    const amountInCents = Math.round(total * 100);
-    console.log('Creating payment intent - Total:', total, 'Amount in cents:', amountInCents);
-    createPaymentIntentMutation.mutate(amountInCents);
+    // Temporary: Skip payment and create booking directly
+    console.log('Creating booking directly without payment for now');
+    const booking = {
+      itemId: item.id,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      totalPrice: total.toFixed(2),
+      message: message || "",
+      paymentConfirmed: false,
+    };
+    createBookingMutation.mutate(booking);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
