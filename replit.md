@@ -114,6 +114,7 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Updated color scheme from red/teal to blue/black/white
 - June 20, 2025: Added sample rental items (camera, drill set, mountain bike)
 - June 20, 2025: Migrated from in-memory storage to PostgreSQL database
+- June 20, 2025: Updated header to use custom Lendibl logo image
 
 ## User Preferences
 

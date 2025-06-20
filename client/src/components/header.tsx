@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Search, Menu, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 
 interface HeaderProps {
   currentMode: "renter" | "lister";
@@ -26,7 +27,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
-              <h1 className="text-2xl font-bold text-primary-blue cursor-pointer">Lendibl</h1>
+              <img 
+                src={logoImage} 
+                alt="Lendibl" 
+                className="h-10 cursor-pointer"
+              />
             </Link>
           </div>
 
