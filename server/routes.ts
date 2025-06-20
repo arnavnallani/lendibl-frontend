@@ -187,16 +187,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/items", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const validatedData = insertItemSchema.parse({
+      console.log("Request body:", req.body);
+      const dataToValidate = {
         ...req.body,
         ownerId: req.user!.id, // Set owner to authenticated user
-      });
+      };
+      console.log("Data to validate:", dataToValidate);
+      const validatedData = insertItemSchema.parse(dataToValidate);
       const item = await storage.createItem(validatedData);
       res.status(201).json(item);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.errors);
         return res.status(400).json({ message: "Invalid item data", errors: error.errors });
       }
+      console.error("Item creation error:", error);
       res.status(500).json({ message: "Failed to create item" });
     }
   });
