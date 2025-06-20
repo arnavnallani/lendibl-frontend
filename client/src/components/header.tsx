@@ -129,7 +129,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             ) : (
               <Button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="btn-primary text-white font-semibold px-6 py-2 rounded-xl hover-lift"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-primary/90 h-10 btn-primary text-white font-semibold px-6 py-2 rounded-xl hover-lift bg-[darkblue]"
               >
                 Login
               </Button>
