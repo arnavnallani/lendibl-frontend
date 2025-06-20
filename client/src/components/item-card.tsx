@@ -1,5 +1,6 @@
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import type { ItemWithDetails } from "@shared/schema";
 
 interface ItemCardProps {
@@ -8,6 +9,8 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item, onClick }: ItemCardProps) {
+  const { user } = useAuth();
+  const isOwner = user && item.ownerId === user.id;
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : defaultImage;
 
@@ -28,10 +31,16 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
             <span className="text-xs font-semibold text-gray-dark">{item.rating}</span>
           </div>
         </div>
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex gap-2">
           <span className="bg-primary-blue text-white text-xs px-3 py-1 rounded-full font-medium">
             {item.category.name}
           </span>
+          {isOwner && (
+            <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
+              <Edit className="h-3 w-3" />
+              Your Item
+            </span>
+          )}
         </div>
       </div>
       

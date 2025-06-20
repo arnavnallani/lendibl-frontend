@@ -54,16 +54,14 @@ export default function Home() {
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
     
-    // Convert both IDs to numbers for proper comparison
-    const itemOwnerId = Number(item.ownerId);
-    const currentUserId = Number(user?.id);
+    // Check ownership - the item should have ownerId matching current user
+    const isOwner = user && item.ownerId === user.id;
     
-    // If user owns the item, open edit modal instead of booking modal
-    if (user && itemOwnerId === currentUserId) {
-      // Add a small delay to ensure state is properly set
-      setTimeout(() => setIsEditModalOpen(true), 0);
+    if (isOwner) {
+      setIsBookingModalOpen(false);
+      setIsEditModalOpen(true);
     } else {
-      // Open booking modal for other users' items
+      setIsEditModalOpen(false);
       setIsBookingModalOpen(true);
     }
   };
