@@ -113,57 +113,74 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   if (!item) return null;
 
   if (showPayment && clientSecret) {
-    console.log('Rendering payment modal with clientSecret:', !!clientSecret);
+    console.log('Rendering payment modal');
     
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Complete Payment</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Total Amount:</span>
-                <span className="text-xl font-bold text-primary-blue">${total.toFixed(2)}</span>
+    try {
+      return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Complete Payment - ${total.toFixed(2)}</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium">Payment Amount:</span>
+                  <span className="text-xl font-bold text-blue-600">${total.toFixed(2)}</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Secure payment processing via Stripe
+                </p>
               </div>
-              <p className="text-sm text-gray-medium mt-1">
-                Complete your reservation payment
-              </p>
+              
+              {stripePromise ? (
+                <div className="border rounded-lg p-4">
+                  <Elements 
+                    stripe={stripePromise} 
+                    options={{ 
+                      clientSecret,
+                      appearance: { theme: 'stripe' }
+                    }}
+                  >
+                    <PaymentForm 
+                      onSuccess={handlePaymentSuccess}
+                      onCancel={handlePaymentCancel}
+                      amount={total}
+                      itemTitle={item.title}
+                    />
+                  </Elements>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-red-600 mb-4">Payment processing unavailable</p>
+                  <Button onClick={handlePaymentCancel} variant="outline">
+                    Close
+                  </Button>
+                </div>
+              )}
             </div>
-            
-            <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg text-center">
-              <p className="text-gray-600 mb-4">
-                Payment processing temporarily simplified
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                Your booking will be confirmed after payment
-              </p>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={handlePaymentCancel}
-                className="flex-1"
-              >
-                Cancel
+          </DialogContent>
+        </Dialog>
+      );
+    } catch (error) {
+      console.error('Payment modal render error:', error);
+      return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Payment Error</DialogTitle>
+            </DialogHeader>
+            <div className="p-4">
+              <p className="text-red-600 mb-4">Unable to load payment form</p>
+              <Button onClick={handlePaymentCancel} variant="outline">
+                Close and Try Again
               </Button>
-              <Button 
-                onClick={() => {
-                  console.log('Completing reservation');
-                  handlePaymentSuccess();
-                }}
-                className="flex-1 bg-primary-blue hover:bg-primary-blue/90"
-              >
-                Complete Reservation
-              </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
+          </DialogContent>
+        </Dialog>
+      );
+    }
   }
 
   if (showPayment && !stripePromise) {
@@ -232,17 +249,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    // Temporary: Skip payment and create booking directly
-    console.log('Creating booking directly without payment for now');
-    const booking = {
-      itemId: item.id,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      totalPrice: total.toFixed(2),
-      message: message || "",
-      paymentConfirmed: false,
-    };
-    createBookingMutation.mutate(booking);
+    // Initialize payment flow (convert dollars to cents)
+    const amountInCents = Math.round(total * 100);
+    console.log('Creating payment intent - Total:', total, 'Amount in cents:', amountInCents);
+    createPaymentIntentMutation.mutate(amountInCents);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";

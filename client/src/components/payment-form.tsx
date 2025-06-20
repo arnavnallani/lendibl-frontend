@@ -88,19 +88,10 @@ export default function PaymentForm({ onSuccess, onCancel, amount, itemTitle }: 
   };
 
   if (!stripe || !elements) {
-    console.log('Stripe/Elements not ready yet, showing loading...');
     return (
-      <div className="space-y-4">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span className="font-medium">Total Amount:</span>
-            <span className="text-xl font-bold text-primary-blue">${amount.toFixed(2)}</span>
-          </div>
-        </div>
-        <div className="text-center py-8">
-          <div className="animate-spin h-8 w-8 border-b-2 border-primary-blue mx-auto"></div>
-          <p className="mt-2 text-gray-medium">Loading payment form...</p>
-        </div>
+      <div className="text-center py-4">
+        <div className="animate-spin h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+        <p className="text-sm text-gray-600">Loading secure payment form...</p>
       </div>
     );
   }
