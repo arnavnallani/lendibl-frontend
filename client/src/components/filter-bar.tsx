@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SlidersHorizontal, MapPin, Grid3X3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,20 @@ interface FilterBarProps {
     priceRange?: string;
     location?: string;
   }) => void;
+  selectedCategoryId?: number;
 }
 
-export default function FilterBar({ onFiltersChange }: FilterBarProps) {
+export default function FilterBar({ onFiltersChange, selectedCategoryId }: FilterBarProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
   const [location, setLocation] = useState<string>("");
+
+  // Update selected category when prop changes (from hero section)
+  React.useEffect(() => {
+    if (selectedCategoryId) {
+      setSelectedCategory(selectedCategoryId.toString());
+    }
+  }, [selectedCategoryId]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],

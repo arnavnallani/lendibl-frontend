@@ -30,6 +30,18 @@ export default function Home() {
 
   const handleCategorySelect = (categoryId: number) => {
     setFilters(prev => ({ ...prev, categoryId }));
+    setShowRecommendations(false);
+    
+    // Scroll to items section with smooth animation
+    setTimeout(() => {
+      const itemsSection = document.querySelector('#items-section');
+      if (itemsSection) {
+        itemsSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 100);
   };
 
   const handleFiltersChange = (newFilters: typeof filters) => {
@@ -65,8 +77,13 @@ export default function Home() {
             </div>
           )}
           
-          <FilterBar onFiltersChange={handleFiltersChange} />
-          <ItemGrid filters={filters} onItemClick={handleItemClick} />
+          <div id="items-section">
+            <FilterBar 
+              onFiltersChange={handleFiltersChange} 
+              selectedCategoryId={filters.categoryId}
+            />
+            <ItemGrid filters={filters} onItemClick={handleItemClick} />
+          </div>
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
