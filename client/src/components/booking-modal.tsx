@@ -110,13 +110,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   if (!item) return null;
 
   if (showPayment && clientSecret && stripePromise) {
-    console.log('Rendering payment modal with:', { showPayment, clientSecret: !!clientSecret, stripePromise: !!stripePromise });
+    console.log('Rendering payment modal with:', { showPayment, clientSecret: !!clientSecret, stripePromise: !!stripePromise, total });
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Complete Payment</DialogTitle>
           </DialogHeader>
+          <div className="text-xs text-gray-500 mb-2">
+            Debug: Payment modal rendered successfully
+          </div>
           <Elements 
             stripe={stripePromise} 
             options={{ 
