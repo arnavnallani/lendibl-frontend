@@ -114,6 +114,12 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <p className="text-xs text-gray-medium">{user.email}</p>
                     </div>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-profile" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>

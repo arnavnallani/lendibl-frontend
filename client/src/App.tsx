@@ -7,6 +7,7 @@ import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
+import MyProfile from "@/pages/my-profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/item/:id" component={ItemDetails} />
       <Route path="/list-item" component={ListItem} />
+      <Route path="/my-profile" component={MyProfile} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -124,6 +124,8 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Fixed authentication token handling in API requests and item listing functionality
 - June 20, 2025: Resolved price validation error - updated frontend to send decimal prices as strings to match database schema
 - June 20, 2025: Implemented personalized item recommendation engine with user interaction tracking, preference learning, and collaborative filtering algorithms
+- June 20, 2025: Added MyProfile page showing user's listings, bookings, rentals, and earnings - accessible via account dropdown
+- June 20, 2025: Updated item filtering so users don't see their own items on the home page
 
 ## User Preferences
 
