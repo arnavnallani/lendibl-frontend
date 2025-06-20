@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { authenticateToken, optionalAuth, generateToken, hashPassword, comparePassword, type AuthRequest } from "./auth";
 import { insertItemSchema, insertBookingSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 import { authenticateToken, optionalAuth, hashPassword, comparePassword, generateToken, type AuthRequest } from "./auth";
@@ -44,93 +43,6 @@ function notifyUser(userId: number, notification: any) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
-    try {
-      const { email, password, firstName, lastName, username } = req.body;
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ message: "User with this email already exists" });
-      }
-      
-      // Hash password and create user
-      const hashedPassword = await hashPassword(password);
-      const userData = insertUserSchema.parse({
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        username,
-      });
-      
-      const user = await storage.createUser(userData);
-      const token = generateToken({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
-      
-      // Don't send password in response
-      const { password: _, ...userResponse } = user;
-      
-      res.status(201).json({ user: userResponse, token });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid user data", errors: error.errors });
-      }
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Failed to create user" });
-    }
-  });
-
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-      
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      const isPasswordValid = await comparePassword(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-      
-      const token = generateToken({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName });
-      
-      // Don't send password in response
-      const { password: _, ...userResponse } = user;
-      
-      res.json({ user: userResponse, token });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Login failed" });
-    }
-  });
-
-  app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      // Don't send password in response
-      const { password: _, ...userResponse } = user;
-      res.json(userResponse);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // Categories
     try {
       const validatedData = insertUserSchema.parse(req.body);
       

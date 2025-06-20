@@ -18,23 +18,12 @@ interface HeaderProps {
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const { user, logout } = useAuth();
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
-  };
-
-  const handleLoginClick = () => {
-    setAuthMode('login');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleSignUpClick = () => {
-    setAuthMode('register');
-    setIsAuthModalOpen(true);
   };
 
   return (
@@ -138,22 +127,12 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
               </>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSignUpClick}
-                  className="font-semibold text-gray-dark hover:text-primary-blue transition-colors"
-                >
-                  Sign Up
-                </Button>
-                <Button
-                  onClick={handleLoginClick}
-                  className="bg-primary-dark-blue hover:bg-blue-800 text-white font-semibold px-6 py-2 rounded-xl transition-all duration-300 hover-lift shadow-lg"
-                >
-                  Login
-                </Button>
-              </div>
+              <Button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="btn-primary text-white font-semibold px-6 py-2 rounded-xl hover-lift"
+              >
+                Login
+              </Button>
             )}
           </div>
         </div>
@@ -161,8 +140,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
       <AuthModal 
         isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)}
-        defaultTab={authMode}
+        onClose={() => setIsAuthModalOpen(false)} 
       />
 
       {/* Mobile Search */}

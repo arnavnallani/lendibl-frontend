@@ -121,7 +121,6 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Enhanced UI with modern animations, glass morphism, gradients, and hover effects
 - June 20, 2025: Implemented real-time notifications with WebSocket for rental requests
 - June 20, 2025: Added user authentication system with registration and login functionality
-- June 20, 2025: Added user authentication system with registration and login functionality
 
 ## User Preferences
 
