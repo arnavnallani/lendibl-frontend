@@ -40,7 +40,7 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
   });
 
   // Filter out user's own items from the home page view
-  const items = allItems.filter(item => item.ownerId !== user?.id);
+  const items = user ? allItems.filter(item => item.ownerId !== user.id) : allItems;
 
   if (isLoading) {
     return (
