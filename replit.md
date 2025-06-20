@@ -134,6 +134,8 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Successfully implemented complete photo editing functionality in profile page - users can manage item images with visual preview, add new photos via URL, and remove existing photos
 - June 20, 2025: Implemented booking approval/decline functionality with real-time notifications and clickable renter profiles
 - June 20, 2025: Added Stripe payment integration for secure reservation processing - users can now pay when reserving items
+- June 20, 2025: Fixed payment modal blank page issue caused by duplicate onError handlers in booking mutation
+- June 20, 2025: Added 8 additional rental items owned by different users (cameras, laptops, bikes, DJ equipment, camping gear, gaming consoles) for better marketplace variety
 
 ## User Preferences
 
