@@ -80,16 +80,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
                     : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
                 }`}
-                onClick={() => {
-                  onModeChange("lister");
-                  if (user) {
-                    window.location.href = "/list-item";
-                  } else {
-                    setIsAuthModalOpen(true);
-                  }
-                }}
               >
-                List Items
+                <Link href="/list-item">List Items</Link>
               </Button>
             </div>
 

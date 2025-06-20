@@ -63,18 +63,11 @@ export default function Home() {
             <p className="text-xl text-gray-medium mb-12 max-w-2xl mx-auto leading-relaxed">
               Transform your unused items into a source of income. Join thousands of users earning by sharing what they own.
             </p>
-            <Button 
-              onClick={() => {
-                if (user) {
-                  window.location.href = "/list-item";
-                } else {
-                  setIsAuthModalOpen(true);
-                }
-              }}
-              className="bg-primary-dark-blue hover:bg-blue-800 text-white font-bold px-12 py-5 rounded-2xl text-lg hover-lift shadow-2xl transition-colors"
-            >
-              Start Earning Today
-            </Button>
+            <Link href="/list-item">
+              <Button className="btn-primary text-white font-bold px-12 py-5 rounded-2xl text-lg hover-lift shadow-2xl">
+                Start Earning Today
+              </Button>
+            </Link>
           </div>
           
           {/* Feature highlights */}
@@ -105,18 +98,11 @@ export default function Home() {
       )}
 
       {/* Floating Action Button (Mobile) */}
-      <Button 
-        onClick={() => {
-          if (user) {
-            window.location.href = "/list-item";
-          } else {
-            setIsAuthModalOpen(true);
-          }
-        }}
-        className="fixed bottom-8 right-8 bg-primary-dark-blue hover:bg-blue-800 text-white p-5 rounded-2xl shadow-2xl lg:hidden animate-float hover-glow z-50 transition-colors"
-      >
-        <Plus className="h-7 w-7" />
-      </Button>
+      <Link href="/list-item">
+        <Button className="fixed bottom-8 right-8 btn-primary text-white p-5 rounded-2xl shadow-2xl lg:hidden animate-float hover-glow z-50">
+          <Plus className="h-7 w-7" />
+        </Button>
+      </Link>
 
       <BookingModal 
         item={selectedItem}

@@ -122,19 +122,9 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-light/50">
-            <TabsTrigger 
-              value="login"
-              className="data-[state=active]:bg-primary-dark-blue data-[state=active]:text-white"
-            >
-              Login
-            </TabsTrigger>
-            <TabsTrigger 
-              value="register"
-              className="data-[state=active]:bg-primary-dark-blue data-[state=active]:text-white"
-            >
-              Register
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login" className="space-y-4">
@@ -185,7 +175,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary-dark-blue hover:bg-blue-800 text-white font-semibold py-3 rounded-xl transition-colors"
+                className="w-full btn-primary text-white font-semibold py-3 rounded-xl"
               >
                 {isLoading ? (
                   <>
@@ -302,7 +292,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary-dark-blue hover:bg-blue-800 text-white font-semibold py-3 rounded-xl transition-colors"
+                className="w-full btn-primary text-white font-semibold py-3 rounded-xl"
               >
                 {isLoading ? (
                   <>
