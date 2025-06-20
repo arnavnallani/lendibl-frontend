@@ -54,10 +54,19 @@ export default function Home() {
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
     
+    // Debug logging to check ownership
+    console.log('Clicked item:', item);
+    console.log('Current user:', user);
+    console.log('Item owner ID:', item.ownerId);
+    console.log('User ID:', user?.id);
+    console.log('Is owner?', user && item.ownerId === user.id);
+    
     // If user owns the item, open edit modal instead of booking modal
     if (user && item.ownerId === user.id) {
+      console.log('Opening edit modal');
       setIsEditModalOpen(true);
     } else {
+      console.log('Opening booking modal');
       // Open booking modal for other users' items
       setIsBookingModalOpen(true);
     }
