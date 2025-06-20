@@ -49,6 +49,8 @@ export default function MyProfile() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditItemOpen, setIsEditItemOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ItemWithDetails | null>(null);
+  const [itemImageUrls, setItemImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   const profileForm = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
