@@ -302,6 +302,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBookingSchema.parse({
         ...req.body,
+        startDate: new Date(req.body.startDate),
+        endDate: new Date(req.body.endDate),
         renterId: req.user!.id, // Set renter to authenticated user
       });
       const booking = await storage.createBooking(validatedData);
