@@ -126,6 +126,8 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Implemented personalized item recommendation engine with user interaction tracking, preference learning, and collaborative filtering algorithms
 - June 20, 2025: Added MyProfile page showing user's listings, bookings, rentals, and earnings - accessible via account dropdown
 - June 20, 2025: Updated item filtering so users don't see their own items on the home page
+- June 20, 2025: Enhanced MyProfile page with edit profile functionality and navigation improvements
+- June 20, 2025: Implemented item management in profile - click items to edit or delete listings with comprehensive form validation and authorization checks
 
 ## User Preferences
 
