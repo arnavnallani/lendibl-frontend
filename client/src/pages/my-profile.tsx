@@ -400,6 +400,10 @@ export default function MyProfile() {
                             <p className="text-sm text-gray-medium">
                               {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
                             </p>
+                            <div className="text-sm text-gray-medium">
+                              <div>Subtotal: ${booking.subtotal || (parseFloat(booking.totalPrice) / 1.15).toFixed(2)}</div>
+                              <div>Service fee: ${booking.serviceFee || (parseFloat(booking.totalPrice) * 0.15 / 1.15).toFixed(2)}</div>
+                            </div>
                             <p className="text-lg font-bold text-primary-blue">${booking.totalPrice}</p>
                           </div>
                           <Badge variant={
@@ -449,6 +453,10 @@ export default function MyProfile() {
                             <p className="text-sm text-gray-medium">
                               {new Date(rental.startDate).toLocaleDateString()} - {new Date(rental.endDate).toLocaleDateString()}
                             </p>
+                            <div className="text-sm text-gray-medium">
+                              <div>Subtotal: ${rental.subtotal || (parseFloat(rental.totalPrice) / 1.15).toFixed(2)}</div>
+                              <div>Service fee: ${rental.serviceFee || (parseFloat(rental.totalPrice) * 0.15 / 1.15).toFixed(2)}</div>
+                            </div>
                             <p className="text-lg font-bold text-primary-blue">${rental.totalPrice}</p>
                           </div>
                           <div className="flex flex-col gap-2">

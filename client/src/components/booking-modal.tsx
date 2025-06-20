@@ -62,7 +62,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   const days = calculateDays();
   const subtotal = days * parseFloat(item.price);
-  const serviceFee = subtotal * 0.06; // 6% service fee
+  const serviceFee = subtotal * 0.15; // 15% service fee
   const total = subtotal + serviceFee;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -87,6 +87,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       renterId: user.id,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
+      subtotal: subtotal.toString(),
+      serviceFee: serviceFee.toString(),
       totalPrice: total.toString(),
       message,
     };

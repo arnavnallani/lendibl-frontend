@@ -107,6 +107,10 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   status: true,
   createdAt: true,
+}).extend({
+  subtotal: z.string(),
+  serviceFee: z.string(),
+  totalPrice: z.string(),
 });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
