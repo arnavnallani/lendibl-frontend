@@ -1,19 +1,31 @@
-import { useParams } from "wouter";
+import { useState } from "react";
+import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Star, MapPin, User } from "lucide-react";
+import { ArrowLeft, Star, MapPin, User, Edit } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/use-auth";
+import BookingModal from "@/components/booking-modal";
+import EditItemModal from "@/components/edit-item-modal";
+import type { ItemWithDetails } from "@shared/schema";
 
 export default function ItemDetails() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const { data: item, isLoading, error } = useQuery({
     queryKey: ["/api/items", parseInt(id!)],
     queryFn: () => api.getItem(parseInt(id!)),
     enabled: !!id,
   });
+
+  const isOwner = user && item && item.ownerId === user.id;
 
   if (isLoading) {
     return (
@@ -43,6 +55,18 @@ export default function ItemDetails() {
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : defaultImage;
+
+  const handleBookNow = () => {
+    if (!user) {
+      // Redirect to login or show login modal
+      return;
+    }
+    setIsBookingModalOpen(true);
+  };
+
+  const handleEditItem = () => {
+    setIsEditModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-white">

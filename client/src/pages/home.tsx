@@ -6,15 +6,14 @@ import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
 import RecommendationsSection from "@/components/recommendations-section";
-// Temporarily remove the import to test without the modal
-// import EditItemModal from "@/components/edit-item-modal";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function Home() {
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const [currentMode, setCurrentMode] = useState<"renter" | "lister">("renter");
   const [filters, setFilters] = useState<{
     categoryId?: number;
@@ -53,20 +52,8 @@ export default function Home() {
   };
 
   const handleItemClick = (item: ItemWithDetails) => {
-    setSelectedItem(item);
-    
-    // Check if user owns the item
-    const isOwner = user && item.ownerId === user.id;
-    
-    // Clean up debug logging
-    
-    if (isOwner) {
-      // Navigate to profile page where editing works
-      window.location.href = '/my-profile';
-    } else {
-      // Open booking modal for other users' items
-      setIsBookingModalOpen(true);
-    }
+    // Navigate to item details page for all items
+    setLocation(`/item/${item.id}`);
   };
 
   const handleCloseBookingModal = () => {
