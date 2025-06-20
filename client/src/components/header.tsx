@@ -21,16 +21,16 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-light sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-18">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="h-10 cursor-pointer"
+                className="h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
@@ -40,10 +40,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             <form onSubmit={handleSearch} className="relative w-full">
               <Input
                 type="text"
-                placeholder="What would you like to rent?"
+                placeholder="What would you like to rent today?"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full pl-12 pr-4 py-4 border-2 border-gray-light rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-all duration-300 bg-gray-light/30 hover:bg-white hover:shadow-md"
               />
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-medium h-5 w-5" />
             </form>
@@ -52,15 +52,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* User Controls */}
           <div className="flex items-center space-x-4">
             {/* Mode Toggle */}
-            <div className="hidden sm:flex bg-gray-bg rounded-full p-1">
+            <div className="hidden sm:flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("renter")}
-                className={`px-4 py-2 text-sm font-medium rounded-full ${
+                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   currentMode === "renter" 
-                    ? "bg-white text-gray-dark shadow-sm" 
-                    : "text-gray-medium hover:text-gray-dark"
+                    ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
+                    : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
                 }`}
               >
                 Rent Items
@@ -69,10 +69,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "lister" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("lister")}
-                className={`px-4 py-2 text-sm font-medium rounded-full ${
+                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   currentMode === "lister" 
-                    ? "bg-white text-gray-dark shadow-sm" 
-                    : "text-gray-medium hover:text-gray-dark"
+                    ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
+                    : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
                 }`}
               >
                 <Link href="/list-item">List Items</Link>
@@ -84,10 +84,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               <Button
                 variant="outline"
                 size="sm"
-                className="flex items-center space-x-2 p-2 border border-gray-light rounded-full hover:shadow-md transition-shadow"
+                className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
               >
                 <Menu className="h-4 w-4 text-gray-medium" />
-                <div className="w-8 h-8 bg-gray-medium rounded-full flex items-center justify-center">
+                <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
                   <User className="h-4 w-4 text-white" />
                 </div>
               </Button>

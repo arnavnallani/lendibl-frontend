@@ -57,21 +57,50 @@ export default function Home() {
           <ItemGrid filters={filters} onItemClick={handleItemClick} />
         </>
       ) : (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h2 className="text-4xl font-bold text-gray-dark mb-6">List Your Items</h2>
-          <p className="text-xl text-gray-medium mb-8">Turn your unused items into income by renting them out to your neighbors.</p>
-          <Link href="/list-item">
-            <Button className="bg-primary-blue text-white font-semibold px-8 py-4 rounded-lg hover:bg-primary-blue/90 transition-colors">
-              Start Listing
-            </Button>
-          </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <div className="animate-slide-up">
+            <h2 className="text-5xl font-bold text-gray-dark mb-8 text-gradient">List Your Items</h2>
+            <p className="text-xl text-gray-medium mb-12 max-w-2xl mx-auto leading-relaxed">
+              Transform your unused items into a source of income. Join thousands of users earning by sharing what they own.
+            </p>
+            <Link href="/list-item">
+              <Button className="btn-primary text-white font-bold px-12 py-5 rounded-2xl text-lg hover-lift shadow-2xl">
+                Start Earning Today
+              </Button>
+            </Link>
+          </div>
+          
+          {/* Feature highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 animate-fade-in">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">💰</span>
+              </div>
+              <h3 className="font-semibold text-gray-dark mb-2">Earn Money</h3>
+              <p className="text-gray-medium text-sm">Make money from items sitting unused</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🤝</span>
+              </div>
+              <h3 className="font-semibold text-gray-dark mb-2">Help Community</h3>
+              <p className="text-gray-medium text-sm">Support your neighbors and reduce waste</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📱</span>
+              </div>
+              <h3 className="font-semibold text-gray-dark mb-2">Easy Setup</h3>
+              <p className="text-gray-medium text-sm">List items in minutes with our simple flow</p>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Floating Action Button (Mobile) */}
       <Link href="/list-item">
-        <Button className="fixed bottom-6 right-6 bg-primary-blue text-white p-4 rounded-full shadow-lg hover:bg-primary-blue/90 transition-colors lg:hidden">
-          <Plus className="h-6 w-6" />
+        <Button className="fixed bottom-8 right-8 btn-primary text-white p-5 rounded-2xl shadow-2xl lg:hidden animate-float hover-glow z-50">
+          <Plus className="h-7 w-7" />
         </Button>
       </Link>
 

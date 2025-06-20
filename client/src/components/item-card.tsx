@@ -13,33 +13,51 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
 
   return (
     <Card 
-      className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-light overflow-hidden cursor-pointer"
+      className="bg-white rounded-2xl shadow-sm border border-gray-light overflow-hidden cursor-pointer card-hover group animate-fade-in"
       onClick={() => onClick(item)}
     >
-      <img 
-        src={imageUrl}
-        alt={item.title} 
-        className="w-full h-48 object-cover"
-      />
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-medium font-medium">{item.category.name}</span>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm text-gray-medium ml-1">{item.rating}</span>
+      <div className="relative overflow-hidden">
+        <img 
+          src={imageUrl}
+          alt={item.title} 
+          className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute top-3 right-3">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+            <span className="text-xs font-semibold text-gray-dark">{item.rating}</span>
           </div>
         </div>
-        <h4 className="font-semibold text-gray-dark mb-2">{item.title}</h4>
-        <p className="text-sm text-gray-medium mb-3 line-clamp-2">{item.description}</p>
+        <div className="absolute top-3 left-3">
+          <span className="bg-primary-blue text-white text-xs px-3 py-1 rounded-full font-medium">
+            {item.category.name}
+          </span>
+        </div>
+      </div>
+      
+      <CardContent className="p-5">
+        <h4 className="font-bold text-gray-dark mb-2 text-lg group-hover:text-primary-blue transition-colors">
+          {item.title}
+        </h4>
+        <p className="text-sm text-gray-medium mb-4 line-clamp-2 leading-relaxed">
+          {item.description}
+        </p>
+        
         <div className="flex items-center justify-between">
-          <div>
-            <span className="text-lg font-bold text-gray-dark">${item.price}</span>
-            <span className="text-sm text-gray-medium">/day</span>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-gray-dark">${item.price}</span>
+            <span className="text-sm text-gray-medium ml-1">/day</span>
           </div>
-          <div className="flex items-center text-sm text-gray-medium">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span>{item.location}</span>
+          <div className="flex items-center text-sm text-gray-medium bg-gray-light/50 px-3 py-1 rounded-full">
+            <MapPin className="h-3 w-3 mr-1" />
+            <span className="font-medium">{item.location}</span>
           </div>
+        </div>
+
+        {/* Availability indicator */}
+        <div className="flex items-center mt-3 pt-3 border-t border-gray-light/50">
+          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+          <span className="text-xs text-gray-medium font-medium">Available now</span>
         </div>
       </CardContent>
     </Card>
