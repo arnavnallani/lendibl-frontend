@@ -38,6 +38,15 @@ export const api = {
     return res.json();
   },
 
+  updateItem: async (id: number, item: Partial<InsertItem>): Promise<ItemWithDetails> => {
+    const res = await apiRequest("PUT", `/api/items/${id}`, item);
+    return res.json();
+  },
+
+  deleteItem: async (id: number): Promise<void> => {
+    await apiRequest("DELETE", `/api/items/${id}`);
+  },
+
   // Bookings
   getBookings: async (userId?: number): Promise<BookingWithDetails[]> => {
     const params = userId ? `?userId=${userId}` : "";
