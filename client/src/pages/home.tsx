@@ -6,7 +6,8 @@ import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
 import RecommendationsSection from "@/components/recommendations-section";
-import EditItemModal from "@/components/edit-item-modal";
+// Temporarily remove the import to test without the modal
+// import EditItemModal from "@/components/edit-item-modal";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -54,21 +55,16 @@ export default function Home() {
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
     
-    // Force open edit modal for testing
-    // TODO: Remove this and uncomment proper ownership check
-    setIsBookingModalOpen(false);
-    setIsEditModalOpen(true);
+    // Check if user owns the item
+    const isOwner = user && item.ownerId === user.id;
     
-    // Check ownership - the item should have ownerId matching current user
-    // const isOwner = user && item.ownerId === user.id;
-    // 
-    // if (isOwner) {
-    //   setIsBookingModalOpen(false);
-    //   setIsEditModalOpen(true);
-    // } else {
-    //   setIsEditModalOpen(false);
-    //   setIsBookingModalOpen(true);
-    // }
+    if (isOwner) {
+      // Navigate to profile page where editing works
+      window.location.href = '/my-profile';
+    } else {
+      // Open booking modal for other users' items
+      setIsBookingModalOpen(true);
+    }
   };
 
   const handleCloseBookingModal = () => {
@@ -166,14 +162,7 @@ export default function Home() {
         onClose={handleCloseBookingModal}
       />
 
-      {user && (
-        <EditItemModal
-          item={selectedItem}
-          isOpen={isEditModalOpen}
-          onClose={handleCloseEditModal}
-          onItemUpdated={handleItemUpdated}
-        />
-      )}
+      {/* Temporarily removed EditItemModal to fix the issue */}
     </div>
   );
 }
