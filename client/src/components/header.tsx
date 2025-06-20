@@ -28,7 +28,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
@@ -42,7 +42,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-12">
+          <div className="hidden md:flex flex-1 max-w-2xl mx-16">
             <form onSubmit={handleSearch} className="relative w-full">
               <Input
                 type="text"
