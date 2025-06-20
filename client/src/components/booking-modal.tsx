@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, Star, User } from "lucide-react";
+import { X, Star, User, Calendar, Clock, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
+import { format } from "date-fns";
 import type { ItemWithDetails, InsertBooking } from "@shared/schema";
 import AuthModal from "./auth-modal";
+import PaymentForm from "./payment-form";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
 interface BookingModalProps {
   item: ItemWithDetails | null;
@@ -18,11 +23,18 @@ interface BookingModalProps {
   onClose: () => void;
 }
 
+// Initialize Stripe outside component to avoid recreating
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : null;
+
 export default function BookingModal({ item, isOpen, onClose }: BookingModalProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [message, setMessage] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
