@@ -54,16 +54,21 @@ export default function Home() {
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
     
-    // Check ownership - the item should have ownerId matching current user
-    const isOwner = user && item.ownerId === user.id;
+    // Force open edit modal for testing
+    // TODO: Remove this and uncomment proper ownership check
+    setIsBookingModalOpen(false);
+    setIsEditModalOpen(true);
     
-    if (isOwner) {
-      setIsBookingModalOpen(false);
-      setIsEditModalOpen(true);
-    } else {
-      setIsEditModalOpen(false);
-      setIsBookingModalOpen(true);
-    }
+    // Check ownership - the item should have ownerId matching current user
+    // const isOwner = user && item.ownerId === user.id;
+    // 
+    // if (isOwner) {
+    //   setIsBookingModalOpen(false);
+    //   setIsEditModalOpen(true);
+    // } else {
+    //   setIsEditModalOpen(false);
+    //   setIsBookingModalOpen(true);
+    // }
   };
 
   const handleCloseBookingModal = () => {
