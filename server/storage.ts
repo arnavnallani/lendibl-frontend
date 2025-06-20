@@ -1,4 +1,6 @@
 import { users, items, categories, bookings, reviews, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -338,4 +340,212 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories);
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const [category] = await db
+      .insert(categories)
+      .values(insertCategory)
+      .returning();
+    return category;
+  }
+
+  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string }): Promise<ItemWithDetails[]> {
+    const query = db
+      .select()
+      .from(items)
+      .leftJoin(users, eq(items.ownerId, users.id))
+      .leftJoin(categories, eq(items.categoryId, categories.id));
+
+    let result = await query;
+
+    if (filters) {
+      result = result.filter(row => {
+        const item = row.items;
+        if (!item) return false;
+
+        if (filters.categoryId && item.categoryId !== filters.categoryId) return false;
+        if (filters.search) {
+          const search = filters.search.toLowerCase();
+          if (!item.title.toLowerCase().includes(search) && 
+              !item.description.toLowerCase().includes(search)) return false;
+        }
+        if (filters.minPrice && parseFloat(item.price) < filters.minPrice) return false;
+        if (filters.maxPrice && parseFloat(item.price) > filters.maxPrice) return false;
+        if (filters.location && !item.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+
+        return true;
+      });
+    }
+
+    return result
+      .filter(row => row.items && row.users && row.categories)
+      .map(row => ({
+        ...row.items!,
+        owner: row.users!,
+        category: row.categories!,
+      }));
+  }
+
+  async getItem(id: number): Promise<ItemWithDetails | undefined> {
+    const [result] = await db
+      .select()
+      .from(items)
+      .leftJoin(users, eq(items.ownerId, users.id))
+      .leftJoin(categories, eq(items.categoryId, categories.id))
+      .where(eq(items.id, id));
+
+    if (!result?.items || !result?.users || !result?.categories) return undefined;
+
+    return {
+      ...result.items,
+      owner: result.users,
+      category: result.categories,
+    };
+  }
+
+  async createItem(insertItem: InsertItem): Promise<Item> {
+    const [item] = await db
+      .insert(items)
+      .values(insertItem)
+      .returning();
+    return item;
+  }
+
+  async updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined> {
+    const [item] = await db
+      .update(items)
+      .set(updates)
+      .where(eq(items.id, id))
+      .returning();
+    return item || undefined;
+  }
+
+  async deleteItem(id: number): Promise<boolean> {
+    const result = await db.delete(items).where(eq(items.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async getBookings(userId?: number): Promise<BookingWithDetails[]> {
+    const query = db
+      .select()
+      .from(bookings)
+      .leftJoin(items, eq(bookings.itemId, items.id))
+      .leftJoin(users, eq(bookings.renterId, users.id))
+      .leftJoin(categories, eq(items.categoryId, categories.id));
+
+    let result = await query;
+
+    if (userId) {
+      result = result.filter(row => row.bookings?.renterId === userId);
+    }
+
+    return result
+      .filter(row => row.bookings && row.items && row.users && row.categories)
+      .map(row => ({
+        ...row.bookings!,
+        item: {
+          ...row.items!,
+          owner: row.users!,
+          category: row.categories!,
+        },
+        renter: row.users!,
+      }));
+  }
+
+  async getBooking(id: number): Promise<BookingWithDetails | undefined> {
+    const [result] = await db
+      .select()
+      .from(bookings)
+      .leftJoin(items, eq(bookings.itemId, items.id))
+      .leftJoin(users, eq(bookings.renterId, users.id))
+      .leftJoin(categories, eq(items.categoryId, categories.id))
+      .where(eq(bookings.id, id));
+
+    if (!result?.bookings || !result?.items || !result?.users || !result?.categories) return undefined;
+
+    return {
+      ...result.bookings,
+      item: {
+        ...result.items,
+        owner: result.users,
+        category: result.categories,
+      },
+      renter: result.users,
+    };
+  }
+
+  async createBooking(insertBooking: InsertBooking): Promise<Booking> {
+    const [booking] = await db
+      .insert(bookings)
+      .values(insertBooking)
+      .returning();
+    return booking;
+  }
+
+  async updateBooking(id: number, updates: Partial<Booking>): Promise<Booking | undefined> {
+    const [booking] = await db
+      .update(bookings)
+      .set(updates)
+      .where(eq(bookings.id, id))
+      .returning();
+    return booking || undefined;
+  }
+
+  async getReviews(itemId?: number, userId?: number): Promise<Review[]> {
+    if (itemId) {
+      const itemBookings = await db
+        .select({ id: bookings.id })
+        .from(bookings)
+        .where(eq(bookings.itemId, itemId));
+      
+      const bookingIds = itemBookings.map(b => b.id);
+      if (bookingIds.length === 0) return [];
+      
+      return await db.select().from(reviews).where(eq(reviews.bookingId, bookingIds[0]));
+    }
+    
+    if (userId) {
+      return await db.select().from(reviews).where(eq(reviews.revieweeId, userId));
+    }
+
+    return await db.select().from(reviews);
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const [review] = await db
+      .insert(reviews)
+      .values(insertReview)
+      .returning();
+    return review;
+  }
+}
+
+export const storage = new DatabaseStorage();

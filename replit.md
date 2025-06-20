@@ -18,7 +18,7 @@ This is a rental marketplace application called "Lendibl" that allows users to r
 - **Runtime**: Node.js with Express.js server
 - **Language**: TypeScript with ES modules
 - **API Design**: RESTful API architecture
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: PostgreSQL with Drizzle ORM (DatabaseStorage implementation)
 - **Session Management**: Express sessions with PostgreSQL store
 - **Development**: tsx for TypeScript execution in development
 
@@ -43,7 +43,8 @@ The application uses PostgreSQL with the following main entities:
 
 ### Server-Side Components
 - **Routes**: RESTful API endpoints for categories, items, and bookings
-- **Storage**: Abstract storage interface with in-memory implementation
+- **Storage**: Abstract storage interface with PostgreSQL database implementation
+- **Database**: Drizzle ORM with Neon serverless PostgreSQL connection
 - **Vite Integration**: Development server with HMR support
 
 ### Shared Components
@@ -112,6 +113,7 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Initial setup of Lendibl rental marketplace
 - June 20, 2025: Updated color scheme from red/teal to blue/black/white
 - June 20, 2025: Added sample rental items (camera, drill set, mountain bike)
+- June 20, 2025: Migrated from in-memory storage to PostgreSQL database
 
 ## User Preferences
 
