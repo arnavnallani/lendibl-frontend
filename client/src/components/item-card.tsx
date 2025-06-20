@@ -11,6 +11,15 @@ interface ItemCardProps {
 export default function ItemCard({ item, onClick }: ItemCardProps) {
   const { user } = useAuth();
   const isOwner = user && item.ownerId === user.id;
+  
+  // Debug logging
+  console.log('ItemCard Debug:', {
+    itemId: item.id,
+    itemOwnerId: item.ownerId,
+    userId: user?.id,
+    isOwner,
+    userObject: user
+  });
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : defaultImage;
 
