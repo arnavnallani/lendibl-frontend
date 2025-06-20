@@ -40,18 +40,37 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  const createPaymentIntentMutation = useMutation({
+    mutationFn: async (amount: number) => {
+      return await api.createPaymentIntent(amount);
+    },
+    onSuccess: (data) => {
+      setClientSecret(data.clientSecret);
+      setShowPayment(true);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Payment Setup Failed",
+        description: error.message || "Failed to initialize payment",
+        variant: "destructive",
+      });
+    },
+  });
+
   const createBookingMutation = useMutation({
     mutationFn: api.createBooking,
     onSuccess: () => {
       toast({
-        title: "Booking request sent!",
-        description: "The owner will review your request and respond soon.",
+        title: "Reservation Confirmed!",
+        description: "Your payment has been processed and the owner will be notified.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       onClose();
       setStartDate("");
       setEndDate("");
       setMessage("");
+      setShowPayment(false);
+      setClientSecret("");
     },
     onError: () => {
       toast({
@@ -62,7 +81,45 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     },
   });
 
+  const handlePaymentSuccess = () => {
+    // Create booking after successful payment
+    const booking = {
+      itemId: item.id,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      totalPrice: total.toFixed(2),
+      message: message || "",
+      paymentConfirmed: true,
+    };
+    createBookingMutation.mutate(booking);
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false);
+    setClientSecret("");
+  };
+
   if (!item) return null;
+
+  if (showPayment && clientSecret && stripePromise) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Complete Payment</DialogTitle>
+          </DialogHeader>
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <PaymentForm 
+              onSuccess={handlePaymentSuccess}
+              onCancel={handlePaymentCancel}
+              amount={total}
+              itemTitle={item.title}
+            />
+          </Elements>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const calculateDays = () => {
     if (!startDate || !endDate) return 0;
@@ -94,15 +151,22 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       return;
     }
 
-    const booking = {
-      itemId: item.id,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      totalPrice: total.toFixed(2),
-      message: message || "",
-    };
+    // Check if Stripe is configured
+    if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+      // Fallback to old booking system without payment
+      const booking = {
+        itemId: item.id,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        totalPrice: total.toFixed(2),
+        message: message || "",
+      };
+      createBookingMutation.mutate(booking);
+      return;
+    }
 
-    createBookingMutation.mutate(booking);
+    // Initialize payment flow
+    createPaymentIntentMutation.mutate(total);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";

@@ -163,15 +163,48 @@ export default function ItemDetails() {
               </CardContent>
             </Card>
 
-            <Button 
-              size="lg"
-              className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
-            >
-              Request to Book
-            </Button>
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              {isOwner ? (
+                <Button 
+                  onClick={handleEditItem}
+                  className="w-full bg-primary-blue hover:bg-primary-blue/90 text-white py-4"
+                  size="lg"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Item
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleBookNow}
+                  className="w-full bg-primary-blue hover:bg-primary-blue/90 text-white py-4"
+                  size="lg"
+                >
+                  Reserve
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <BookingModal 
+        item={item}
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+      />
+      
+      <EditItemModal 
+        item={item}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onItemUpdated={() => {
+          setIsEditModalOpen(false);
+          // Refresh item data
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
