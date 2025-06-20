@@ -9,8 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Plus, Upload, Camera } from 'lucide-react';
-import { Trash2 } from 'lucide-react';
+import { X, Plus, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -37,6 +36,9 @@ interface EditItemModalProps {
 }
 
 export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: EditItemModalProps) {
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  
   const { data: categories = [] } = useQuery({
     queryKey: ['/api/categories'],
     queryFn: () => api.getCategories(),
@@ -114,7 +116,7 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
         </DialogHeader>
@@ -223,11 +225,14 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
             />
             
             {/* Image Management Section */}
-            <div className="space-y-4">
-              <FormLabel>Photos</FormLabel>
+            <div className="space-y-4 border-2 border-blue-200 p-4 rounded-lg bg-blue-50">
+              <FormLabel className="text-lg font-semibold text-blue-700">Manage Photos</FormLabel>
               
               {/* Current Images Display */}
-              {imageUrls.length > 0 && (
+              <div className="text-sm text-gray-600 mb-2">
+                Current photos: {imageUrls.length}
+              </div>
+              {imageUrls.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {imageUrls.map((url, index) => (
                     <Card key={index} className="relative">
@@ -252,6 +257,10 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p>No photos yet. Add some photos to make your listing more attractive!</p>
                 </div>
               )}
               
