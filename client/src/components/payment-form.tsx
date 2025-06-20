@@ -25,12 +25,25 @@ export default function PaymentForm({ onSuccess, onCancel, amount, itemTitle }: 
 
     setIsProcessing(true);
 
-    const { error } = await stripe.confirmPayment({
+    // Submit the payment form to get payment method
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      toast({
+        title: "Payment Failed",
+        description: submitError.message,
+        variant: "destructive",
+      });
+      setIsProcessing(false);
+      return;
+    }
+
+    // Confirm payment without redirect
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: window.location.origin,
-      },
+      redirect: 'if_required',
     });
+
+    setIsProcessing(false);
 
     if (error) {
       toast({
@@ -38,11 +51,16 @@ export default function PaymentForm({ onSuccess, onCancel, amount, itemTitle }: 
         description: error.message,
         variant: "destructive",
       });
-      setIsProcessing(false);
-    } else {
+    } else if (paymentIntent?.status === 'succeeded') {
       toast({
         title: "Payment Successful",
         description: `Your reservation for ${itemTitle} has been confirmed!`,
+      });
+      onSuccess();
+    } else {
+      toast({
+        title: "Payment Processing",
+        description: "Your payment is being processed.",
       });
       onSuccess();
     }
