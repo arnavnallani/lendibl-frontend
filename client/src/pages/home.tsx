@@ -54,19 +54,15 @@ export default function Home() {
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
     
-    // Debug logging to check ownership
-    console.log('Clicked item:', item);
-    console.log('Current user:', user);
-    console.log('Item owner ID:', item.ownerId);
-    console.log('User ID:', user?.id);
-    console.log('Is owner?', user && item.ownerId === user.id);
+    // Convert both IDs to numbers for proper comparison
+    const itemOwnerId = Number(item.ownerId);
+    const currentUserId = Number(user?.id);
     
     // If user owns the item, open edit modal instead of booking modal
-    if (user && item.ownerId === user.id) {
-      console.log('Opening edit modal');
-      setIsEditModalOpen(true);
+    if (user && itemOwnerId === currentUserId) {
+      // Add a small delay to ensure state is properly set
+      setTimeout(() => setIsEditModalOpen(true), 0);
     } else {
-      console.log('Opening booking modal');
       // Open booking modal for other users' items
       setIsBookingModalOpen(true);
     }
@@ -167,12 +163,14 @@ export default function Home() {
         onClose={handleCloseBookingModal}
       />
 
-      <EditItemModal
-        item={selectedItem}
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        onItemUpdated={handleItemUpdated}
-      />
+      {user && (
+        <EditItemModal
+          item={selectedItem}
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          onItemUpdated={handleItemUpdated}
+        />
+      )}
     </div>
   );
 }
