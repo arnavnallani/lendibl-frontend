@@ -3,9 +3,8 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertItemSchema, insertBookingSchema, insertUserSchema } from "@shared/schema";
-import { hashPassword, comparePassword, generateToken, authenticateToken, type AuthRequest } from "./auth";
+import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
 import { z } from "zod";
-import { authenticateToken, optionalAuth, hashPassword, comparePassword, generateToken, type AuthRequest } from "./auth";
 
 // WebSocket connection management
 const connectedClients = new Map<number, WebSocket[]>();
