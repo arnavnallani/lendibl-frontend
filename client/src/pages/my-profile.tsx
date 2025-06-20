@@ -51,6 +51,8 @@ export default function MyProfile() {
   const [itemToDelete, setItemToDelete] = useState<ItemWithDetails | null>(null);
   const [itemImageUrls, setItemImageUrls] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [selectedRenter, setSelectedRenter] = useState<any>(null);
+  const [isRenterProfileOpen, setIsRenterProfileOpen] = useState(false);
 
   const profileForm = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
@@ -158,6 +160,21 @@ export default function MyProfile() {
 
   const removeItemImage = (index: number) => {
     setItemImageUrls(itemImageUrls.filter((_, i) => i !== index));
+  };
+
+  const handleBookingAction = async (bookingId: number, status: string) => {
+    try {
+      await api.updateBooking(bookingId, { status });
+      // Refresh the rentals data
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to update booking:', error);
+    }
+  };
+
+  const handleRenterClick = (renter: any) => {
+    setSelectedRenter(renter);
+    setIsRenterProfileOpen(true);
   };
 
   const onSubmitItemEdit = async (values: EditItemFormData) => {
@@ -459,7 +476,13 @@ export default function MyProfile() {
                           <div>
                             <h4 className="font-medium">{rental.item.title}</h4>
                             <p className="text-sm text-gray-medium">
-                              Requested by {rental.renter.firstName} {rental.renter.lastName}
+                              Requested by{' '}
+                              <button 
+                                onClick={() => handleRenterClick(rental.renter)}
+                                className="text-primary-blue hover:underline font-medium"
+                              >
+                                {rental.renter.firstName} {rental.renter.lastName}
+                              </button>
                             </p>
                             <p className="text-sm text-gray-medium">
                               {new Date(rental.startDate).toLocaleDateString()} - {new Date(rental.endDate).toLocaleDateString()}
@@ -476,8 +499,20 @@ export default function MyProfile() {
                             </Badge>
                             {rental.status === 'pending' && (
                               <div className="flex gap-2">
-                                <Button size="sm" variant="outline">Approve</Button>
-                                <Button size="sm" variant="destructive">Decline</Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleBookingAction(rental.id, 'approved')}
+                                >
+                                  Approve
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handleBookingAction(rental.id, 'rejected')}
+                                >
+                                  Decline
+                                </Button>
                               </div>
                             )}
                           </div>
@@ -721,6 +756,63 @@ export default function MyProfile() {
                 </div>
               </form>
             </Form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Renter Profile Modal */}
+        <Dialog open={isRenterProfileOpen} onOpenChange={setIsRenterProfileOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Renter Profile</DialogTitle>
+            </DialogHeader>
+            {selectedRenter && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="text-lg bg-primary-blue text-white">
+                      {selectedRenter.firstName[0]}{selectedRenter.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-xl font-semibold">
+                      {selectedRenter.firstName} {selectedRenter.lastName}
+                    </h3>
+                    <p className="text-gray-medium">{selectedRenter.email}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-primary-blue">4.8</div>
+                    <div className="text-xs text-gray-medium">Rating</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">95%</div>
+                    <div className="text-xs text-gray-medium">Response Rate</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">Excellent renter with 12+ successful bookings</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Usually responds within 30 minutes</span>
+                  </div>
+                </div>
+                
+                <div className="pt-4">
+                  <Button 
+                    onClick={() => setIsRenterProfileOpen(false)} 
+                    className="w-full"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>

@@ -348,6 +348,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/bookings/:id", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      // Get the booking to check ownership
+      const booking = await storage.getBooking(id);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      // Check if user owns the item being rented
+      if (booking.item.ownerId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to update this booking" });
+      }
+      
+      const updatedBooking = await storage.updateBooking(id, { status });
+      
+      // Send notification to renter
+      if (updatedBooking) {
+        const notification = {
+          type: "booking_update",
+          id: Date.now(),
+          title: `Booking ${status}`,
+          message: `Your booking for ${booking.item.title} has been ${status}`,
+          itemId: booking.item.id,
+          bookingId: booking.id,
+          timestamp: new Date().toISOString(),
+          read: false
+        };
+        
+        notifyUser(booking.renterId, notification);
+      }
+      
+      res.json(updatedBooking);
+    } catch (error) {
+      console.error('Failed to update booking:', error);
+      res.status(500).json({ message: "Failed to update booking" });
+    }
+  });
+
   // Recommendation endpoints
   app.get("/api/recommendations", authenticateToken, async (req: AuthRequest, res) => {
     try {

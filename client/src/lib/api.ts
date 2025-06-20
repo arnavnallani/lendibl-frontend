@@ -89,4 +89,10 @@ export const api = {
     const res = await apiRequest("PUT", "/api/auth/profile", profile);
     return res.json();
   },
+
+  // Bookings
+  updateBooking: async (id: number, updates: { status: string }): Promise<any> => {
+    const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
+    return res.json();
+  },
 };
