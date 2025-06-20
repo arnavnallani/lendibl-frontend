@@ -95,7 +95,7 @@ export default function ListItem() {
 
     const itemData = {
       ...values,
-      price: Number(values.price),
+      price: values.price.toString(),
       images: imageUrls,
       included: includedArray,
       categoryId: Number(values.categoryId),
