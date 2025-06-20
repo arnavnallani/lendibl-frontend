@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { User, Star, MapPin, Clock, Package, Eye, Edit, ArrowLeft, Home, Trash2, MoreVertical } from 'lucide-react';
+import { User, Star, MapPin, Clock, Package, Eye, Edit, ArrowLeft, Home, Trash2, MoreVertical, X, Plus } from 'lucide-react';
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
@@ -133,6 +133,7 @@ export default function MyProfile() {
 
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
+    setItemImageUrls(item.images || []);
     itemForm.reset({
       title: item.title,
       description: item.description,
@@ -146,6 +147,17 @@ export default function MyProfile() {
     setIsEditItemOpen(true);
   };
 
+  const addItemImage = () => {
+    if (newImageUrl && !itemImageUrls.includes(newImageUrl)) {
+      setItemImageUrls([...itemImageUrls, newImageUrl]);
+      setNewImageUrl('');
+    }
+  };
+
+  const removeItemImage = (index: number) => {
+    setItemImageUrls(itemImageUrls.filter((_, i) => i !== index));
+  };
+
   const onSubmitItemEdit = async (values: EditItemFormData) => {
     if (!selectedItem) return;
     
@@ -153,6 +165,7 @@ export default function MyProfile() {
       await api.updateItem(selectedItem.id, {
         ...values,
         price: parseFloat(values.price),
+        images: itemImageUrls,
       });
       setIsEditItemOpen(false);
       setSelectedItem(null);
@@ -499,7 +512,7 @@ export default function MyProfile() {
 
         {/* Edit Item Modal */}
         <Dialog open={isEditItemOpen} onOpenChange={setIsEditItemOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Item</DialogTitle>
             </DialogHeader>
@@ -606,6 +619,71 @@ export default function MyProfile() {
                     </FormItem>
                   )}
                 />
+                
+                {/* Image Management Section */}
+                <div className="space-y-4 border-2 border-blue-200 p-4 rounded-lg bg-blue-50">
+                  <FormLabel className="text-lg font-semibold text-blue-700">Manage Photos</FormLabel>
+                  
+                  <div className="text-sm text-gray-600 mb-2">
+                    Current photos: {itemImageUrls.length}
+                  </div>
+                  
+                  {itemImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {itemImageUrls.map((url, index) => (
+                        <Card key={index} className="relative">
+                          <CardContent className="p-2">
+                            <img 
+                              src={url} 
+                              alt={`Item photo ${index + 1}`}
+                              className="w-full h-24 object-cover rounded"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                              onClick={() => removeItemImage(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                      <p>No photos yet. Add some photos to make your listing more attractive!</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter image URL (e.g., from Unsplash)"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addItemImage}
+                      disabled={!newImageUrl}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </Button>
+                  </div>
+                  
+                  <p className="text-sm text-muted-foreground">
+                    Add high-quality photos to attract more renters. You can use image URLs from sites like Unsplash.
+                  </p>
+                </div>
+                
                 <div className="flex justify-between pt-4">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
