@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { X, Plus, Upload, Camera } from 'lucide-react';
 import { Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -54,9 +56,10 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
     },
   });
 
-  // Reset form when item changes
+  // Reset form and images when item changes
   React.useEffect(() => {
     if (item) {
+      setImageUrls(item.images || []);
       form.reset({
         title: item.title,
         description: item.description,
@@ -77,12 +80,24 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       await api.updateItem(item.id, {
         ...values,
         price: parseFloat(values.price),
+        images: imageUrls,
       });
       onClose();
       onItemUpdated?.();
     } catch (error) {
       console.error('Failed to update item:', error);
     }
+  };
+
+  const addImage = () => {
+    if (newImageUrl && !imageUrls.includes(newImageUrl)) {
+      setImageUrls([...imageUrls, newImageUrl]);
+      setNewImageUrl('');
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
   };
 
   const handleDelete = async () => {
@@ -206,6 +221,65 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                 </FormItem>
               )}
             />
+            
+            {/* Image Management Section */}
+            <div className="space-y-4">
+              <FormLabel>Photos</FormLabel>
+              
+              {/* Current Images Display */}
+              {imageUrls.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {imageUrls.map((url, index) => (
+                    <Card key={index} className="relative">
+                      <CardContent className="p-2">
+                        <img 
+                          src={url} 
+                          alt={`Item photo ${index + 1}`}
+                          className="w-full h-24 object-cover rounded"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add New Image */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter image URL (e.g., from Unsplash)"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addImage}
+                  disabled={!newImageUrl}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add
+                </Button>
+              </div>
+              
+              <p className="text-sm text-muted-foreground">
+                Add high-quality photos to attract more renters. You can use image URLs from sites like Unsplash.
+              </p>
+            </div>
+            
             <div className="flex justify-between pt-4">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
