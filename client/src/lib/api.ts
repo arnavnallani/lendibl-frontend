@@ -59,7 +59,7 @@ export const api = {
     return res.json();
   },
 
-  updateBooking: async (id: number, updates: Partial<BookingWithDetails>): Promise<BookingWithDetails> => {
+  updateBooking: async (id: number, updates: { status: string }): Promise<BookingWithDetails> => {
     const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
     return res.json();
   },
@@ -87,12 +87,6 @@ export const api = {
   // Profile
   updateProfile: async (profile: { firstName: string; lastName: string; phone?: string }): Promise<any> => {
     const res = await apiRequest("PUT", "/api/auth/profile", profile);
-    return res.json();
-  },
-
-  // Bookings
-  updateBooking: async (id: number, updates: { status: string }): Promise<any> => {
-    const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
     return res.json();
   },
 

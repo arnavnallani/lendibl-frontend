@@ -15,6 +15,8 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ userId }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Always call hooks - never conditionally
   const { 
     notifications, 
     isConnected, 
@@ -31,6 +33,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     // Could navigate to booking details here
   };
 
+  // Return null after all hooks are called
   if (!userId) return null;
 
   return (

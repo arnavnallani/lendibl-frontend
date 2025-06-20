@@ -1,11 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import Stripe from "stripe";
 import { storage } from "./storage";
 import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInteractionSchema } from "@shared/schema";
 import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
 import { recommendationEngine } from "./recommendation-engine";
 import { z } from "zod";
+
+// Initialize Stripe (will be null if no secret key is provided)
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
 // WebSocket connection management
 const connectedClients = new Map<number, WebSocket[]>();
