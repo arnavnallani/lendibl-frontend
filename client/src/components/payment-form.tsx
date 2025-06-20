@@ -18,51 +18,70 @@ export default function PaymentForm({ onSuccess, onCancel, amount, itemTitle }: 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Payment form submitted');
 
     if (!stripe || !elements) {
+      console.log('Stripe or elements not available');
       return;
     }
 
     setIsProcessing(true);
 
-    // Submit the payment form to get payment method
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      toast({
-        title: "Payment Failed",
-        description: submitError.message,
-        variant: "destructive",
+    try {
+      // Submit the payment form to get payment method
+      console.log('Submitting payment elements');
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        console.error('Elements submit error:', submitError);
+        toast({
+          title: "Payment Failed",
+          description: submitError.message,
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // Confirm payment without redirect
+      console.log('Confirming payment');
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
       });
+
+      console.log('Payment confirmation result:', { error, paymentIntent });
       setIsProcessing(false);
-      return;
-    }
 
-    // Confirm payment without redirect
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: 'if_required',
-    });
-
-    setIsProcessing(false);
-
-    if (error) {
+      if (error) {
+        console.error('Payment confirmation error:', error);
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (paymentIntent?.status === 'succeeded') {
+        console.log('Payment succeeded, calling onSuccess');
+        toast({
+          title: "Payment Successful",
+          description: `Your reservation for ${itemTitle} has been confirmed!`,
+        });
+        onSuccess();
+      } else {
+        console.log('Payment processing, calling onSuccess');
+        toast({
+          title: "Payment Processing",
+          description: "Your payment is being processed.",
+        });
+        onSuccess();
+      }
+    } catch (err) {
+      console.error('Unexpected payment error:', err);
+      setIsProcessing(false);
       toast({
-        title: "Payment Failed",
-        description: error.message,
+        title: "Payment Error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } else if (paymentIntent?.status === 'succeeded') {
-      toast({
-        title: "Payment Successful",
-        description: `Your reservation for ${itemTitle} has been confirmed!`,
-      });
-      onSuccess();
-    } else {
-      toast({
-        title: "Payment Processing",
-        description: "Your payment is being processed.",
-      });
-      onSuccess();
     }
   };
 

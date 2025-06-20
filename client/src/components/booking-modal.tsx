@@ -82,6 +82,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   });
 
   const handlePaymentSuccess = () => {
+    console.log('Payment success handler called');
     // Create booking after successful payment
     const booking = {
       itemId: item.id,
@@ -91,6 +92,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       message: message || "",
       paymentConfirmed: true,
     };
+    console.log('Creating booking with data:', booking);
     createBookingMutation.mutate(booking);
   };
 
