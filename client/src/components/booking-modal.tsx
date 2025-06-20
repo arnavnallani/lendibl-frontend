@@ -240,7 +240,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
-                {user ? "You won't be charged yet" : "Please login to make a booking request"}
+                {user ? "You will receive a full refund if: * You cancel anytime before the owner approves the request * The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
               </p>
             </form>
           </div>
