@@ -133,6 +133,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/auth/profile", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { firstName, lastName, phone } = req.body;
+      const updatedUser = await storage.updateUser(req.user!.id, {
+        firstName,
+        lastName,
+        phone,
+      });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
     res.json({ user: req.user });
   });

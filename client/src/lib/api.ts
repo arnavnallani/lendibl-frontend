@@ -74,4 +74,10 @@ export const api = {
   updateUserPreferences: async (preferences: any): Promise<void> => {
     await apiRequest("PUT", "/api/preferences", preferences);
   },
+
+  // Profile
+  updateProfile: async (profile: { firstName: string; lastName: string; phone?: string }): Promise<any> => {
+    const res = await apiRequest("PUT", "/api/auth/profile", profile);
+    return res.json();
+  },
 };
