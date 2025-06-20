@@ -48,7 +48,7 @@ export default function ListItem() {
     defaultValues: {
       title: "",
       description: "",
-      price: "",
+      price: 0,
       categoryId: undefined,
       ownerId: 1, // Mock owner ID
       images: [],
@@ -94,7 +94,7 @@ export default function ListItem() {
 
     const itemData = {
       ...values,
-      price: values.price,
+      price: Number(values.price),
       images: imageUrls,
       included: includedArray,
       categoryId: parseInt(values.categoryId?.toString() || "1"),
