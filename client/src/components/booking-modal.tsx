@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
 import type { ItemWithDetails, InsertBooking } from "@shared/schema";
+import AuthModal from "./auth-modal";
 
 interface BookingModalProps {
   item: ItemWithDetails | null;
@@ -20,9 +22,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [message, setMessage] = useState("");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const createBookingMutation = useMutation({
     mutationFn: api.createBooking,
@@ -64,6 +68,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    
     if (!startDate || !endDate) {
       toast({
         title: "Error",
@@ -75,7 +84,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
     const booking: InsertBooking = {
       itemId: item.id,
-      renterId: 1, // Mock user ID - in real app, get from auth
+      renterId: user.id,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       totalPrice: total.toString(),
@@ -228,10 +237,12 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                 disabled={createBookingMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {createBookingMutation.isPending ? "Sending Request..." : "Request to Book"}
+                {createBookingMutation.isPending ? "Sending Request..." : user ? "Request to Book" : "Login to Book"}
               </Button>
 
-              <p className="text-sm text-gray-medium text-center">You won't be charged yet</p>
+              <p className="text-sm text-gray-medium text-center">
+                {user ? "You won't be charged yet" : "Please login to make a booking request"}
+              </p>
             </form>
           </div>
         </div>
@@ -252,6 +263,12 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
             </>
           )}
         </div>
+        
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onClose={() => setIsAuthModalOpen(false)} 
+          defaultTab="login"
+        />
       </DialogContent>
     </Dialog>
   );

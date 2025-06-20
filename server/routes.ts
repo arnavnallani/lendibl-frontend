@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertItemSchema, insertBookingSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import { authenticateToken, optionalAuth, hashPassword, comparePassword, generateToken, type AuthRequest } from "./auth";
 
 // WebSocket connection management
 const connectedClients = new Map<number, WebSocket[]>();
@@ -40,6 +41,106 @@ function notifyUser(userId: number, notification: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email" });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(validatedData.password);
+      
+      // Create user
+      const user = await storage.createUser({
+        ...validatedData,
+        password: hashedPassword,
+      });
+
+      // Generate token
+      const token = generateToken({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      });
+
+      res.status(201).json({
+        message: "User registered successfully",
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid user data", errors: error.errors });
+      }
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+
+      // Find user
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      // Check password
+      const isPasswordValid = await comparePassword(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      // Generate token
+      const token = generateToken({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      });
+
+      res.json({
+        message: "Login successful",
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+
+  app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
+    res.json({ user: req.user });
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    // Since we're using JWT tokens, logout is handled client-side
+    res.json({ message: "Logout successful" });
+  });
+
   // Categories
   app.get("/api/categories", async (req, res) => {
     try {
@@ -84,9 +185,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/items", async (req, res) => {
+  app.post("/api/items", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const validatedData = insertItemSchema.parse(req.body);
+      const validatedData = insertItemSchema.parse({
+        ...req.body,
+        ownerId: req.user!.id, // Set owner to authenticated user
+      });
       const item = await storage.createItem(validatedData);
       res.status(201).json(item);
     } catch (error) {
@@ -97,15 +201,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/items/:id", async (req, res) => {
+  app.put("/api/items/:id", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updates = req.body;
-      const item = await storage.updateItem(id, updates);
       
-      if (!item) {
+      // Check if user owns the item
+      const existingItem = await storage.getItem(id);
+      if (!existingItem) {
         return res.status(404).json({ message: "Item not found" });
       }
+      
+      if (existingItem.ownerId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to update this item" });
+      }
+
+      const updates = req.body;
+      const item = await storage.updateItem(id, updates);
 
       res.json(item);
     } catch (error) {
@@ -113,14 +224,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/items/:id", async (req, res) => {
+  app.delete("/api/items/:id", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const id = parseInt(req.params.id);
-      const deleted = await storage.deleteItem(id);
       
-      if (!deleted) {
+      // Check if user owns the item
+      const existingItem = await storage.getItem(id);
+      if (!existingItem) {
         return res.status(404).json({ message: "Item not found" });
       }
+      
+      if (existingItem.ownerId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to delete this item" });
+      }
+
+      const deleted = await storage.deleteItem(id);
 
       res.json({ message: "Item deleted successfully" });
     } catch (error) {
@@ -154,9 +272,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings", async (req, res) => {
+  app.post("/api/bookings", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const validatedData = insertBookingSchema.parse(req.body);
+      const validatedData = insertBookingSchema.parse({
+        ...req.body,
+        renterId: req.user!.id, // Set renter to authenticated user
+      });
       const booking = await storage.createBooking(validatedData);
       
       // Get the item details to notify the owner
@@ -167,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: "booking_request",
           id: Date.now(),
           title: "New Rental Request",
-          message: `Someone wants to rent your ${item.title}`,
+          message: `${req.user!.firstName} wants to rent your ${item.title}`,
           itemId: item.id,
           bookingId: booking.id,
           timestamp: new Date().toISOString(),

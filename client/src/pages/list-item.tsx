@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,9 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
 import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
+import AuthModal from "@/components/auth-modal";
 
 const formSchema = insertItemSchema.extend({
   price: z.string().min(1, "Price is required"),
@@ -25,8 +27,16 @@ type FormValues = z.infer<typeof formSchema>;
 export default function ListItem() {
   const [, setLocation] = useLocation();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+    }
+  }, [user]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],
@@ -79,7 +89,7 @@ export default function ListItem() {
       images: imageUrls,
       included: includedArray,
       categoryId: parseInt(values.categoryId?.toString() || "1"),
-      ownerId: 1, // Mock owner ID
+      ownerId: user?.id || 1,
     };
 
     // Remove the helper field
@@ -98,6 +108,28 @@ export default function ListItem() {
   const removeImageUrl = (index: number) => {
     setImageUrls(prev => prev.filter((_, i) => i !== index));
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-bg flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-dark mb-4">Login Required</h1>
+              <p className="text-gray-medium mb-6">You need to be logged in to list items.</p>
+              <Button onClick={() => setIsAuthModalOpen(true)} className="btn-primary text-white">
+                Login or Register
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onClose={() => setLocation("/")} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-bg">

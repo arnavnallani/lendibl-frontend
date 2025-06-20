@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, User } from "lucide-react";
+import { Search, Menu, User, LogOut, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import NotificationBell from "./notification-bell";
+import AuthModal from "./auth-modal";
+import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 
 interface HeaderProps {
@@ -14,7 +17,9 @@ interface HeaderProps {
 
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,25 +85,63 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               </Button>
             </div>
 
-            {/* Notifications */}
-            <NotificationBell userId={1} />
+            {user ? (
+              <>
+                {/* Notifications */}
+                <NotificationBell userId={user.id} />
 
-            {/* User Menu */}
-            <div className="relative">
+                {/* User Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
+                    >
+                      <Menu className="h-4 w-4 text-gray-medium" />
+                      <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span className="text-white font-semibold text-sm">
+                          {user.firstName[0]}{user.lastName[0]}
+                        </span>
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-gray-dark">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-gray-medium">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
               <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="btn-primary text-white font-semibold px-6 py-2 rounded-xl hover-lift"
               >
-                <Menu className="h-4 w-4 text-gray-medium" />
-                <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                  <User className="h-4 w-4 text-white" />
-                </div>
+                Login
               </Button>
-            </div>
+            )}
           </div>
         </div>
       </div>
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
 
       {/* Mobile Search */}
       <div className="md:hidden px-4 pb-4">
