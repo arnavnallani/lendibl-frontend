@@ -13,27 +13,28 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(356, 100%, 67%);
+  --primary: hsl(210, 100%, 50%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(177, 100%, 32%);
+  --secondary: hsl(0, 0%, 15%);
   --secondary-foreground: hsl(0, 0%, 100%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(210, 40%, 95%);
+  --accent-foreground: hsl(0, 0%, 15%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
+  --ring: hsl(210, 100%, 50%);
   --radius: 0.5rem;
   
-  /* Custom colors matching the design */
-  --primary-red: hsl(356, 100%, 67%);
-  --secondary-teal: hsl(177, 100%, 32%);
+  /* Custom colors matching the blue/black/white design */
+  --primary-blue: hsl(210, 100%, 50%);
+  --primary-dark-blue: hsl(210, 100%, 40%);
+  --secondary-black: hsl(0, 0%, 15%);
   --gray-dark: hsl(0, 0%, 28%);
   --gray-medium: hsl(0, 0%, 46%);
   --gray-light: hsl(0, 0%, 92%);
   --gray-bg: hsl(0, 0%, 97%);
-  --success: hsl(179, 91%, 28%);
-  --warning: hsl(19, 94%, 59%);
-  --error: hsl(9, 81%, 43%);
+  --success: hsl(142, 76%, 36%);
+  --warning: hsl(38, 92%, 50%);
+  --error: hsl(0, 84%, 60%);
 }
 
 .dark {
@@ -71,20 +72,28 @@
 }
 
 @layer utilities {
-  .text-primary-red {
-    color: hsl(356, 100%, 67%);
+  .text-primary-blue {
+    color: hsl(210, 100%, 50%);
   }
   
-  .bg-primary-red {
-    background-color: hsl(356, 100%, 67%);
+  .bg-primary-blue {
+    background-color: hsl(210, 100%, 50%);
   }
   
-  .text-secondary-teal {
-    color: hsl(177, 100%, 32%);
+  .text-primary-dark-blue {
+    color: hsl(210, 100%, 40%);
   }
   
-  .bg-secondary-teal {
-    background-color: hsl(177, 100%, 32%);
+  .bg-primary-dark-blue {
+    background-color: hsl(210, 100%, 40%);
+  }
+  
+  .text-secondary-black {
+    color: hsl(0, 0%, 15%);
+  }
+  
+  .bg-secondary-black {
+    background-color: hsl(0, 0%, 15%);
   }
   
   .text-gray-dark {

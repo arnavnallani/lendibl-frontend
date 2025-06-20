@@ -26,7 +26,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
-              <h1 className="text-2xl font-bold text-primary-red cursor-pointer">Lendibl</h1>
+              <h1 className="text-2xl font-bold text-primary-blue cursor-pointer">Lendibl</h1>
             </Link>
           </div>
 

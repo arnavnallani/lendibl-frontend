@@ -202,7 +202,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               {/* Owner Info */}
               <div className="p-4 border border-gray-light rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-secondary-teal rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-secondary-black rounded-full flex items-center justify-center">
                     {item.owner.avatar ? (
                       <img src={item.owner.avatar} alt={item.owner.firstName} className="w-full h-full rounded-full" />
                     ) : (
@@ -226,7 +226,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               <Button 
                 type="submit"
                 disabled={createBookingMutation.isPending}
-                className="w-full bg-primary-red text-white font-semibold py-4 rounded-lg hover:bg-primary-red/90 transition-colors"
+                className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
                 {createBookingMutation.isPending ? "Sending Request..." : "Request to Book"}
               </Button>

@@ -109,9 +109,11 @@ The application uses PostgreSQL with the following main entities:
 
 ## Changelog
 
-Changelog:
-- June 20, 2025. Initial setup
+- June 20, 2025: Initial setup of Lendibl rental marketplace
+- June 20, 2025: Updated color scheme from red/teal to blue/black/white
+- June 20, 2025: Added sample rental items (camera, drill set, mountain bike)
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Color scheme: Blue, black, and white branding

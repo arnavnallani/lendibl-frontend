@@ -18,7 +18,7 @@ export default function ItemDetails() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-red"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-blue"></div>
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function ItemDetails() {
               <CardContent className="p-6">
                 <h3 className="font-semibold text-gray-dark mb-4">Meet your host</h3>
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-secondary-teal rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-secondary-black rounded-full flex items-center justify-center">
                     {item.owner.avatar ? (
                       <img 
                         src={item.owner.avatar} 
@@ -141,7 +141,7 @@ export default function ItemDetails() {
 
             <Button 
               size="lg"
-              className="w-full bg-primary-red text-white font-semibold py-4 rounded-lg hover:bg-primary-red/90 transition-colors"
+              className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
             >
               Request to Book
             </Button>

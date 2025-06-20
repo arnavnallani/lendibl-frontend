@@ -60,6 +60,43 @@ export class MemStorage implements IStorage {
       { name: "Cleaning", icon: "fas fa-broom", slug: "cleaning" },
     ];
 
+    // Create some sample items
+    const sampleItems = [
+      {
+        title: "Canon EOS 5D Mark IV Camera",
+        description: "Professional DSLR camera perfect for photography enthusiasts. Excellent condition with low shutter count.",
+        price: "45.00",
+        categoryId: 3, // Electronics
+        ownerId: 1,
+        images: ["https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=600&fit=crop"],
+        location: "San Francisco, CA",
+        available: true,
+        included: ["Extra battery", "Memory card", "Carrying case", "Lens cap"],
+      },
+      {
+        title: "DeWalt Power Drill Set",
+        description: "Complete cordless drill set with multiple bits and charger. Perfect for home improvement projects.",
+        price: "25.00",
+        categoryId: 1, // Tools
+        ownerId: 1,
+        images: ["https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=800&h=600&fit=crop"],
+        location: "San Francisco, CA",
+        available: true,
+        included: ["Drill bits set", "Charger", "Carrying case"],
+      },
+      {
+        title: "Mountain Bike - Trek X-Caliber",
+        description: "High-quality mountain bike perfect for trails and city riding. Well-maintained and ready to ride.",
+        price: "35.00",
+        categoryId: 5, // Sports
+        ownerId: 1,
+        images: ["https://images.unsplash.com/photo-1544191696-15693072204c?w=800&h=600&fit=crop"],
+        location: "San Francisco, CA",
+        available: true,
+        included: ["Helmet", "Water bottle", "Bike lock"],
+      },
+    ];
+
     defaultCategories.forEach(cat => {
       const category: Category = { ...cat, id: this.currentCategoryId++ };
       this.categories.set(category.id, category);
@@ -81,6 +118,20 @@ export class MemStorage implements IStorage {
       responseTime: "Within 1 hour",
     };
     this.users.set(defaultUser.id, defaultUser);
+
+    // Create sample items
+    sampleItems.forEach(itemData => {
+      const item: Item = {
+        ...itemData,
+        id: this.currentItemId++,
+        rating: "4.8",
+        reviewCount: Math.floor(Math.random() * 20) + 5,
+        createdAt: new Date(),
+        images: itemData.images || null,
+        included: itemData.included || null,
+      };
+      this.items.set(item.id, item);
+    });
   }
 
   // Users
@@ -100,6 +151,8 @@ export class MemStorage implements IStorage {
       reviewCount: 0,
       responseRate: 100,
       responseTime: "Within 1 hour",
+      phone: insertUser.phone || null,
+      avatar: insertUser.avatar || null,
     };
     this.users.set(user.id, user);
     return user;
@@ -182,6 +235,9 @@ export class MemStorage implements IStorage {
       rating: "0",
       reviewCount: 0,
       createdAt: new Date(),
+      images: insertItem.images || null,
+      available: insertItem.available !== undefined ? insertItem.available : true,
+      included: insertItem.included || null,
     };
     this.items.set(item.id, item);
     return item;
@@ -238,6 +294,7 @@ export class MemStorage implements IStorage {
       id: this.currentBookingId++,
       status: "pending",
       createdAt: new Date(),
+      message: insertBooking.message || null,
     };
     this.bookings.set(booking.id, booking);
     return booking;
@@ -274,6 +331,7 @@ export class MemStorage implements IStorage {
       ...insertReview,
       id: this.currentReviewId++,
       createdAt: new Date(),
+      comment: insertReview.comment || null,
     };
     this.reviews.set(review.id, review);
     return review;

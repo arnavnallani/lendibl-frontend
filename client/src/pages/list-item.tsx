@@ -301,7 +301,7 @@ export default function ListItem() {
                   <Button 
                     type="submit"
                     disabled={createItemMutation.isPending}
-                    className="bg-primary-red text-white hover:bg-primary-red/90"
+                    className="bg-primary-blue text-white hover:bg-primary-blue/90"
                   >
                     {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
                   </Button>

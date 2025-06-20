@@ -61,7 +61,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-gray-dark mb-6">List Your Items</h2>
           <p className="text-xl text-gray-medium mb-8">Turn your unused items into income by renting them out to your neighbors.</p>
           <Link href="/list-item">
-            <Button className="bg-primary-red text-white font-semibold px-8 py-4 rounded-lg hover:bg-primary-red/90 transition-colors">
+            <Button className="bg-primary-blue text-white font-semibold px-8 py-4 rounded-lg hover:bg-primary-blue/90 transition-colors">
               Start Listing
             </Button>
           </Link>
@@ -70,7 +70,7 @@ export default function Home() {
 
       {/* Floating Action Button (Mobile) */}
       <Link href="/list-item">
-        <Button className="fixed bottom-6 right-6 bg-primary-red text-white p-4 rounded-full shadow-lg hover:bg-primary-red/90 transition-colors lg:hidden">
+        <Button className="fixed bottom-6 right-6 bg-primary-blue text-white p-4 rounded-full shadow-lg hover:bg-primary-blue/90 transition-colors lg:hidden">
           <Plus className="h-6 w-6" />
         </Button>
       </Link>
