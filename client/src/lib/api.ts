@@ -1,0 +1,57 @@
+import { apiRequest } from "./queryClient";
+import type { ItemWithDetails, Category, InsertItem, InsertBooking, BookingWithDetails } from "@shared/schema";
+
+export const api = {
+  // Categories
+  getCategories: async (): Promise<Category[]> => {
+    const res = await apiRequest("GET", "/api/categories");
+    return res.json();
+  },
+
+  // Items
+  getItems: async (filters?: {
+    categoryId?: number;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    location?: string;
+  }): Promise<ItemWithDetails[]> => {
+    const params = new URLSearchParams();
+    if (filters?.categoryId) params.set("categoryId", filters.categoryId.toString());
+    if (filters?.search) params.set("search", filters.search);
+    if (filters?.minPrice) params.set("minPrice", filters.minPrice.toString());
+    if (filters?.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
+    if (filters?.location) params.set("location", filters.location);
+
+    const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
+    const res = await apiRequest("GET", url);
+    return res.json();
+  },
+
+  getItem: async (id: number): Promise<ItemWithDetails> => {
+    const res = await apiRequest("GET", `/api/items/${id}`);
+    return res.json();
+  },
+
+  createItem: async (item: InsertItem): Promise<ItemWithDetails> => {
+    const res = await apiRequest("POST", "/api/items", item);
+    return res.json();
+  },
+
+  // Bookings
+  getBookings: async (userId?: number): Promise<BookingWithDetails[]> => {
+    const params = userId ? `?userId=${userId}` : "";
+    const res = await apiRequest("GET", `/api/bookings${params}`);
+    return res.json();
+  },
+
+  createBooking: async (booking: InsertBooking): Promise<BookingWithDetails> => {
+    const res = await apiRequest("POST", "/api/bookings", booking);
+    return res.json();
+  },
+
+  updateBooking: async (id: number, updates: Partial<BookingWithDetails>): Promise<BookingWithDetails> => {
+    const res = await apiRequest("PUT", `/api/bookings/${id}`, updates);
+    return res.json();
+  },
+};

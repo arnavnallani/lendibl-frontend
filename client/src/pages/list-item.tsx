@@ -1,0 +1,316 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Upload, X } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
+import { insertItemSchema } from "@shared/schema";
+import { z } from "zod";
+
+const formSchema = insertItemSchema.extend({
+  price: z.string().min(1, "Price is required"),
+  includedItems: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export default function ListItem() {
+  const [, setLocation] = useLocation();
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["/api/categories"],
+    queryFn: () => api.getCategories(),
+  });
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      price: "",
+      categoryId: undefined,
+      ownerId: 1, // Mock owner ID
+      images: [],
+      location: "",
+      available: true,
+      included: [],
+      includedItems: "",
+    },
+  });
+
+  const createItemMutation = useMutation({
+    mutationFn: api.createItem,
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Your item has been listed successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/items"] });
+      setLocation("/");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to list your item. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (values: FormValues) => {
+    const includedArray = values.includedItems
+      ? values.includedItems.split('\n').filter(item => item.trim() !== '')
+      : [];
+
+    const itemData = {
+      ...values,
+      price: values.price,
+      images: imageUrls,
+      included: includedArray,
+      categoryId: parseInt(values.categoryId?.toString() || "1"),
+      ownerId: 1, // Mock owner ID
+    };
+
+    // Remove the helper field
+    delete (itemData as any).includedItems;
+
+    createItemMutation.mutate(itemData);
+  };
+
+  const handleImageUrlAdd = () => {
+    const url = prompt("Enter image URL:");
+    if (url && url.trim()) {
+      setImageUrls(prev => [...prev, url.trim()]);
+    }
+  };
+
+  const removeImageUrl = (index: number) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-bg">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-light">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Link href="/">
+            <Button variant="ghost">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to home
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-gray-dark">List Your Item</CardTitle>
+            <p className="text-gray-medium">Share the details about what you'd like to rent out</p>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                {/* Basic Information */}
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-gray-dark">Basic Information</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Item Title</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g., Canon EOS 5D Mark IV Camera"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Describe your item in detail..."
+                            className="min-h-32"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value?.toString()}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id.toString()}>
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price per day ($)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number"
+                              step="0.01"
+                              placeholder="25.00"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g., San Francisco, CA"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Images */}
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-gray-dark">Photos</h3>
+                  
+                  <div className="border-2 border-dashed border-gray-light rounded-lg p-8 text-center">
+                    <Upload className="h-12 w-12 mx-auto text-gray-medium mb-4" />
+                    <p className="text-gray-medium mb-4">Add photos of your item</p>
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={handleImageUrlAdd}
+                    >
+                      Add Image URL
+                    </Button>
+                  </div>
+
+                  {imageUrls.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imageUrls.map((url, index) => (
+                        <div key={index} className="relative">
+                          <img 
+                            src={url} 
+                            alt={`Item image ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                            onClick={() => removeImageUrl(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* What's Included */}
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-gray-dark">What's Included</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="includedItems"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Included Items</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="List what comes with your rental (one item per line)&#10;e.g.,&#10;Extra batteries&#10;Memory card&#10;Carrying case"
+                            className="min-h-24"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Submit */}
+                <div className="flex justify-end space-x-4">
+                  <Link href="/">
+                    <Button type="button" variant="outline">
+                      Cancel
+                    </Button>
+                  </Link>
+                  <Button 
+                    type="submit"
+                    disabled={createItemMutation.isPending}
+                    className="bg-primary-red text-white hover:bg-primary-red/90"
+                  >
+                    {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
