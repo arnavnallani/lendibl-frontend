@@ -6,6 +6,7 @@ import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
 import RecommendationsSection from "@/components/recommendations-section";
+import EditItemModal from "@/components/edit-item-modal";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,6 +23,7 @@ export default function Home() {
   }>({});
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(true);
 
   const handleSearch = (query: string) => {
@@ -51,12 +53,29 @@ export default function Home() {
 
   const handleItemClick = (item: ItemWithDetails) => {
     setSelectedItem(item);
-    setIsBookingModalOpen(true);
+    
+    // If user owns the item, open edit modal instead of booking modal
+    if (user && item.ownerId === user.id) {
+      setIsEditModalOpen(true);
+    } else {
+      // Open booking modal for other users' items
+      setIsBookingModalOpen(true);
+    }
   };
 
   const handleCloseBookingModal = () => {
     setIsBookingModalOpen(false);
     setSelectedItem(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const handleItemUpdated = () => {
+    // Refresh the page to show updated items
+    window.location.reload();
   };
 
   return (
@@ -137,6 +156,13 @@ export default function Home() {
         item={selectedItem}
         isOpen={isBookingModalOpen}
         onClose={handleCloseBookingModal}
+      />
+
+      <EditItemModal
+        item={selectedItem}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onItemUpdated={handleItemUpdated}
       />
     </div>
   );
