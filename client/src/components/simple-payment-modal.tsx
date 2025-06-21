@@ -56,7 +56,7 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         setError(confirmError.message || "Payment failed");
         setIsLoading(false);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        console.log('Payment succeeded!', paymentIntent);
+        console.log('Payment succeeded!', paymentIntent.id);
         onSuccess();
       }
     } catch (err) {
@@ -76,14 +76,22 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
                 base: {
                   fontSize: '16px',
                   color: '#424770',
+                  fontFamily: 'ui-sans-serif, system-ui, sans-serif',
                   '::placeholder': {
                     color: '#aab7c4',
                   },
                 },
+                invalid: {
+                  color: '#dc2626',
+                },
               },
+              hidePostalCode: false,
             }}
           />
         </div>
+        <p className="text-xs text-gray-500">
+          Your payment information is secure and encrypted
+        </p>
       </div>
       
       {error && (

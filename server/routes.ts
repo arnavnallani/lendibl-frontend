@@ -402,17 +402,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { amount } = req.body;
       console.log('Creating payment intent for amount:', amount);
+      
+      // Validate amount
+      if (!amount || amount < 50) { // Minimum $0.50 USD
+        return res.status(400).json({ message: "Invalid payment amount" });
+      }
+
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Amount should already be in cents from client
+        amount: amount, // Amount in cents
         currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
         metadata: {
           userId: req.user!.id.toString(),
+          userEmail: req.user!.email,
         },
       });
+      
+      console.log('Payment intent created successfully:', paymentIntent.id);
       res.json({ clientSecret: paymentIntent.client_secret });
     } catch (error: any) {
       console.error('Payment intent creation failed:', error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // Confirm payment and create booking
+  app.post("/api/confirm-payment", authenticateToken, async (req: AuthRequest, res) => {
+    if (!stripe) {
+      return res.status(503).json({ message: "Payment processing not available" });
+    }
+
+    try {
+      const { paymentIntentId, bookingData } = req.body;
+      
+      // Verify payment was successful
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: "Payment not completed" });
+      }
+      
+      // Create booking with payment confirmation
+      const validatedData = insertBookingSchema.parse({
+        ...bookingData,
+        renterId: req.user!.id,
+        paymentConfirmed: true,
+        paymentIntentId: paymentIntentId,
+      });
+      
+      const booking = await storage.createBooking(validatedData);
+      
+      // Track rental interaction for recommendations
+      await recommendationEngine.trackInteraction(req.user!.id, booking.itemId, "rental", 5.0);
+      
+      // Send notification to item owner
+      const item = await storage.getItem(booking.itemId);
+      if (item) {
+        const notification = {
+          type: "booking_request",
+          id: Date.now(),
+          title: "New Paid Rental Request",
+          message: `${req.user!.firstName} has paid and wants to rent your ${item.title}`,
+          itemId: item.id,
+          bookingId: booking.id,
+          timestamp: new Date().toISOString(),
+          read: false
+        };
+        
+        notifyUser(item.ownerId, notification);
+      }
+      
+      res.status(201).json(booking);
+    } catch (error: any) {
+      console.error('Payment confirmation failed:', error);
+      res.status(500).json({ message: "Failed to confirm payment and create booking" });
     }
   });
 
