@@ -112,66 +112,38 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   if (!item) return null;
 
-  if (showPayment && clientSecret) {
+  if (showPayment) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Complete Payment - ${total.toFixed(2)}</DialogTitle>
+            <DialogTitle>Confirm Payment</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="p-4 bg-blue-50 rounded-lg border">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Payment Amount:</span>
-                <span className="text-xl font-bold text-blue-600">${total.toFixed(2)}</span>
-              </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold mb-2">
+                Total: ${total.toFixed(2)}
+              </p>
               <p className="text-sm text-gray-600">
-                Secure payment processing via Stripe
+                Confirm your payment to complete the reservation
               </p>
             </div>
             
-            <div className="border rounded-lg p-6 bg-white">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Payment Authorization Ready
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Your payment of ${total.toFixed(2)} will be processed securely
-                </p>
-                <div className="text-sm text-gray-500 mb-6">
-                  Payment Intent: Ready for Processing
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => {
-                    console.log('Processing payment for', total);
-                    handlePaymentSuccess();
-                  }}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
-                  size="lg"
-                >
-                  Authorize Payment ${total.toFixed(2)}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handlePaymentCancel}
-                  className="w-full"
-                >
-                  Cancel Payment
-                </Button>
-              </div>
-              
-              <div className="mt-4 text-xs text-gray-500 text-center">
-                Payments are processed securely through Stripe
-              </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={handlePaymentCancel}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handlePaymentSuccess}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                Pay ${total.toFixed(2)}
+              </Button>
             </div>
           </div>
         </DialogContent>
