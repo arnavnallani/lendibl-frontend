@@ -348,7 +348,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
         onClose={handlePaymentCancel}
         amount={total}
         itemTitle={item.title}
-        onConfirm={handlePaymentSuccess}
+        clientSecret={clientSecret}
+        onSuccess={handlePaymentSuccess}
       />
     </Dialog>
   );
