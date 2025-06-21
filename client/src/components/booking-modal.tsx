@@ -63,7 +63,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     onSuccess: () => {
       toast({
         title: "Reservation Confirmed!",
-        description: "Your payment has been processed and the owner will be notified.",
+        description: total === 0 ? "Your free item request has been sent to the owner." : "Your payment has been processed and the owner will be notified.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       onClose();
@@ -98,7 +98,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       serviceFee: serviceFee.toFixed(2),
       ownerPayout: ownerPayout.toFixed(2),
       message: message || "",
-      paymentConfirmed: true,
+      paymentConfirmed: total === 0 ? false : true, // Free items don't need payment confirmation
     };
     
     createBookingMutation.mutate(booking);
@@ -314,11 +314,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                 disabled={createBookingMutation.isPending || createPaymentIntentMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? "Reserve" : "Login to Book"}
+                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? (total === 0 ? "Request Free Item" : "Reserve & Pay") : "Login to Book"}
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
-                {user ? "You will receive a full refund if: • You cancel anytime before the owner approves the request • The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
+                {user ? (total === 0 ? "Free item - no payment required. You can cancel anytime before approval." : "You will receive a full refund if: • You cancel anytime before the owner approves the request • The owner has not approved your request 24 hours after it has been made") : "Please login to make a booking request"}
               </p>
             </form>
           </div>
