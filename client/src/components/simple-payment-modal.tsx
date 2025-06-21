@@ -162,6 +162,46 @@ export default function SimplePaymentModal({
     return null;
   }
 
+  // Handle free items with special confirmation dialog
+  if (amount === 0 || clientSecret.startsWith('free_item_')) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Free Item Request</DialogTitle>
+          </DialogHeader>
+          
+          <div className="text-center space-y-4">
+            <div className="text-3xl font-bold text-green-600">
+              FREE
+            </div>
+            <p className="text-gray-medium">{itemTitle}</p>
+            <p className="text-sm text-gray-500">
+              No payment required for this item
+            </p>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button 
+              type="button"
+              variant="outline" 
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={onSuccess}
+              className="flex-1 bg-primary-blue hover:bg-primary-blue/90"
+            >
+              Confirm Request
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   const isLiveMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_');
   const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_');
 
