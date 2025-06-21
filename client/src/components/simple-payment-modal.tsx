@@ -55,11 +55,13 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
       if (confirmError) {
         let errorMessage = confirmError.message || "Payment failed";
         
-        // Provide helpful error messages for common test mode issues
-        if (confirmError.code === 'card_declined' && confirmError.message?.includes('test mode')) {
-          errorMessage = "Test mode: Please use test card 4242 4242 4242 4242 with any future date and CVC";
-        } else if (confirmError.code === 'card_declined') {
-          errorMessage = "Card declined. In test mode, use: 4242 4242 4242 4242";
+        // Provide helpful error messages based on mode
+        if (confirmError.code === 'card_declined') {
+          if (import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_')) {
+            errorMessage = "Test mode: Please use test card 4242 4242 4242 4242 with any future date and CVC";
+          } else {
+            errorMessage = "Card declined. Please check your card details and try again.";
+          }
         }
         
         setError(errorMessage);
@@ -101,9 +103,16 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         <p className="text-xs text-gray-500">
           Your payment information is secure and encrypted
         </p>
-        <div className="text-xs bg-blue-50 p-2 rounded">
-          <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
-        </div>
+        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_') && (
+          <div className="text-xs bg-blue-50 p-2 rounded">
+            <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
+          </div>
+        )}
+        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') && (
+          <div className="text-xs bg-green-50 p-2 rounded">
+            <strong>Live Mode:</strong> Real credit cards will be charged
+          </div>
+        )}
       </div>
       
       {error && (
@@ -146,6 +155,9 @@ export default function SimplePaymentModal({
     return null;
   }
 
+  const isLiveMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_');
+  const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_');
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -155,12 +167,17 @@ export default function SimplePaymentModal({
         
         <div className="space-y-4">
           <div className="text-center pb-4 border-b">
-            <div className="text-2xl font-bold text-blue-600 mb-1">
+            <div className={`text-2xl font-bold mb-1 ${isLiveMode ? 'text-green-600' : 'text-blue-600'}`}>
               ${amount.toFixed(2)}
             </div>
             <p className="text-gray-600 text-sm">
               {itemTitle}
             </p>
+            {isLiveMode && (
+              <p className="text-green-700 text-xs font-medium mt-1">
+                Live Payment - Card will be charged
+              </p>
+            )}
           </div>
           
           <Elements stripe={stripePromise}>
