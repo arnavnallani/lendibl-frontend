@@ -17,6 +17,9 @@ interface PaymentModalProps {
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
 
+// Detect if we're in test mode based on the public key
+const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_');
+
 function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
   amount: number;
   onSuccess: () => void;
