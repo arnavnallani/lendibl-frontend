@@ -364,9 +364,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Booking not found" });
       }
       
-      // Check if user owns the item being rented
-      if (booking.item.ownerId !== req.user!.id) {
+      // Check authorization - owner can approve/decline, renter can cancel
+      const isOwner = booking.item.ownerId === req.user!.id;
+      const isRenter = booking.renterId === req.user!.id;
+      
+      if (!isOwner && !isRenter) {
         return res.status(403).json({ message: "Not authorized to update this booking" });
+      }
+      
+      // Validate status transitions
+      if (isRenter && status !== 'cancelled') {
+        return res.status(400).json({ message: "Renters can only cancel bookings" });
+      }
+      
+      if (isOwner && !['approved', 'declined'].includes(status)) {
+        return res.status(400).json({ message: "Owners can only approve or decline bookings" });
+      }
+      
+      // Don't allow changes to already processed bookings
+      if (booking.status !== 'pending') {
+        return res.status(400).json({ message: "Cannot modify booking that is no longer pending" });
       }
       
       const updatedBooking = await storage.updateBooking(id, { status });
@@ -376,25 +393,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Capture payment and schedule payout
         await paymentScheduler.capturePaymentOnApproval(id);
         await paymentScheduler.scheduleOwnerPayout(id);
-      } else if (updatedBooking && status === 'declined') {
-        // Process refund
-        await paymentScheduler.processRefund(id, 'cancelled');
+      } else if (updatedBooking && (status === 'declined' || status === 'cancelled')) {
+        // Process refund for declined or cancelled bookings
+        const reason = status === 'cancelled' ? 'cancelled' : 'cancelled';
+        await paymentScheduler.processRefund(id, reason);
       }
       
-      // Send notification to renter
+      // Send appropriate notifications
       if (updatedBooking) {
-        const notification = {
-          type: "booking_update",
-          id: Date.now(),
-          title: `Booking ${status}`,
-          message: `Your booking for ${booking.item.title} has been ${status}`,
-          itemId: booking.item.id,
-          bookingId: booking.id,
-          timestamp: new Date().toISOString(),
-          read: false
-        };
-        
-        notifyUser(booking.renterId, notification);
+        if (status === 'cancelled') {
+          // Notify owner that renter cancelled
+          const ownerNotification = {
+            type: "booking_update",
+            id: Date.now(),
+            title: "Booking Cancelled",
+            message: `${booking.renter.firstName} cancelled their booking for ${booking.item.title}. Refund processed automatically.`,
+            itemId: booking.item.id,
+            bookingId: booking.id,
+            timestamp: new Date().toISOString(),
+            read: false
+          };
+          notifyUser(booking.item.ownerId, ownerNotification);
+          
+          // Notify renter of cancellation confirmation
+          const renterNotification = {
+            type: "booking_update",
+            id: Date.now(),
+            title: "Booking Cancelled",
+            message: `Your booking for ${booking.item.title} has been cancelled. Full refund processed.`,
+            itemId: booking.item.id,
+            bookingId: booking.id,
+            timestamp: new Date().toISOString(),
+            read: false
+          };
+          notifyUser(booking.renterId, renterNotification);
+        } else {
+          // Notify renter of owner's decision
+          const statusMessage = status === 'approved' ? 'approved! Payment captured.' : 'declined. Full refund processed.';
+          const notification = {
+            type: "booking_update",
+            id: Date.now(),
+            title: `Booking ${status}`,
+            message: `Your booking for ${booking.item.title} has been ${statusMessage}`,
+            itemId: booking.item.id,
+            bookingId: booking.id,
+            timestamp: new Date().toISOString(),
+            read: false
+          };
+          notifyUser(booking.renterId, notification);
+        }
       }
       
       res.json(updatedBooking);

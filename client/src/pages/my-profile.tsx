@@ -172,6 +172,20 @@ export default function MyProfile() {
     }
   };
 
+  const handleCancelBooking = async (bookingId: number) => {
+    if (!confirm('Are you sure you want to cancel this booking? You will receive a full refund.')) {
+      return;
+    }
+    
+    try {
+      await api.updateBooking(bookingId, { status: 'cancelled' });
+      // Refresh the bookings data
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to cancel booking:', error);
+    }
+  };
+
   const handleRenterClick = (renter: any) => {
     setSelectedRenter(renter);
     setIsRenterProfileOpen(true);
@@ -427,20 +441,35 @@ export default function MyProfile() {
                     {myBookings.map((booking) => (
                       <div key={booking.id} className="p-4 border rounded-lg">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1">
                             <h4 className="font-medium">{booking.item.title}</h4>
                             <p className="text-sm text-gray-medium">
                               {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
                             </p>
                             <p className="text-lg font-bold text-primary-blue">${booking.totalPrice}</p>
+                            {booking.message && (
+                              <p className="text-sm text-gray-medium mt-2">Message: {booking.message}</p>
+                            )}
                           </div>
-                          <Badge variant={
-                            booking.status === 'approved' ? 'default' : 
-                            booking.status === 'pending' ? 'secondary' : 
-                            booking.status === 'completed' ? 'default' : 'destructive'
-                          }>
-                            {booking.status}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={
+                              booking.status === 'approved' ? 'default' : 
+                              booking.status === 'pending' ? 'secondary' : 
+                              booking.status === 'completed' ? 'default' : 'destructive'
+                            }>
+                              {booking.status}
+                            </Badge>
+                            {booking.status === 'pending' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleCancelBooking(booking.id)}
+                                className="text-red-600 border-red-300 hover:bg-red-50"
+                              >
+                                Cancel
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
