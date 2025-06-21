@@ -89,6 +89,7 @@ The application uses PostgreSQL with the following main entities:
 ### External Services
 - **Replit**: Development environment and deployment platform
 - **PostgreSQL**: Database service (configured in .replit)
+- **Stripe**: Payment processing for secure credit card transactions
 - **Unsplash**: Default placeholder images for items
 
 ## Deployment Strategy
@@ -140,6 +141,7 @@ The application uses PostgreSQL with the following main entities:
 - June 20, 2025: Confirmed core marketplace features working: item browsing, filtering, recommendations, booking creation, notifications, and user profiles
 - June 20, 2025: Payment processing now properly requires confirmation before booking creation
 - June 21, 2025: Created simple payment modal component to fix rendering issues and ensure reliable payment-first workflow
+- June 21, 2025: Successfully implemented real Stripe credit card processing with CardElement - users can now pay with actual credit cards and payments are held by Stripe
 
 ## User Preferences
 
