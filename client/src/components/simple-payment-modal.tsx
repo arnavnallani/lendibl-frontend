@@ -53,7 +53,16 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
       });
 
       if (confirmError) {
-        setError(confirmError.message || "Payment failed");
+        let errorMessage = confirmError.message || "Payment failed";
+        
+        // Provide helpful error messages for common test mode issues
+        if (confirmError.code === 'card_declined' && confirmError.message?.includes('test mode')) {
+          errorMessage = "Test mode: Please use test card 4242 4242 4242 4242 with any future date and CVC";
+        } else if (confirmError.code === 'card_declined') {
+          errorMessage = "Card declined. In test mode, use: 4242 4242 4242 4242";
+        }
+        
+        setError(errorMessage);
         setIsLoading(false);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         console.log('Payment succeeded!', paymentIntent.id);
@@ -92,6 +101,9 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         <p className="text-xs text-gray-500">
           Your payment information is secure and encrypted
         </p>
+        <div className="text-xs bg-blue-50 p-2 rounded">
+          <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
+        </div>
       </div>
       
       {error && (
