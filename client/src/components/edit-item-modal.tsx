@@ -18,10 +18,7 @@ import type { ItemWithDetails } from '@shared/schema';
 const editItemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  price: z.string().refine((val) => {
-    const num = parseFloat(val);
-    return !isNaN(num) && num >= 0;
-  }, "Price must be a non-negative number"),
+  price: z.string().min(1, 'Price is required'),
   categoryId: z.number().min(1, 'Category is required'),
   location: z.string().min(1, 'Location is required'),
   images: z.array(z.string()).default([]),

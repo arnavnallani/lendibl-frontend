@@ -110,17 +110,12 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         <p className="text-xs text-gray-500">
           Your payment information is secure and encrypted
         </p>
-        {amount === 0 && (
-          <div className="text-xs bg-green-50 p-2 rounded">
-            <strong>Free Item:</strong> You will not be charged for this booking
-          </div>
-        )}
-        {amount > 0 && (import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_test_')) && (
+        {(import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_test_')) && (
           <div className="text-xs bg-blue-50 p-2 rounded">
             <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
           </div>
         )}
-        {amount > 0 && (import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_live_')) && (
+        {(import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_live_')) && (
           <div className="text-xs bg-green-50 p-2 rounded">
             <strong>Live Mode:</strong> Real credit cards will be charged
           </div>
@@ -148,7 +143,7 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           disabled={!stripe || isLoading}
         >
-          {isLoading ? "Processing..." : amount === 0 ? "Confirm Free Booking" : `Pay $${amount.toFixed(2)}`}
+          {isLoading ? "Processing..." : `Pay $${amount.toFixed(2)}`}
         </Button>
       </div>
     </form>
@@ -169,7 +164,6 @@ export default function SimplePaymentModal({
 
   const isLiveMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_');
   const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_');
-  const isFreeItem = amount === 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -180,18 +174,13 @@ export default function SimplePaymentModal({
         
         <div className="space-y-4">
           <div className="text-center pb-4 border-b">
-            <div className={`text-2xl font-bold mb-1 ${isFreeItem ? 'text-green-600' : isLiveMode ? 'text-green-600' : 'text-blue-600'}`}>
-              {isFreeItem ? 'FREE' : `$${amount.toFixed(2)}`}
+            <div className={`text-2xl font-bold mb-1 ${isLiveMode ? 'text-green-600' : 'text-blue-600'}`}>
+              ${amount.toFixed(2)}
             </div>
             <p className="text-gray-600 text-sm">
               {itemTitle}
             </p>
-            {isFreeItem && (
-              <p className="text-green-700 text-xs font-medium mt-1">
-                Free Item - No charge will be made
-              </p>
-            )}
-            {!isFreeItem && isLiveMode && (
+            {isLiveMode && (
               <p className="text-green-700 text-xs font-medium mt-1">
                 Live Payment - Card will be charged
               </p>

@@ -105,24 +105,13 @@ export class PaymentScheduler {
         return false;
       }
 
-      // Check if this was a free item (original amount was 0)
-      const paymentIntent = await stripe.paymentIntents.retrieve(booking.paymentIntentId);
-      const isFreeItem = paymentIntent.metadata?.isFreeItem === 'true';
-
-      if (isFreeItem) {
-        // For free items, just cancel the payment intent without processing refund
-        if (!booking.paymentCaptured) {
-          await stripe.paymentIntents.cancel(booking.paymentIntentId);
-        }
+      // Cancel the payment intent if not captured, or refund if captured
+      if (!booking.paymentCaptured) {
+        await stripe.paymentIntents.cancel(booking.paymentIntentId);
       } else {
-        // For paid items, process normal refund
-        if (!booking.paymentCaptured) {
-          await stripe.paymentIntents.cancel(booking.paymentIntentId);
-        } else {
-          await stripe.refunds.create({
-            payment_intent: booking.paymentIntentId,
-          });
-        }
+        await stripe.refunds.create({
+          payment_intent: booking.paymentIntentId,
+        });
       }
 
       await storage.updateBooking(bookingId, {
@@ -131,7 +120,7 @@ export class PaymentScheduler {
         updatedAt: new Date()
       });
 
-      console.log(`Refund processed for booking ${bookingId}, reason: ${reason}, isFreeItem: ${isFreeItem}`);
+      console.log(`Refund processed for booking ${bookingId}, reason: ${reason}`);
       return true;
     } catch (error) {
       console.error('Failed to process refund:', error);
