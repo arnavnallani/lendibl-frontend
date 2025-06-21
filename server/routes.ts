@@ -461,18 +461,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { amount } = req.body;
       console.log('Creating payment intent for amount:', amount);
       
-      // Validate amount (allow 0 for free items, minimum $0.50 for paid items)
-      if (amount === undefined || amount === null || (amount > 0 && amount < 50)) {
-        return res.status(400).json({ message: "Invalid payment amount. Minimum $0.50 for paid items." });
-      }
-      
-      // Handle free items - create a $0 payment intent for consistency
-      if (amount === 0) {
-        // For free items, return a mock successful payment intent
-        return res.json({ 
-          clientSecret: 'free_item_' + Date.now(),
-          paymentIntentId: 'free_' + Date.now()
-        });
+      // Validate amount
+      if (!amount || amount < 50) { // Minimum $0.50 USD
+        return res.status(400).json({ message: "Invalid payment amount" });
       }
 
       const paymentIntent = await stripe.paymentIntents.create({

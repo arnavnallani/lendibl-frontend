@@ -18,7 +18,7 @@ import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
 
 const formSchema = insertItemSchema.extend({
-  price: z.coerce.number().min(0, "Price must be 0 or greater"),
+  price: z.coerce.number().min(0, "Price must be a positive number"),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
 });

@@ -63,7 +63,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     onSuccess: () => {
       toast({
         title: "Reservation Confirmed!",
-        description: total === 0 ? "Your free item request has been sent to the owner." : "Your payment has been processed and the owner will be notified.",
+        description: "Your payment has been processed and the owner will be notified.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       onClose();
@@ -98,7 +98,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       serviceFee: serviceFee.toFixed(2),
       ownerPayout: ownerPayout.toFixed(2),
       message: message || "",
-      paymentConfirmed: true, // All items go through payment confirmation flow
+      paymentConfirmed: true,
     };
     
     createBookingMutation.mutate(booking);
@@ -168,22 +168,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     // Initialize payment flow (convert dollars to cents)
     const amountInCents = Math.round(total * 100);
     console.log('Creating payment intent - Total:', total, 'Amount in cents:', amountInCents);
-    
-    createPaymentIntentMutation.mutate(amountInCents, {
-      onSuccess: (data) => {
-        console.log('Payment intent created:', data);
-        setClientSecret(data.clientSecret);
-        setShowPayment(true);
-      },
-      onError: (error) => {
-        console.error('Failed to create payment intent:', error);
-        toast({
-          title: "Payment Error",
-          description: "Failed to initialize payment. Please try again.",
-          variant: "destructive",
-        });
-      }
-    });
+    createPaymentIntentMutation.mutate(amountInCents);
   };
 
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
@@ -329,11 +314,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                 disabled={createBookingMutation.isPending || createPaymentIntentMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? (total === 0 ? "Request Free Item" : "Reserve & Pay") : "Login to Book"}
+                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? "Reserve" : "Login to Book"}
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
-                {user ? (total === 0 ? "Free item - you can cancel anytime before approval." : "You will receive a full refund if: • You cancel anytime before the owner approves the request • The owner has not approved your request 24 hours after it has been made") : "Please login to make a booking request"}
+                {user ? "You will receive a full refund if: • You cancel anytime before the owner approves the request • The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
               </p>
             </form>
           </div>
