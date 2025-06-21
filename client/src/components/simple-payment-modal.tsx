@@ -103,12 +103,12 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         <p className="text-xs text-gray-500">
           Your payment information is secure and encrypted
         </p>
-        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_') && (
+        {(import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_test_')) && (
           <div className="text-xs bg-blue-50 p-2 rounded">
             <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
           </div>
         )}
-        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') && (
+        {(import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') || import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('rk_live_')) && (
           <div className="text-xs bg-green-50 p-2 rounded">
             <strong>Live Mode:</strong> Real credit cards will be charged
           </div>
