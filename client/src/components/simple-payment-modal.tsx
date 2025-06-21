@@ -69,9 +69,13 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         
         setError(errorMessage);
         setIsLoading(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        console.log('Payment succeeded!', paymentIntent.id);
+      } else if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'requires_capture')) {
+        console.log('Payment confirmed!', paymentIntent.id, 'Status:', paymentIntent.status);
         onSuccess();
+      } else {
+        console.log('Payment intent status:', paymentIntent?.status);
+        setError("Payment was not completed successfully");
+        setIsLoading(false);
       }
     } catch (err) {
       setError("An unexpected error occurred");
