@@ -162,8 +162,52 @@ export default function SimplePaymentModal({
     return null;
   }
 
+  // Check if this is a free item
+  const isFree = amount === 0 || clientSecret.includes('_secret_mock');
   const isLiveMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_');
   const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_');
+
+  if (isFree) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Free Booking</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="text-center pb-4 border-b">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                FREE
+              </div>
+              <div className="text-gray-600">{itemTitle}</div>
+            </div>
+
+            <p className="text-sm text-gray-600 text-center">
+              This item is free to rent. Click confirm to proceed with your booking request.
+            </p>
+            
+            <div className="flex gap-3">
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={onClose}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={onSuccess}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                Confirm Free Booking
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

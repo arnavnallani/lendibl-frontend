@@ -148,6 +148,7 @@ The application uses PostgreSQL with the following main entities:
 - June 21, 2025: Enhanced payment system with live/test mode detection and proper error handling for both restricted API keys and standard keys
 - June 21, 2025: Implemented comprehensive escrow payment system with automatic refunds, payment capture on approval, and scheduled payouts to owners 24 hours after rental period ends
 - June 21, 2025: Added renter cancellation functionality for pending bookings with automatic refund processing
+- June 21, 2025: Added support for $0 (free) item listings with specialized payment flow handling
 
 ## User Preferences
 
