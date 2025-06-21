@@ -65,9 +65,12 @@ The application uses PostgreSQL with the following main entities:
 ### Key User Flows
 - **Browse Items**: Filter by category, search, price range, and location
 - **View Details**: Detailed item view with owner information and booking option
-- **Make Booking**: Request rental with date selection and messaging
+- **Make Booking**: Request rental with date selection, messaging, and escrow payment
+- **Payment Processing**: Secure credit card payment held in escrow until approval
+- **Booking Management**: Owners approve/decline with automatic payment capture or refunds
+- **Automatic Payouts**: Owners receive payment 24 hours after rental period ends
 - **List Item**: Create new rental listings with images and details
-- **Real-time Notifications**: Instant alerts for owners when rental requests are made
+- **Real-time Notifications**: Instant alerts for payment status and booking updates
 
 ## External Dependencies
 
@@ -143,6 +146,7 @@ The application uses PostgreSQL with the following main entities:
 - June 21, 2025: Created simple payment modal component to fix rendering issues and ensure reliable payment-first workflow
 - June 21, 2025: Successfully implemented real Stripe credit card processing with CardElement - users can now pay with actual credit cards and payments are held by Stripe
 - June 21, 2025: Enhanced payment system with live/test mode detection and proper error handling for both restricted API keys and standard keys
+- June 21, 2025: Implemented comprehensive escrow payment system with automatic refunds, payment capture on approval, and scheduled payouts to owners 24 hours after rental period ends
 
 ## User Preferences
 

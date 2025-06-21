@@ -47,9 +47,18 @@ export const bookings = pgTable("bookings", {
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  serviceFee: decimal("service_fee", { precision: 10, scale: 2 }).default("0"),
+  ownerPayout: decimal("owner_payout", { precision: 10, scale: 2 }).default("0"),
   status: text("status").notNull().default("pending"), // pending, approved, rejected, completed
   message: text("message"),
+  paymentConfirmed: boolean("payment_confirmed").default(false),
+  paymentIntentId: text("payment_intent_id"),
+  paymentCaptured: boolean("payment_captured").default(false),
+  payoutScheduled: timestamp("payout_scheduled"),
+  payoutCompleted: timestamp("payout_completed"),
+  refundIssued: boolean("refund_issued").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const reviews = pgTable("reviews", {

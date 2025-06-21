@@ -87,11 +87,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     setShowPayment(false);
     setClientSecret("");
     
+    const serviceFee = subtotal * 0.06; // 6% service fee
+    const ownerPayout = subtotal; // Owner gets the base price
+    
     const booking = {
       itemId: item.id,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       totalPrice: total.toFixed(2),
+      serviceFee: serviceFee.toFixed(2),
+      ownerPayout: ownerPayout.toFixed(2),
       message: message || "",
       paymentConfirmed: true,
     };

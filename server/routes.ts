@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInteractionSchema } from "@shared/schema";
 import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
 import { recommendationEngine } from "./recommendation-engine";
+import { paymentScheduler } from "./payment-scheduler";
 import { z } from "zod";
 
 // Initialize Stripe (will be null if no secret key is provided)
@@ -370,6 +371,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updatedBooking = await storage.updateBooking(id, { status });
       
+      // Handle payment based on status
+      if (updatedBooking && status === 'approved') {
+        // Capture payment and schedule payout
+        await paymentScheduler.capturePaymentOnApproval(id);
+        await paymentScheduler.scheduleOwnerPayout(id);
+      } else if (updatedBooking && status === 'declined') {
+        // Process refund
+        await paymentScheduler.processRefund(id, 'cancelled');
+      }
+      
       // Send notification to renter
       if (updatedBooking) {
         const notification = {
@@ -414,6 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         automatic_payment_methods: {
           enabled: true,
         },
+        capture_method: 'manual', // Hold payment for manual capture later
         metadata: {
           userId: req.user!.id.toString(),
           userEmail: req.user!.email,
@@ -450,6 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         renterId: req.user!.id,
         paymentConfirmed: true,
         paymentIntentId: paymentIntentId,
+        paymentCaptured: false, // Payment is authorized but not captured yet
       });
       
       const booking = await storage.createBooking(validatedData);
@@ -464,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: "booking_request",
           id: Date.now(),
           title: "New Paid Rental Request",
-          message: `${req.user!.firstName} has paid and wants to rent your ${item.title}`,
+          message: `${req.user!.firstName} has paid $${booking.totalPrice} and wants to rent your ${item.title}. Payment is held in escrow until approved.`,
           itemId: item.id,
           bookingId: booking.id,
           timestamp: new Date().toISOString(),
