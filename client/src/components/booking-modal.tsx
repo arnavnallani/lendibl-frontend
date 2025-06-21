@@ -13,9 +13,7 @@ import { api } from "@/lib/api";
 import { format } from "date-fns";
 import type { ItemWithDetails, InsertBooking } from "@shared/schema";
 import AuthModal from "./auth-modal";
-import PaymentForm from "./payment-form";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import SimplePaymentModal from "./simple-payment-modal";
 
 interface BookingModalProps {
   item: ItemWithDetails | null;
@@ -23,13 +21,7 @@ interface BookingModalProps {
   onClose: () => void;
 }
 
-// Initialize Stripe outside component to avoid recreating
-const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
-  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
-  : null;
-
-console.log('Stripe public key available:', !!import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-console.log('Stripe promise created:', !!stripePromise);
+// Simple payment implementation without complex Stripe Elements
 
 export default function BookingModal({ item, isOpen, onClose }: BookingModalProps) {
   const [startDate, setStartDate] = useState("");
@@ -91,8 +83,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   });
 
   const handlePaymentSuccess = () => {
-    console.log('Payment success handler called');
-    // Create booking after payment confirmation
+    console.log('Payment confirmed, creating booking');
+    setShowPayment(false);
+    setClientSecret("");
+    
     const booking = {
       itemId: item.id,
       startDate: new Date(startDate),
@@ -101,55 +95,19 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       message: message || "",
       paymentConfirmed: true,
     };
-    console.log('Creating booking with data:', booking);
+    
     createBookingMutation.mutate(booking);
   };
 
   const handlePaymentCancel = () => {
+    console.log('Payment cancelled');
     setShowPayment(false);
     setClientSecret("");
   };
 
   if (!item) return null;
 
-  if (showPayment) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Confirm Payment</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-lg font-semibold mb-2">
-                Total: ${total.toFixed(2)}
-              </p>
-              <p className="text-sm text-gray-600">
-                Confirm your payment to complete the reservation
-              </p>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={handlePaymentCancel}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handlePaymentSuccess}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-              >
-                Pay ${total.toFixed(2)}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+
 
 
 
@@ -384,6 +342,14 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
           defaultTab="login"
         />
       </DialogContent>
+      
+      <SimplePaymentModal
+        isOpen={showPayment}
+        onClose={handlePaymentCancel}
+        amount={total}
+        itemTitle={item.title}
+        onConfirm={handlePaymentSuccess}
+      />
     </Dialog>
   );
 }
