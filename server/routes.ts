@@ -466,21 +466,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid payment amount" });
       }
 
-      // Handle $0 payments differently
-      if (amount === 0) {
-        // For free items, create a mock payment intent ID
-        const mockPaymentIntentId = `pi_free_${Date.now()}_${req.user!.id}`;
-        res.json({ 
-          clientSecret: `${mockPaymentIntentId}_secret_mock`,
-          paymentIntentId: mockPaymentIntentId,
-          amount: 0,
-          isFree: true
-        });
-        return;
-      }
+      // Handle $0 payments by creating actual Stripe payment intent with $0 amount
+      // Stripe requires minimum 50 cents for most currencies, but we can use 0 for certain use cases
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Amount in cents
+        amount: Math.max(amount, 50), // Stripe minimum is 50 cents, use 50 for $0 items
         currency: "usd",
         automatic_payment_methods: {
           enabled: true,
@@ -489,6 +479,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata: {
           userId: req.user!.id.toString(),
           userEmail: req.user!.email,
+          originalAmount: amount.toString(), // Store the original amount (including 0)
+          isFreeItem: amount === 0 ? 'true' : 'false',
         },
       });
       
