@@ -88,17 +88,17 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Header Icons */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
-                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gray-100">
+                    <Button variant="ghost" size="sm" className="h-10 w-10 p-0 hover:bg-gray-100">
                       <ClipboardList className="w-5 h-5 text-gray-600" />
                     </Button>
                   </Link>
 
                   {/* Messages */}
                   <Link href="/messages">
-                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gray-100">
+                    <Button variant="ghost" size="sm" className="h-10 w-10 p-0 hover:bg-gray-100">
                       <MessageSquare className="w-5 h-5 text-gray-600" />
                     </Button>
                   </Link>
