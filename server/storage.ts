@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 

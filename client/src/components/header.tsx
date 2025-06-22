@@ -87,15 +87,22 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
             {user ? (
               <>
-                {/* Action Dashboard */}
-                <Link href="/action-dashboard" className="hidden md:block">
-                  <ClipboardList className="w-6 h-6 text-gray-700 hover:text-primary-blue transition-colors cursor-pointer" />
-                </Link>
+                {/* Header Icons */}
+                <div className="flex items-center gap-3">
+                  {/* Action Dashboard */}
+                  <Link href="/action-dashboard">
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gray-100">
+                      <ClipboardList className="w-5 h-5 text-gray-600" />
+                    </Button>
+                  </Link>
 
-                {/* Messages */}
-                <Link href="/messages" className="hidden md:block">
-                  <MessageSquare className="w-6 h-6 text-gray-700 hover:text-primary-blue transition-colors cursor-pointer" />
-                </Link>
+                  {/* Messages */}
+                  <Link href="/messages">
+                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-gray-100">
+                      <MessageSquare className="w-5 h-5 text-gray-600" />
+                    </Button>
+                  </Link>
+                </div>
 
                 {/* User Menu */}
                 <DropdownMenu>
