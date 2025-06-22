@@ -33,7 +33,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           Rent Anything<br />
           <span className="text-gradient bg-gradient-to-r from-white to-blue-200">From Anyone</span>
         </h2>
-        <p className="text-xl md:text-2xl mb-12 opacity-90 animate-fade-in max-w-3xl mx-auto" style={{animationDelay: '0.3s'}}>Find any item you want. List any item you want. Live the way you want.</p>
+        <p className="text-xl md:text-2xl mb-12 opacity-90 animate-fade-in max-w-3xl mx-auto" style={{animationDelay: '0.3s'}}>It's that simple.</p>
         
         {/* Category Quick Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto animate-scale-in" style={{animationDelay: '0.6s'}}>
