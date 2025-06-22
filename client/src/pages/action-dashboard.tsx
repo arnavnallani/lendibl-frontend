@@ -36,7 +36,7 @@ export default function ActionDashboard() {
     queryFn: async (): Promise<BookingWithDetails[]> => {
       const allBookings = await api.getBookings();
       return allBookings.filter(booking => 
-        booking.item.ownerId === user?.id && 
+        (booking.item.ownerId === user?.id || booking.renterId === user?.id) && 
         ['approved', 'in_progress', 'completed'].includes(booking.status)
       );
     },
@@ -171,7 +171,7 @@ export default function ActionDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-dark mb-2">Action Dashboard</h1>
-          <p className="text-gray-medium">Manage your active rentals and communicate with renters</p>
+          <p className="text-gray-medium">Track your active rentals and communicate during the process</p>
         </div>
 
         {/* Active Rentals */}
@@ -186,6 +186,8 @@ export default function ActionDashboard() {
             {activeRentals.map((rental) => {
               const status = getRentalStatus(rental);
               const isOverdue = isRentalOverdue(rental);
+              const isOwner = rental.item.ownerId === user?.id;
+              const isRenter = rental.renterId === user?.id;
               
               return (
                 <Card key={rental.id} className="overflow-hidden">
@@ -196,7 +198,8 @@ export default function ActionDashboard() {
                         <div className="flex items-center gap-4 mt-2 text-sm text-gray-medium">
                           <div className="flex items-center gap-1">
                             <User className="h-4 w-4" />
-                            {rental.renter.firstName} {rental.renter.lastName}
+                            {isOwner ? `Renter: ${rental.renter.firstName} ${rental.renter.lastName}` : 
+                             `Owner: ${rental.item.owner.firstName} ${rental.item.owner.lastName}`}
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -282,11 +285,12 @@ export default function ActionDashboard() {
                           className="flex items-center gap-2"
                         >
                           <MessageSquare className="h-4 w-4" />
-                          Message Renter
+                          {isOwner ? 'Message Renter' : 'Message Owner'}
                         </Button>
                       )}
                       
-                      {canStartRental(rental) && (
+                      {/* Owner Controls */}
+                      {isOwner && canStartRental(rental) && (
                         <Button
                           onClick={() => handleStartRental(rental)}
                           className="flex items-center gap-2"
@@ -297,7 +301,7 @@ export default function ActionDashboard() {
                         </Button>
                       )}
                       
-                      {canEndRental(rental) && (
+                      {isOwner && canEndRental(rental) && (
                         <Button
                           onClick={() => handleEndRental(rental)}
                           variant="outline"
@@ -309,10 +313,26 @@ export default function ActionDashboard() {
                         </Button>
                       )}
 
+                      {/* Status Messages */}
                       {status === 'completed' && (
                         <div className="text-green-600 font-medium flex items-center gap-2">
                           <CheckCircle className="h-4 w-4" />
-                          Rental completed - Payout processed
+                          {isOwner ? 'Rental completed - Payout processed' : 'Rental completed'}
+                        </div>
+                      )}
+
+                      {/* Renter Status Messages */}
+                      {isRenter && status === 'pre-rental' && (
+                        <div className="text-blue-600 font-medium flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          Waiting for owner to start rental period
+                        </div>
+                      )}
+
+                      {isRenter && status === 'active' && (
+                        <div className="text-blue-600 font-medium flex items-center gap-2">
+                          <PlayCircle className="h-4 w-4" />
+                          Rental is active - enjoy your rental!
                         </div>
                       )}
                     </div>
@@ -334,7 +354,7 @@ export default function ActionDashboard() {
             <CardContent className="text-center py-12">
               <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-dark mb-2">No Active Rentals</h3>
-              <p className="text-gray-medium mb-4">You don't have any active rental requests at the moment.</p>
+              <p className="text-gray-medium mb-4">You don't have any active rentals at the moment.</p>
               <Link href="/my-profile">
                 <Button>View All Bookings</Button>
               </Link>
