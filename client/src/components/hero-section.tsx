@@ -22,13 +22,13 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
   const featuredCategories = categories.slice(0, 4);
 
   return (
-    <section className="gradient-bg text-white py-20 relative overflow-hidden">
+    <section className="gradient-bg text-white py-32 relative overflow-hidden min-h-[110vh] flex items-center">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/5 rounded-full animate-float"></div>
         <div className="absolute -bottom-1/2 -left-1/2 w-64 h-64 bg-white/5 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 py-20">
         <h2 className="text-5xl md:text-7xl font-bold mb-8 animate-slide-up text-shadow">
           Rent Anything<br />
           <span className="text-gradient bg-gradient-to-r from-white to-blue-200">From Anyone</span>
