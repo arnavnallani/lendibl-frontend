@@ -473,8 +473,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteItem(id: number): Promise<boolean> {
     try {
-      // First delete related records that reference this item
+      // First delete all related records that reference this item
       await db.delete(userInteractions).where(eq(userInteractions.itemId, id));
+      
+      // Delete all bookings for this item (including historical ones)
+      await db.delete(bookings).where(eq(bookings.itemId, id));
       
       // Then delete the item itself
       const result = await db.delete(items).where(eq(items.id, id));

@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to delete this item" });
       }
 
-      // Check if item has active bookings
+      // Check if item has active bookings (pending, approved, or in progress)
       const bookings = await storage.getBookings();
       const activeBookings = bookings.filter(booking => 
         booking.itemId === id && 
@@ -278,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (activeBookings.length > 0) {
         return res.status(400).json({ 
-          message: "Cannot delete item with active bookings. Please wait for bookings to complete or be declined." 
+          message: "Cannot delete item with active bookings. Please cancel or complete all active bookings first." 
         });
       }
 
