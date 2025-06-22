@@ -89,14 +89,12 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Dashboard */}
-                <Link href="/action-dashboard">
-                  <Button variant="outline" size="sm" className="hidden md:flex items-center justify-center w-10 h-10 p-2">
-                    <img 
-                      src={routineIcon} 
-                      alt="Action Dashboard" 
-                      className="w-4 h-4 object-contain"
-                    />
-                  </Button>
+                <Link href="/action-dashboard" className="hidden md:block">
+                  <img 
+                    src={routineIcon} 
+                    alt="Action Dashboard" 
+                    className="w-6 h-6 object-contain hover:opacity-70 transition-opacity cursor-pointer"
+                  />
                 </Link>
 
                 {/* Notifications */}
