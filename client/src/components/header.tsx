@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, User, LogOut, Settings } from "lucide-react";
+import { Search, Menu, User, LogOut, Settings, ClipboardList } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -8,7 +8,6 @@ import NotificationBell from "./notification-bell";
 import AuthModal from "./auth-modal";
 import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
-import routineIcon from "@assets/routine_1750574901633.png";
 
 interface HeaderProps {
   currentMode: "renter" | "lister";
@@ -90,11 +89,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               <>
                 {/* Action Dashboard */}
                 <Link href="/action-dashboard" className="hidden md:block">
-                  <img 
-                    src={routineIcon} 
-                    alt="Action Dashboard" 
-                    className="w-6 h-6 object-contain hover:opacity-70 transition-opacity cursor-pointer"
-                  />
+                  <ClipboardList className="w-6 h-6 text-gray-700 hover:text-primary-blue transition-colors cursor-pointer" />
                 </Link>
 
                 {/* Notifications */}
