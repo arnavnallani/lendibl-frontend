@@ -39,6 +39,10 @@ export interface IStorage {
   getUserPreferences(userId: number): Promise<UserPreferences | undefined>;
   createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences>;
   updateUserPreferences(userId: number, updates: Partial<UserPreferences>): Promise<UserPreferences | undefined>;
+  
+  // Rental Messages
+  getRentalMessages(bookingId: number): Promise<RentalMessage[]>;
+  createRentalMessage(message: InsertRentalMessage): Promise<RentalMessage>;
 }
 
 export class MemStorage implements IStorage {

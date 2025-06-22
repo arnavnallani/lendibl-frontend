@@ -87,6 +87,13 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
             {user ? (
               <>
+                {/* Action Dashboard */}
+                <Link href="/action-dashboard">
+                  <Button variant="outline" className="hidden md:flex">
+                    Action Dashboard
+                  </Button>
+                </Link>
+
                 {/* Notifications */}
                 <NotificationBell userId={user.id} />
 

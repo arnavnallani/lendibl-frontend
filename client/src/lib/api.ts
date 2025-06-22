@@ -95,4 +95,15 @@ export const api = {
     const res = await apiRequest("POST", "/api/create-payment-intent", { amount });
     return res.json();
   },
+
+  // Rental Messages
+  sendRentalMessage: async (bookingId: number, message: string): Promise<any> => {
+    const res = await apiRequest("POST", "/api/rental-messages", { bookingId, message });
+    return res.json();
+  },
+
+  getRentalMessages: async (bookingId: number): Promise<any[]> => {
+    const res = await apiRequest("GET", `/api/rental-messages/${bookingId}`);
+    return res.json();
+  },
 };

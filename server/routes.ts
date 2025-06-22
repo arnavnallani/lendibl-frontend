@@ -377,8 +377,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Renters can only cancel bookings" });
       }
       
-      if (isOwner && !['approved', 'declined'].includes(status)) {
-        return res.status(400).json({ message: "Owners can only approve or decline bookings" });
+      if (isOwner && !['approved', 'declined', 'in_progress', 'completed'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status transition for owner" });
       }
       
       // Don't allow changes to already processed bookings
@@ -397,6 +397,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Process refund for declined or cancelled bookings
         const reason = status === 'cancelled' ? 'cancelled' : 'cancelled';
         await paymentScheduler.processRefund(id, reason);
+      } else if (updatedBooking && status === 'completed') {
+        // Process owner payout when rental is completed
+        await paymentScheduler.processOwnerPayout(id);
       }
       
       // Send appropriate notifications
@@ -429,7 +432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           notifyUser(booking.renterId, renterNotification);
         } else {
           // Notify renter of owner's decision
-          const statusMessage = status === 'approved' ? 'approved! Payment captured.' : 'declined. Full refund processed.';
+          const statusMessage = status === 'approved' ? 'approved! Payment captured. Check your notifications for next steps.' : 'declined. Full refund processed.';
           const notification = {
             type: "booking_update",
             id: Date.now(),
@@ -441,6 +444,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             read: false
           };
           notifyUser(booking.renterId, notification);
+
+          // If approved, also send notification to owner to coordinate
+          if (status === 'approved') {
+            const ownerNotification = {
+              type: "booking_approved",
+              id: Date.now(),
+              title: "Rental Approved - Coordinate Pickup",
+              message: `You approved ${booking.renter.firstName}'s rental of ${booking.item.title}. Go to Action Dashboard to coordinate pickup details.`,
+              itemId: booking.item.id,
+              bookingId: booking.id,
+              timestamp: new Date().toISOString(),
+              read: false
+            };
+            notifyUser(booking.item.ownerId, ownerNotification);
+          }
         }
       }
       
@@ -571,6 +589,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting preferences:", error);
       res.status(500).json({ message: "Failed to get preferences" });
+    }
+  });
+
+  // Rental Messages routes
+  app.post("/api/rental-messages", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, message } = req.body;
+      
+      // Get booking to determine receiver
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      // Determine if user is owner or renter
+      const isOwner = booking.item.ownerId === req.user!.id;
+      const isRenter = booking.renterId === req.user!.id;
+      
+      if (!isOwner && !isRenter) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const receiverId = isOwner ? booking.renterId : booking.item.ownerId;
+      
+      const rentalMessage = await storage.createRentalMessage({
+        bookingId,
+        senderId: req.user!.id,
+        receiverId,
+        message
+      });
+      
+      // Send notification to receiver
+      const notification = {
+        type: "rental_message",
+        id: Date.now(),
+        title: "New Message",
+        message: `You have a new message about ${booking.item.title}`,
+        itemId: booking.item.id,
+        bookingId: booking.id,
+        timestamp: new Date().toISOString(),
+        read: false
+      };
+      
+      notifyUser(receiverId, notification);
+      
+      res.json(rentalMessage);
+    } catch (error) {
+      console.error('Failed to send rental message:', error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  app.get("/api/rental-messages/:bookingId", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const bookingId = parseInt(req.params.bookingId);
+      
+      // Verify user has access to this booking
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      const isOwner = booking.item.ownerId === req.user!.id;
+      const isRenter = booking.renterId === req.user!.id;
+      
+      if (!isOwner && !isRenter) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const messages = await storage.getRentalMessages(bookingId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Failed to get rental messages:', error);
+      res.status(500).json({ message: "Failed to get messages" });
     }
   });
 

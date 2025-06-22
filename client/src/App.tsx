@@ -9,6 +9,7 @@ import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
 import MyProfile from "@/pages/my-profile";
 import Settings from "@/pages/settings";
+import ActionDashboard from "@/pages/action-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/list-item" component={ListItem} />
       <Route path="/my-profile" component={MyProfile} />
       <Route path="/settings" component={Settings} />
+      <Route path="/action-dashboard" component={ActionDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

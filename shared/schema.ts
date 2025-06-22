@@ -49,7 +49,7 @@ export const bookings = pgTable("bookings", {
   totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
   serviceFee: decimal("service_fee", { precision: 10, scale: 2 }).default("0"),
   ownerPayout: decimal("owner_payout", { precision: 10, scale: 2 }).default("0"),
-  status: text("status").notNull().default("pending"), // pending, approved, rejected, completed
+  status: text("status").notNull().default("pending"), // pending, approved, declined, in_progress, completed, cancelled
   message: text("message"),
   paymentConfirmed: boolean("payment_confirmed").default(false),
   paymentIntentId: text("payment_intent_id"),
@@ -59,6 +59,15 @@ export const bookings = pgTable("bookings", {
   refundIssued: boolean("refund_issued").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const rentalMessages = pgTable("rental_messages", {
+  id: serial("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  senderId: integer("sender_id").references(() => users.id).notNull(),
+  receiverId: integer("receiver_id").references(() => users.id).notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const reviews = pgTable("reviews", {
@@ -154,6 +163,9 @@ export type InsertUserInteraction = z.infer<typeof insertUserInteractionSchema>;
 
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
+
+export type RentalMessage = typeof rentalMessages.$inferSelect;
+export type InsertRentalMessage = z.infer<typeof insertRentalMessageSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {
