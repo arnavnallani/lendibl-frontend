@@ -92,7 +92,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-11 w-11 p-0 hover:bg-blue-50 hover:text-primary-blue rounded-xl transition-all duration-200">
-                      <ClipboardList className="w-6 h-6" />
+                      <Zap className="w-6 h-6" />
                     </Button>
                   </Link>
 
