@@ -93,7 +93,6 @@ export default function Messages() {
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
           {/* Conversations List */}
@@ -224,7 +223,7 @@ export default function Messages() {
                       ) : (
                         <div className="text-center py-8">
                           <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                          <p className="text-gray-medium">No messages yet. Start the conversation!</p>
+                          <p className="text-gray-medium">Say something...</p>
                         </div>
                       )}
                     </div>
