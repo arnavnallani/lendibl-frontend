@@ -37,7 +37,7 @@ export default function ActionDashboard() {
       const allBookings = await api.getBookings();
       return allBookings.filter(booking => 
         booking.item.ownerId === user?.id && 
-        ['approved', 'in_progress'].includes(booking.status)
+        ['approved', 'in_progress', 'completed'].includes(booking.status)
       );
     },
     enabled: !!user,
@@ -275,14 +275,16 @@ export default function ActionDashboard() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleSendMessage(rental)}
-                        className="flex items-center gap-2"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        Message Renter
-                      </Button>
+                      {status !== 'completed' && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSendMessage(rental)}
+                          className="flex items-center gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          Message Renter
+                        </Button>
+                      )}
                       
                       {canStartRental(rental) && (
                         <Button
@@ -303,8 +305,15 @@ export default function ActionDashboard() {
                           disabled={updateRentalStatusMutation.isPending}
                         >
                           <StopCircle className="h-4 w-4" />
-                          {isOverdue ? 'End Overdue Rental' : 'End Rental Early'}
+                          {isOverdue ? 'End Overdue Rental' : 'End Rental Period'}
                         </Button>
+                      )}
+
+                      {status === 'completed' && (
+                        <div className="text-green-600 font-medium flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" />
+                          Rental completed - Payout processed
+                        </div>
                       )}
                     </div>
 
