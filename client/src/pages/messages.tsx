@@ -223,7 +223,7 @@ export default function Messages() {
                       ) : (
                         <div className="text-center py-8">
                           <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                          <p className="text-gray-medium">Say something...</p>
+                          <p className="text-gray-medium">Talk about stuff...</p>
                         </div>
                       )}
                     </div>
