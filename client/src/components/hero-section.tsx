@@ -28,15 +28,12 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/5 rounded-full animate-float"></div>
         <div className="absolute -bottom-1/2 -left-1/2 w-64 h-64 bg-white/5 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
       </div>
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <h2 className="text-5xl md:text-7xl font-bold mb-8 animate-slide-up text-shadow">
           Rent Anything<br />
           <span className="text-gradient bg-gradient-to-r from-white to-blue-200">From Anyone</span>
         </h2>
-        <p className="text-xl md:text-2xl mb-12 opacity-90 animate-fade-in max-w-3xl mx-auto" style={{animationDelay: '0.3s'}}>
-          Discover thousands of items available for rent in your neighborhood. From tools to electronics, find what you need when you need it.
-        </p>
+        <p className="text-xl md:text-2xl mb-12 opacity-90 animate-fade-in max-w-3xl mx-auto" style={{animationDelay: '0.3s'}}>Find any item you want. List any item you want. Live the way you want.</p>
         
         {/* Category Quick Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto animate-scale-in" style={{animationDelay: '0.6s'}}>
