@@ -630,7 +630,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(rentalMessages)
       .where(eq(rentalMessages.bookingId, bookingId))
-      .orderBy(desc(rentalMessages.createdAt));
+      .orderBy(rentalMessages.createdAt);
   }
 
   async createRentalMessage(message: InsertRentalMessage): Promise<RentalMessage> {
