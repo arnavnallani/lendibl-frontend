@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, User, LogOut, Settings, ClipboardList } from "lucide-react";
+import { Search, Menu, User, LogOut, Settings, ClipboardList, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -92,8 +92,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                   <ClipboardList className="w-6 h-6 text-gray-700 hover:text-primary-blue transition-colors cursor-pointer" />
                 </Link>
 
-                {/* Notifications */}
-                <NotificationBell userId={user.id} />
+                {/* Messages */}
+                <Link href="/messages" className="hidden md:block">
+                  <MessageSquare className="w-6 h-6 text-gray-700 hover:text-primary-blue transition-colors cursor-pointer" />
+                </Link>
 
                 {/* User Menu */}
                 <DropdownMenu>

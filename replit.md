@@ -149,6 +149,7 @@ The application uses PostgreSQL with the following main entities:
 - June 21, 2025: Implemented comprehensive escrow payment system with automatic refunds, payment capture on approval, and scheduled payouts to owners 24 hours after rental period ends
 - June 21, 2025: Added renter cancellation functionality for pending bookings with automatic refund processing
 - June 22, 2025: Created comprehensive Action Dashboard with rental status tracking, messaging system, and 3-stage rental process (pre-rental, active, completed) with proper payment integration
+- June 22, 2025: Replaced notification bell with Messages page - dedicated conversation board showing all rental-related conversations with real-time messaging interface
 
 ## User Preferences
 
