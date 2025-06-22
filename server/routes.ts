@@ -381,9 +381,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status transition for owner" });
       }
       
-      // Don't allow changes to already processed bookings
-      if (booking.status !== 'pending') {
+      // Don't allow changes to already processed bookings (except for owner workflow)
+      if (isRenter && booking.status !== 'pending') {
         return res.status(400).json({ message: "Cannot modify booking that is no longer pending" });
+      }
+      
+      if (isOwner && !['pending', 'approved', 'in_progress'].includes(booking.status)) {
+        return res.status(400).json({ message: "Cannot modify completed or cancelled booking" });
       }
       
       const updatedBooking = await storage.updateBooking(id, { status });

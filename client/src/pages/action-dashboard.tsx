@@ -69,20 +69,24 @@ export default function ActionDashboard() {
     const startDate = new Date(rental.startDate);
     const endDate = new Date(rental.endDate);
 
-    if (rental.status === 'approved' && now < startDate) {
+    // If booking is approved but not yet started, it's pre-rental
+    if (rental.status === 'approved') {
       return 'pre-rental';
-    } else if (rental.status === 'in_progress' || (rental.status === 'approved' && now >= startDate && now <= endDate)) {
-      return 'active';
-    } else if (now > endDate) {
-      return 'overdue';
     }
+    // If booking is in progress, it's active
+    else if (rental.status === 'in_progress') {
+      return 'active';
+    }
+    // If booking is completed, it's done
+    else if (rental.status === 'completed') {
+      return 'completed';
+    }
+    
     return 'pre-rental';
   };
 
   const canStartRental = (rental: BookingWithDetails) => {
-    const now = new Date();
-    const startDate = new Date(rental.startDate);
-    return rental.status === 'approved' && now >= startDate;
+    return rental.status === 'approved';
   };
 
   const canEndRental = (rental: BookingWithDetails) => {
@@ -229,7 +233,9 @@ export default function ActionDashboard() {
                           }`}>
                             <Clock className="h-4 w-4" />
                           </div>
-                          <span className="font-medium">Pre-Rental Period</span>
+                          <span className={`font-medium ${status === 'pre-rental' ? 'text-blue-600' : 'text-green-600'}`}>
+                            Pre-Rental Period
+                          </span>
                         </div>
                         
                         <div className="flex items-center gap-2">
@@ -239,24 +245,30 @@ export default function ActionDashboard() {
                           }`}>
                             <PlayCircle className="h-4 w-4" />
                           </div>
-                          <span className="font-medium">Rental Period</span>
+                          <span className={`font-medium ${status === 'active' ? 'text-blue-600' : 
+                            status === 'completed' ? 'text-green-600' : 'text-gray-500'}`}>
+                            Rental Period
+                          </span>
                         </div>
                         
                         <div className="flex items-center gap-2">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            rental.status === 'completed' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                            status === 'completed' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
                           }`}>
                             <CheckCircle className="h-4 w-4" />
                           </div>
-                          <span className="font-medium">Rental Complete</span>
+                          <span className={`font-medium ${status === 'completed' ? 'text-green-600' : 'text-gray-500'}`}>
+                            Rental Complete
+                          </span>
                         </div>
                       </div>
                       
                       {/* Progress bar */}
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                        <div className={`h-2 rounded-full ${
+                        <div className={`h-2 rounded-full transition-all duration-500 ${
                           status === 'pre-rental' ? 'w-1/3 bg-blue-500' :
-                          status === 'active' ? 'w-2/3 bg-blue-500' : 'w-full bg-green-500'
+                          status === 'active' ? 'w-2/3 bg-blue-500' : 
+                          status === 'completed' ? 'w-full bg-green-500' : 'w-1/3 bg-blue-500'
                         }`}></div>
                       </div>
                     </div>
