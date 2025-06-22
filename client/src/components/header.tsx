@@ -63,7 +63,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("renter")}
-                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 pl-[0px] pr-[0px] pt-[0px] pb-[0px] ml-[2px] mr-[2px] ${
+                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   currentMode === "renter" 
                     ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
                     : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
@@ -75,7 +75,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "lister" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("lister")}
-                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 pl-[0px] pr-[0px] pt-[0px] pb-[0px] ml-[2px] mr-[2px] ${
+                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
                   currentMode === "lister" 
                     ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
                     : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
