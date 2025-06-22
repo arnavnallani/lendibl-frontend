@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, User, LogOut, Settings } from "lucide-react";
+import { Search, Menu, User, LogOut, Settings, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -90,8 +90,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 {/* Action Dashboard */}
                 <Link href="/action-dashboard">
                   <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
-                    <Activity className="h-4 w-4" />
-                    <span className="hidden lg:inline">Action Dashboard</span>
+                    <Zap className="h-4 w-4" />
+                    <span className="hidden lg:inline">Dashboard</span>
                   </Button>
                 </Link>
 
