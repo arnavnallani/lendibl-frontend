@@ -46,7 +46,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             <form onSubmit={handleSearch} className="relative w-full">
               <Input
                 type="text"
-                placeholder="What would you like to rent today?"
+                placeholder="Search for literally anything...."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 border-2 border-gray-light rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-all duration-300 bg-gray-light/30 hover:bg-white hover:shadow-md"
