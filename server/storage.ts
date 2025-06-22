@@ -624,6 +624,22 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return result || undefined;
   }
+
+  async getRentalMessages(bookingId: number): Promise<RentalMessage[]> {
+    return await db
+      .select()
+      .from(rentalMessages)
+      .where(eq(rentalMessages.bookingId, bookingId))
+      .orderBy(desc(rentalMessages.createdAt));
+  }
+
+  async createRentalMessage(message: InsertRentalMessage): Promise<RentalMessage> {
+    const [newMessage] = await db
+      .insert(rentalMessages)
+      .values(message)
+      .returning();
+    return newMessage;
+  }
 }
 
 export const storage = new DatabaseStorage();

@@ -89,8 +89,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               <>
                 {/* Action Dashboard */}
                 <Link href="/action-dashboard">
-                  <Button variant="outline" className="hidden md:flex">
-                    Action Dashboard
+                  <Button variant="outline" size="sm" className="hidden md:flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    <span className="hidden lg:inline">Action Dashboard</span>
                   </Button>
                 </Link>
 
