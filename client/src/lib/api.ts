@@ -43,8 +43,9 @@ export const api = {
     return res.json();
   },
 
-  deleteItem: async (id: number): Promise<void> => {
-    await apiRequest("DELETE", `/api/items/${id}`);
+  deleteItem: async (id: number): Promise<any> => {
+    const res = await apiRequest("DELETE", `/api/items/${id}`);
+    return res.json();
   },
 
   // Bookings

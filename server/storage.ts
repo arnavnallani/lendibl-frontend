@@ -472,8 +472,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteItem(id: number): Promise<boolean> {
-    const result = await db.delete(items).where(eq(items.id, id));
-    return (result.rowCount ?? 0) > 0;
+    try {
+      // First delete related records that reference this item
+      await db.delete(userInteractions).where(eq(userInteractions.itemId, id));
+      
+      // Then delete the item itself
+      const result = await db.delete(items).where(eq(items.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      throw error;
+    }
   }
 
   async getBookings(userId?: number): Promise<BookingWithDetails[]> {

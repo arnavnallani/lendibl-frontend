@@ -269,10 +269,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to delete this item" });
       }
 
+      // Check if item has active bookings
+      const bookings = await storage.getBookings();
+      const activeBookings = bookings.filter(booking => 
+        booking.itemId === id && 
+        ['pending', 'approved', 'in_progress'].includes(booking.status)
+      );
+      
+      if (activeBookings.length > 0) {
+        return res.status(400).json({ 
+          message: "Cannot delete item with active bookings. Please wait for bookings to complete or be declined." 
+        });
+      }
+
       const deleted = await storage.deleteItem(id);
+      
+      if (!deleted) {
+        return res.status(400).json({ message: "Failed to delete item" });
+      }
 
       res.json({ message: "Item deleted successfully" });
     } catch (error) {
+      console.error('Delete item error:', error);
       res.status(500).json({ message: "Failed to delete item" });
     }
   });
