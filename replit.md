@@ -157,6 +157,7 @@ The application uses PostgreSQL with the following main entities:
 - June 23, 2025: Modified payout structure - owners receive exactly the item's list price (daily rate × rental days), with Lendibl keeping any amount above that as variable commission
 - June 23, 2025: Updated payout timing to process immediately when rental period ends instead of waiting 24 hours
 - June 23, 2025: Successfully tested and confirmed working payout system - owners receive exact list price transfers to their stored payment methods with variable commission structure operational
+- June 23, 2025: Added comprehensive privacy policy page and footer component with legal compliance links accessible from all main pages
 
 ## User Preferences
 

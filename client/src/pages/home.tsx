@@ -146,6 +146,8 @@ export default function Home() {
         </Button>
       </Link>
 
+      <Footer />
+      
       <BookingModal 
         item={selectedItem}
         isOpen={isBookingModalOpen}
