@@ -751,42 +751,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
 
-      // Step 4: Create Express account for payouts (Stripe Connect)
-      const account = await stripe.accounts.create({
-        type: 'express',
-        country: 'US',
-        email: user.email,
-        capabilities: {
-          card_payments: { requested: true },
-          transfers: { requested: true },
-        },
-        business_type: 'individual',
-        individual: {
-          email: user.email,
-          first_name: user.firstName,
-          last_name: user.lastName,
-        },
-        metadata: {
-          userId: userId.toString()
-        }
-      });
-
-      // Step 5: Update user with Stripe IDs
+      // Step 4: Update user with payment method info (no Connect accounts)
       const updatedUser = await storage.updateUser(userId, {
         stripeCustomerId: customerId,
-        stripePaymentMethodId: paymentMethodId,
-        stripeAccountId: account.id,
+        hasPaymentMethod: true,
+        paymentMethodId: paymentMethodId,
+        cardholderName: cardholderName,
         paymentSetupComplete: true,
       });
 
-      // Step 6: Resolve any pending payment reminders
+      // Step 5: Resolve any pending payment reminders
       await paymentReminderService.resolvePaymentReminders(userId);
 
       res.json({ 
         success: true, 
         message: "Payment setup completed successfully",
-        user: updatedUser,
-        stripeAccountId: account.id
+        customerId: customerId
       });
     } catch (error: any) {
       console.error("Payment setup error:", error);
