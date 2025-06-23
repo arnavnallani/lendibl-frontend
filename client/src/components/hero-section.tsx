@@ -64,7 +64,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
               <div
                 key={category.id}
                 onClick={() => onCategorySelect(category.id)}
-                className="glass rounded-3xl p-10 hover:bg-white/25 transition-all duration-500 cursor-pointer hover-lift group backdrop-blur-xl border-2 border-white/20 hover:border-white/40"
+                className="glass rounded-3xl p-10 transition-all duration-500 cursor-pointer hover-lift group backdrop-blur-xl border-2 border-white/20 hover:border-white/40"
                 style={{animationDelay: `${0.8 + index * 0.15}s`}}
               >
                 <div className="relative">
