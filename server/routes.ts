@@ -1017,5 +1017,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Test endpoint for manual payout processing (no auth for testing)
+  app.post("/api/test-payout", async (req, res) => {
+    try {
+      const { bookingId } = req.body;
+      console.log(`Manual payout test requested for booking ${bookingId}`);
+      const result = await paymentScheduler.processOwnerPayout(bookingId);
+      res.json({ success: result, message: result ? "Payout processed successfully" : "Payout failed" });
+    } catch (error: any) {
+      console.error("Test payout error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }
