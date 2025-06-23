@@ -77,7 +77,16 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           })}
         </div>
 
-        
+        {/* Call to action */}
+        <div className="mt-20 animate-fade-in" style={{animationDelay: '1.4s'}}>
+          <div className="inline-flex items-center space-x-3 text-white/90 group cursor-pointer hover-float">
+            <div className="w-3 h-3 bg-gradient-to-r from-white to-blue-200 rounded-full animate-pulse-glow"></div>
+            <span className="text-lg font-medium group-hover:text-white transition-colors duration-300">Scroll down to explore</span>
+            <div className="w-6 h-6 border-2 border-white/60 rounded-full flex items-center justify-center group-hover:border-white transition-colors duration-300">
+              <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
