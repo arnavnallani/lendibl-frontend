@@ -741,31 +741,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const user = await storage.getUser(userId);
       const userItems = await storage.getItems({ ownerId: userId });
-      
-      // Check for pending payouts
-      const userBookings = await storage.getBookings(userId);
-      const pendingPayouts = userBookings.filter(booking => 
-        booking.item.ownerId === userId && 
-        (booking.status === 'approved' || booking.status === 'payout_pending_setup')
-      );
-      
-      const pendingEarnings = pendingPayouts.reduce((total, booking) => {
-        const bookingTotal = parseFloat(booking.totalPrice);
-        const serviceFee = parseFloat(booking.serviceFee);
-        return total + (bookingTotal - serviceFee);
-      }, 0);
 
-      const needsPaymentSetup = (userItems.length > 0 || pendingPayouts.length > 0) && !user?.paymentSetupComplete;
-      const urgentSetup = pendingPayouts.length > 0; // Has money waiting
+      const needsPaymentSetup = userItems.length > 0 && !user?.paymentSetupComplete;
       
       res.json({ 
         needsPaymentSetup,
-        urgentSetup,
         hasItems: userItems.length > 0,
         paymentSetupComplete: user?.paymentSetupComplete || false,
-        estimatedEarnings: userItems.length * 50, // Rough estimate based on number of items
-        pendingEarnings: Math.round(pendingEarnings),
-        pendingPayouts: pendingPayouts.length
+        estimatedEarnings: userItems.length * 50 // Rough estimate based on number of items
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });
