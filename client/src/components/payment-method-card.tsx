@@ -10,15 +10,20 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 const updatePaymentSchema = z.object({
-  cardNumber: z.string().min(16, "Card number must be at least 16 digits"),
-  expiryDate: z.string().regex(/^\d{2}\/\d{2}$/, "Expiry date must be in MM/YY format"),
-  cvv: z.string().min(3, "CVV must be at least 3 digits"),
   cardholderName: z.string().min(2, "Cardholder name is required"),
 });
 
 type UpdatePaymentFormData = z.infer<typeof updatePaymentSchema>;
+
+// Initialize Stripe
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface PaymentMethodInfo {
   hasPaymentMethod: boolean;
@@ -50,7 +55,7 @@ export default function PaymentMethodCard() {
   });
 
   const updatePaymentMutation = useMutation({
-    mutationFn: async (data: UpdatePaymentFormData) => {
+    mutationFn: async (data: { paymentMethodId: string; cardholderName: string }) => {
       const response = await fetch("/api/payment-method", {
         method: "PUT",
         headers: {
@@ -121,16 +126,12 @@ export default function PaymentMethodCard() {
   });
 
   const onSubmit = async (data: UpdatePaymentFormData) => {
-    setIsUpdating(true);
-    updatePaymentMutation.mutate(data);
-  };
-
-  const formatCardNumber = (value: string) => {
-    return value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-  };
-
-  const formatExpiryDate = (value: string) => {
-    return value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
+    // This component needs to be wrapped in Stripe Elements
+    // For now, show a message to user
+    toast({
+      title: "Feature Coming Soon",
+      description: "Payment method updates will be available soon. Please contact support if you need to change your payment method.",
+    });
   };
 
   const getCardBrandIcon = (brand?: string) => {
@@ -245,51 +246,9 @@ export default function PaymentMethodCard() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cardNumber">Card Number</Label>
-              <Input
-                id="cardNumber"
-                placeholder="1234 5678 9012 3456"
-                maxLength={19}
-                {...register("cardNumber")}
-                onChange={(e) => {
-                  e.target.value = formatCardNumber(e.target.value);
-                  register("cardNumber").onChange(e);
-                }}
-              />
-              {errors.cardNumber && (
-                <p className="text-sm text-red-600">{errors.cardNumber.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="expiryDate">Expiry Date</Label>
-                <Input
-                  id="expiryDate"
-                  placeholder="MM/YY"
-                  maxLength={5}
-                  {...register("expiryDate")}
-                  onChange={(e) => {
-                    e.target.value = formatExpiryDate(e.target.value);
-                    register("expiryDate").onChange(e);
-                  }}
-                />
-                {errors.expiryDate && (
-                  <p className="text-sm text-red-600">{errors.expiryDate.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cvv">CVV</Label>
-                <Input
-                  id="cvv"
-                  placeholder="123"
-                  maxLength={4}
-                  {...register("cvv")}
-                />
-                {errors.cvv && (
-                  <p className="text-sm text-red-600">{errors.cvv.message}</p>
-                )}
+              <Label>New Card Information</Label>
+              <div className="border rounded-md p-3 bg-white">
+                <p className="text-sm text-gray-500">Secure card input coming soon. Please contact support to update your payment method.</p>
               </div>
             </div>
 

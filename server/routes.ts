@@ -711,11 +711,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Payment setup endpoint with real Stripe integration
-  app.post("/api/setup-payment", authenticateToken, async (req: AuthRequest, res) => {
+  // Payment setup endpoint with Stripe Elements integration
+  app.post("/api/setup-payment-with-stripe", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
-      const { cardNumber, expiryDate, cvv, cardholderName } = req.body;
+      const { paymentMethodId, cardholderName } = req.body;
       const user = await storage.getUser(userId);
 
       if (!user) {
@@ -739,35 +739,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerId = customer.id;
       }
 
-      // Step 2: Create payment method from card details
-      const [month, year] = expiryDate.split('/');
-      const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-          number: cardNumber.replace(/\s/g, ''),
-          exp_month: parseInt(month),
-          exp_year: parseInt(`20${year}`),
-          cvc: cvv,
-        },
-        billing_details: {
-          name: cardholderName,
-          email: user.email,
-        },
-      });
-
-      // Step 3: Attach payment method to customer
-      await stripe.paymentMethods.attach(paymentMethod.id, {
+      // Step 2: Attach payment method to customer
+      await stripe.paymentMethods.attach(paymentMethodId, {
         customer: customerId,
       });
 
-      // Step 4: Set as default payment method for the customer
+      // Step 3: Set as default payment method for the customer
       await stripe.customers.update(customerId, {
         invoice_settings: {
-          default_payment_method: paymentMethod.id,
+          default_payment_method: paymentMethodId,
         },
       });
 
-      // Step 5: Create Express account for payouts (Stripe Connect)
+      // Step 4: Create Express account for payouts (Stripe Connect)
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
@@ -787,15 +771,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
 
-      // Step 6: Update user with Stripe IDs
+      // Step 5: Update user with Stripe IDs
       const updatedUser = await storage.updateUser(userId, {
         stripeCustomerId: customerId,
-        stripePaymentMethodId: paymentMethod.id,
+        stripePaymentMethodId: paymentMethodId,
         stripeAccountId: account.id,
         paymentSetupComplete: true,
       });
 
-      // Step 7: Resolve any pending payment reminders
+      // Step 6: Resolve any pending payment reminders
       await paymentReminderService.resolvePaymentReminders(userId);
 
       res.json({ 
@@ -826,14 +810,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/payment-method", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
-      const { cardNumber, expiryDate, cvv, cardholderName } = req.body;
+      const { paymentMethodId, cardholderName } = req.body;
+      const user = await storage.getUser(userId);
 
-      const result = await stripeService.updatePaymentMethod(userId, cardNumber, expiryDate, cvv, cardholderName);
+      if (!user || !user.stripeCustomerId) {
+        return res.status(404).json({ message: "User or Stripe customer not found" });
+      }
+
+      // Attach new payment method to customer
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: user.stripeCustomerId,
+      });
+
+      // Detach old payment method if it exists
+      if (user.stripePaymentMethodId) {
+        try {
+          await stripe.paymentMethods.detach(user.stripePaymentMethodId);
+        } catch (error) {
+          console.warn('Could not detach old payment method:', error);
+        }
+      }
+
+      // Set as default
+      await stripe.customers.update(user.stripeCustomerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+      });
+
+      // Update user record
+      await storage.updateUser(userId, {
+        stripePaymentMethodId: paymentMethodId,
+      });
       
       res.json({ 
         success: true, 
         message: "Payment method updated successfully",
-        paymentMethodId: result.paymentMethodId
+        paymentMethodId: paymentMethodId
       });
     } catch (error: any) {
       console.error("Payment method update error:", error);

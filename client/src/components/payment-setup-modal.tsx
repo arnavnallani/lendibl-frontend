@@ -10,15 +10,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
 const paymentSetupSchema = z.object({
-  cardNumber: z.string().min(16, "Card number must be at least 16 digits"),
-  expiryDate: z.string().regex(/^\d{2}\/\d{2}$/, "Expiry date must be in MM/YY format"),
-  cvv: z.string().min(3, "CVV must be at least 3 digits"),
   cardholderName: z.string().min(2, "Cardholder name is required"),
 });
 
 type PaymentSetupFormData = z.infer<typeof paymentSetupSchema>;
+
+// Initialize Stripe
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface PaymentSetupModalProps {
   isOpen: boolean;
