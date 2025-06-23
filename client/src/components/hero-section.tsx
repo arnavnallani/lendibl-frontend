@@ -51,7 +51,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           <span className="block transform hover:scale-105 transition-transform duration-500">
             Rent Anything
           </span>
-          <span className="block bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent animate-pulse-glow">
+          <span className="block bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent animate-pulse-glow text-shadow">
             From Anyone
           </span>
         </h2>
