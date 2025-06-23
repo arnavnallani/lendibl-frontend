@@ -1,9 +1,10 @@
 import { Link } from "wouter";
 
 export default function Footer() {
+  console.log("Footer component rendered");
   return (
-    <footer className="bg-white border-t-2 border-blue-200 mt-20 w-full relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <footer className="bg-blue-50 border-t-4 border-blue-500 mt-20 w-full relative z-10 min-h-[200px]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2">
             <img 
@@ -11,7 +12,7 @@ export default function Footer() {
               alt="Lendibl" 
               className="h-8 w-auto"
             />
-            <span className="text-gray-700 text-sm font-medium">
+            <span className="text-blue-900 text-base font-bold">
               © 2025 Lendibl. All rights reserved.
             </span>
           </div>
@@ -19,19 +20,19 @@ export default function Footer() {
           <div className="flex items-center space-x-6">
             <Link 
               href="/privacy-policy" 
-              className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors"
+              className="text-blue-900 hover:text-blue-600 text-base font-bold transition-colors"
             >
               Privacy Policy
             </Link>
             <Link 
               href="/terms" 
-              className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors"
+              className="text-blue-900 hover:text-blue-600 text-base font-bold transition-colors"
             >
               Terms of Service
             </Link>
             <Link 
               href="/contact" 
-              className="text-gray-700 hover:text-blue-600 text-sm font-medium transition-colors"
+              className="text-blue-900 hover:text-blue-600 text-base font-bold transition-colors"
             >
               Contact Us
             </Link>
