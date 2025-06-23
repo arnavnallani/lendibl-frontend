@@ -75,7 +75,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         </div>
 
         {/* Call to action */}
-        <div className="mt-20 animate-fade-in" style={{animationDelay: '1.4s'}}>
+        <div className="animate-fade-in" style={{animationDelay: '1.4s', marginTop: '77px'}}>
           <div className="inline-flex items-center space-x-3 text-white/90 group cursor-pointer hover-float">
             <div className="w-3 h-3 bg-gradient-to-r from-white to-blue-200 rounded-full animate-pulse-glow"></div>
             <span className="text-lg font-medium group-hover:text-white transition-colors duration-300">Scroll down to explore</span>
