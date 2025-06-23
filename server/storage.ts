@@ -15,7 +15,7 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   
   // Items
-  getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string }): Promise<ItemWithDetails[]>;
+  getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]>;
   getItem(id: number): Promise<ItemWithDetails | undefined>;
   createItem(item: InsertItem): Promise<Item>;
   updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined>;
@@ -169,9 +169,20 @@ export class MemStorage implements IStorage {
       responseTime: "Within 1 hour",
       phone: insertUser.phone || null,
       avatar: insertUser.avatar || null,
+      stripeAccountId: null,
+      paymentSetupComplete: false,
     };
     this.users.set(user.id, user);
     return user;
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { ...user, ...updates };
+    this.users.set(id, updatedUser);
+    return updatedUser;
   }
 
   // Categories
@@ -193,7 +204,7 @@ export class MemStorage implements IStorage {
   }
 
   // Items
-  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string }): Promise<ItemWithDetails[]> {
+  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]> {
     let items = Array.from(this.items.values());
 
     if (filters) {
@@ -217,6 +228,9 @@ export class MemStorage implements IStorage {
         items = items.filter(item => 
           item.location.toLowerCase().includes(filters.location!.toLowerCase())
         );
+      }
+      if (filters.ownerId) {
+        items = items.filter(item => item.ownerId === filters.ownerId);
       }
     }
 
@@ -400,7 +414,7 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
-  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string }): Promise<ItemWithDetails[]> {
+  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]> {
     const query = db
       .select()
       .from(items)

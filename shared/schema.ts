@@ -15,6 +15,8 @@ export const users = pgTable("users", {
   reviewCount: integer("review_count").default(0),
   responseRate: integer("response_rate").default(100),
   responseTime: text("response_time").default("Within 1 hour"),
+  stripeAccountId: text("stripe_account_id"),
+  paymentSetupComplete: boolean("payment_setup_complete").default(false),
 });
 
 export const categories = pgTable("categories", {

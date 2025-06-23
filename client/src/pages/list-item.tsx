@@ -16,6 +16,7 @@ import { api } from "@/lib/api";
 import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
+import PaymentSetupModal from "@/components/payment-setup-modal";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number"),
@@ -29,6 +30,8 @@ export default function ListItem() {
   const [, setLocation] = useLocation();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isPaymentSetupOpen, setIsPaymentSetupOpen] = useState(false);
+  const [paymentSetupData, setPaymentSetupData] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -62,12 +65,33 @@ export default function ListItem() {
 
   const createItemMutation = useMutation({
     mutationFn: api.createItem,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Success!",
         description: "Your item has been listed successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/items"] });
+      
+      // Check if user needs payment setup after listing their first item
+      try {
+        const statusResponse = await fetch("/api/payment-setup-status", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+        
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          if (statusData.needsPaymentSetup) {
+            setPaymentSetupData(statusData);
+            setIsPaymentSetupOpen(true);
+            return; // Don't redirect yet, let user complete payment setup
+          }
+        }
+      } catch (error) {
+        console.error("Error checking payment setup status:", error);
+      }
+      
       setLocation("/");
     },
     onError: () => {
@@ -353,6 +377,29 @@ export default function ListItem() {
           </CardContent>
         </Card>
       </div>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        defaultTab="register"
+      />
+
+      <PaymentSetupModal
+        isOpen={isPaymentSetupOpen}
+        onClose={() => {
+          setIsPaymentSetupOpen(false);
+          setLocation("/");
+        }}
+        onComplete={() => {
+          setIsPaymentSetupOpen(false);
+          toast({
+            title: "Payment Setup Complete!",
+            description: "You're now ready to receive payments from your rentals.",
+          });
+          setLocation("/");
+        }}
+        estimatedEarnings={paymentSetupData?.estimatedEarnings}
+      />
     </div>
   );
 }

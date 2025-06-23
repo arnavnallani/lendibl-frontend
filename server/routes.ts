@@ -699,6 +699,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Payment setup endpoint
+  app.post("/api/setup-payment", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { cardNumber, expiryDate, cvv, cardholderName } = req.body;
+
+      // In a real implementation, you would:
+      // 1. Create a Stripe Connect account for the user
+      // 2. Store the payment method securely with Stripe
+      // 3. Save the Stripe account ID to the user record
+
+      // For now, we'll simulate the process and mark payment setup as complete
+      if (!stripe) {
+        return res.status(400).json({ message: "Payment processing not configured" });
+      }
+
+      // Simulate Stripe Connect account creation
+      const mockStripeAccountId = `acct_${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+
+      // Update user with payment setup completion
+      const updatedUser = await storage.updateUser(userId, {
+        stripeAccountId: mockStripeAccountId,
+        paymentSetupComplete: true,
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Payment setup completed successfully",
+        user: updatedUser 
+      });
+    } catch (error) {
+      console.error("Payment setup error:", error);
+      res.status(500).json({ message: "Failed to setup payment method" });
+    }
+  });
+
+  // Check if user needs payment setup
+  app.get("/api/payment-setup-status", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const user = await storage.getUser(userId);
+      const userItems = await storage.getItems({ ownerId: userId });
+
+      const needsPaymentSetup = userItems.length > 0 && !user?.paymentSetupComplete;
+      
+      res.json({ 
+        needsPaymentSetup,
+        hasItems: userItems.length > 0,
+        paymentSetupComplete: user?.paymentSetupComplete || false,
+        estimatedEarnings: userItems.length * 50 // Rough estimate based on number of items
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to check payment setup status" });
+    }
+  });
+
   app.put("/api/bookings/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
