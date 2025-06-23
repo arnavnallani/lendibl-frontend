@@ -75,22 +75,19 @@ export class PaymentScheduler {
         return false;
       }
 
-      // Check if owner has payment setup completed
+      // Check if owner has payment method setup (simplified version)
       const owner = await storage.getUser(booking.item.ownerId);
-      if (!owner || !owner.paymentSetupComplete || !owner.stripeAccountId) {
+      if (!owner || !owner.hasPaymentMethod || !owner.stripeCustomerId) {
         console.log(`Payout blocked for booking ${bookingId} - owner payment setup incomplete`);
         
-        // Block payout and update pending earnings
-        await storage.updateBooking(bookingId, {
-          payoutBlocked: true,
-          payoutBlockReason: 'Payment setup incomplete',
-          updatedAt: new Date()
-        });
-
         // Add to pending earnings and trigger reminder
+        const dailyPrice = parseFloat(booking.item.price);
+        const days = Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 60 * 60 * 24));
+        const ownerPayout = (dailyPrice * days).toString();
+        
         await paymentReminderService.updatePendingEarnings(
           booking.item.ownerId, 
-          booking.ownerPayout
+          ownerPayout
         );
         
         return false;
