@@ -139,14 +139,14 @@ export default function Home() {
         </div>
       )}
 
+      <Footer />
+      
       {/* Floating Action Button (Mobile) */}
       <Link href="/list-item">
         <Button className="fixed bottom-8 right-8 btn-primary text-white p-5 rounded-2xl shadow-2xl lg:hidden animate-float hover-glow z-50">
           <Plus className="h-7 w-7" />
         </Button>
       </Link>
-
-      <Footer />
       
       <BookingModal 
         item={selectedItem}
