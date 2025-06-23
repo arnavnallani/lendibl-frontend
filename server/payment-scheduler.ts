@@ -96,8 +96,19 @@ export class PaymentScheduler {
         return false;
       }
 
-      // Calculate payout amount (convert to cents for Stripe)
-      const payoutAmountCents = Math.round(parseFloat(booking.ownerPayout) * 100);
+      // Owner gets exactly the item's list price (daily rate × days)
+      const dailyPrice = parseFloat(booking.item.price);
+      const days = Math.ceil((new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / (1000 * 60 * 60 * 24));
+      const ownerPayout = dailyPrice * days;
+      const totalPaid = parseFloat(booking.totalAmount);
+      const platformCommission = totalPaid - ownerPayout;
+      
+      console.log(`Payout breakdown for booking ${bookingId}:`);
+      console.log(`- Total paid by renter: $${totalPaid}`);
+      console.log(`- Owner payout (list price): $${ownerPayout}`);
+      console.log(`- Platform commission: $${platformCommission}`);
+      
+      const payoutAmountCents = Math.round(ownerPayout * 100);
 
       // Create transfer to owner's Stripe account
       const transfer = await stripe.transfers.create({
