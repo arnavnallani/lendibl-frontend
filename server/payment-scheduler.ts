@@ -40,21 +40,21 @@ export class PaymentScheduler {
     }
   }
 
-  // Schedule payout 24 hours after rental period ends
+  // Schedule payout immediately when rental period ends
   async scheduleOwnerPayout(bookingId: number) {
     try {
       const booking = await storage.getBooking(bookingId);
       if (!booking) return false;
 
       const payoutDate = new Date(booking.endDate);
-      payoutDate.setHours(payoutDate.getHours() + 24);
+      // No delay - process immediately when rental ends
 
       await storage.updateBooking(bookingId, {
         payoutScheduled: payoutDate,
         updatedAt: new Date()
       });
 
-      console.log(`Payout scheduled for booking ${bookingId} at ${payoutDate}`);
+      console.log(`Payout scheduled for booking ${bookingId} at ${payoutDate} (immediate processing)`);
       return true;
     } catch (error) {
       console.error('Failed to schedule payout:', error);
@@ -200,11 +200,22 @@ export class PaymentScheduler {
       const now = new Date();
 
       for (const booking of allBookings) {
+        // Check for automatic refunds (24 hours without approval)
         if (booking.status === 'pending' && !booking.refundIssued) {
           const hoursElapsed = (now.getTime() - booking.createdAt.getTime()) / (1000 * 60 * 60);
           
           if (hoursElapsed >= 24) {
             await this.processRefund(booking.id, 'not_approved');
+          }
+        }
+        
+        // Check for immediate payouts when rental period ends
+        if (booking.status === 'approved' && !booking.payoutCompleted && booking.payoutScheduled) {
+          const payoutTime = new Date(booking.payoutScheduled);
+          
+          if (now >= payoutTime) {
+            console.log(`Processing immediate payout for booking ${booking.id}`);
+            await this.processOwnerPayout(booking.id);
           }
         }
       }

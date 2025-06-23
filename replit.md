@@ -155,6 +155,7 @@ The application uses PostgreSQL with the following main entities:
 - June 23, 2025: Replaced mock Stripe implementation with real Stripe Connect integration - credit card information now securely stored with Stripe, real Express accounts created for payouts, and actual payment method management
 - June 23, 2025: Completed Stripe Elements integration for secure payment setup with PCI-compliant card input, real-time validation, and production-ready live key configuration
 - June 23, 2025: Modified payout structure - owners receive exactly the item's list price (daily rate × rental days), with Lendibl keeping any amount above that as variable commission
+- June 23, 2025: Updated payout timing to process immediately when rental period ends instead of waiting 24 hours
 
 ## User Preferences
 
