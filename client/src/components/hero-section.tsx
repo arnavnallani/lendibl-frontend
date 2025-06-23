@@ -22,7 +22,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
   const featuredCategories = categories.slice(0, 4);
 
   return (
-    <section className="gradient-bg text-white py-[calc(5rem-3px)] relative overflow-hidden">
+    <section className="gradient-bg text-white py-[calc(5rem-6px)] relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/10 rounded-full animate-float blur-sm"></div>
