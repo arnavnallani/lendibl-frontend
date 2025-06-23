@@ -6,6 +6,7 @@ import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
 import RecommendationsSection from "@/components/recommendations-section";
+import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";

@@ -11,6 +11,7 @@ import MyProfile from "@/pages/my-profile";
 import Settings from "@/pages/settings";
 import ActionDashboard from "@/pages/action-dashboard";
 import Messages from "@/pages/messages";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/settings" component={Settings} />
       <Route path="/action-dashboard" component={ActionDashboard} />
       <Route path="/messages" component={Messages} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route component={NotFound} />
     </Switch>
   );

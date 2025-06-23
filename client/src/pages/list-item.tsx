@@ -17,6 +17,7 @@ import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
 import PaymentSetupModal from "@/components/payment-setup-modal";
+import Footer from "@/components/footer";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number"),
@@ -377,6 +378,8 @@ export default function ListItem() {
           </CardContent>
         </Card>
       </div>
+      
+      <Footer />
 
       <AuthModal
         isOpen={isAuthModalOpen}

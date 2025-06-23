@@ -17,6 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { User, Star, MapPin, Clock, Package, Eye, Edit, ArrowLeft, Home, Trash2, MoreVertical, X, Plus } from 'lucide-react';
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
+import Footer from "@/components/footer";
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -845,6 +846,8 @@ export default function MyProfile() {
           </DialogContent>
         </Dialog>
       </div>
+      
+      <Footer />
     </div>
   );
 }
