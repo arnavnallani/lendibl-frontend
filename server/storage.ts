@@ -1,6 +1,6 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, gt } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -43,6 +43,12 @@ export interface IStorage {
   // Rental Messages
   getRentalMessages(bookingId: number): Promise<RentalMessage[]>;
   createRentalMessage(message: InsertRentalMessage): Promise<RentalMessage>;
+  
+  // Payment Reminders
+  getPaymentReminders(userId: number): Promise<PaymentReminder[]>;
+  createPaymentReminder(reminder: InsertPaymentReminder): Promise<PaymentReminder>;
+  updatePaymentReminder(id: number, updates: Partial<PaymentReminder>): Promise<PaymentReminder | undefined>;
+  getUsersWithPendingEarnings(): Promise<User[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -653,6 +659,38 @@ export class DatabaseStorage implements IStorage {
       .values(message)
       .returning();
     return newMessage;
+  }
+
+  async getPaymentReminders(userId: number): Promise<PaymentReminder[]> {
+    return await db
+      .select()
+      .from(paymentReminders)
+      .where(and(eq(paymentReminders.userId, userId), eq(paymentReminders.resolved, false)))
+      .orderBy(desc(paymentReminders.createdAt));
+  }
+
+  async createPaymentReminder(reminder: InsertPaymentReminder): Promise<PaymentReminder> {
+    const [paymentReminder] = await db
+      .insert(paymentReminders)
+      .values(reminder)
+      .returning();
+    return paymentReminder;
+  }
+
+  async updatePaymentReminder(id: number, updates: Partial<PaymentReminder>): Promise<PaymentReminder | undefined> {
+    const [reminder] = await db
+      .update(paymentReminders)
+      .set(updates)
+      .where(eq(paymentReminders.id, id))
+      .returning();
+    return reminder || undefined;
+  }
+
+  async getUsersWithPendingEarnings(): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .where(and(gt(users.pendingEarnings, "0"), eq(users.paymentSetupComplete, false)));
   }
 }
 

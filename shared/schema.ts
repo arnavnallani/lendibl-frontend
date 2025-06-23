@@ -2,6 +2,18 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "dri
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Payment setup reminders table
+export const paymentReminders = pgTable("payment_reminders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  reminderType: text("reminder_type").notNull(), // "payout_blocked", "approval_required", "periodic"
+  pendingAmount: decimal("pending_amount", { precision: 10, scale: 2 }).notNull(),
+  reminderCount: integer("reminder_count").default(1),
+  lastSent: timestamp("last_sent").defaultNow(),
+  resolved: boolean("resolved").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -17,6 +29,9 @@ export const users = pgTable("users", {
   responseTime: text("response_time").default("Within 1 hour"),
   stripeAccountId: text("stripe_account_id"),
   paymentSetupComplete: boolean("payment_setup_complete").default(false),
+  pendingEarnings: decimal("pending_earnings", { precision: 10, scale: 2 }).default("0"),
+  paymentSetupReminders: integer("payment_setup_reminders").default(0),
+  lastPaymentReminder: timestamp("last_payment_reminder"),
 });
 
 export const categories = pgTable("categories", {
@@ -58,6 +73,8 @@ export const bookings = pgTable("bookings", {
   paymentCaptured: boolean("payment_captured").default(false),
   payoutScheduled: timestamp("payout_scheduled"),
   payoutCompleted: timestamp("payout_completed"),
+  payoutBlocked: boolean("payout_blocked").default(false),
+  payoutBlockReason: text("payout_block_reason"),
   refundIssued: boolean("refund_issued").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -144,6 +161,11 @@ export const insertUserPreferencesSchema = createInsertSchema(userPreferences).o
   updatedAt: true,
 });
 
+export const insertPaymentReminderSchema = createInsertSchema(paymentReminders).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -168,6 +190,9 @@ export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
 
 export type RentalMessage = typeof rentalMessages.$inferSelect;
 export type InsertRentalMessage = z.infer<typeof insertRentalMessageSchema>;
+
+export type PaymentReminder = typeof paymentReminders.$inferSelect;
+export type InsertPaymentReminder = z.infer<typeof insertPaymentReminderSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

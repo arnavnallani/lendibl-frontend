@@ -7,6 +7,7 @@ import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInte
 import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
+import { paymentReminderService } from "./payment-reminder-service";
 import { z } from "zod";
 
 // Initialize Stripe (will be null if no secret key is provided)
@@ -412,6 +413,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle payment based on status
       if (updatedBooking && status === 'approved') {
+        // Check payment setup before approval
+        const canApprove = await paymentReminderService.checkPaymentSetupForApproval(req.user!.id, id);
+        if (!canApprove) {
+          return res.status(400).json({ 
+            message: "Payment setup required",
+            requiresPaymentSetup: true,
+            pendingAmount: booking.ownerPayout
+          });
+        }
+        
         // Capture payment and schedule payout
         await paymentScheduler.capturePaymentOnApproval(id);
         await paymentScheduler.scheduleOwnerPayout(id);
@@ -724,6 +735,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentSetupComplete: true,
       });
 
+      // Resolve any pending payment reminders
+      await paymentReminderService.resolvePaymentReminders(userId);
+
       res.json({ 
         success: true, 
         message: "Payment setup completed successfully",
@@ -744,11 +758,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const needsPaymentSetup = userItems.length > 0 && !user?.paymentSetupComplete;
       
+      const paymentReminders = await storage.getPaymentReminders(userId);
+      
       res.json({ 
         needsPaymentSetup,
         hasItems: userItems.length > 0,
         paymentSetupComplete: user?.paymentSetupComplete || false,
-        estimatedEarnings: userItems.length * 50 // Rough estimate based on number of items
+        estimatedEarnings: userItems.length * 50, // Rough estimate based on number of items
+        pendingEarnings: user?.pendingEarnings || "0",
+        paymentReminders: paymentReminders
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });

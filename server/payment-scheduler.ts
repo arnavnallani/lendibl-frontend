@@ -1,4 +1,5 @@
-import { storage } from "./storage.js";
+import { storage } from "./storage";
+import { paymentReminderService } from "./payment-reminder-service";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -74,15 +75,38 @@ export class PaymentScheduler {
         return false;
       }
 
-      // In a real implementation, you would:
-      // 1. Create a Stripe transfer to the owner's connected account
-      // 2. Or use Stripe Connect for marketplace payments
-      // For now, we'll just mark it as completed
+      // Check if owner has payment setup completed
+      const owner = await storage.getUser(booking.item.ownerId);
+      if (!owner || !owner.paymentSetupComplete) {
+        console.log(`Payout blocked for booking ${bookingId} - owner payment setup incomplete`);
+        
+        // Block payout and update pending earnings
+        await storage.updateBooking(bookingId, {
+          payoutBlocked: true,
+          payoutBlockReason: 'Payment setup incomplete',
+          updatedAt: new Date()
+        });
 
+        // Add to pending earnings and trigger reminder
+        await paymentReminderService.updatePendingEarnings(
+          booking.item.ownerId, 
+          booking.ownerPayout
+        );
+        
+        return false;
+      }
+
+      // Process payout if payment setup is complete
       await storage.updateBooking(bookingId, {
         payoutCompleted: new Date(),
         updatedAt: new Date()
       });
+
+      // Clear pending earnings for this amount
+      await paymentReminderService.clearPendingEarnings(
+        booking.item.ownerId,
+        booking.ownerPayout
+      );
 
       console.log(`Payout processed for booking ${bookingId}, amount: $${booking.ownerPayout}`);
       return true;
