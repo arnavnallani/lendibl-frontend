@@ -49,9 +49,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 placeholder="Search for anything..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border-2 border-gray-light rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-primary-blue transition-all duration-300 bg-gray-light/30 hover:bg-white hover:shadow-md"
+                className="w-full pl-12 pr-4 py-4 border-2 border-white/30 rounded-3xl focus:outline-none focus:ring-4 focus:ring-primary-blue/30 focus:border-primary-blue transition-all duration-500 glass hover:bg-white/60 hover:shadow-xl placeholder:text-gray-500/70 text-gray-800 font-medium"
               />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-medium h-5 w-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-blue h-6 w-6 animate-pulse" />
             </form>
           </div>
 
@@ -63,10 +63,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("renter")}
-                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "renter" 
-                    ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
-                    : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
+                    ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
+                    : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
                 }`}
               >
                 Rent Items
@@ -75,10 +75,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "lister" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("lister")}
-                className={`px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-300 ${
+                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "lister" 
-                    ? "bg-primary-blue text-white shadow-lg hover:shadow-xl" 
-                    : "text-gray-medium hover:text-gray-dark hover:bg-white/50"
+                    ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
+                    : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
                 }`}
               >
                 <Link href="/list-item">List Items</Link>
@@ -91,15 +91,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 <div className="flex items-center gap-1">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
-                    <Button variant="ghost" className="h-11 w-11 p-0 hover:bg-blue-50 hover:text-primary-blue rounded-xl transition-all duration-200">
-                      <Zap className="w-6 h-6" />
+                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                      <Zap className="w-6 h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
 
                   {/* Messages */}
                   <Link href="/messages">
-                    <Button variant="ghost" className="h-11 w-11 p-0 hover:bg-blue-50 hover:text-primary-blue rounded-xl transition-all duration-200">
-                      <MessageSquare className="w-6 h-6" />
+                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                      <MessageSquare className="w-6 h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
                 </div>

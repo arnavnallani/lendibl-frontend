@@ -113,26 +113,26 @@ export default function Home() {
           
           {/* Feature highlights */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 animate-fade-in">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💰</span>
+            <div className="text-center group hover-float">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-blue/20 to-blue-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-primary-blue/20">
+                <span className="text-3xl animate-pulse-glow">💰</span>
               </div>
-              <h3 className="font-semibold text-gray-dark mb-2">Earn Money</h3>
-              <p className="text-gray-medium text-sm">Make money from items sitting unused</p>
+              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-primary-blue transition-colors duration-300">Earn Money</h3>
+              <p className="text-gray-medium text-base leading-relaxed">Make money from items sitting unused</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🤝</span>
+            <div className="text-center group hover-float">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-green-400/20">
+                <span className="text-3xl animate-pulse-glow">🤝</span>
               </div>
-              <h3 className="font-semibold text-gray-dark mb-2">Help Community</h3>
-              <p className="text-gray-medium text-sm">Support your neighbors and reduce waste</p>
+              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-green-600 transition-colors duration-300">Help Community</h3>
+              <p className="text-gray-medium text-base leading-relaxed">Support your neighbors and reduce waste</p>
             </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📱</span>
+            <div className="text-center group hover-float">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-400/20 to-violet-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-purple-400/20">
+                <span className="text-3xl animate-pulse-glow">📱</span>
               </div>
-              <h3 className="font-semibold text-gray-dark mb-2">Easy Setup</h3>
-              <p className="text-gray-medium text-sm">List items in minutes with our simple flow</p>
+              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-purple-600 transition-colors duration-300">Easy Setup</h3>
+              <p className="text-gray-medium text-base leading-relaxed">List items in minutes with our simple flow</p>
             </div>
           </div>
         </div>
