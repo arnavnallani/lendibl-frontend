@@ -43,6 +43,8 @@ function PaymentSetupForm({ onComplete, onClose, estimatedEarnings }: {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
+  const [cardComplete, setCardComplete] = useState(false);
 
   const {
     register,
@@ -207,25 +209,42 @@ function PaymentSetupForm({ onComplete, onClose, estimatedEarnings }: {
 
             <div className="space-y-2">
               <Label>Card Information</Label>
-              <div className="border rounded-md p-3 bg-white min-h-[44px] flex items-center">
+              <div className="border rounded-md p-4 bg-white min-h-[50px] relative">
                 <CardElement 
                   options={{
                     style: {
                       base: {
                         fontSize: '16px',
                         color: '#424770',
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        lineHeight: '24px',
                         '::placeholder': {
                           color: '#aab7c4',
                         },
                       },
                       invalid: {
                         color: '#dc2626',
+                        iconColor: '#dc2626',
+                      },
+                      complete: {
+                        color: '#16a34a',
+                        iconColor: '#16a34a',
                       },
                     },
+                    hidePostalCode: true,
+                  }}
+                  onChange={(event) => {
+                    setCardError(event.error ? event.error.message : null);
+                    setCardComplete(event.complete);
                   }}
                 />
               </div>
+              {cardError && (
+                <p className="text-sm text-red-600">{cardError}</p>
+              )}
+              {!cardError && (
+                <p className="text-sm text-gray-500">Enter your card number, expiry date, and CVC</p>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">
@@ -241,7 +260,7 @@ function PaymentSetupForm({ onComplete, onClose, estimatedEarnings }: {
               <Button 
                 type="submit" 
                 className="flex-1"
-                disabled={isProcessing || !stripe}
+                disabled={isProcessing || !stripe || !cardComplete}
               >
                 {isProcessing ? "Setting up..." : "Complete Setup"}
               </Button>
