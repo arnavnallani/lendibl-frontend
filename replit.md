@@ -151,6 +151,8 @@ The application uses PostgreSQL with the following main entities:
 - June 22, 2025: Created comprehensive Action Dashboard with rental status tracking, messaging system, and 3-stage rental process (pre-rental, active, completed) with proper payment integration
 - June 22, 2025: Replaced notification bell with Messages page - dedicated conversation board showing all rental-related conversations with real-time messaging interface
 - June 22, 2025: Enhanced design with spectacular visual improvements - advanced animations, glass morphism effects, gradient backgrounds, enhanced hover states, and premium polish throughout the interface
+- June 23, 2025: Implemented comprehensive payment collection system with three key trigger points: before payout attempts, rental approval requirements, and periodic reminders for owners with pending earnings
+- June 23, 2025: Replaced mock Stripe implementation with real Stripe Connect integration - credit card information now securely stored with Stripe, real Express accounts created for payouts, and actual payment method management
 
 ## User Preferences
 

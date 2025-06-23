@@ -28,6 +28,8 @@ export const users = pgTable("users", {
   responseRate: integer("response_rate").default(100),
   responseTime: text("response_time").default("Within 1 hour"),
   stripeAccountId: text("stripe_account_id"),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripePaymentMethodId: text("stripe_payment_method_id"),
   paymentSetupComplete: boolean("payment_setup_complete").default(false),
   pendingEarnings: decimal("pending_earnings", { precision: 10, scale: 2 }).default("0"),
   paymentSetupReminders: integer("payment_setup_reminders").default(0),

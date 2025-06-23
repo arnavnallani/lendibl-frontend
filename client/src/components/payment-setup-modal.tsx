@@ -64,16 +64,19 @@ export default function PaymentSetupModal({
       return response.json();
     },
     onSuccess: () => {
+      setIsProcessing(false);
       toast({
         title: "Payment Setup Complete!",
         description: "You're now ready to receive payments from your rentals.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/payment-setup-status"] });
       reset();
       onComplete();
       onClose();
     },
     onError: (error: Error) => {
+      setIsProcessing(false);
       toast({
         title: "Setup Failed",
         description: error.message,
@@ -84,12 +87,7 @@ export default function PaymentSetupModal({
 
   const onSubmit = async (data: PaymentSetupFormData) => {
     setIsProcessing(true);
-    
-    // Simulate processing time for better UX
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     setupPaymentMutation.mutate(data);
-    setIsProcessing(false);
   };
 
   const formatCardNumber = (value: string) => {

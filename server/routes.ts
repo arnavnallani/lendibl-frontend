@@ -8,6 +8,7 @@ import { hashPassword, comparePassword, generateToken, authenticateToken, option
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
+import { stripeService } from "./stripe-service";
 import { z } from "zod";
 
 // Initialize Stripe (will be null if no secret key is provided)
@@ -710,42 +711,189 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Payment setup endpoint
+  // Payment setup endpoint with real Stripe integration
   app.post("/api/setup-payment", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
       const { cardNumber, expiryDate, cvv, cardholderName } = req.body;
+      const user = await storage.getUser(userId);
 
-      // In a real implementation, you would:
-      // 1. Create a Stripe Connect account for the user
-      // 2. Store the payment method securely with Stripe
-      // 3. Save the Stripe account ID to the user record
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-      // For now, we'll simulate the process and mark payment setup as complete
       if (!stripe) {
         return res.status(400).json({ message: "Payment processing not configured" });
       }
 
-      // Simulate Stripe Connect account creation
-      const mockStripeAccountId = `acct_${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
+      // Step 1: Create or get Stripe customer
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          metadata: {
+            userId: userId.toString()
+          }
+        });
+        customerId = customer.id;
+      }
 
-      // Update user with payment setup completion
+      // Step 2: Create payment method from card details
+      const [month, year] = expiryDate.split('/');
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+          number: cardNumber.replace(/\s/g, ''),
+          exp_month: parseInt(month),
+          exp_year: parseInt(`20${year}`),
+          cvc: cvv,
+        },
+        billing_details: {
+          name: cardholderName,
+          email: user.email,
+        },
+      });
+
+      // Step 3: Attach payment method to customer
+      await stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: customerId,
+      });
+
+      // Step 4: Set as default payment method for the customer
+      await stripe.customers.update(customerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethod.id,
+        },
+      });
+
+      // Step 5: Create Express account for payouts (Stripe Connect)
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: user.email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_type: 'individual',
+        individual: {
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+        },
+        metadata: {
+          userId: userId.toString()
+        }
+      });
+
+      // Step 6: Update user with Stripe IDs
       const updatedUser = await storage.updateUser(userId, {
-        stripeAccountId: mockStripeAccountId,
+        stripeCustomerId: customerId,
+        stripePaymentMethodId: paymentMethod.id,
+        stripeAccountId: account.id,
         paymentSetupComplete: true,
       });
 
-      // Resolve any pending payment reminders
+      // Step 7: Resolve any pending payment reminders
       await paymentReminderService.resolvePaymentReminders(userId);
 
       res.json({ 
         success: true, 
         message: "Payment setup completed successfully",
-        user: updatedUser 
+        user: updatedUser,
+        stripeAccountId: account.id
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment setup error:", error);
+      
+      // Handle specific Stripe errors
+      if (error.type === 'StripeCardError') {
+        return res.status(400).json({ 
+          message: "Invalid card details: " + error.message 
+        });
+      } else if (error.type === 'StripeInvalidRequestError') {
+        return res.status(400).json({ 
+          message: "Invalid request: " + error.message 
+        });
+      }
+      
       res.status(500).json({ message: "Failed to setup payment method" });
+    }
+  });
+
+  // Update payment method endpoint
+  app.put("/api/payment-method", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const { cardNumber, expiryDate, cvv, cardholderName } = req.body;
+
+      const result = await stripeService.updatePaymentMethod(userId, cardNumber, expiryDate, cvv, cardholderName);
+      
+      res.json({ 
+        success: true, 
+        message: "Payment method updated successfully",
+        paymentMethodId: result.paymentMethodId
+      });
+    } catch (error: any) {
+      console.error("Payment method update error:", error);
+      
+      if (error.type === 'StripeCardError') {
+        return res.status(400).json({ 
+          message: "Invalid card details: " + error.message 
+        });
+      }
+      
+      res.status(500).json({ message: "Failed to update payment method" });
+    }
+  });
+
+  // Remove payment method endpoint
+  app.delete("/api/payment-method", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      await stripeService.removePaymentMethod(userId);
+      
+      res.json({ 
+        success: true, 
+        message: "Payment method removed successfully"
+      });
+    } catch (error: any) {
+      console.error("Payment method removal error:", error);
+      res.status(500).json({ message: "Failed to remove payment method" });
+    }
+  });
+
+  // Get payment method info
+  app.get("/api/payment-method", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.stripeCustomerId || !user.stripePaymentMethodId) {
+        return res.json({ hasPaymentMethod: false });
+      }
+
+      const paymentMethods = await stripeService.getCustomerPaymentMethods(user.stripeCustomerId);
+      const currentMethod = paymentMethods.find(pm => pm.id === user.stripePaymentMethodId);
+      
+      if (!currentMethod) {
+        return res.json({ hasPaymentMethod: false });
+      }
+
+      // Return safe card info (last 4 digits, brand, etc.)
+      res.json({
+        hasPaymentMethod: true,
+        card: {
+          brand: currentMethod.card?.brand,
+          last4: currentMethod.card?.last4,
+          expMonth: currentMethod.card?.exp_month,
+          expYear: currentMethod.card?.exp_year,
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching payment method:", error);
+      res.status(500).json({ message: "Failed to fetch payment method" });
     }
   });
 
@@ -760,13 +908,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paymentReminders = await storage.getPaymentReminders(userId);
       
+      // Check Stripe account status if available
+      let accountStatus = null;
+      if (user?.stripeAccountId) {
+        accountStatus = await stripeService.checkAccountStatus(user.stripeAccountId);
+      }
+
       res.json({ 
         needsPaymentSetup,
         hasItems: userItems.length > 0,
         paymentSetupComplete: user?.paymentSetupComplete || false,
         estimatedEarnings: userItems.length * 50, // Rough estimate based on number of items
         pendingEarnings: user?.pendingEarnings || "0",
-        paymentReminders: paymentReminders
+        paymentReminders: paymentReminders,
+        stripeAccountStatus: accountStatus
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });

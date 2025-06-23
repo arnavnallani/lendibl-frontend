@@ -77,7 +77,7 @@ export class PaymentScheduler {
 
       // Check if owner has payment setup completed
       const owner = await storage.getUser(booking.item.ownerId);
-      if (!owner || !owner.paymentSetupComplete) {
+      if (!owner || !owner.paymentSetupComplete || !owner.stripeAccountId) {
         console.log(`Payout blocked for booking ${bookingId} - owner payment setup incomplete`);
         
         // Block payout and update pending earnings
@@ -96,7 +96,23 @@ export class PaymentScheduler {
         return false;
       }
 
-      // Process payout if payment setup is complete
+      // Calculate payout amount (convert to cents for Stripe)
+      const payoutAmountCents = Math.round(parseFloat(booking.ownerPayout) * 100);
+
+      // Create transfer to owner's Stripe account
+      const transfer = await stripe.transfers.create({
+        amount: payoutAmountCents,
+        currency: 'usd',
+        destination: owner.stripeAccountId,
+        description: `Payout for rental: ${booking.item.title}`,
+        metadata: {
+          bookingId: bookingId.toString(),
+          ownerId: owner.id.toString(),
+          itemId: booking.item.id.toString()
+        }
+      });
+
+      // Update booking with payout completion
       await storage.updateBooking(bookingId, {
         payoutCompleted: new Date(),
         updatedAt: new Date()
@@ -108,10 +124,24 @@ export class PaymentScheduler {
         booking.ownerPayout
       );
 
-      console.log(`Payout processed for booking ${bookingId}, amount: $${booking.ownerPayout}`);
+      console.log(`Payout processed for booking ${bookingId}, amount: $${booking.ownerPayout}, transfer ID: ${transfer.id}`);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to process payout:', error);
+      
+      // Block payout on error and add to pending earnings
+      await storage.updateBooking(bookingId, {
+        payoutBlocked: true,
+        payoutBlockReason: `Transfer failed: ${error.message}`,
+        updatedAt: new Date()
+      });
+
+      // Add to pending earnings since payout failed
+      await paymentReminderService.updatePendingEarnings(
+        booking.item.ownerId, 
+        booking.ownerPayout
+      );
+      
       return false;
     }
   }
