@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import logoImage from "@assets/Image_Editor_1750714971523.png";
 
 export default function Footer() {
   return (
@@ -7,7 +8,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="flex items-center space-x-2">
             <img 
-              src="/attached_assets/Image_Editor_1750714971523.png" 
+              src={logoImage} 
               alt="Lendibl" 
               className="h-8 w-auto"
             />
