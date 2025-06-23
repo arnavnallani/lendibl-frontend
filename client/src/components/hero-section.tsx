@@ -67,10 +67,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
                 className="glass rounded-3xl p-10 transition-all duration-500 cursor-pointer hover-lift group backdrop-blur-xl border-2 border-white/20 hover:border-white/40"
                 style={{animationDelay: `${0.8 + index * 0.15}s`}}
               >
-                <div className="relative">
-                  <IconComponent className="w-12 h-12 mx-auto mb-6 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 drop-shadow-lg" />
-                  <div className="absolute inset-0 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-all duration-500"></div>
-                </div>
+                <IconComponent className="w-12 h-12 mx-auto mb-6 group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 drop-shadow-lg" />
                 <p className="font-bold text-xl group-hover:text-white/90 transition-colors duration-300">{category.name}</p>
               </div>
             );
