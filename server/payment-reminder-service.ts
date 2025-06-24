@@ -84,6 +84,12 @@ export class PaymentReminderService {
 
   // Helper method to create payment setup reminders
   private async createPaymentSetupReminder(userId: number, type: string, amount: string) {
+    const validTypes = ['credit_card_required', 'paypal_setup_required', 'stripe_connect_required', 'stripe_onboarding_required', 'payout_blocked'];
+    if (!validTypes.includes(type)) {
+      console.error(`Invalid reminder type: ${type}`);
+      return;
+    }
+    
     try {
       // Check if there's already an unresolved reminder of this type
       const existingReminders = await storage.getPaymentReminders(userId);

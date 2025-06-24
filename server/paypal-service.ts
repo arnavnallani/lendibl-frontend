@@ -143,16 +143,8 @@ export class PayPalService {
           status: result.batch_header.batch_status
         };
       } else {
-        // For sandbox testing, simulate successful payout since we don't have funds
-        if (result.name === 'INSUFFICIENT_FUNDS' && this.baseUrl.includes('sandbox')) {
-          console.log(`SIMULATION: PayPal payout of $${amount} to ${ownerEmail} (insufficient sandbox funds)`);
-          return {
-            success: true,
-            payoutId: `simulated_${Date.now()}`,
-            status: 'SUCCESS',
-            simulation: true
-          };
-        }
+        // PayPal Payouts API requires sender to have funds, which we don't in sandbox
+        // Real implementation should use Stripe Connect for actual money transfers
         throw new Error(result.message || 'PayPal payout failed');
       }
     } catch (error) {

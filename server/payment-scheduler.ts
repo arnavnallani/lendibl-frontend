@@ -99,41 +99,68 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process payout via PayPal (preferred for simplicity) or Stripe Connect
+        // Process payout via Stripe Connect (works for both PayPal and Stripe users)
         if (hasPayPal) {
-          console.log(`PROCESSING REAL MONEY TRANSFER via PayPal:`);
-          console.log(`- From: Lendibl's PayPal balance`);
-          console.log(`- To: ${owner.paypalEmail}`);
+          console.log(`PROCESSING REAL MONEY TRANSFER via Stripe Connect for PayPal user:`);
+          console.log(`- From: Lendibl's Stripe account (renter payment: $${totalPaid})`);
+          console.log(`- To: ${owner.email} (PayPal preference: ${owner.paypalEmail})`);
           console.log(`- Amount: $${ownerPayout} (exact list price)`);
           console.log(`- Commission kept: $${platformCommission}`);
           
-          const payoutResult = await paypalService.sendPayout(
-            owner.paypalEmail!,
+          // Create Stripe Connect Express account for PayPal user if not exists
+          let stripeAccountId = owner.stripeAccountId;
+          if (!stripeAccountId) {
+            console.log(`Creating Stripe Express account for PayPal user ${owner.email}`);
+            const connectResult = await stripeService.createConnectedAccount(
+              owner.id, 
+              owner.email, 
+              owner.firstName, 
+              owner.lastName
+            );
+            stripeAccountId = connectResult.accountId;
+            
+            // Update user with Stripe account ID
+            await storage.updateUser(owner.id, {
+              stripeAccountId: stripeAccountId,
+              updatedAt: new Date()
+            });
+          }
+          
+          // Check if account is ready for payouts
+          const accountStatus = await stripeService.checkAccountStatus(stripeAccountId);
+          if (!accountStatus || !accountStatus.payoutsEnabled) {
+            console.log(`⚠️  Stripe account ${stripeAccountId} not ready for payouts - requires onboarding`);
+            
+            // Add to pending earnings and send reminder
+            await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
+            await paymentReminderService.createPaymentSetupReminder(
+              owner.id, 
+              'stripe_onboarding_required', 
+              ownerPayout.toString()
+            );
+            
+            return false;
+          }
+          
+          // Process via Stripe Connect payout
+          const transfer = await stripeService.createConnectedAccountPayout(
+            stripeAccountId,
             ownerPayout,
             `Rental payout for ${booking.item.title}`,
             { bookingId: booking.id.toString(), userId: owner.id.toString() }
           );
           
-          if (payoutResult.simulation) {
-            console.log(`✅ SIMULATION SUCCESS: In production, $${ownerPayout} would transfer to ${owner.paypalEmail}`);
-            console.log(`  • Renter paid: $${totalPaid} → Lendibl account`);
-            console.log(`  • Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
-            console.log(`  • Lendibl commission: $${platformCommission}`);
-          } else {
-            console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
-            console.log(`  • PayPal Payout ID: ${payoutResult.payoutId}`);
-            console.log(`  • Amount sent to owner: $${ownerPayout}`);
-            console.log(`  • PayPal Email: ${owner.paypalEmail}`);
-            console.log(`  • Owner: ${owner.email}`);
-            console.log(`  • Lendibl commission: $${platformCommission}`);
-          }
+          console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
+          console.log(`  • Stripe Transfer ID: ${transfer.id}`);
+          console.log(`  • Amount sent to owner: $${ownerPayout}`);
+          console.log(`  • Owner: ${owner.email} (PayPal preference: ${owner.paypalEmail})`);
+          console.log(`  • Method: Stripe Connect to bank account/card`);
+          console.log(`  • Lendibl commission: $${platformCommission}`);
           
           await storage.updateBooking(bookingId, {
             payoutCompleted: new Date(),
-            stripeTransferId: payoutResult.payoutId,
-            payoutNote: payoutResult.simulation 
-              ? `PayPal transfer simulation: $${ownerPayout}` 
-              : `Real PayPal transfer: $${ownerPayout}`,
+            stripeTransferId: transfer.id,
+            payoutNote: `Stripe payout to PayPal user: $${ownerPayout}`,
             updatedAt: new Date()
           });
 

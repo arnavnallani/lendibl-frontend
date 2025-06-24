@@ -488,10 +488,13 @@ Don't have PayPal? Sign up free at paypal.com first.`;
                                   <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
                                 </div>
                                 <p className="text-sm text-blue-700 mb-2">
-                                  Connect your existing PayPal account - no additional verification needed.
+                                  Connect your PayPal email. Real payouts processed via Stripe Connect.
                                 </p>
                                 <p className="text-xs text-blue-600 mb-3">
                                   Need PayPal? <a href="https://paypal.com" target="_blank" className="underline hover:no-underline">Sign up free at paypal.com</a>
+                                </p>
+                                <p className="text-xs text-gray-600 mb-3">
+                                  Note: You'll need to complete Stripe verification for payouts (we'll guide you through this).
                                 </p>
                                 <Button 
                                   onClick={handleConnectPayPal}
