@@ -219,7 +219,7 @@ export function DynamicSearch({
   return (
     <div ref={searchRef} className={`relative ${className}`}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-blue transition-colors duration-300" />
         <Input
           ref={inputRef}
           type="text"
@@ -228,7 +228,7 @@ export function DynamicSearch({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="pl-10 pr-10 h-12 text-base bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl"
+          className="pl-10 pr-10 h-12 text-base bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-gray-500/70 text-gray-800 font-medium"
         />
         {value && (
           <Button

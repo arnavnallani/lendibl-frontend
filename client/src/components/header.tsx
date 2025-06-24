@@ -42,23 +42,24 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </Link>
           </div>
 
-          {/* Search Bar (Desktop) */}
+          {/* Enhanced Search Bar (Desktop) */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
-            <form onSubmit={handleSearch} className="relative w-full group">
+            <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-blue transition-colors duration-300" />
-                  <Input
-                    type="text"
-                    placeholder="Search for anything..."
+                  <DynamicSearch
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-gray-500/70 text-gray-800 font-medium text-base"
+                    onChange={(value) => {
+                      setSearchQuery(value);
+                      onSearch(value);
+                    }}
+                    placeholder="Search for cameras, tools, bikes, party supplies..."
+                    className="w-full"
                   />
                 </div>
               </div>
-            </form>
+            </div>
           </div>
 
           {/* User Controls */}
