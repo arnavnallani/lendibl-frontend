@@ -52,10 +52,14 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     }
   }, []);
 
-  // Save accounts to localStorage
+  // Save accounts to localStorage - maintain order
   const saveAccountsToStorage = (accounts: SavedAccount[]) => {
-    localStorage.setItem('lendibl_saved_accounts', JSON.stringify(accounts));
-    setSavedAccounts(accounts);
+    // Sort by addedAt to maintain consistent order
+    const sorted = accounts.sort((a, b) => 
+      new Date(a.addedAt || a.lastUsed).getTime() - new Date(b.addedAt || b.lastUsed).getTime()
+    );
+    localStorage.setItem('lendibl_saved_accounts', JSON.stringify(sorted));
+    setSavedAccounts(sorted);
   };
 
   // Add current account to saved accounts if not already there
