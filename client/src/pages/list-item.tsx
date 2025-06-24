@@ -16,7 +16,7 @@ import { api } from "@/lib/api";
 import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
-import PaymentSetupModal from "@/components/payment-setup-modal";
+import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 
 const formSchema = insertItemSchema.extend({
@@ -31,8 +31,8 @@ export default function ListItem() {
   const [, setLocation] = useLocation();
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isPaymentSetupOpen, setIsPaymentSetupOpen] = useState(false);
-  const [paymentSetupData, setPaymentSetupData] = useState<any>(null);
+  const [isOwnerPaymentSetupOpen, setIsOwnerPaymentSetupOpen] = useState(false);
+  const [listedItemTitle, setListedItemTitle] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -103,6 +103,37 @@ export default function ListItem() {
       });
     },
   });
+
+  // Check if user should be prompted for payment setup after listing item
+  const checkIfShouldPromptPaymentSetup = async () => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch('/api/payment-setup-status', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Show owner payment setup if user has items but no payment method configured
+        if (data.hasItems && !data.paymentSetupComplete && !data.paypalConnected && !data.stripeAccountStatus?.payoutsEnabled) {
+          setIsOwnerPaymentSetupOpen(true);
+        } else {
+          toast({
+            title: "Item Listed Successfully!",
+            description: "Your item is now available for rent.",
+          });
+          setLocation("/");
+        }
+      } else {
+        setLocation("/");
+      }
+    } catch (error) {
+      console.error('Failed to check payment setup status:', error);
+      setLocation("/");
+    }
+  };
 
   const onSubmit = (values: FormValues) => {
     if (!user) {
@@ -387,21 +418,21 @@ export default function ListItem() {
         defaultTab="register"
       />
 
-      <PaymentSetupModal
-        isOpen={isPaymentSetupOpen}
+      <OwnerPaymentSetupModal
+        isOpen={isOwnerPaymentSetupOpen}
         onClose={() => {
-          setIsPaymentSetupOpen(false);
+          setIsOwnerPaymentSetupOpen(false);
           setLocation("/");
         }}
         onComplete={() => {
-          setIsPaymentSetupOpen(false);
+          setIsOwnerPaymentSetupOpen(false);
           toast({
             title: "Payment Setup Complete!",
             description: "You're now ready to receive payments from your rentals.",
           });
           setLocation("/");
         }}
-        estimatedEarnings={paymentSetupData?.estimatedEarnings}
+        itemTitle={listedItemTitle}
       />
     </div>
   );

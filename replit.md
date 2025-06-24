@@ -165,6 +165,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Created complete Stripe Connect onboarding system - owners can create Connect accounts via Settings page, complete onboarding through Stripe interface, and receive real money transfers upon rental completion
 - June 24, 2025: Removed all simulation code and enabled real money transfers - Stripe Connect accounts are now created as real Express accounts, payments are processed with actual money movement, and payouts require completed Connect onboarding
 - June 24, 2025: Integrated PayPal Platform API for simplified owner payment setup - owners can now choose between PayPal (simple account connection) or Stripe Connect (full business verification) for receiving rental payouts, maintaining exact payment flow with real money transfers
+- June 24, 2025: Modified item listing flow to prompt owners for payment setup (PayPal/Stripe Connect) instead of credit card collection after listing their first item, with option to skip and configure later in Settings
 
 ## User Preferences
 
