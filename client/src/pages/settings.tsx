@@ -116,6 +116,10 @@ export default function Settings() {
         // Redirect to PayPal
         if (data.connectUrl) {
           window.location.href = data.connectUrl;
+          toast({
+            title: "Redirecting to PayPal",
+            description: "You'll be redirected to PayPal to connect your account.",
+          });
         }
       } else {
         toast({

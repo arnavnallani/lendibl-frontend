@@ -41,9 +41,11 @@ export class PayPalService {
       const user = await storage.getUser(userId);
       if (!user) throw new Error('User not found');
 
-      // For sandbox/testing, we'll use a simplified flow
-      // In production, you'd use PayPal's Partner API for marketplace onboarding
-      const connectUrl = `${this.baseUrl}/connect?flowEntry=static&client_id=${this.clientId}&response_type=code&scope=openid%20email&redirect_uri=${encodeURIComponent(process.env.REPL_URL || 'http://localhost:5000')}/paypal-callback&state=${userId}`;
+      // Use PayPal's standard OAuth2 authorization URL
+      const redirectUri = encodeURIComponent(`${process.env.REPL_URL || 'http://localhost:5000'}/paypal-callback`);
+      const scope = encodeURIComponent('openid email');
+      
+      const connectUrl = `https://www.paypal.com/signin/authorize?client_id=${this.clientId}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}&state=${userId}`;
       
       console.log(`Generated PayPal connect URL for user ${userId}`);
       return connectUrl;
@@ -59,13 +61,16 @@ export class PayPalService {
       const accessToken = await this.getAccessToken();
       
       // Exchange auth code for user access token
+      const auth = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+      const redirectUri = `${process.env.REPL_URL || 'http://localhost:5000'}/paypal-callback`;
+      
       const tokenResponse = await fetch(`${this.baseUrl}/v1/oauth2/token`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Basic ${auth}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: `grant_type=authorization_code&code=${authCode}&redirect_uri=${encodeURIComponent(process.env.REPL_URL || 'http://localhost:5000')}/paypal-callback`
+        body: `grant_type=authorization_code&code=${authCode}&redirect_uri=${encodeURIComponent(redirectUri)}`
       });
 
       const tokenData = await tokenResponse.json();

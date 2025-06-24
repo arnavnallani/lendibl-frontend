@@ -62,11 +62,11 @@ export default function OwnerPaymentSetupModal({
 
       if (response.ok) {
         const data = await response.json();
-        if (data.authUrl) {
-          window.open(data.authUrl, '_blank');
+        if (data.connectUrl) {
+          window.location.href = data.connectUrl;
           toast({
-            title: "PayPal Connection Started",
-            description: "Complete the authorization in the new window, then return here.",
+            title: "Redirecting to PayPal",
+            description: "You'll be redirected to PayPal to connect your account.",
           });
         }
       } else {
