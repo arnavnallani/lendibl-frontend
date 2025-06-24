@@ -999,6 +999,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint for payout functionality  
+  app.post("/api/test-payout/:bookingId", async (req, res) => {
+    try {
+      const bookingId = parseInt(req.params.bookingId);
+      console.log(`\n=== Testing payout for booking ${bookingId} ===`);
+      
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ success: false, message: 'Booking not found' });
+      }
+      
+      console.log(`Booking status: ${booking.status}, Total: $${booking.totalPrice}`);
+      
+      const result = await paymentScheduler.processOwnerPayout(bookingId);
+      console.log(`Payout result: ${result}`);
+      
+      const updatedBooking = await storage.getBooking(bookingId);
+      console.log(`Updated booking - Completed: ${updatedBooking.payoutCompleted}, Blocked: ${updatedBooking.payoutBlocked}`);
+      
+      res.json({ 
+        success: result, 
+        message: result ? 'Payout completed successfully' : 'Payout failed or blocked',
+        bookingId,
+        payoutCompleted: updatedBooking.payoutCompleted,
+        payoutBlocked: updatedBooking.payoutBlocked,
+        transferId: updatedBooking.stripeTransferId
+      });
+    } catch (error: any) {
+      console.error('Payout test error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Payout test failed', 
+        error: error.message 
+      });
+    }
+  });
+
   // Reviews
   app.get("/api/reviews", async (req, res) => {
     try {
