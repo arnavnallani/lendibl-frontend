@@ -177,6 +177,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Fixed PayPal API endpoint configuration - business account credentials work with production API (api.paypal.com) not sandbox. Automated PayPal payouts now functional with proper API endpoint
 - June 24, 2025: Identified PayPal Payouts API permission issue - business account requires "Payouts" feature enabled in Developer Console for automated transfers. Authorization working but payouts blocked due to insufficient API permissions
 - June 24, 2025: Created PayPal Payouts enablement guide - user needs to check "Payouts" feature in PayPal Developer Console app settings. Once enabled, automated money transfers will work immediately for all rental completions
+- June 24, 2025: Diagnosed PayPal funding issue - Payouts API enabled but authorization fails due to insufficient PayPal business account balance. Solution: Add funds to PayPal business account for automated transfers to work
 
 ## User Preferences
 
