@@ -61,57 +61,93 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
   const saveCurrentAccount = () => {
     if (!currentUser) return;
     
-    const currentToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-    if (!currentToken) return;
-
     const existing = savedAccounts.find(acc => acc.email === currentUser.email);
     if (existing) {
-      // Update existing account
+      // Update existing account timestamp
       const updated = savedAccounts.map(acc => 
         acc.email === currentUser.email 
-          ? { ...acc, token: currentToken, lastUsed: new Date().toISOString() }
+          ? { ...acc, lastUsed: new Date().toISOString() }
           : acc
       );
       saveAccountsToStorage(updated);
-    } else {
-      // Add new account
-      const newAccount: SavedAccount = {
-        id: currentUser.id,
-        email: currentUser.email,
-        firstName: currentUser.firstName,
-        lastName: currentUser.lastName,
-        token: currentToken,
-        lastUsed: new Date().toISOString()
-      };
-      saveAccountsToStorage([...savedAccounts, newAccount]);
     }
+    // Note: We don't auto-save accounts anymore since we need credentials for reliable switching
+    // Users must explicitly add accounts through the "Add Account" button
   };
 
   // Switch to different account
-  const switchAccount = (account: SavedAccount) => {
+  const switchAccount = async (account: SavedAccount) => {
     console.log("Switching to account:", account.email);
     
-    // Update last used timestamp
-    const updated = savedAccounts.map(acc => 
-      acc.id === account.id 
-        ? { ...acc, lastUsed: new Date().toISOString() }
-        : acc
-    );
-    saveAccountsToStorage(updated);
+    try {
+      // Check if this is a credential-based account
+      if (account.token.startsWith('credentials:')) {
+        const [, email, encodedPassword] = account.token.split(':');
+        const password = atob(encodedPassword);
+        
+        console.log("Logging in with stored credentials for:", email);
+        
+        // Login with stored credentials to get fresh token
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
 
-    // Switch to the account - set tokens before calling onAccountSwitch
-    localStorage.setItem('auth_token', account.token);
-    localStorage.setItem('token', account.token);
-    
-    console.log("Token set, calling onAccountSwitch");
-    
-    toast({
-      title: "Account Switched",
-      description: `Now logged in as ${account.firstName} ${account.lastName}`,
-    });
-    
-    // Call the switch handler which should refresh the UI
-    onAccountSwitch(account.token);
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Update the account with new token and timestamp
+          const updated = savedAccounts.map(acc => 
+            acc.id === account.id 
+              ? { ...acc, lastUsed: new Date().toISOString() }
+              : acc
+          );
+          saveAccountsToStorage(updated);
+
+          // Set the new token
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('token', data.token);
+          
+          toast({
+            title: "Account Switched",
+            description: `Now logged in as ${account.firstName} ${account.lastName}`,
+          });
+          
+          // Call the switch handler which should refresh the UI
+          onAccountSwitch(data.token);
+        } else {
+          throw new Error('Failed to login with saved credentials');
+        }
+      } else {
+        // Legacy token-based switching (fallback)
+        const updated = savedAccounts.map(acc => 
+          acc.id === account.id 
+            ? { ...acc, lastUsed: new Date().toISOString() }
+            : acc
+        );
+        saveAccountsToStorage(updated);
+
+        localStorage.setItem('auth_token', account.token);
+        localStorage.setItem('token', account.token);
+        
+        toast({
+          title: "Account Switched",
+          description: `Now logged in as ${account.firstName} ${account.lastName}`,
+        });
+        
+        onAccountSwitch(account.token);
+      }
+    } catch (error) {
+      console.error("Account switch failed:", error);
+      toast({
+        title: "Switch Failed",
+        description: "Unable to switch to this account. Please try adding it again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Remove account from saved list
@@ -138,6 +174,17 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
 
     setIsLogging(true);
     try {
+      // Store credentials instead of tokens for reliable switching
+      const newAccount: SavedAccount = {
+        id: Date.now(), // Temporary ID, will be updated after login
+        email: loginForm.email,
+        firstName: "",
+        lastName: "",
+        token: `credentials:${loginForm.email}:${btoa(loginForm.password)}`, // Store encoded credentials
+        lastUsed: new Date().toISOString()
+      };
+      
+      // Test login to validate credentials
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -149,7 +196,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
       if (response.ok) {
         const data = await response.json();
         
-        // Get user details
+        // Get user details to update the account info
         const userResponse = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${data.token}`,
@@ -159,15 +206,10 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
         if (userResponse.ok) {
           const userData = await userResponse.json();
           
-          // Add to saved accounts
-          const newAccount: SavedAccount = {
-            id: userData.user.id,
-            email: userData.user.email,
-            firstName: userData.user.firstName,
-            lastName: userData.user.lastName,
-            token: data.token,
-            lastUsed: new Date().toISOString()
-          };
+          // Update account with real user data
+          newAccount.id = userData.user.id;
+          newAccount.firstName = userData.user.firstName;
+          newAccount.lastName = userData.user.lastName;
           
           // Check if account already exists
           const existing = savedAccounts.find(acc => acc.email === newAccount.email);
