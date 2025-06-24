@@ -46,14 +46,18 @@ export default function Settings() {
   useEffect(() => {
     const fetchPaymentStatus = async () => {
       try {
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
         const response = await fetch('/api/payment-setup-status', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
         });
         if (response.ok) {
           const data = await response.json();
+          console.log('Payment status data:', data);
           setPaymentStatus(data);
+        } else {
+          console.error('Failed to fetch payment status:', response.status);
         }
       } catch (error) {
         console.error('Failed to fetch payment status:', error);
@@ -92,10 +96,11 @@ export default function Settings() {
   const handleConnectPayPal = async () => {
     setIsCreatingAccount(true);
     try {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       const response = await fetch('/api/connect-paypal', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -133,10 +138,11 @@ export default function Settings() {
   const handleCreateConnectAccount = async () => {
     setIsCreatingAccount(true);
     try {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
       const response = await fetch('/api/create-connect-account', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -156,9 +162,10 @@ export default function Settings() {
 
         // Refresh payment status
         setTimeout(async () => {
+          const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
           const statusResponse = await fetch('/api/payment-setup-status', {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Authorization': `Bearer ${token}`,
             },
           });
           if (statusResponse.ok) {
@@ -387,6 +394,9 @@ export default function Settings() {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="text-sm text-gray-500 mb-2">
+                    Debug: Has items: {paymentStatus.hasItems ? 'Yes' : 'No'}, PayPal configured: {paymentStatus.paypalConfigured ? 'Yes' : 'No'}
+                  </div>
                   {paymentStatus.hasItems && (
                     <div className="space-y-4">
                       {/* Connect Account Status */}
@@ -527,15 +537,44 @@ export default function Settings() {
                   )}
                   
                   {!paymentStatus.hasItems && (
-                    <div className="text-center py-6">
-                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                      <h4 className="font-medium text-gray-600 mb-2">No Items Listed</h4>
-                      <p className="text-sm text-gray-500 mb-4">
-                        List items to start earning and set up payment processing.
-                      </p>
-                      <Link href="/my-profile">
-                        <Button variant="outline">Add Your First Item</Button>
-                      </Link>
+                    <div className="space-y-4">
+                      <div className="text-center py-6">
+                        <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                        <h4 className="font-medium text-gray-600 mb-2">No Items Listed</h4>
+                        <p className="text-sm text-gray-500 mb-4">
+                          List items to start earning and set up payment processing.
+                        </p>
+                        <Link href="/my-profile">
+                          <Button variant="outline">Add Your First Item</Button>
+                        </Link>
+                      </div>
+                      
+                      {/* Show PayPal setup even without items for testing */}
+                      {paymentStatus.paypalConfigured && (
+                        <div className="border-t pt-4">
+                          <h4 className="font-medium text-gray-700 mb-3">Payment Methods (Preview)</h4>
+                          <div className="p-3 border rounded-lg bg-blue-50">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">P</div>
+                                <span className="font-medium text-blue-800">PayPal (Available)</span>
+                              </div>
+                              <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
+                            </div>
+                            <p className="text-sm text-blue-700 mb-3">
+                              Ready to connect when you list your first item.
+                            </p>
+                            <Button 
+                              onClick={handleConnectPayPal}
+                              disabled={isCreatingAccount}
+                              variant="outline"
+                              className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                            >
+                              {isCreatingAccount ? 'Connecting...' : 'Test PayPal Connection'}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
