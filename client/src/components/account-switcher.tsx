@@ -24,6 +24,7 @@ interface SavedAccount {
   lastName: string;
   token: string;
   lastUsed: string;
+  addedAt: string; // Track when account was added for stable ordering
 }
 
 interface AccountSwitcherProps {
@@ -175,13 +176,15 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     setIsLogging(true);
     try {
       // Store credentials instead of tokens for reliable switching
+      const now = new Date().toISOString();
       const newAccount: SavedAccount = {
         id: Date.now(), // Temporary ID, will be updated after login
         email: loginForm.email,
         firstName: "",
         lastName: "",
         token: `credentials:${loginForm.email}:${btoa(loginForm.password)}`, // Store encoded credentials
-        lastUsed: new Date().toISOString()
+        lastUsed: now,
+        addedAt: now
       };
       
       // Test login to validate credentials
@@ -214,9 +217,11 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           // Check if account already exists
           const existing = savedAccounts.find(acc => acc.email === newAccount.email);
           if (existing) {
-            // Update existing
+            // Update existing but preserve addedAt for stable ordering
             const updated = savedAccounts.map(acc => 
-              acc.email === newAccount.email ? newAccount : acc
+              acc.email === newAccount.email 
+                ? { ...newAccount, addedAt: acc.addedAt } // Keep original addedAt
+                : acc
             );
             saveAccountsToStorage(updated);
           } else {
