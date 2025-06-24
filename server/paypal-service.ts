@@ -145,17 +145,23 @@ export class PayPalService {
           status: result.batch_header.batch_status
         };
       } else {
-        // For sandbox testing, simulate successful payout since we don't have funds
-        if (result.name === 'INSUFFICIENT_FUNDS' && this.baseUrl.includes('sandbox')) {
-          console.log(`SIMULATION: PayPal payout of $${amount} to ${ownerEmail} (insufficient sandbox funds)`);
-          return {
-            success: true,
-            payoutId: `simulated_${Date.now()}`,
-            status: 'SUCCESS',
-            simulation: true
-          };
+        // Handle different error scenarios
+        if (result.name === 'INSUFFICIENT_FUNDS') {
+          if (this.baseUrl.includes('sandbox')) {
+            console.log(`SANDBOX MODE: PayPal payout of $${amount} to ${ownerEmail} (insufficient sandbox funds)`);
+            console.log(`💡 In production, Lendibl would need sufficient PayPal balance to send payouts`);
+            return {
+              success: true,
+              payoutId: `sandbox_${Date.now()}`,
+              status: 'SUCCESS',
+              simulation: true,
+              note: 'Sandbox simulation - would succeed with real funds'
+            };
+          } else {
+            throw new Error(`Insufficient funds in Lendibl's PayPal account. Cannot send $${amount} to ${ownerEmail}`);
+          }
         }
-        throw new Error(result.message || 'PayPal payout failed');
+        throw new Error(result.message || `PayPal payout failed: ${result.name || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('PayPal payout error:', error);
