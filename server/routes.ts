@@ -425,8 +425,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Capture payment and schedule payout
-        await paymentScheduler.capturePaymentOnApproval(id);
+        // Payment already captured, just schedule payout
         await paymentScheduler.scheduleOwnerPayout(id);
       } else if (updatedBooking && (status === 'declined' || status === 'cancelled')) {
         // Process refund for declined or cancelled bookings
@@ -525,7 +524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         automatic_payment_methods: {
           enabled: true,
         },
-        capture_method: 'manual', // Hold payment for manual capture later
+        capture_method: 'automatic', // Capture payment immediately to Lendibl's account
         metadata: {
           userId: req.user!.id.toString(),
           userEmail: req.user!.email,
@@ -562,7 +561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         renterId: req.user!.id,
         paymentConfirmed: true,
         paymentIntentId: paymentIntentId,
-        paymentCaptured: false, // Payment is authorized but not captured yet
+        paymentCaptured: true, // Payment is automatically captured to Lendibl's account
       });
       
       const booking = await storage.createBooking(validatedData);
@@ -577,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: "booking_request",
           id: Date.now(),
           title: "New Paid Rental Request",
-          message: `${req.user!.firstName} has paid $${booking.totalPrice} and wants to rent your ${item.title}. Payment is held in escrow until approved.`,
+          message: `${req.user!.firstName} has paid $${booking.totalPrice} and wants to rent your ${item.title}. Payment received and ready for approval.`,
           itemId: item.id,
           bookingId: booking.id,
           timestamp: new Date().toISOString(),

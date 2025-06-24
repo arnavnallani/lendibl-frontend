@@ -12,34 +12,11 @@ const stripe = process.env.STRIPE_SECRET_KEY
 export class PaymentScheduler {
   
   // Capture payment when booking is approved
+  // Payment is now captured automatically when booking is created
+  // This method is no longer needed but kept for reference
   async capturePaymentOnApproval(bookingId: number) {
-    if (!stripe) {
-      console.error('Stripe not configured');
-      return false;
-    }
-
-    try {
-      const booking = await storage.getBooking(bookingId);
-      if (!booking || !booking.paymentIntentId) {
-        console.error('Booking or payment intent not found');
-        return false;
-      }
-
-      // Capture the payment
-      await stripe.paymentIntents.capture(booking.paymentIntentId);
-      
-      // Update booking status
-      await storage.updateBooking(bookingId, {
-        paymentCaptured: true,
-        updatedAt: new Date()
-      });
-
-      console.log(`Payment captured for booking ${bookingId}`);
-      return true;
-    } catch (error) {
-      console.error('Failed to capture payment:', error);
-      return false;
-    }
+    console.log(`Payment already captured for booking ${bookingId} - scheduling payout`);
+    return await this.scheduleOwnerPayout(bookingId);
   }
 
   // Schedule payout immediately when rental period ends
@@ -137,17 +114,26 @@ export class PaymentScheduler {
             { bookingId: booking.id.toString(), userId: owner.id.toString() }
           );
           
-          console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
-          console.log(`  • PayPal Payout ID: ${payoutResult.payoutId}`);
-          console.log(`  • Amount sent to owner: $${ownerPayout}`);
-          console.log(`  • PayPal Email: ${owner.paypalEmail}`);
-          console.log(`  • Owner: ${owner.email}`);
-          console.log(`  • Lendibl commission: $${platformCommission}`);
+          if (payoutResult.simulation) {
+            console.log(`✅ SIMULATION SUCCESS: In production, $${ownerPayout} would transfer to ${owner.paypalEmail}`);
+            console.log(`  • Renter paid: $${totalPaid} → Lendibl account`);
+            console.log(`  • Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
+            console.log(`  • Lendibl commission: $${platformCommission}`);
+          } else {
+            console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
+            console.log(`  • PayPal Payout ID: ${payoutResult.payoutId}`);
+            console.log(`  • Amount sent to owner: $${ownerPayout}`);
+            console.log(`  • PayPal Email: ${owner.paypalEmail}`);
+            console.log(`  • Owner: ${owner.email}`);
+            console.log(`  • Lendibl commission: $${platformCommission}`);
+          }
           
           await storage.updateBooking(bookingId, {
             payoutCompleted: new Date(),
             stripeTransferId: payoutResult.payoutId,
-            payoutNote: `Real PayPal transfer: $${ownerPayout}`,
+            payoutNote: payoutResult.simulation 
+              ? `PayPal transfer simulation: $${ownerPayout}` 
+              : `Real PayPal transfer: $${ownerPayout}`,
             updatedAt: new Date()
           });
 
