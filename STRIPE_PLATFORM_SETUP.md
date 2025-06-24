@@ -23,9 +23,18 @@ Your platform profile is already configured! You just need to acknowledge the ag
 - Account creation: ✅ Onboarding hosted by Stripe  
 - Negative balance liability: ✅ Stripe handles liability
 
-### 4. Immediate Activation
-- No review period required - activation is instant
-- Once you click both "Acknowledge" buttons, Connect accounts work immediately
+### 4. Additional Configuration Required
+After acknowledging both agreements, you may need to contact Stripe support for US domestic platform configuration.
+
+**If you get "recipient ToS agreement" error:**
+- This indicates your platform needs special US domestic configuration
+- Contact Stripe support and mention: "US domestic marketplace platform configuration"
+- Reference error: "recipient ToS agreement not supported for US platforms creating US accounts"
+
+### 5. Alternative: Request US Domestic Platform Setup
+Email Stripe support: support@stripe.com
+Subject: "US Domestic Marketplace Platform Configuration"
+Message: "Please configure our platform for US domestic marketplace operations. We're getting ToS agreement errors when creating Express accounts for US sellers."
 
 ### 5. After Approval
 Once approved, the Stripe Connect account creation will work automatically and process real money transfers.
