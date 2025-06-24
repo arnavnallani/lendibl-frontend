@@ -158,10 +158,27 @@ export class PayPalService {
           status: result.batch_header.batch_status
         };
       } else {
-        console.error('PayPal API Error:', result);
+        console.log('PayPal payout failed:', result.message);
+        
+        // Handle specific authorization errors
+        if (result.name === 'AUTHORIZATION_ERROR') {
+          console.log('PAYPAL APPROVAL REQUIRED:');
+          console.log('Business account needs PayPal review for live payouts');
+          console.log(`Manual action: Send $${amount.toFixed(2)} to ${ownerEmail}`);
+          
+          return {
+            success: false,
+            error: 'PayPal business account pending approval for live payouts',
+            requiresApproval: true,
+            debugId: result.debug_id,
+            manualAction: `Send $${amount.toFixed(2)} to ${ownerEmail} via PayPal manually`
+          };
+        }
+        
         return {
           success: false,
-          error: result.message || result.error_description || 'PayPal payout failed'
+          error: result.message || result.error_description || 'PayPal payout failed',
+          manualAction: `Manual payout: $${amount.toFixed(2)} to ${ownerEmail}`
         };
       }
     } catch (error) {
