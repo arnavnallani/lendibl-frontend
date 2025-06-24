@@ -167,6 +167,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Integrated PayPal Platform API for simplified owner payment setup - owners can now choose between PayPal (simple account connection) or Stripe Connect (full business verification) for receiving rental payouts, maintaining exact payment flow with real money transfers
 - June 24, 2025: Modified item listing flow to prompt owners for payment setup (PayPal/Stripe Connect) instead of credit card collection after listing their first item, with option to skip and configure later in Settings
 - June 24, 2025: Simplified PayPal integration to use email-based setup instead of complex OAuth flow - owners provide PayPal email directly for streamlined onboarding
+- June 24, 2025: Enhanced PayPal setup flow with clear instructions about needing existing PayPal account and signup link for new users
 
 ## User Preferences
 

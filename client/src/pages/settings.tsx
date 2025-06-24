@@ -94,7 +94,12 @@ export default function Settings() {
   };
 
   const handleConnectPayPal = async () => {
-    const paypalEmail = prompt("Enter your PayPal email address to receive payments:");
+    const message = `Enter your PayPal email address to receive payments:
+
+Note: You must have an existing PayPal account with this email.
+Don't have PayPal? Sign up free at paypal.com first.`;
+    
+    const paypalEmail = prompt(message);
     
     if (!paypalEmail || !paypalEmail.trim()) {
       return;
@@ -482,8 +487,11 @@ export default function Settings() {
                                   </div>
                                   <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
                                 </div>
-                                <p className="text-sm text-blue-700 mb-3">
+                                <p className="text-sm text-blue-700 mb-2">
                                   Connect your existing PayPal account - no additional verification needed.
+                                </p>
+                                <p className="text-xs text-blue-600 mb-3">
+                                  Need PayPal? <a href="https://paypal.com" target="_blank" className="underline hover:no-underline">Sign up free at paypal.com</a>
                                 </p>
                                 <Button 
                                   onClick={handleConnectPayPal}

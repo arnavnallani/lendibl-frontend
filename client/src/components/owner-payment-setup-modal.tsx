@@ -49,7 +49,12 @@ export default function OwnerPaymentSetupModal({
   };
 
   const handleConnectPayPal = async () => {
-    const paypalEmail = prompt("Enter your PayPal email address to receive payments:");
+    const message = `Enter your PayPal email address to receive payments:
+
+Note: You must have an existing PayPal account with this email.
+Don't have PayPal? Sign up free at paypal.com first.`;
+    
+    const paypalEmail = prompt(message);
     
     if (!paypalEmail || !paypalEmail.trim()) {
       return;
@@ -189,6 +194,9 @@ export default function OwnerPaymentSetupModal({
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span>No additional verification required</span>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Requires existing PayPal account • <a href="https://paypal.com" target="_blank" className="text-blue-600 hover:underline">Sign up free</a>
                     </div>
                   </div>
                   <Button 
