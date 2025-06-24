@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Check, User, LogOut } from "lucide-react";
+import { Plus, Check, User, LogOut, Settings } from "lucide-react";
+import { Link } from "wouter";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -225,17 +226,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-blue-600 text-white text-xs">
-                {getInitials(currentUser.firstName, currentUser.lastName)}
-              </AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80" align="end" forceMount>
+      <div className="w-80">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Account Switcher</p>
@@ -329,6 +320,25 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           
           <DropdownMenuSeparator />
           
+          {/* Navigation Links */}
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem asChild>
+            <Link href="/my-profile" className="flex items-center space-x-2 p-3 cursor-pointer">
+              <User className="h-4 w-4" />
+              <span>My Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem asChild>
+            <Link href="/settings" className="flex items-center space-x-2 p-3 cursor-pointer">
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
           {/* Logout */}
           <DropdownMenuItem
             className="flex items-center space-x-2 p-3 cursor-pointer text-destructive"
@@ -343,8 +353,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
             <LogOut className="h-4 w-4" />
             <span>Logout All</span>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </div>
 
       {/* Add Account Dialog */}
       <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>

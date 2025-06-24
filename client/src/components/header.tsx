@@ -104,18 +104,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     </Button>
                   </Link>
 
-                  {/* Account Switcher */}
-                  <AccountSwitcher 
-                    currentUser={user}
-                    onAccountSwitch={async (token) => {
-                      await refreshUser();
-                      window.location.reload();
-                    }}
-                    onLogout={() => {
-                      localStorage.removeItem('lendibl_saved_accounts');
-                      logout();
-                    }}
-                  />
+
                 </div>
 
                 {/* User Menu */}
@@ -134,31 +123,18 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <div className="px-3 py-2">
-                      <p className="text-sm font-medium text-gray-dark">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-xs text-gray-medium">{user.email}</p>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/my-profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>My Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Settings</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Logout</span>
-                    </DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-80">
+                    <AccountSwitcher 
+                      currentUser={user}
+                      onAccountSwitch={async (token) => {
+                        await refreshUser();
+                        window.location.reload();
+                      }}
+                      onLogout={() => {
+                        localStorage.removeItem('lendibl_saved_accounts');
+                        logout();
+                      }}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
