@@ -926,6 +926,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Check if user needs payment setup
+  // Handle demo Stripe completion
+  app.get("/stripe-demo-complete", async (req, res) => {
+    const { account, user } = req.query;
+    
+    if (account && user) {
+      // Mark the mock account as completed
+      try {
+        await storage.updateUser(parseInt(user as string), { 
+          paymentSetupComplete: true 
+        });
+        console.log(`Demo Stripe setup completed for user ${user}`);
+      } catch (error) {
+        console.error('Error updating demo completion:', error);
+      }
+    }
+    
+    // Redirect to settings with success message
+    res.redirect('/settings?stripe_demo=complete');
+  });
+
   app.get("/api/payment-setup-status", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;

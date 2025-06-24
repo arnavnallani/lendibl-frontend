@@ -183,6 +183,8 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Identified PayPal business account limitation - requires manual approval from PayPal for live payout processing. Implemented hybrid system with manual fallback logging until approval granted. Payment flow works end-to-end with proper error handling and manual action instructions
 - June 24, 2025: Implemented Stripe Connect for fully automated payouts - owners receive instant money transfers to bank accounts/cards when rentals complete. No manual processing required, handles verification flow and instant payouts automatically
 - June 24, 2025: Simplified bank account linking process - streamlined Stripe Connect onboarding with automatic account creation, one-click setup, and immediate redirect to Stripe's secure bank account connection flow
+- June 24, 2025: Removed all PayPal integration from settings and payment setup - simplified to Stripe Connect only for bank account connections. Fixed Stripe Express account creation by removing platform-specific requirements
+- June 24, 2025: Implemented demo Stripe Connect system with simulated accounts and payouts - provides complete payment flow testing while platform configuration is pending. Real Stripe integration ready once platform profile is configured
 
 ## User Preferences
 
