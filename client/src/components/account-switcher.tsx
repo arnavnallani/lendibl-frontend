@@ -87,66 +87,83 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     console.log("Switching to account:", account.email);
     
     try {
-      // Check if this is a credential-based account
+      // For credential-based accounts, we'll use the stored token if it's still valid
+      // If not valid, we'll re-login to get a fresh token
+      let tokenToUse = account.token;
+      
       if (account.token.startsWith('credentials:')) {
         const [, email, encodedPassword] = account.token.split(':');
-        const password = atob(encodedPassword);
         
-        console.log("Logging in with stored credentials for:", email);
-        
-        // Login with stored credentials to get fresh token
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Update only the lastUsed timestamp without changing order
-          const updated = savedAccounts.map(acc => 
-            acc.id === account.id 
-              ? { ...acc, lastUsed: new Date().toISOString() }
-              : acc
-          );
-          saveAccountsToStorage(updated);
-
-          // Set the new token
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('token', data.token);
-          
-          toast({
-            title: "Account Switched",
-            description: `Now logged in as ${account.firstName} ${account.lastName}`,
+        // Try to verify if we already have a valid token for this account
+        const existingToken = localStorage.getItem(`auth_token_${account.id}`);
+        if (existingToken) {
+          // Test if the existing token is still valid
+          const testResponse = await fetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${existingToken}` },
           });
           
-          // Call the switch handler which should refresh the UI
-          onAccountSwitch(data.token);
-        } else {
-          throw new Error('Failed to login with saved credentials');
-        }
-      } else {
-        // Legacy token-based switching (fallback)
-        const updated = savedAccounts.map(acc => 
-          acc.id === account.id 
-            ? { ...acc, lastUsed: new Date().toISOString() }
-            : acc
-        );
-        saveAccountsToStorage(updated);
+          if (testResponse.ok) {
+            tokenToUse = existingToken;
+            console.log("Using cached valid token for:", email);
+          } else {
+            console.log("Cached token expired, logging in fresh for:", email);
+            // Token expired, login fresh
+            const password = atob(encodedPassword);
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
 
-        localStorage.setItem('auth_token', account.token);
-        localStorage.setItem('token', account.token);
-        
-        toast({
-          title: "Account Switched",
-          description: `Now logged in as ${account.firstName} ${account.lastName}`,
-        });
-        
-        onAccountSwitch(account.token);
+            if (response.ok) {
+              const data = await response.json();
+              tokenToUse = data.token;
+              // Store token for this specific account
+              localStorage.setItem(`auth_token_${account.id}`, data.token);
+            } else {
+              throw new Error('Failed to login with saved credentials');
+            }
+          }
+        } else {
+          // No cached token, login fresh
+          console.log("No cached token, logging in fresh for:", email);
+          const password = atob(encodedPassword);
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            tokenToUse = data.token;
+            // Store token for this specific account
+            localStorage.setItem(`auth_token_${account.id}`, data.token);
+          } else {
+            throw new Error('Failed to login with saved credentials');
+          }
+        }
       }
+      
+      // Update last used timestamp
+      const updated = savedAccounts.map(acc => 
+        acc.id === account.id 
+          ? { ...acc, lastUsed: new Date().toISOString() }
+          : acc
+      );
+      saveAccountsToStorage(updated);
+
+      // Set the active token
+      localStorage.setItem('auth_token', tokenToUse);
+      localStorage.setItem('token', tokenToUse);
+      
+      toast({
+        title: "Account Switched",
+        description: `Now logged in as ${account.firstName} ${account.lastName}`,
+      });
+      
+      // Call the switch handler
+      onAccountSwitch(tokenToUse);
     } catch (error) {
       console.error("Account switch failed:", error);
       toast({
