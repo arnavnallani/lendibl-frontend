@@ -187,6 +187,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Completely removed PayPal from all payment flows and settings - simplified to Stripe Connect only for bank account connections. Fixed Stripe Express account creation to work with real API and create actual Connect accounts for instant bank transfers
 - June 24, 2025: Identified Stripe Connect platform profile requirement - real money transfers blocked until Stripe marketplace platform profile is configured in Dashboard. User wants only real money transfers, no simulations
 - June 24, 2025: Created comprehensive Stripe platform setup guide (STRIPE_PLATFORM_SETUP.md) with exact steps to enable real money transfers. Enhanced error handling to guide users to platform setup when required
+- June 24, 2025: Platform profile already configured in Stripe Dashboard - only requires acknowledging two liability agreements to activate real money transfers immediately
 - June 24, 2025: Implemented real money transfer system with Stripe Connect - removed all simulations and test modes, system now creates actual Express accounts and processes real money transfers to owner bank accounts when rentals complete
 
 ## User Preferences

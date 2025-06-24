@@ -12,27 +12,20 @@
 - Look for **"Platform profile"** section
 
 ### 3. Complete Platform Profile
-Fill out these required fields:
+Your platform profile is already configured! You just need to acknowledge the agreements:
 
-**Business Information:**
-- Platform name: `Lendibl`
-- Platform description: `Peer-to-peer rental marketplace connecting item owners with renters`
-- Platform website: `[Your Replit app URL]`
-- Business type: `Marketplace`
+**Required Actions:**
+1. Click **"Acknowledge"** next to "Negative balance liability acknowledgement" 
+2. Click **"Acknowledge"** next to "Requirement collection acknowledgement"
 
-**Loss Liability:**
-- Choose: `Platform assumes liability for losses`
-- This means Lendibl handles disputes and chargebacks
+**Current Settings (Already Configured):**
+- Funds flow: ✅ Sellers collect payments directly
+- Account creation: ✅ Onboarding hosted by Stripe  
+- Negative balance liability: ✅ Stripe handles liability
 
-**Platform Details:**
-- Connected account types: `Express accounts`
-- Geographic regions: `United States`
-- Industries: `Consumer goods rental`
-
-### 4. Submit for Review
-- Click **"Save and submit for review"**
-- Stripe typically reviews within 1-2 business days
-- You'll receive email confirmation when approved
+### 4. Immediate Activation
+- No review period required - activation is instant
+- Once you click both "Acknowledge" buttons, Connect accounts work immediately
 
 ### 5. After Approval
 Once approved, the Stripe Connect account creation will work automatically and process real money transfers.
