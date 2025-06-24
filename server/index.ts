@@ -38,11 +38,41 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
-  
-  // Start payment reminder scheduler
-  const { paymentReminderService } = await import("./payment-reminder-service");
-  paymentReminderService.startPeriodicReminderScheduler();
+  try {
+    console.log('Starting application...');
+    
+    // Test database connection first
+    const { db } = await import("./db");
+    console.log('Database imported successfully');
+    
+    // Test a simple query to ensure connection works
+    try {
+      const result = await db.execute('SELECT 1 as test');
+      console.log('Database connection verified:', result);
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      console.log('Attempting alternative connection method...');
+      
+      // Try a simple pool query as fallback
+      try {
+        const { pool } = await import("./db");
+        const client = await pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+        console.log('Database fallback connection successful');
+      } catch (fallbackError) {
+        console.error('Database fallback failed:', fallbackError);
+        throw dbError;
+      }
+    }
+    
+    const server = await registerRoutes(app);
+    console.log('Routes registered successfully');
+    
+    // Start payment reminder scheduler
+    const { paymentReminderService } = await import("./payment-reminder-service");
+    paymentReminderService.startPeriodicReminderScheduler();
+    console.log('Payment reminder scheduler started');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -64,12 +94,17 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+    const port = 5000;
+    server.listen({
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    }, () => {
+      log(`serving on port ${port}`);
+    });
+    
+  } catch (error) {
+    console.error('Failed to start application:', error);
+    process.exit(1);
+  }
 })();
