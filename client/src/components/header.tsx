@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import NotificationBell from "./notification-bell";
 import AuthModal from "./auth-modal";
+import { DynamicSearch } from "./DynamicSearch";
 import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 
@@ -42,16 +43,21 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-16">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Input
-                type="text"
-                placeholder="Search for anything..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border-2 border-white/30 rounded-3xl focus:outline-none focus:ring-4 focus:ring-primary-blue/30 focus:border-primary-blue transition-all duration-500 glass hover:bg-white/60 hover:shadow-xl placeholder:text-gray-500/70 text-gray-800 font-medium"
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-blue h-6 w-6 animate-pulse" />
+          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+            <form onSubmit={handleSearch} className="relative w-full group">
+              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary-blue transition-colors duration-300" />
+                  <Input
+                    type="text"
+                    placeholder="Search for anything..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-gray-500/70 text-gray-800 font-medium text-base"
+                  />
+                </div>
+              </div>
             </form>
           </div>
 

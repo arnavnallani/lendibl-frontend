@@ -228,7 +228,7 @@ export function DynamicSearch({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
-          className="pl-10 pr-10 h-12 text-base bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-gray-500"
+          className="pl-10 pr-10 h-12 text-base bg-white/80 backdrop-blur-sm border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl"
         />
         {value && (
           <Button

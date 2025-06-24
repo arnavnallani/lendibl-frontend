@@ -7,7 +7,9 @@ import ItemGrid from "@/components/item-grid";
 import BookingModal from "@/components/booking-modal";
 import RecommendationsSection from "@/components/recommendations-section";
 import Footer from "@/components/footer";
+import { DynamicSearch } from "@/components/DynamicSearch";
 import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import type { ItemWithDetails } from "@shared/schema";
@@ -91,6 +93,23 @@ export default function Home() {
           )}
           
           <div id="items-section">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 p-6 shadow-lg">
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Search className="h-5 w-5 text-gray-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Find Your Perfect Rental</h3>
+                  </div>
+                  <DynamicSearch
+                    value={filters.search || ""}
+                    onChange={(value) => handleFiltersChange({ ...filters, search: value })}
+                    onLocationChange={(location) => handleFiltersChange({ ...filters, location })}
+                    placeholder="Search for cameras, tools, bikes, party supplies..."
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
             <FilterBar 
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
