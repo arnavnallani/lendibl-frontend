@@ -54,7 +54,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       setSearchQuery(value);
                       onSearch(value);
                     }}
-                    placeholder="Search for cameras, tools, bikes, party supplies..."
+                    placeholder="Search for anything..."
                     className="w-full"
                   />
                 </div>
