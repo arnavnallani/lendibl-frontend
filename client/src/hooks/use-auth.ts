@@ -19,7 +19,6 @@ interface AuthContextType {
     username: string;
   }) => Promise<void>;
   logout: () => void;
-  refreshUser: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -126,30 +125,8 @@ export function useAuthProvider(): AuthContextType {
 
   const logout = () => {
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-  };
-
-  const refreshUser = async () => {
-    console.log("refreshUser called");
-    const storedToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-    console.log("Found stored token:", !!storedToken);
-    
-    if (storedToken) {
-      setToken(storedToken);
-      try {
-        await verifyToken(storedToken);
-        console.log("Token verification completed");
-      } catch (error) {
-        console.error("Token verification failed:", error);
-        throw error;
-      }
-    } else {
-      console.log("No token found, setting user to null");
-      setUser(null);
-      setToken(null);
-    }
   };
 
   return {
@@ -158,7 +135,6 @@ export function useAuthProvider(): AuthContextType {
     login,
     register,
     logout,
-    refreshUser,
     isLoading,
   };
 }

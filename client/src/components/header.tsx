@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Menu, User, LogOut, Settings, Zap, MessageSquare } from "lucide-react";
-import { AccountSwitcher } from "./account-switcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -19,7 +18,7 @@ interface HeaderProps {
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -103,8 +102,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <MessageSquare className="w-6 h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
-
-
                 </div>
 
                 {/* User Menu */}
@@ -123,26 +120,31 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <AccountSwitcher 
-                      currentUser={user}
-                      onAccountSwitch={async (token) => {
-                        console.log("Header: onAccountSwitch called with token");
-                        try {
-                          // Force refresh the user data with new token
-                          await refreshUser();
-                          console.log("Header: refreshUser completed, reloading page");
-                        } catch (error) {
-                          console.error("Error refreshing user:", error);
-                        }
-                        // Always reload to ensure clean state
-                        window.location.reload();
-                      }}
-                      onLogout={() => {
-                        localStorage.removeItem('lendibl_saved_accounts');
-                        logout();
-                      }}
-                    />
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-gray-dark">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-gray-medium">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/my-profile" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>My Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>

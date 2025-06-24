@@ -52,56 +52,25 @@ export async function authenticateToken(req: AuthRequest, res: Response, next: N
     return res.status(401).json({ message: 'Access token required' });
   }
 
-  try {
-    // Handle session tokens for account switching
-    if (token.startsWith('session_')) {
-      const sessionData = token.replace('session_', '');
-      const decoded = JSON.parse(atob(sessionData));
-      
-      // Validate the session token has required fields
-      if (decoded.id && decoded.email && decoded.firstName && decoded.lastName) {
-        // Verify user still exists in database
-        const user = await storage.getUser(decoded.id);
-        if (!user) {
-          return res.status(403).json({ message: 'User not found' });
-        }
-        
-        req.user = {
-          id: decoded.id,
-          email: decoded.email,
-          firstName: decoded.firstName,
-          lastName: decoded.lastName,
-        };
-        return next();
-      } else {
-        return res.status(403).json({ message: 'Invalid session token' });
-      }
-    }
-    
-    // Handle regular JWT tokens
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-
-    // Verify user still exists
-    const user = await storage.getUser(decoded.id);
-    if (!user) {
-      return res.status(403).json({ message: 'User not found' });
-    }
-
-    req.user = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
-
-    next();
-  } catch (error) {
-    console.error('Authentication error:', error);
+  const decoded = verifyToken(token);
+  if (!decoded) {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
+
+  // Verify user still exists
+  const user = await storage.getUser(decoded.id);
+  if (!user) {
+    return res.status(403).json({ message: 'User not found' });
+  }
+
+  req.user = {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+  };
+
+  next();
 }
 
 export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
