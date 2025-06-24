@@ -446,7 +446,7 @@ export default function Settings() {
                           </div>
                           <div>
                             <span className="text-blue-600">Estimated Monthly</span>
-                            <p className="font-medium text-blue-800">${paymentStatus.estimatedEarnings}</p>
+                            <p className="font-medium text-blue-800">$50</p>
                           </div>
                         </div>
                       </div>
@@ -466,32 +466,7 @@ export default function Settings() {
                         </Link>
                       </div>
                       
-                      {/* Show PayPal setup even without items for testing */}
-                      {paymentStatus.paypalConfigured && (
-                        <div className="border-t pt-4">
-                          <h4 className="font-medium text-gray-700 mb-3">Payment Methods (Preview)</h4>
-                          <div className="p-3 border rounded-lg bg-blue-50">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">P</div>
-                                <span className="font-medium text-blue-800">PayPal (Available)</span>
-                              </div>
-                              <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
-                            </div>
-                            <p className="text-sm text-blue-700 mb-3">
-                              Ready to connect when you list your first item.
-                            </p>
-                            <Button 
-                              onClick={handleConnectPayPal}
-                              disabled={isCreatingAccount}
-                              variant="outline"
-                              className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
-                            >
-                              {isCreatingAccount ? 'Connecting...' : 'Test PayPal Connection'}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   )}
                 </CardContent>
