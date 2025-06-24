@@ -170,6 +170,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Enhanced PayPal setup flow with clear instructions about needing existing PayPal account and signup link for new users
 - June 24, 2025: Fixed payment flow to use automatic capture - money now goes directly from renter to Lendibl's account, then exact list price transfers to owner while Lendibl keeps commission difference
 - June 24, 2025: Implemented simplified real money transfer system - PayPal users provide email address, Lendibl processes manual payouts from captured renter payments to owner PayPal accounts, maintaining exact list price transfers while keeping commission difference
+- June 24, 2025: Enhanced PayPal integration with real Payouts API - system now attempts automated transfers to owner PayPal accounts with fallback to manual logging if API fails
 
 ## User Preferences
 

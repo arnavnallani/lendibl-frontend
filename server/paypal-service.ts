@@ -104,13 +104,18 @@ export class PayPalService {
   // Send payout to owner's PayPal account
   async sendPayout(ownerEmail: string, amount: number, description: string, metadata: any): Promise<any> {
     try {
+      if (!this.isConfigured()) {
+        throw new Error('PayPal not configured - missing credentials');
+      }
+
       const accessToken = await this.getAccessToken();
+      const batchId = `lendibl_${Date.now()}`;
       
       const payoutData = {
         sender_batch_header: {
-          sender_batch_id: `payout_${Date.now()}`,
-          email_subject: "You've received a payment from Lendibl",
-          email_message: description
+          sender_batch_id: batchId,
+          email_subject: "Payment from Lendibl Rental Marketplace",
+          email_message: `You've received a payment for your rental: ${description}`
         },
         items: [{
           recipient_type: "EMAIL",
@@ -119,16 +124,21 @@ export class PayPalService {
             currency: "USD"
           },
           receiver: ownerEmail,
-          note: description,
-          sender_item_id: metadata.bookingId || `item_${Date.now()}`
+          note: `Lendibl rental payment: ${description}`,
+          sender_item_id: `booking_${metadata.bookingId || Date.now()}`
         }]
       };
+
+      console.log(`📤 SENDING REAL PAYPAL PAYOUT:`);
+      console.log(`   Amount: $${amount.toFixed(2)} → ${ownerEmail}`);
+      console.log(`   Batch ID: ${batchId}`);
 
       const response = await fetch(`${this.baseUrl}/v1/payments/payouts`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'PayPal-Request-Id': batchId
         },
         body: JSON.stringify(payoutData)
       });
@@ -136,20 +146,28 @@ export class PayPalService {
       const result = await response.json();
       
       if (response.ok && result.batch_header) {
-        console.log(`PayPal payout sent: $${amount} to ${ownerEmail}`);
+        console.log(`✅ PAYPAL PAYOUT INITIATED:`);
+        console.log(`   Batch ID: ${result.batch_header.payout_batch_id}`);
+        console.log(`   Status: ${result.batch_header.batch_status}`);
+        
         return {
           success: true,
           payoutId: result.batch_header.payout_batch_id,
           status: result.batch_header.batch_status
         };
       } else {
-        // PayPal Payouts API requires sender to have funds, which we don't in sandbox
-        // Real implementation should use Stripe Connect for actual money transfers
-        throw new Error(result.message || 'PayPal payout failed');
+        console.error('PayPal API Error:', result);
+        return {
+          success: false,
+          error: result.message || result.error_description || 'PayPal payout failed'
+        };
       }
     } catch (error) {
       console.error('PayPal payout error:', error);
-      throw error;
+      return {
+        success: false,
+        error: error.message
+      };
     }
   }
 
