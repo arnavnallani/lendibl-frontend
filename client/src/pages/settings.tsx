@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package } from 'lucide-react';
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -332,6 +332,121 @@ export default function Settings() {
                 </Form>
               </CardContent>
             </Card>
+
+            {/* Payment Setup Section */}
+            {paymentStatus && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Payment & Earnings Setup
+                  </CardTitle>
+                  <p className="text-sm text-gray-medium">
+                    Configure your payment methods to receive earnings from rentals
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {paymentStatus.hasItems && (
+                    <div className="space-y-4">
+                      {/* Connect Account Status */}
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-medium text-gray-dark">Stripe Connect Account</h4>
+                            <p className="text-sm text-gray-medium">Required to receive rental payments</p>
+                          </div>
+                          {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
+                            <div className="flex items-center gap-2 text-green-600">
+                              <CheckCircle className="h-5 w-5" />
+                              <span className="text-sm font-medium">Active</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-orange-600">
+                              <AlertCircle className="h-5 w-5" />
+                              <span className="text-sm font-medium">Setup Required</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {!paymentStatus.stripeAccountStatus ? (
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              Create a Stripe Connect account to receive payments from your rental listings.
+                            </p>
+                            <Button 
+                              onClick={handleCreateConnectAccount}
+                              disabled={isCreatingAccount}
+                              className="w-full"
+                            >
+                              {isCreatingAccount ? 'Creating Account...' : 'Create Connect Account'}
+                            </Button>
+                          </div>
+                        ) : !paymentStatus.stripeAccountStatus.payoutsEnabled ? (
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              Complete your Stripe onboarding to start receiving payments.
+                            </p>
+                            {paymentStatus.onboardingUrl && (
+                              <Button 
+                                onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
+                                className="w-full"
+                              >
+                                Complete Stripe Onboarding
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-sm text-green-700">
+                              Your Connect account is active and ready to receive payments.
+                            </p>
+                            {paymentStatus.pendingEarnings !== "0" && (
+                              <div className="text-sm">
+                                <span className="text-gray-600">Pending earnings: </span>
+                                <span className="font-medium text-primary-blue">
+                                  ${paymentStatus.pendingEarnings}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Earnings Summary */}
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign className="h-5 w-5 text-blue-600" />
+                          <h4 className="font-medium text-blue-800">Earnings Overview</h4>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-blue-600">Active Listings</span>
+                            <p className="font-medium text-blue-800">{paymentStatus.hasItems ? 'Yes' : 'None'}</p>
+                          </div>
+                          <div>
+                            <span className="text-blue-600">Estimated Monthly</span>
+                            <p className="font-medium text-blue-800">${paymentStatus.estimatedEarnings}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!paymentStatus.hasItems && (
+                    <div className="text-center py-6">
+                      <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                      <h4 className="font-medium text-gray-600 mb-2">No Items Listed</h4>
+                      <p className="text-sm text-gray-500 mb-4">
+                        List items to start earning and set up payment processing.
+                      </p>
+                      <Link href="/my-profile">
+                        <Button variant="outline">Add Your First Item</Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Account Actions */}
             <Card className="mt-6">
