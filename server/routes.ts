@@ -1127,6 +1127,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create Connect account for owner
+  // PayPal Payouts verification endpoint
+  app.post("/api/verify-payouts", async (req, res) => {
+    try {
+      console.log('Testing PayPal Payouts capability...');
+      
+      const testResult = await paypalService.sendPayout(
+        'test@example.com',
+        0.01,
+        'PayPal Payouts verification test',
+        { bookingId: 'verification' }
+      );
+      
+      if (testResult.success) {
+        console.log('PayPal Payouts ENABLED and working!');
+        res.json({
+          enabled: true,
+          message: 'PayPal Payouts is enabled and working',
+          batchId: testResult.payoutId
+        });
+      } else if (testResult.setupRequired) {
+        res.json({
+          enabled: false,
+          message: 'PayPal Payouts feature needs to be enabled in Developer Console',
+          instructions: 'Go to PayPal Developer Console > Your App > Features > Enable Payouts'
+        });
+      } else {
+        res.json({
+          enabled: false,
+          message: testResult.error,
+          details: testResult
+        });
+      }
+      
+    } catch (error) {
+      console.error('Payout verification error:', error);
+      res.status(500).json({ 
+        enabled: false,
+        error: error.message 
+      });
+    }
+  });
+
   app.post("/api/create-connect-account", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
