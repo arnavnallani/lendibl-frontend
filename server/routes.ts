@@ -954,12 +954,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         hasPaymentMethod: hasValidSetup,
-        stripe: {
-          configured: hasValidSetup,
-          accountId: user?.stripeAccountId,
-          status: stripeStatus,
-          needsOnboarding: user?.stripeAccountId && !hasValidSetup
-        }
+        hasItems: userItems.length > 0,
+        paymentSetupComplete: user?.paymentSetupComplete || false,
+        pendingEarnings: user?.pendingEarnings || "0",
+        paymentReminders: paymentReminders,
+        stripeAccountStatus: stripeStatus,
+        onboardingUrl: user?.stripeAccountId && stripeStatus && !stripeStatus.payoutsEnabled ? 
+          await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null,
+        needsPaymentMethod: userItems.length > 0 && !hasValidSetup
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });

@@ -404,30 +404,28 @@ export default function Settings() {
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                   <Building2 className="w-5 h-5 text-blue-600" />
-                                  <span className="font-medium text-gray-800">Stripe Connect</span>
+                                  <span className="font-medium text-gray-800">Bank Account</span>
                                 </div>
-                                <Badge variant="outline" className="text-xs">More Setup Required</Badge>
+                                <Badge variant="outline" className="text-xs">Required</Badge>
                               </div>
                               <p className="text-sm text-gray-600 mb-3">
-                                Requires business verification and bank account details.
+                                Connect your bank account to receive instant payments when rentals complete.
                               </p>
                               
                               {!paymentStatus.stripeAccountStatus ? (
                                 <Button 
-                                  onClick={handleCreateConnectAccount}
+                                  onClick={handleSetupStripe}
                                   disabled={isCreatingAccount}
-                                  variant="outline"
                                   className="w-full"
                                 >
-                                  {isCreatingAccount ? 'Creating Account...' : 'Setup Stripe Connect'}
+                                  {isCreatingAccount ? 'Setting up...' : 'Connect Bank Account'}
                                 </Button>
                               ) : (
                                 <Button 
                                   onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
-                                  variant="outline"
                                   className="w-full"
                                 >
-                                  Complete Stripe Onboarding
+                                  Complete Bank Setup
                                 </Button>
                               )}
                             </div>
