@@ -16,8 +16,6 @@ export class PayPalService {
     if (!this.clientId || !this.clientSecret) {
       console.warn('PayPal credentials not configured');
     }
-    
-    console.log(`PayPal Service initialized: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION' : 'SANDBOX'} mode`);
   }
 
   // Get access token for PayPal API calls
@@ -145,23 +143,17 @@ export class PayPalService {
           status: result.batch_header.batch_status
         };
       } else {
-        // Handle different error scenarios
-        if (result.name === 'INSUFFICIENT_FUNDS') {
-          if (this.baseUrl.includes('sandbox')) {
-            console.log(`SANDBOX MODE: PayPal payout of $${amount} to ${ownerEmail} (insufficient sandbox funds)`);
-            console.log(`💡 In production, Lendibl would need sufficient PayPal balance to send payouts`);
-            return {
-              success: true,
-              payoutId: `sandbox_${Date.now()}`,
-              status: 'SUCCESS',
-              simulation: true,
-              note: 'Sandbox simulation - would succeed with real funds'
-            };
-          } else {
-            throw new Error(`Insufficient funds in Lendibl's PayPal account. Cannot send $${amount} to ${ownerEmail}`);
-          }
+        // For sandbox testing, simulate successful payout since we don't have funds
+        if (result.name === 'INSUFFICIENT_FUNDS' && this.baseUrl.includes('sandbox')) {
+          console.log(`SIMULATION: PayPal payout of $${amount} to ${ownerEmail} (insufficient sandbox funds)`);
+          return {
+            success: true,
+            payoutId: `simulated_${Date.now()}`,
+            status: 'SUCCESS',
+            simulation: true
+          };
         }
-        throw new Error(result.message || `PayPal payout failed: ${result.name || 'Unknown error'}`);
+        throw new Error(result.message || 'PayPal payout failed');
       }
     } catch (error) {
       console.error('PayPal payout error:', error);
