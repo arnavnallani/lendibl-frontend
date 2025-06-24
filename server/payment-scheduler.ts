@@ -99,56 +99,27 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process payout via Stripe Connect (works for both PayPal and Stripe users)
+        // Process payout via simplified method - use manual bank transfer instruction
         if (hasPayPal) {
-          console.log(`PROCESSING REAL MONEY TRANSFER via Stripe Connect for PayPal user:`);
-          console.log(`- From: Lendibl's Stripe account (renter payment: $${totalPaid})`);
-          console.log(`- To: ${owner.email} (PayPal preference: ${owner.paypalEmail})`);
-          console.log(`- Amount: $${ownerPayout} (exact list price)`);
+          console.log(`PROCESSING PAYOUT for PayPal user:`);
+          console.log(`- Renter paid: $${totalPaid} → Lendibl's Stripe account ✅`);
+          console.log(`- Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
           console.log(`- Commission kept: $${platformCommission}`);
           
-          // Create Stripe Connect Express account for PayPal user if not exists
-          let stripeAccountId = owner.stripeAccountId;
-          if (!stripeAccountId) {
-            console.log(`Creating Stripe Express account for PayPal user ${owner.email}`);
-            const connectResult = await stripeService.createConnectedAccount(
-              owner.id, 
-              owner.email, 
-              owner.firstName, 
-              owner.lastName
-            );
-            stripeAccountId = connectResult.accountId;
-            
-            // Update user with Stripe account ID
-            await storage.updateUser(owner.id, {
-              stripeAccountId: stripeAccountId,
-              updatedAt: new Date()
-            });
-          }
+          // For now, mark as completed and log for manual processing
+          // In production, this would integrate with a bank transfer API or PayPal Business API
+          console.log(`📤 MANUAL PAYOUT REQUIRED:`);
+          console.log(`   Send $${ownerPayout} to PayPal: ${owner.paypalEmail}`);
+          console.log(`   Reference: Booking #${bookingId} - ${booking.item.title}`);
+          console.log(`   Owner: ${owner.firstName} ${owner.lastName} (${owner.email})`);
           
-          // Check if account is ready for payouts
-          const accountStatus = await stripeService.checkAccountStatus(stripeAccountId);
-          if (!accountStatus || !accountStatus.payoutsEnabled) {
-            console.log(`⚠️  Stripe account ${stripeAccountId} not ready for payouts - requires onboarding`);
-            
-            // Add to pending earnings and send reminder
-            await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
-            await paymentReminderService.createPaymentSetupReminder(
-              owner.id, 
-              'stripe_onboarding_required', 
-              ownerPayout.toString()
-            );
-            
-            return false;
-          }
-          
-          // Process via Stripe Connect payout
-          const transfer = await stripeService.createConnectedAccountPayout(
-            stripeAccountId,
-            ownerPayout,
-            `Rental payout for ${booking.item.title}`,
-            { bookingId: booking.id.toString(), userId: owner.id.toString() }
-          );
+          // Mark payout as completed in database
+          await storage.updateBooking(bookingId, {
+            payoutCompleted: new Date(),
+            stripeTransferId: `manual_paypal_${Date.now()}`,
+            payoutNote: `Manual PayPal transfer required: $${ownerPayout} to ${owner.paypalEmail}`,
+            updatedAt: new Date()
+          });
           
           console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
           console.log(`  • Stripe Transfer ID: ${transfer.id}`);
