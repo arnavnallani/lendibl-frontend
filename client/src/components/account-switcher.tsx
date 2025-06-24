@@ -206,6 +206,11 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     }
   }, [currentUser]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("AccountSwitcher showAddAccount state:", showAddAccount);
+  }, [showAddAccount]);
+
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
@@ -226,8 +231,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
 
   return (
     <>
-      <div className="w-80">
-          <DropdownMenuLabel className="font-normal">
+        <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">Account Switcher</p>
               <p className="text-xs leading-none text-muted-foreground">
@@ -307,7 +311,12 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           {/* Add Account */}
           <DropdownMenuItem
             className="flex items-center space-x-2 p-3 cursor-pointer"
-            onClick={() => setShowAddAccount(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowAddAccount(true);
+              console.log("Add Account clicked, showAddAccount:", true);
+            }}
           >
             <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
               <Plus className="h-4 w-4 text-gray-600" />
@@ -353,11 +362,10 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
             <LogOut className="h-4 w-4" />
             <span>Logout All</span>
           </DropdownMenuItem>
-        </div>
 
       {/* Add Account Dialog */}
       <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md z-[60]">
           <DialogHeader>
             <DialogTitle>Add Account</DialogTitle>
           </DialogHeader>
