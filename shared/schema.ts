@@ -77,6 +77,8 @@ export const bookings = pgTable("bookings", {
   payoutCompleted: timestamp("payout_completed"),
   payoutBlocked: boolean("payout_blocked").default(false),
   payoutBlockReason: text("payout_block_reason"),
+  stripeTransferId: text("stripe_transfer_id"),
+  payoutNote: text("payout_note"),
   refundIssued: boolean("refund_issued").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

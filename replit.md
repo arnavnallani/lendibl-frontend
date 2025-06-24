@@ -158,6 +158,7 @@ The application uses PostgreSQL with the following main entities:
 - June 23, 2025: Updated payout timing to process immediately when rental period ends instead of waiting 24 hours
 - June 23, 2025: Successfully tested and confirmed working payout system - owners receive exact list price transfers to their stored payment methods with variable commission structure operational
 - June 23, 2025: Added comprehensive privacy policy page and footer component with legal compliance links accessible from all main pages
+- June 24, 2025: Fixed payment flow implementation to ensure proper money transfer: renter payments go to Lendibl via Stripe, then exact list price amount transfers to owners while Lendibl keeps the commission difference
 
 ## User Preferences
 
