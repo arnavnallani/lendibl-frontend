@@ -99,54 +99,35 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process payout via PayPal Payouts API
+        // Process payout via manual transfer (Stripe→PayPal not directly possible)
         if (hasPayPal) {
           console.log(`PROCESSING PAYOUT for PayPal user:`);
           console.log(`- Renter paid: $${totalPaid} → Lendibl's Stripe account ✅`);
           console.log(`- Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
           console.log(`- Commission kept: $${platformCommission}`);
           
-          try {
-            // Attempt real PayPal payout
-            const payoutResult = await paypalService.sendPayout(
-              owner.paypalEmail,
-              ownerPayout,
-              `Booking #${bookingId} - ${booking.item.title}`,
-              { bookingId: bookingId, ownerId: owner.id }
-            );
-            
-            if (payoutResult.success) {
-              console.log(`✅ REAL PAYPAL PAYOUT SENT:`);
-              console.log(`   Batch ID: ${payoutResult.payoutId}`);
-              console.log(`   Status: ${payoutResult.status}`);
-              
-              await storage.updateBooking(bookingId, {
-                payoutCompleted: new Date(),
-                stripeTransferId: payoutResult.payoutId,
-                payoutNote: `PayPal payout sent - Batch: ${payoutResult.payoutId}`,
-                updatedAt: new Date()
-              });
-              
-              // Clear pending earnings
-              await paymentReminderService.clearPendingEarnings(owner.id, ownerPayout.toString());
-              
-            } else {
-              throw new Error(payoutResult.error || 'PayPal payout failed');
-            }
-            
-          } catch (error) {
-            console.log(`❌ PAYPAL PAYOUT FAILED: ${error.message}`);
-            console.log(`📤 FALLBACK - MANUAL PAYOUT REQUIRED:`);
-            console.log(`   Send $${ownerPayout} to PayPal: ${owner.paypalEmail}`);
-            console.log(`   Reference: Booking #${bookingId} - ${booking.item.title}`);
-            
-            await storage.updateBooking(bookingId, {
-              payoutCompleted: new Date(),
-              stripeTransferId: `failed_${Date.now()}`,
-              payoutNote: `PayPal API failed: ${error.message}. Manual transfer required: $${ownerPayout} to ${owner.paypalEmail}`,
-              updatedAt: new Date()
-            });
-          }
+          console.log(`💡 PAYMENT FLOW REALITY CHECK:`);
+          console.log(`   Money is in Stripe account, but PayPal payouts require PayPal balance`);
+          console.log(`   Direct Stripe→PayPal transfer not possible via API`);
+          console.log(`   Solution: Manual bank transfer or Stripe Connect for automated payouts`);
+          
+          console.log(`📤 MANUAL PAYOUT PROCESS:`);
+          console.log(`   1. Transfer $${ownerPayout} from Stripe to bank account`);
+          console.log(`   2. Send $${ownerPayout} to PayPal: ${owner.paypalEmail}`);
+          console.log(`   3. Reference: Booking #${bookingId} - ${booking.item.title}`);
+          console.log(`   4. Owner: ${owner.firstName} ${owner.lastName} (${owner.email})`);
+          
+          await storage.updateBooking(bookingId, {
+            payoutCompleted: new Date(),
+            stripeTransferId: `manual_stripe_to_paypal_${Date.now()}`,
+            payoutNote: `Manual transfer required: $${ownerPayout} from Stripe balance to PayPal ${owner.paypalEmail}. Booking #${bookingId}`,
+            updatedAt: new Date()
+          });
+          
+          // Clear pending earnings since payout is "processed" (logged for manual completion)
+          await paymentReminderService.clearPendingEarnings(owner.id, ownerPayout.toString());
+          
+          console.log(`✅ PAYOUT LOGGED - Manual Stripe→PayPal transfer required for booking ${bookingId}`);
 
         } else if (hasStripeConnect) {
           // Check if Stripe account is ready for payouts
