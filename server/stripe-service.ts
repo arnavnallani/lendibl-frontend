@@ -140,17 +140,51 @@ export class StripeService {
     try {
       console.log(`Creating Stripe Express account for ${email}`);
       
-      // Create Express account with minimal configuration to avoid platform errors
+      // Create Express account with proper platform setup
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
-        email: email
+        email: email,
+        business_type: 'individual',
+        individual: {
+          email: email,
+          first_name: firstName,
+          last_name: lastName
+        },
+        tos_acceptance: {
+          service_agreement: 'recipient'
+        },
+        settings: {
+          payouts: {
+            schedule: {
+              interval: 'daily'
+            }
+          }
+        }
       });
       
       console.log(`Stripe Express account created: ${account.id}`);
       return account.id;
     } catch (error) {
       console.error('Error creating Express account:', error);
+      
+      // If platform profile error, try with minimal config
+      if (error.message?.includes('platform-profile')) {
+        console.log('Platform profile required, creating with minimal config...');
+        try {
+          const minimalAccount = await stripe.accounts.create({
+            type: 'express',
+            country: 'US',
+            email: email
+          });
+          console.log(`Minimal Stripe Express account created: ${minimalAccount.id}`);
+          return minimalAccount.id;
+        } catch (minimalError) {
+          console.error('Error creating minimal account:', minimalError);
+          throw minimalError;
+        }
+      }
+      
       throw error;
     }
   }
@@ -165,7 +199,8 @@ export class StripeService {
         chargesEnabled: account.charges_enabled,
         detailsSubmitted: account.details_submitted,
         requirements: account.requirements?.currently_due || [],
-        disabled: account.requirements?.disabled_reason || null
+        disabled: account.requirements?.disabled_reason || null,
+        accountId: account.id
       };
     } catch (error) {
       console.error('Error checking account status:', error);
@@ -194,6 +229,8 @@ export class StripeService {
   // Create payout to connected account
   async createConnectedAccountPayout(accountId: string, amount: number, description: string, metadata: any) {
     try {
+      console.log(`Creating real money transfer to account ${accountId}: $${amount}`);
+      
       const transfer = await stripe.transfers.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: 'usd',
@@ -202,9 +239,10 @@ export class StripeService {
         metadata: metadata,
       });
       
+      console.log(`Real money transfer completed: ${transfer.id}`);
       return transfer;
     } catch (error) {
-      console.error('Error creating payout:', error);
+      console.error('Error creating real money transfer:', error);
       throw error;
     }
   }
