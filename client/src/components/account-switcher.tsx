@@ -89,6 +89,8 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
 
   // Switch to different account
   const switchAccount = (account: SavedAccount) => {
+    console.log("Switching to account:", account.email);
+    
     // Update last used timestamp
     const updated = savedAccounts.map(acc => 
       acc.id === account.id 
@@ -97,15 +99,19 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     );
     saveAccountsToStorage(updated);
 
-    // Switch to the account
+    // Switch to the account - set tokens before calling onAccountSwitch
     localStorage.setItem('auth_token', account.token);
     localStorage.setItem('token', account.token);
-    onAccountSwitch(account.token);
+    
+    console.log("Token set, calling onAccountSwitch");
     
     toast({
       title: "Account Switched",
       description: `Now logged in as ${account.firstName} ${account.lastName}`,
     });
+    
+    // Call the switch handler which should refresh the UI
+    onAccountSwitch(account.token);
   };
 
   // Remove account from saved list

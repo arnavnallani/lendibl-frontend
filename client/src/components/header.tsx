@@ -127,7 +127,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <AccountSwitcher 
                       currentUser={user}
                       onAccountSwitch={async (token) => {
-                        await refreshUser();
+                        console.log("Header: onAccountSwitch called with token");
+                        try {
+                          // Force refresh the user data with new token
+                          await refreshUser();
+                          console.log("Header: refreshUser completed, reloading page");
+                        } catch (error) {
+                          console.error("Error refreshing user:", error);
+                        }
+                        // Always reload to ensure clean state
                         window.location.reload();
                       }}
                       onLogout={() => {
