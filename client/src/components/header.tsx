@@ -25,6 +25,18 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
+    // Auto-scroll to items section on search
+    if (searchQuery.trim()) {
+      setTimeout(() => {
+        const itemsSection = document.getElementById('items-section');
+        if (itemsSection) {
+          itemsSection.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
+    }
   };
 
   return (
@@ -53,6 +65,18 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
+                      // Auto-scroll to items section when typing
+                      if (value.trim()) {
+                        setTimeout(() => {
+                          const itemsSection = document.getElementById('items-section');
+                          if (itemsSection) {
+                            itemsSection.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'start' 
+                            });
+                          }
+                        }, 100);
+                      }
                     }}
                     placeholder="Search for anything..."
                     className="w-full"
