@@ -382,7 +382,10 @@ export default function Settings() {
                         {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
                           <div className="space-y-2">
                             <p className="text-sm text-green-700">
-                              Stripe Connect account is active and ready to receive payments.
+                              {paymentStatus.stripeAccountStatus?.simulated ? 
+                                "Bank account setup complete (simulation mode until Stripe platform is configured)." :
+                                "Stripe Connect account is active and ready to receive payments."
+                              }
                             </p>
                             {paymentStatus.pendingEarnings !== "0" && (
                               <div className="text-sm">
