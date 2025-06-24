@@ -174,6 +174,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Discovered Stripe→PayPal direct transfer limitation - PayPal payouts require PayPal account balance, but rental payments are in Stripe account. Implemented manual transfer process with detailed logging for Stripe→Bank→PayPal workflow
 - June 24, 2025: Redesigned payment flow to optimal structure: Renter → Lendibl Stripe → Lendibl PayPal → Owner PayPal. This enables automated PayPal payouts once Lendibl's PayPal account is funded from Stripe balance
 - June 24, 2025: Diagnosed PayPal authentication issue - current API credentials failing with "Client Authentication failed" error. Need updated credentials from Lendibl's PayPal business account for automated payouts to function
+- June 24, 2025: Fixed PayPal API endpoint configuration - business account credentials work with production API (api.paypal.com) not sandbox. Automated PayPal payouts now functional with proper API endpoint
 
 ## User Preferences
 

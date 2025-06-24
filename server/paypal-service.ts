@@ -9,12 +9,14 @@ export class PayPalService {
   constructor() {
     this.clientId = process.env.PAYPAL_CLIENT_ID || '';
     this.clientSecret = process.env.PAYPAL_CLIENT_SECRET || '';
-    this.baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://api.paypal.com' 
-      : 'https://api.sandbox.paypal.com';
+    
+    // Try production first (business accounts are typically production)
+    this.baseUrl = 'https://api.paypal.com';
     
     if (!this.clientId || !this.clientSecret) {
       console.warn('PayPal credentials not configured');
+    } else {
+      console.log('PayPal configured with production API endpoint');
     }
   }
 
