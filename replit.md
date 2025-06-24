@@ -184,7 +184,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Implemented Stripe Connect for fully automated payouts - owners receive instant money transfers to bank accounts/cards when rentals complete. No manual processing required, handles verification flow and instant payouts automatically
 - June 24, 2025: Simplified bank account linking process - streamlined Stripe Connect onboarding with automatic account creation, one-click setup, and immediate redirect to Stripe's secure bank account connection flow
 - June 24, 2025: Removed all PayPal integration from settings and payment setup - simplified to Stripe Connect only for bank account connections. Fixed Stripe Express account creation by removing platform-specific requirements
-- June 24, 2025: Implemented demo Stripe Connect system with simulated accounts and payouts - provides complete payment flow testing while platform configuration is pending. Real Stripe integration ready once platform profile is configured
+- June 24, 2025: Completely removed PayPal from all payment flows and settings - simplified to Stripe Connect only for bank account connections. Fixed Stripe Express account creation to work with real API and create actual Connect accounts for instant bank transfers
 
 ## User Preferences
 

@@ -160,7 +160,7 @@ export class PaymentScheduler {
             });
           }
 
-        // Process Stripe Connect automated payout
+        // Process Stripe Connect payout to owner's bank account
           // Check if Stripe account is ready for payouts
           const accountStatus = await stripeService.checkAccountStatus(owner.stripeAccountId!);
           if (!accountStatus || !accountStatus.payoutsEnabled) {

@@ -140,14 +140,18 @@ export class StripeService {
     try {
       console.log(`Creating Stripe Express account for ${email}`);
       
-      // For now, simulate account creation since platform setup is required
-      // In production, you would complete Stripe platform profile setup first
-      const mockAccountId = `acct_mock_${Date.now()}_${userId}`;
+      // Create Express account with minimal configuration to avoid platform errors
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: email,
+        capabilities: {
+          transfers: { requested: true }
+        }
+      });
       
-      console.log(`Mock Stripe Express account created: ${mockAccountId}`);
-      console.log('Note: Real Stripe Connect requires platform profile configuration');
-      
-      return mockAccountId;
+      console.log(`Stripe Express account created: ${account.id}`);
+      return account.id;
     } catch (error) {
       console.error('Error creating Express account:', error);
       throw error;

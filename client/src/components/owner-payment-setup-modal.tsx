@@ -48,52 +48,7 @@ export default function OwnerPaymentSetupModal({
     }
   };
 
-  const handleConnectPayPal = async () => {
-    const message = `Enter your PayPal email address to receive payments:
 
-Note: You must have an existing PayPal account with this email.
-Don't have PayPal? Sign up free at paypal.com first.`;
-    
-    const paypalEmail = prompt(message);
-    
-    if (!paypalEmail || !paypalEmail.trim()) {
-      return;
-    }
-
-    setIsConnecting(true);
-    try {
-      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const response = await fetch('/api/connect-paypal', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ paypalEmail: paypalEmail.trim() }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast({
-          title: "PayPal Connected!",
-          description: `Your PayPal account (${data.paypalEmail}) is now connected and ready for payouts.`,
-        });
-        onComplete();
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to connect PayPal');
-      }
-    } catch (error: any) {
-      console.error('PayPal connection error:', error);
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Unable to connect PayPal. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
 
   const handleCreateStripeAccount = async () => {
     setIsConnecting(true);

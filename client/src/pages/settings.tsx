@@ -93,70 +93,9 @@ export default function Settings() {
     }
   };
 
-  const handleConnectPayPal = async () => {
-    const message = `Enter your PayPal email address to receive payments:
 
-Note: You must have an existing PayPal account with this email.
-Don't have PayPal? Sign up free at paypal.com first.`;
-    
-    const paypalEmail = prompt(message);
-    
-    if (!paypalEmail || !paypalEmail.trim()) {
-      return;
-    }
 
-    setIsCreatingAccount(true);
-    try {
-      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const response = await fetch('/api/connect-paypal', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ paypalEmail: paypalEmail.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: "PayPal Connected!",
-          description: `Your PayPal account (${data.paypalEmail}) is now connected.`,
-        });
-        
-        // Refresh payment status
-        setTimeout(async () => {
-          const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-          const statusResponse = await fetch('/api/payment-setup-status', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            setPaymentStatus(statusData);
-          }
-        }, 1000);
-      } else {
-        toast({
-          title: "Error",
-          description: data.message || "Failed to connect PayPal",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Network error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreatingAccount(false);
-    }
-  };
-
-  const handleCreateConnectAccount = async () => {
+  const handleSetupStripe = async () => {
     setIsCreatingAccount(true);
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -440,24 +379,7 @@ Don't have PayPal? Sign up free at paypal.com first.`;
                           )}
                         </div>
                         
-                        {paymentStatus.paypalConnected ? (
-                          <div className="space-y-2">
-                            <p className="text-sm text-green-700">
-                              PayPal account connected: {paymentStatus.paypalEmail}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              You'll receive payments directly to your PayPal account.
-                            </p>
-                            {paymentStatus.pendingEarnings !== "0" && (
-                              <div className="text-sm">
-                                <span className="text-gray-600">Pending earnings: </span>
-                                <span className="font-medium text-primary-blue">
-                                  ${paymentStatus.pendingEarnings}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        ) : paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
+                        {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
                           <div className="space-y-2">
                             <p className="text-sm text-green-700">
                               Stripe Connect account is active and ready to receive payments.
@@ -477,38 +399,11 @@ Don't have PayPal? Sign up free at paypal.com first.`;
                               Choose your preferred payment method to receive rental earnings:
                             </p>
                             
-                            {/* PayPal Option */}
-                            {paymentStatus.paypalConfigured && (
-                              <div className="p-3 border rounded-lg bg-blue-50">
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">P</div>
-                                    <span className="font-medium text-blue-800">PayPal (Recommended)</span>
-                                  </div>
-                                  <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
-                                </div>
-                                <p className="text-sm text-blue-700 mb-2">
-                                  Connect your PayPal email. Real payouts processed by Lendibl team.
-                                </p>
-                                <p className="text-xs text-blue-600 mb-3">
-                                  Need PayPal? <a href="https://paypal.com" target="_blank" className="underline hover:no-underline">Sign up free at paypal.com</a>
-                                </p>
-                                <Button 
-                                  onClick={handleConnectPayPal}
-                                  disabled={isCreatingAccount}
-                                  variant="outline"
-                                  className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
-                                >
-                                  {isCreatingAccount ? 'Connecting...' : 'Connect PayPal Account'}
-                                </Button>
-                              </div>
-                            )}
-                            
                             {/* Stripe Connect Option */}
                             <div className="p-3 border rounded-lg">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
-                                  <CreditCard className="w-5 h-5 text-purple-600" />
+                                  <Building2 className="w-5 h-5 text-blue-600" />
                                   <span className="font-medium text-gray-800">Stripe Connect</span>
                                 </div>
                                 <Badge variant="outline" className="text-xs">More Setup Required</Badge>

@@ -926,25 +926,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Check if user needs payment setup
-  // Handle demo Stripe completion
-  app.get("/stripe-demo-complete", async (req, res) => {
-    const { account, user } = req.query;
-    
-    if (account && user) {
-      // Mark the mock account as completed
-      try {
-        await storage.updateUser(parseInt(user as string), { 
-          paymentSetupComplete: true 
-        });
-        console.log(`Demo Stripe setup completed for user ${user}`);
-      } catch (error) {
-        console.error('Error updating demo completion:', error);
-      }
-    }
-    
-    // Redirect to settings with success message
-    res.redirect('/settings?stripe_demo=complete');
-  });
+
 
   app.get("/api/payment-setup-status", authenticateToken, async (req: AuthRequest, res) => {
     try {
@@ -957,31 +939,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const paymentReminders = await storage.getPaymentReminders(userId);
       
       // Check payment methods status
-      let accountStatus = null;
-      let paypalConnected = false;
+      let stripeStatus = null;
+      let hasValidSetup = false;
       
       if (user?.stripeAccountId) {
-        accountStatus = await stripeService.checkAccountStatus(user.stripeAccountId);
-      }
-      
-      if (user?.paypalEmail) {
-        paypalConnected = true;
+        stripeStatus = await stripeService.checkAccountStatus(user.stripeAccountId);
+        hasValidSetup = stripeStatus?.payoutsEnabled || false;
+        
+        // Update user's payment setup status
+        if (hasValidSetup && !user.paymentSetupComplete) {
+          await storage.updateUser(userId, { paymentSetupComplete: true });
+        }
       }
 
-      res.json({ 
-        needsPaymentSetup,
-        hasItems: userItems.length > 0,
-        paymentSetupComplete: user?.paymentSetupComplete || false,
-        estimatedEarnings: userItems.length * 50, // Rough estimate based on number of items
-        pendingEarnings: user?.pendingEarnings || "0",
-        paymentReminders: paymentReminders,
-        stripeAccountStatus: accountStatus,
-        paypalConnected: paypalConnected,
-        paypalEmail: user?.paypalEmail,
-        onboardingUrl: user?.stripeAccountId && accountStatus && !accountStatus.payoutsEnabled ? 
-          await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null,
-        needsPaymentMethod: userItems.length > 0 && !user?.stripeAccountId && !user?.paypalEmail,
-        paypalConfigured: paypalService.isConfigured()
+      res.json({
+        hasPaymentMethod: hasValidSetup,
+        stripe: {
+          configured: hasValidSetup,
+          accountId: user?.stripeAccountId,
+          status: stripeStatus,
+          needsOnboarding: user?.stripeAccountId && !hasValidSetup
+        }
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });
