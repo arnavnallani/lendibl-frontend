@@ -45,21 +45,23 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     const saved = localStorage.getItem('lendibl_saved_accounts');
     if (saved) {
       try {
-        setSavedAccounts(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        // Migrate old accounts to include addedAt if missing
+        const migrated = parsed.map((acc: SavedAccount) => ({
+          ...acc,
+          addedAt: acc.addedAt || acc.lastUsed || new Date().toISOString()
+        }));
+        setSavedAccounts(migrated);
       } catch (error) {
         console.error('Failed to parse saved accounts:', error);
       }
     }
   }, []);
 
-  // Save accounts to localStorage - maintain order
+  // Save accounts to localStorage - maintain original order
   const saveAccountsToStorage = (accounts: SavedAccount[]) => {
-    // Sort by addedAt to maintain consistent order
-    const sorted = accounts.sort((a, b) => 
-      new Date(a.addedAt || a.lastUsed).getTime() - new Date(b.addedAt || b.lastUsed).getTime()
-    );
-    localStorage.setItem('lendibl_saved_accounts', JSON.stringify(sorted));
-    setSavedAccounts(sorted);
+    localStorage.setItem('lendibl_saved_accounts', JSON.stringify(accounts));
+    setSavedAccounts(accounts);
   };
 
   // Add current account to saved accounts if not already there
@@ -104,7 +106,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
         if (response.ok) {
           const data = await response.json();
           
-          // Update the account with new token and timestamp
+          // Update only the lastUsed timestamp without changing order
           const updated = savedAccounts.map(acc => 
             acc.id === account.id 
               ? { ...acc, lastUsed: new Date().toISOString() }
@@ -321,10 +323,9 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           
           <DropdownMenuSeparator />
           
-          {/* Saved Accounts */}
+          {/* Saved Accounts - maintain original order */}
           {savedAccounts
             .filter(account => account.email !== currentUser.email)
-            .sort((a, b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime())
             .map((account) => (
               <DropdownMenuItem
                 key={account.id}
