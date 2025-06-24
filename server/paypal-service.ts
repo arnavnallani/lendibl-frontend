@@ -16,6 +16,8 @@ export class PayPalService {
     if (!this.clientId || !this.clientSecret) {
       console.warn('PayPal credentials not configured');
     }
+    
+    console.log(`PayPal Service initialized: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION' : 'SANDBOX'} mode`);
   }
 
   // Get access token for PayPal API calls
