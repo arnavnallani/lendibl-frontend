@@ -8,6 +8,53 @@ import { hashPassword, comparePassword, generateToken, authenticateToken, option
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
+
+// Helper function for smart search completions
+function generateSmartCompletions(query: string, items: any[]): any[] {
+  const suggestions: any[] = [];
+  
+  // Price range suggestions
+  if (query.includes('under') || query.includes('cheap') || query.includes('budget')) {
+    suggestions.push({
+      type: 'filter',
+      text: `${query} under $50`,
+      subtitle: 'Price filter'
+    });
+  }
+  
+  // Time-based suggestions
+  if (query.includes('weekend') || query.includes('daily') || query.includes('weekly')) {
+    suggestions.push({
+      type: 'filter',
+      text: `${query} rentals`,
+      subtitle: 'Duration filter'
+    });
+  }
+  
+  // Popular combinations
+  const popularTerms = ['power tools', 'camping gear', 'party supplies', 'exercise equipment'];
+  const matchingTerms = popularTerms.filter(term => 
+    term.toLowerCase().includes(query) || query.includes(term.split(' ')[0])
+  );
+  
+  matchingTerms.forEach(term => {
+    const count = items.filter(item => 
+      item.title.toLowerCase().includes(term.toLowerCase()) ||
+      item.description?.toLowerCase().includes(term.toLowerCase())
+    ).length;
+    
+    if (count > 0) {
+      suggestions.push({
+        type: 'category',
+        text: term.charAt(0).toUpperCase() + term.slice(1),
+        subtitle: `${count} items available`,
+        count
+      });
+    }
+  });
+  
+  return suggestions.slice(0, 3);
+}
 import { stripeService } from "./stripe-service";
 import { paypalService } from "./paypal-service";
 import { z } from "zod";
@@ -168,6 +215,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/logout", (req, res) => {
     // Since we're using JWT tokens, logout is handled client-side
     res.json({ message: "Logout successful" });
+  });
+
+  // Search suggestions endpoint
+  app.get("/api/search-suggestions", async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || typeof q !== 'string') {
+        return res.json([]);
+      }
+
+      const query = q.toLowerCase().trim();
+      const suggestions: any[] = [];
+
+      // Get all items for search matching
+      const allItems = await storage.getItems();
+      const categories = await storage.getCategories();
+
+      // Item name matches
+      const itemMatches = allItems
+        .filter(item => item.title.toLowerCase().includes(query))
+        .slice(0, 3)
+        .map(item => ({
+          type: 'item',
+          text: item.title,
+          subtitle: `$${item.dailyRate}/day`,
+          count: 1
+        }));
+
+      suggestions.push(...itemMatches);
+
+      // Category matches
+      const categoryMatches = categories
+        .filter(cat => cat.name.toLowerCase().includes(query))
+        .slice(0, 2)
+        .map(cat => {
+          const itemCount = allItems.filter(item => item.categoryId === cat.id).length;
+          return {
+            type: 'category',
+            text: cat.name,
+            subtitle: `${itemCount} items available`,
+            count: itemCount
+          };
+        });
+
+      suggestions.push(...categoryMatches);
+
+      // Location-based suggestions
+      if (query.length >= 2) {
+        const locations = [...new Set(allItems.map(item => item.location).filter(Boolean))];
+        const locationMatches = locations
+          .filter(loc => loc?.toLowerCase().includes(query))
+          .slice(0, 2)
+          .map(loc => ({
+            type: 'location',
+            text: `Items in ${loc}`,
+            subtitle: 'Search by location'
+          }));
+
+        suggestions.push(...locationMatches);
+      }
+
+      // Smart search completions
+      const smartSuggestions = generateSmartCompletions(query, allItems);
+      suggestions.push(...smartSuggestions);
+
+      res.json(suggestions.slice(0, 8));
+    } catch (error) {
+      console.error('Search suggestions error:', error);
+      res.status(500).json([]);
+    }
   });
 
   // Categories
