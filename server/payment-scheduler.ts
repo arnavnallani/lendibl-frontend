@@ -120,24 +120,78 @@ export class PaymentScheduler {
           return false;
         }
 
-        // For demonstration: simulate successful payout
-        // In production, this would be a bank transfer or proper payout mechanism
-        console.log(`Payout processed for booking ${bookingId}: $${ownerPayout} to ${owner.email}`);
-        console.log(`Payment method on file: **** **** **** ${paymentMethods.data[0].card?.last4}`);
+        // Create actual Stripe transfer to owner's payment method
+        const paymentMethod = paymentMethods.data[0];
         
-        // Update booking with payout completion
-        await storage.updateBooking(bookingId, {
-          payoutCompleted: new Date(),
-          updatedAt: new Date()
-        });
+        try {
+          // Create a transfer using Stripe's payment method
+          // This transfers money from Lendibl's Stripe balance to the owner's card
+          const transfer = await stripe.transfers.create({
+            amount: payoutAmountCents,
+            currency: 'usd',
+            destination: owner.stripeCustomerId, // Transfer to customer's default payment method
+            description: `Payout for booking ${bookingId} - Item: ${booking.item.title}`,
+            metadata: {
+              booking_id: bookingId.toString(),
+              owner_id: owner.id.toString(),
+              item_id: booking.item.id.toString()
+            }
+          });
 
-        // Clear pending earnings  
-        await paymentReminderService.clearPendingEarnings(
-          booking.item.ownerId,
-          ownerPayout.toString()
-        );
+          console.log(`Real Stripe transfer completed for booking ${bookingId}:`);
+          console.log(`- Transfer ID: ${transfer.id}`);
+          console.log(`- Amount: $${ownerPayout} to ${owner.email}`);
+          console.log(`- Payment method: **** **** **** ${paymentMethod.card?.last4}`);
+          
+          // Update booking with payout completion and transfer details
+          await storage.updateBooking(bookingId, {
+            payoutCompleted: new Date(),
+            stripeTransferId: transfer.id,
+            updatedAt: new Date()
+          });
 
-        return true;
+          // Clear pending earnings  
+          await paymentReminderService.clearPendingEarnings(
+            booking.item.ownerId,
+            ownerPayout.toString()
+          );
+
+          return true;
+        } catch (transferError: any) {
+          console.error(`Stripe transfer failed for booking ${bookingId}:`, transferError.message);
+          
+          // If direct transfer fails, try alternative payout method
+          if (transferError.code === 'transfers_not_allowed') {
+            console.log('Direct transfers not allowed, attempting alternative method...');
+            
+            // Alternative: Use Sources API or ACH transfer if available
+            // For now, mark as requiring manual processing
+            await storage.updateBooking(bookingId, {
+              payoutBlocked: true,
+              payoutBlockReason: `Requires manual processing: ${transferError.message}`,
+              updatedAt: new Date()
+            });
+            
+            // Add to pending earnings for manual processing
+            await paymentReminderService.updatePendingEarnings(
+              booking.item.ownerId,
+              ownerPayout.toString()
+            );
+            
+            console.log(`Payout marked for manual processing: $${ownerPayout} to ${owner.email}`);
+            
+            return false;
+          } else {
+            // Update booking with transfer failure
+            await storage.updateBooking(bookingId, {
+              payoutBlocked: true,
+              payoutBlockReason: `Transfer failed: ${transferError.message}`,
+              updatedAt: new Date()
+            });
+            
+            return false;
+          }
+        }
       } catch (paymentError: any) {
         console.error(`Payment method error for booking ${bookingId}:`, paymentError.message);
         
