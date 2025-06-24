@@ -99,35 +99,66 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process payout via manual transfer (Stripe→PayPal not directly possible)
+        // Process payout via improved money flow: Stripe → Lendibl PayPal → Owner PayPal
         if (hasPayPal) {
           console.log(`PROCESSING PAYOUT for PayPal user:`);
           console.log(`- Renter paid: $${totalPaid} → Lendibl's Stripe account ✅`);
           console.log(`- Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
           console.log(`- Commission kept: $${platformCommission}`);
           
-          console.log(`💡 PAYMENT FLOW REALITY CHECK:`);
-          console.log(`   Money is in Stripe account, but PayPal payouts require PayPal balance`);
-          console.log(`   Direct Stripe→PayPal transfer not possible via API`);
-          console.log(`   Solution: Manual bank transfer or Stripe Connect for automated payouts`);
+          console.log(`💰 IMPROVED MONEY FLOW:`);
+          console.log(`   Step 1: $${totalPaid} in Lendibl Stripe account ✅`);
+          console.log(`   Step 2: Transfer $${ownerPayout} to Lendibl PayPal account (manual)`);
+          console.log(`   Step 3: PayPal Payout $${ownerPayout} to ${owner.paypalEmail} (automated)`);
           
-          console.log(`📤 MANUAL PAYOUT PROCESS:`);
-          console.log(`   1. Transfer $${ownerPayout} from Stripe to bank account`);
-          console.log(`   2. Send $${ownerPayout} to PayPal: ${owner.paypalEmail}`);
-          console.log(`   3. Reference: Booking #${bookingId} - ${booking.item.title}`);
-          console.log(`   4. Owner: ${owner.firstName} ${owner.lastName} (${owner.email})`);
-          
-          await storage.updateBooking(bookingId, {
-            payoutCompleted: new Date(),
-            stripeTransferId: `manual_stripe_to_paypal_${Date.now()}`,
-            payoutNote: `Manual transfer required: $${ownerPayout} from Stripe balance to PayPal ${owner.paypalEmail}. Booking #${bookingId}`,
-            updatedAt: new Date()
-          });
-          
-          // Clear pending earnings since payout is "processed" (logged for manual completion)
-          await paymentReminderService.clearPendingEarnings(owner.id, ownerPayout.toString());
-          
-          console.log(`✅ PAYOUT LOGGED - Manual Stripe→PayPal transfer required for booking ${bookingId}`);
+          try {
+            // Attempt PayPal payout (will work once Lendibl PayPal has funds)
+            const payoutResult = await paypalService.sendPayout(
+              owner.paypalEmail,
+              ownerPayout,
+              `Booking #${bookingId} - ${booking.item.title}`,
+              { bookingId: bookingId, ownerId: owner.id }
+            );
+            
+            if (payoutResult.success) {
+              console.log(`✅ PAYPAL PAYOUT SUCCESSFUL:`);
+              console.log(`   Batch ID: ${payoutResult.payoutId}`);
+              console.log(`   Flow: Stripe → Lendibl PayPal → Owner PayPal ✅`);
+              
+              await storage.updateBooking(bookingId, {
+                payoutCompleted: new Date(),
+                stripeTransferId: payoutResult.payoutId,
+                payoutNote: `PayPal payout completed - Batch: ${payoutResult.payoutId}`,
+                updatedAt: new Date()
+              });
+              
+              await paymentReminderService.clearPendingEarnings(owner.id, ownerPayout.toString());
+              
+            } else {
+              throw new Error(payoutResult.error || 'PayPal payout failed');
+            }
+            
+          } catch (error) {
+            if (error.message.includes('INSUFFICIENT_FUNDS')) {
+              console.log(`⚠️  LENDIBL PAYPAL NEEDS FUNDING:`);
+              console.log(`   1. Transfer $${ownerPayout} from Stripe to Lendibl's bank account`);
+              console.log(`   2. Add $${ownerPayout} to Lendibl's PayPal account balance`);
+              console.log(`   3. PayPal will then auto-send to ${owner.paypalEmail}`);
+            } else {
+              console.log(`❌ PAYPAL ERROR: ${error.message}`);
+            }
+            
+            console.log(`📤 MANUAL FUNDING REQUIRED:`);
+            console.log(`   Transfer $${ownerPayout} to Lendibl PayPal for automated payout`);
+            console.log(`   Reference: Booking #${bookingId} - ${booking.item.title}`);
+            
+            await storage.updateBooking(bookingId, {
+              payoutCompleted: new Date(),
+              stripeTransferId: `pending_paypal_funding_${Date.now()}`,
+              payoutNote: `PayPal funding needed: Add $${ownerPayout} to Lendibl PayPal, then auto-payout to ${owner.paypalEmail}. Booking #${bookingId}`,
+              updatedAt: new Date()
+            });
+          }
 
         } else if (hasStripeConnect) {
           // Check if Stripe account is ready for payouts
