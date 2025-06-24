@@ -19,6 +19,7 @@ interface AuthContextType {
     username: string;
   }) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -125,8 +126,17 @@ export function useAuthProvider(): AuthContextType {
 
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+  };
+
+  const refreshUser = async () => {
+    const storedToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+      verifyToken(storedToken);
+    }
   };
 
   return {
@@ -135,6 +145,7 @@ export function useAuthProvider(): AuthContextType {
     login,
     register,
     logout,
+    refreshUser,
     isLoading,
   };
 }

@@ -170,6 +170,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Enhanced PayPal setup flow with clear instructions about needing existing PayPal account and signup link for new users
 - June 24, 2025: Fixed payment flow to use automatic capture - money now goes directly from renter to Lendibl's account, then exact list price transfers to owner while Lendibl keeps commission difference
 - June 24, 2025: Implemented proper real money transfer system - PayPal users get Stripe Connect accounts created automatically, enabling actual money transfers from Lendibl's Stripe balance to owner accounts
+- June 24, 2025: Added account switcher feature - users can save multiple accounts and easily switch between them without re-entering credentials, stored locally with last-used timestamps
 
 ## User Preferences
 

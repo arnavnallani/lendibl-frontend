@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Menu, User, LogOut, Settings, Zap, MessageSquare } from "lucide-react";
+import { AccountSwitcher } from "./account-switcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -18,7 +19,7 @@ interface HeaderProps {
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -102,6 +103,19 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <MessageSquare className="w-6 h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
+
+                  {/* Account Switcher */}
+                  <AccountSwitcher 
+                    currentUser={user}
+                    onAccountSwitch={async (token) => {
+                      await refreshUser();
+                      window.location.reload();
+                    }}
+                    onLogout={() => {
+                      localStorage.removeItem('lendibl_saved_accounts');
+                      logout();
+                    }}
+                  />
                 </div>
 
                 {/* User Menu */}
