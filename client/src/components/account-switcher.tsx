@@ -60,6 +60,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
 
   // Save accounts to localStorage - maintain original order
   const saveAccountsToStorage = (accounts: SavedAccount[]) => {
+    // Don't re-sort here, maintain the exact order passed in
     localStorage.setItem('lendibl_saved_accounts', JSON.stringify(accounts));
     setSavedAccounts(accounts);
   };
@@ -89,55 +90,32 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
     try {
       let tokenToUse = account.token;
       
-      // If this is a credential-based account, we need to generate a fresh token
+      // Always use session tokens for credential-based accounts to avoid login conflicts
       if (account.token.startsWith('credentials:')) {
-        // For now, we'll use a stored token or generate a long-lived one
-        const storedToken = localStorage.getItem(`account_token_${account.id}`);
-        if (storedToken) {
-          // Verify the stored token is still valid
-          const testResponse = await fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${storedToken}` },
-          });
-          
-          if (testResponse.ok) {
-            tokenToUse = storedToken;
-            console.log("Using valid stored token for:", account.email);
-          } else {
-            // Need to generate a new token without logging in
-            // For now, we'll create a simple token based on account info
-            console.log("Generating new session token for:", account.email);
-            const sessionToken = btoa(JSON.stringify({
-              id: account.id,
-              email: account.email,
-              firstName: account.firstName,
-              lastName: account.lastName,
-              timestamp: Date.now()
-            }));
-            tokenToUse = `session_${sessionToken}`;
-            localStorage.setItem(`account_token_${account.id}`, tokenToUse);
-          }
-        } else {
-          // Generate a session token for this account
-          console.log("Creating new session token for:", account.email);
-          const sessionToken = btoa(JSON.stringify({
-            id: account.id,
-            email: account.email,
-            firstName: account.firstName,
-            lastName: account.lastName,
-            timestamp: Date.now()
-          }));
-          tokenToUse = `session_${sessionToken}`;
-          localStorage.setItem(`account_token_${account.id}`, tokenToUse);
-        }
+        // Generate a session token based on account info - no server calls needed
+        console.log("Using session token for:", account.email);
+        const sessionToken = btoa(JSON.stringify({
+          id: account.id,
+          email: account.email,
+          firstName: account.firstName,
+          lastName: account.lastName,
+          timestamp: Date.now()
+        }));
+        tokenToUse = `session_${sessionToken}`;
+        localStorage.setItem(`account_token_${account.id}`, tokenToUse);
       }
       
-      // Update last used timestamp
-      const updated = savedAccounts.map(acc => 
-        acc.id === account.id 
-          ? { ...acc, lastUsed: new Date().toISOString() }
-          : acc
-      );
-      saveAccountsToStorage(updated);
+      // Update ONLY the lastUsed timestamp without changing array order
+      const accountIndex = savedAccounts.findIndex(acc => acc.id === account.id);
+      if (accountIndex !== -1) {
+        const updated = [...savedAccounts];
+        updated[accountIndex] = {
+          ...updated[accountIndex],
+          lastUsed: new Date().toISOString()
+        };
+        localStorage.setItem('lendibl_saved_accounts', JSON.stringify(updated));
+        setSavedAccounts(updated);
+      }
 
       // Set the active token
       localStorage.setItem('auth_token', tokenToUse);
@@ -196,7 +174,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
         addedAt: now
       };
       
-      // Test login to validate credentials
+      // Test login to validate credentials - but only for validation, not to switch
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -208,7 +186,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
       if (response.ok) {
         const data = await response.json();
         
-        // Get user details to update the account info
+        // Get user details but don't use the login token to avoid conflicts
         const userResponse = await fetch('/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${data.token}`,
@@ -223,7 +201,7 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           newAccount.firstName = userData.user.firstName;
           newAccount.lastName = userData.user.lastName;
           
-          // Generate and store a session token for this account
+          // Generate and store a session token for this account (separate from login token)
           const sessionToken = btoa(JSON.stringify({
             id: userData.user.id,
             email: userData.user.email,
@@ -233,18 +211,18 @@ export function AccountSwitcher({ currentUser, onAccountSwitch, onLogout }: Acco
           }));
           localStorage.setItem(`account_token_${userData.user.id}`, `session_${sessionToken}`);
           
-          // Check if account already exists
-          const existing = savedAccounts.find(acc => acc.email === newAccount.email);
-          if (existing) {
-            // Update existing but preserve addedAt for stable ordering
-            const updated = savedAccounts.map(acc => 
-              acc.email === newAccount.email 
-                ? { ...newAccount, addedAt: acc.addedAt } // Keep original addedAt
-                : acc
-            );
+          // Check if account already exists - preserve exact order
+          const existingIndex = savedAccounts.findIndex(acc => acc.email === newAccount.email);
+          if (existingIndex !== -1) {
+            // Update existing account in place
+            const updated = [...savedAccounts];
+            updated[existingIndex] = { 
+              ...newAccount, 
+              addedAt: updated[existingIndex].addedAt 
+            };
             saveAccountsToStorage(updated);
           } else {
-            // Add new
+            // Add new account to end
             saveAccountsToStorage([...savedAccounts, newAccount]);
           }
           
