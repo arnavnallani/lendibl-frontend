@@ -19,9 +19,9 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-  // Disable WebSocket for connection pooling to avoid connection issues
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 10000, // Increased timeout
+  // Always use SSL for Neon connections
+  ssl: { rejectUnauthorized: false },
 });
 
 export const db = drizzle({ client: pool, schema });
