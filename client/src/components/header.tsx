@@ -43,7 +43,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* Enhanced Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+          <div className="hidden md:flex flex-1 max-w-2xl mx-12">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -63,53 +63,53 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-6">
-            {/* Mode Toggle */}
-            <div className="hidden sm:flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
-              <Button
-                variant={currentMode === "renter" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onModeChange("renter")}
-                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
-                  currentMode === "renter" 
-                    ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
-                    : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
-                }`}
-              >
-                Rent Items
-              </Button>
-              <Button
-                variant={currentMode === "lister" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onModeChange("lister")}
-                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
-                  currentMode === "lister" 
-                    ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
-                    : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
-                }`}
-              >
-                <Link href="/list-item">List Items</Link>
-              </Button>
-            </div>
+          <div className="flex items-center space-x-3">
+          {/* Mode Toggle */}
+          <div className="hidden lg:flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm mr-2">
+            <Button
+              variant={currentMode === "renter" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => onModeChange("renter")}
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all duration-500 ${
+                currentMode === "renter" 
+                  ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
+                  : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
+              }`}
+            >
+              Rent Items
+            </Button>
+            <Button
+              variant={currentMode === "lister" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => onModeChange("lister")}
+              className={`px-4 py-2 text-sm font-bold rounded-xl transition-all duration-500 ${
+                currentMode === "lister" 
+                  ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
+                  : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
+              }`}
+            >
+              <Link href="/list-item">List Items</Link>
+            </Button>
+          </div>
 
-            {user ? (
-              <>
-                {/* Header Icons */}
-                <div className="flex items-center gap-1">
-                  {/* Action Dashboard */}
-                  <Link href="/action-dashboard">
-                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
-                      <Zap className="w-6 h-6 group-hover:animate-pulse" />
-                    </Button>
-                  </Link>
+          {user ? (
+            <>
+              {/* Action Icons */}
+              <div className="flex items-center gap-1">
+                {/* Action Dashboard */}
+                <Link href="/action-dashboard">
+                  <Button variant="ghost" className="h-10 w-10 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                    <Zap className="w-5 h-5 group-hover:animate-pulse" />
+                  </Button>
+                </Link>
 
-                  {/* Messages */}
-                  <Link href="/messages">
-                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
-                      <MessageSquare className="w-6 h-6 group-hover:animate-pulse" />
-                    </Button>
-                  </Link>
-                </div>
+                {/* Messages */}
+                <Link href="/messages">
+                  <Button variant="ghost" className="h-10 w-10 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                    <MessageSquare className="w-5 h-5 group-hover:animate-pulse" />
+                  </Button>
+                </Link>
+              </div>
 
                 {/* User Menu */}
                 <DropdownMenu>
