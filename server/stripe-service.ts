@@ -144,10 +144,7 @@ export class StripeService {
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
-        email: email,
-        capabilities: {
-          transfers: { requested: true }
-        }
+        email: email
       });
       
       console.log(`Stripe Express account created: ${account.id}`);
