@@ -140,51 +140,17 @@ export class StripeService {
     try {
       console.log(`Creating Stripe Express account for ${email}`);
       
-      // Create Express account with proper platform setup
+      // Create Express account without ToS acceptance for US domestic platforms
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
-        email: email,
-        business_type: 'individual',
-        individual: {
-          email: email,
-          first_name: firstName,
-          last_name: lastName
-        },
-        tos_acceptance: {
-          service_agreement: 'recipient'
-        },
-        settings: {
-          payouts: {
-            schedule: {
-              interval: 'daily'
-            }
-          }
-        }
+        email: email
       });
       
       console.log(`Stripe Express account created: ${account.id}`);
       return account.id;
     } catch (error) {
       console.error('Error creating Express account:', error);
-      
-      // If platform profile error, try with minimal config
-      if (error.message?.includes('platform-profile')) {
-        console.log('Platform profile required, creating with minimal config...');
-        try {
-          const minimalAccount = await stripe.accounts.create({
-            type: 'express',
-            country: 'US',
-            email: email
-          });
-          console.log(`Minimal Stripe Express account created: ${minimalAccount.id}`);
-          return minimalAccount.id;
-        } catch (minimalError) {
-          console.error('Error creating minimal account:', minimalError);
-          throw minimalError;
-        }
-      }
-      
       throw error;
     }
   }
