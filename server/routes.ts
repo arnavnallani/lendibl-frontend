@@ -739,35 +739,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerId = customer.id;
       }
 
-      // Step 2: Attach payment method to customer
+      // Step 2: Create Stripe Connect account for payouts if user has items
+      let stripeAccountId = user.stripeAccountId;
+      const userItems = await storage.getItems({ ownerId: userId });
+      
+      if (userItems.length > 0 && !stripeAccountId) {
+        stripeAccountId = await stripeService.createConnectedAccount(
+          userId, 
+          user.email, 
+          user.firstName, 
+          user.lastName
+        );
+        
+        if (!stripeAccountId) {
+          return res.status(500).json({ message: "Failed to create payout account" });
+        }
+      }
+
+      // Step 3: Attach payment method to customer
       await stripe.paymentMethods.attach(paymentMethodId, {
         customer: customerId,
       });
 
-      // Step 3: Set as default payment method for the customer
+      // Step 4: Set as default payment method for the customer
       await stripe.customers.update(customerId, {
         invoice_settings: {
           default_payment_method: paymentMethodId,
         },
       });
 
-      // Step 4: Update user with payment method info (no Connect accounts)
-      const updatedUser = await storage.updateUser(userId, {
+      // Step 5: Update user with Stripe information
+      const updateData: any = {
         stripeCustomerId: customerId,
-        hasPaymentMethod: true,
-        paymentMethodId: paymentMethodId,
-        cardholderName: cardholderName,
+        stripePaymentMethodId: paymentMethodId,
         paymentSetupComplete: true,
-      });
+      };
+      
+      if (stripeAccountId) {
+        updateData.stripeAccountId = stripeAccountId;
+      }
+      
+      await storage.updateUser(userId, updateData);
 
-      // Step 5: Resolve any pending payment reminders
+      // Step 6: Resolve any pending payment reminders
       await paymentReminderService.resolvePaymentReminders(userId);
 
-      res.json({ 
-        success: true, 
-        message: "Payment setup completed successfully",
-        customerId: customerId
-      });
+      const response: any = {
+        message: "Payment method setup successful",
+        requiresAction: false
+      };
+      
+      // If a Connect account was created, provide onboarding link
+      if (stripeAccountId && userItems.length > 0) {
+        const onboardingLink = await stripeService.createAccountOnboardingLink(stripeAccountId, userId);
+        if (onboardingLink) {
+          response.onboardingUrl = onboardingLink;
+          response.message = "Payment method setup successful. Complete payout setup to receive earnings.";
+        }
+      }
+      
+      res.json(response);
     } catch (error: any) {
       console.error("Payment setup error:", error);
       
@@ -914,7 +945,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         estimatedEarnings: userItems.length * 50, // Rough estimate based on number of items
         pendingEarnings: user?.pendingEarnings || "0",
         paymentReminders: paymentReminders,
-        stripeAccountStatus: accountStatus
+        stripeAccountStatus: accountStatus,
+        onboardingUrl: user?.stripeAccountId && accountStatus && !accountStatus.payoutsEnabled ? 
+          await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });

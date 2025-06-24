@@ -159,6 +159,7 @@ The application uses PostgreSQL with the following main entities:
 - June 23, 2025: Successfully tested and confirmed working payout system - owners receive exact list price transfers to their stored payment methods with variable commission structure operational
 - June 23, 2025: Added comprehensive privacy policy page and footer component with legal compliance links accessible from all main pages
 - June 24, 2025: Fixed payment flow implementation to ensure proper money transfer: renter payments go to Lendibl via Stripe, then exact list price amount transfers to owners while Lendibl keeps the commission difference
+- June 24, 2025: Implemented Stripe Connect for real owner payouts - creates Express accounts for owners, handles onboarding, and enables actual money transfers from Lendibl to owner bank accounts/cards
 
 ## User Preferences
 

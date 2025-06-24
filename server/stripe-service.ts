@@ -135,6 +135,35 @@ export class StripeService {
     }
   }
 
+  // Create Stripe Connect Express account
+  async createConnectedAccount(userId: number, email: string, firstName: string, lastName: string) {
+    try {
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_type: 'individual',
+        individual: {
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+        },
+        metadata: {
+          user_id: userId.toString(),
+        },
+      });
+      
+      return account.id;
+    } catch (error) {
+      console.error('Error creating connected account:', error);
+      return null;
+    }
+  }
+
   // Check if Stripe account is ready for payouts
   async checkAccountStatus(accountId: string) {
     try {
@@ -143,7 +172,8 @@ export class StripeService {
         payoutsEnabled: account.payouts_enabled,
         chargesEnabled: account.charges_enabled,
         detailsSubmitted: account.details_submitted,
-        requirements: account.requirements,
+        requirements: account.requirements?.currently_due || [],
+        disabled: account.requirements?.disabled_reason || null
       };
     } catch (error) {
       console.error('Error checking account status:', error);
@@ -156,14 +186,32 @@ export class StripeService {
     try {
       const accountLink = await stripe.accountLinks.create({
         account: accountId,
-        refresh_url: `${process.env.REPL_URL || 'http://localhost:5000'}/profile?refresh=true`,
-        return_url: `${process.env.REPL_URL || 'http://localhost:5000'}/profile?setup=complete`,
+        refresh_url: `${process.env.REPL_URL || 'http://localhost:5000'}/settings?setup=failed`,
+        return_url: `${process.env.REPL_URL || 'http://localhost:5000'}/settings?setup=complete`,
         type: 'account_onboarding',
       });
 
       return accountLink.url;
     } catch (error) {
       console.error('Error creating onboarding link:', error);
+      throw error;
+    }
+  }
+
+  // Create payout to connected account
+  async createConnectedAccountPayout(accountId: string, amount: number, description: string, metadata: any) {
+    try {
+      const transfer = await stripe.transfers.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: 'usd',
+        destination: accountId,
+        description: description,
+        metadata: metadata,
+      });
+      
+      return transfer;
+    } catch (error) {
+      console.error('Error creating payout:', error);
       throw error;
     }
   }

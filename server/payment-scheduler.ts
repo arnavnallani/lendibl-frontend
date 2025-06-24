@@ -107,92 +107,107 @@ export class PaymentScheduler {
       
       const payoutAmountCents = Math.round(ownerPayout * 100);
 
-      // Process payout using reverse payment (sending money to owner's card)
+      // Process payout using Stripe Connect
       try {
-        // Get owner's payment methods
-        const paymentMethods = await stripe.paymentMethods.list({
-          customer: owner.stripeCustomerId,
-          type: 'card',
-        });
+        if (!owner.stripeAccountId) {
+          console.log(`Owner ${owner.id} has no Connect account - creating one...`);
+          
+          // Create Connect account if it doesn't exist
+          const accountId = await stripeService.createConnectedAccount(
+            owner.id,
+            owner.email,
+            owner.firstName,
+            owner.lastName
+          );
+          
+          if (accountId) {
+            await storage.updateUser(owner.id, { stripeAccountId: accountId });
+            owner.stripeAccountId = accountId;
+          } else {
+            console.error(`Failed to create Connect account for owner ${owner.id}`);
+            await paymentReminderService.updatePendingEarnings(
+              booking.item.ownerId,
+              ownerPayout.toString()
+            );
+            return false;
+          }
+        }
 
-        if (paymentMethods.data.length === 0) {
-          console.log(`No payment method found for owner ${owner.id}`);
+        // Check if Connect account is ready for payouts
+        const accountStatus = await stripeService.checkAccountStatus(owner.stripeAccountId);
+        
+        if (!accountStatus?.payoutsEnabled) {
+          console.log(`Connect account not ready for payouts for owner ${owner.id}`);
+          console.log(`- Details submitted: ${accountStatus?.detailsSubmitted}`);
+          console.log(`- Payouts enabled: ${accountStatus?.payoutsEnabled}`);
+          console.log(`- Requirements: ${accountStatus?.requirements?.join(', ') || 'None'}`);
+          
+          // Add to pending earnings for manual onboarding completion
+          await paymentReminderService.updatePendingEarnings(
+            booking.item.ownerId,
+            ownerPayout.toString()
+          );
+          
+          // Update booking to indicate onboarding needed
+          await storage.updateBooking(bookingId, {
+            payoutBlocked: true,
+            payoutBlockReason: "Connect account onboarding incomplete",
+            updatedAt: new Date()
+          });
+          
           return false;
         }
 
-        const paymentMethod = paymentMethods.data[0];
+        // Create Stripe Connect transfer
+        const transfer = await stripeService.createConnectedAccountPayout(
+          owner.stripeAccountId,
+          ownerPayout,
+          `Payout for booking ${bookingId} - Item: ${booking.item.title}`,
+          {
+            booking_id: bookingId.toString(),
+            owner_id: owner.id.toString(),
+            item_id: booking.item.id.toString(),
+            type: 'owner_payout'
+          }
+        );
+
+        console.log(`Stripe Connect payout completed for booking ${bookingId}:`);
+        console.log(`- Transfer ID: ${transfer.id}`);
+        console.log(`- Amount: $${ownerPayout} to ${owner.email}`);
+        console.log(`- Connect Account: ${owner.stripeAccountId}`);
+        console.log(`- Lendibl commission: $${platformCommission}`);
         
-        // Create a reverse charge (refund-like transfer) to send money to owner's card
-        // This uses Stripe's ability to send money to debit cards
-        try {
-          const reverseTransfer = await stripe.transfers.create({
-            amount: payoutAmountCents,
-            currency: 'usd',
-            destination: paymentMethod.id, // Transfer to the payment method directly
-            description: `Payout for booking ${bookingId} - Item: ${booking.item.title}`,
-            metadata: {
-              booking_id: bookingId.toString(),
-              owner_id: owner.id.toString(),
-              item_id: booking.item.id.toString(),
-              type: 'owner_payout'
-            }
-          });
+        // Update booking with payout completion
+        await storage.updateBooking(bookingId, {
+          payoutCompleted: new Date(),
+          stripeTransferId: transfer.id,
+          payoutNote: `Connect transfer: $${ownerPayout}`,
+          updatedAt: new Date()
+        });
 
-          console.log(`Stripe payout completed for booking ${bookingId}:`);
-          console.log(`- Transfer ID: ${reverseTransfer.id}`);
-          console.log(`- Amount: $${ownerPayout} to ${owner.email}`);
-          console.log(`- Payment method: **** **** **** ${paymentMethod.card?.last4}`);
-          console.log(`- Lendibl commission: $${platformCommission}`);
-          
-          // Update booking with payout completion
-          await storage.updateBooking(bookingId, {
-            payoutCompleted: new Date(),
-            stripeTransferId: reverseTransfer.id,
-            updatedAt: new Date()
-          });
+        // Clear pending earnings  
+        await paymentReminderService.clearPendingEarnings(
+          booking.item.ownerId,
+          ownerPayout.toString()
+        );
 
-          // Clear pending earnings  
-          await paymentReminderService.clearPendingEarnings(
-            booking.item.ownerId,
-            ownerPayout.toString()
-          );
-
-          return true;
-          
-        } catch (transferError: any) {
-          console.error(`Stripe transfer failed for booking ${bookingId}:`, transferError.message);
-          
-          // For MVP, simulate successful payout while logging the issue
-          // In production, this would integrate with proper payout infrastructure
-          console.log(`Simulating payout completion for booking ${bookingId}:`);
-          console.log(`- Amount: $${ownerPayout} would be sent to ${owner.email}`);
-          console.log(`- Payment method: **** **** **** ${paymentMethod.card?.last4}`);
-          console.log(`- Lendibl commission: $${platformCommission}`);
-          
-          // Mark as completed with note about simulation
-          await storage.updateBooking(bookingId, {
-            payoutCompleted: new Date(),
-            stripeTransferId: `simulated_${Date.now()}`,
-            payoutNote: `Simulated payout: $${ownerPayout} to ${paymentMethod.card?.brand} ending in ${paymentMethod.card?.last4}`,
-            updatedAt: new Date()
-          });
-
-          // Clear pending earnings
-          await paymentReminderService.clearPendingEarnings(
-            booking.item.ownerId,
-            ownerPayout.toString()
-          );
-          
-          return true;
-        }
-      } catch (paymentError: any) {
-        console.error(`Payment method error for booking ${bookingId}:`, paymentError.message);
+        return true;
+        
+      } catch (transferError: any) {
+        console.error(`Stripe Connect transfer failed for booking ${bookingId}:`, transferError.message);
         
         // Add to pending earnings since payout failed
         await paymentReminderService.updatePendingEarnings(
           booking.item.ownerId,
           ownerPayout.toString()
         );
+        
+        // Update booking with transfer failure
+        await storage.updateBooking(bookingId, {
+          payoutBlocked: true,
+          payoutBlockReason: `Connect transfer failed: ${transferError.message}`,
+          updatedAt: new Date()
+        });
         
         return false;
       }
