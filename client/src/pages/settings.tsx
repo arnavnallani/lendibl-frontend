@@ -399,45 +399,35 @@ export default function Settings() {
                               Choose your preferred payment method to receive rental earnings:
                             </p>
                             
-                            {/* Bank Account Setup */}
-                            <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
-                              <div className="flex items-center justify-between mb-3">
+                            {/* Stripe Connect Option */}
+                            <div className="p-3 border rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
-                                  <Building2 className="w-5 h-5 text-amber-600" />
-                                  <span className="font-medium text-gray-800">Bank Account Setup</span>
+                                  <Building2 className="w-5 h-5 text-blue-600" />
+                                  <span className="font-medium text-gray-800">Bank Account</span>
                                 </div>
-                                <Badge variant="outline" className="text-xs bg-amber-100 text-amber-800">Setup Required</Badge>
+                                <Badge variant="outline" className="text-xs">Required</Badge>
                               </div>
+                              <p className="text-sm text-gray-600 mb-3">
+                                Connect your bank account to receive instant payments when rentals complete.
+                              </p>
                               
-                              <div className="space-y-3">
-                                <div className="text-sm text-amber-800">
-                                  <p className="font-medium mb-1">Stripe Platform Configuration Needed</p>
-                                  <p>Your Stripe account requires platform profile setup to create Connect accounts.</p>
-                                </div>
-                                
-                                <div className="text-xs text-amber-700 bg-amber-100 p-2 rounded">
-                                  <p className="font-medium mb-1">To enable bank account connections:</p>
-                                  <ol className="list-decimal list-inside space-y-1">
-                                    <li>Go to <a href="https://dashboard.stripe.com/settings/connect/platform-profile" target="_blank" className="underline">Stripe Dashboard > Connect > Platform Profile</a></li>
-                                    <li>Complete the platform profile setup</li>
-                                    <li>Return here to connect your bank account</li>
-                                  </ol>
-                                </div>
-                                
-                                <div className="pt-2 border-t border-amber-200">
-                                  <p className="text-xs text-amber-700 mb-2">
-                                    <strong>Meanwhile:</strong> You can still list items and accept bookings. Payouts will be processed manually until bank account connection is complete.
-                                  </p>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    onClick={() => window.open('https://dashboard.stripe.com/settings/connect/platform-profile', '_blank')}
-                                    className="text-amber-700 border-amber-300 hover:bg-amber-100"
-                                  >
-                                    Open Stripe Dashboard
-                                  </Button>
-                                </div>
-                              </div>
+                              {!paymentStatus.stripeAccountStatus ? (
+                                <Button 
+                                  onClick={handleSetupStripe}
+                                  disabled={isCreatingAccount}
+                                  className="w-full"
+                                >
+                                  {isCreatingAccount ? 'Setting up...' : 'Connect Bank Account'}
+                                </Button>
+                              ) : (
+                                <Button 
+                                  onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
+                                  className="w-full"
+                                >
+                                  Complete Bank Setup
+                                </Button>
+                              )}
                             </div>
                           </div>
                         )}
