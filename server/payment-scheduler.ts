@@ -103,51 +103,62 @@ export class PaymentScheduler {
 
       // Process payout using Stripe Connect
       try {
-        // Production-ready money transfer: Lendibl → Owner
-        // In production, this would use real Stripe Connect or ACH transfers
-        console.log(`PROCESSING REAL MONEY TRANSFER:`);
+        // Check if owner has completed Stripe Connect setup
+        if (!owner.stripeAccountId) {
+          console.log(`⚠️  Owner ${owner.id} doesn't have Stripe Connect account - cannot process payout`);
+          
+          // Add to pending earnings and send reminder
+          await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
+          await paymentReminderService.createPaymentSetupReminder(
+            owner.id, 
+            'payout_blocked', 
+            ownerPayout.toString()
+          );
+          
+          return false;
+        }
+
+        // Check if account is ready for payouts
+        const accountStatus = await stripeService.checkAccountStatus(owner.stripeAccountId);
+        if (!accountStatus || !accountStatus.payoutsEnabled) {
+          console.log(`⚠️  Owner ${owner.id} Stripe account not ready for payouts`);
+          
+          // Add to pending earnings and send reminder
+          await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
+          await paymentReminderService.createPaymentSetupReminder(
+            owner.id, 
+            'payout_blocked', 
+            ownerPayout.toString()
+          );
+          
+          return false;
+        }
+
+        // Process real money transfer via Stripe Connect
+        console.log(`PROCESSING REAL MONEY TRANSFER via Stripe Connect:`);
         console.log(`- From: Lendibl's Stripe account balance`);
-        console.log(`- To: ${owner.email}`);
+        console.log(`- To: ${owner.email} (Account: ${owner.stripeAccountId})`);
         console.log(`- Amount: $${ownerPayout} (exact list price)`);
         console.log(`- Commission kept: $${platformCommission}`);
         
-        // For this implementation, we'll complete the payout successfully
-        // In production, this would integrate with Stripe Connect Express accounts
-
-        // Get owner's payment destination (would be bank account or debit card in production)
-        let paymentDestination = "Bank account ending in 1234";
+        const transfer = await stripeService.createConnectedAccountPayout(
+          owner.stripeAccountId,
+          ownerPayout,
+          `Rental payout for ${booking.item.title}`,
+          { bookingId: booking.id.toString(), userId: owner.id.toString() }
+        );
         
-        if (owner.stripeCustomerId) {
-          try {
-            const paymentMethods = await stripe.paymentMethods.list({
-              customer: owner.stripeCustomerId,
-              type: 'card',
-            });
-            
-            if (paymentMethods.data.length > 0) {
-              const pm = paymentMethods.data[0];
-              paymentDestination = `${pm.card?.brand} ****${pm.card?.last4}`;
-            }
-          } catch (error) {
-            console.log('Using default payment destination');
-          }
-        }
-
-        // Execute the money transfer (production implementation)
-        const transferId = `real_transfer_${Date.now()}`;
-        
-        console.log(`✓ MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
-        console.log(`  • Transfer ID: ${transferId}`);
+        console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
+        console.log(`  • Transfer ID: ${transfer.id}`);
         console.log(`  • Amount sent to owner: $${ownerPayout}`);
-        console.log(`  • Destination: ${paymentDestination}`);
+        console.log(`  • Stripe Connect Account: ${owner.stripeAccountId}`);
         console.log(`  • Owner: ${owner.email}`);
         console.log(`  • Lendibl commission: $${platformCommission}`);
-        console.log(`  • Flow: Renter → Lendibl → Owner`);
         
         await storage.updateBooking(bookingId, {
           payoutCompleted: new Date(),
-          stripeTransferId: transferId,
-          payoutNote: `Real transfer: $${ownerPayout} to ${paymentDestination}`,
+          stripeTransferId: transfer.id,
+          payoutNote: `Real Stripe Connect transfer: $${ownerPayout}`,
           updatedAt: new Date()
         });
 

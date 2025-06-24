@@ -739,11 +739,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerId = customer.id;
       }
 
-      // Step 2: Create Stripe Connect account for payouts if user has items
+      // Step 2: Create real Stripe Connect account for payouts if user has items
       let stripeAccountId = user.stripeAccountId;
       const userItems = await storage.getItems({ ownerId: userId });
       
       if (userItems.length > 0 && !stripeAccountId) {
+        console.log(`Creating real Stripe Connect account for user ${userId}`);
         stripeAccountId = await stripeService.createConnectedAccount(
           userId, 
           user.email, 
@@ -752,8 +753,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         if (!stripeAccountId) {
+          console.error('Failed to create Stripe Connect account');
           return res.status(500).json({ message: "Failed to create payout account" });
         }
+        
+        console.log(`Created Stripe Connect account: ${stripeAccountId}`);
       }
 
       // Step 3: Attach payment method to customer
