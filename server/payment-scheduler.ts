@@ -121,19 +121,9 @@ export class PaymentScheduler {
             updatedAt: new Date()
           });
           
-          console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
-          console.log(`  • Stripe Transfer ID: ${transfer.id}`);
-          console.log(`  • Amount sent to owner: $${ownerPayout}`);
-          console.log(`  • Owner: ${owner.email} (PayPal preference: ${owner.paypalEmail})`);
-          console.log(`  • Method: Stripe Connect to bank account/card`);
-          console.log(`  • Lendibl commission: $${platformCommission}`);
+          console.log(`✅ PAYOUT PROCESSED - Manual transfer logged for booking ${bookingId}`);
           
-          await storage.updateBooking(bookingId, {
-            payoutCompleted: new Date(),
-            stripeTransferId: transfer.id,
-            payoutNote: `Stripe payout to PayPal user: $${ownerPayout}`,
-            updatedAt: new Date()
-          });
+          // This section has been replaced by the simplified PayPal approach above
 
         } else if (hasStripeConnect) {
           // Check if Stripe account is ready for payouts

@@ -1069,57 +1069,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Please enter a valid PayPal email address" });
         }
 
-        // Update user with PayPal email but payment setup not complete until Stripe Connect onboarding
+        // Update user with PayPal email - ready for manual payouts
         await storage.updateUser(userId, {
           paypalEmail: paypalEmail,
           paypalAccountId: paypalEmail, // Use email as ID for simplicity
-          paymentSetupComplete: false // Will be true after Stripe Connect onboarding
+          paymentSetupComplete: true // PayPal users ready for manual payouts
         });
 
         console.log(`PayPal email saved for user ${userId}: ${paypalEmail}`);
         
-        // Create Stripe Connect account for PayPal user to enable real payouts
-        try {
-          let stripeAccountId = user.stripeAccountId;
-          
-          if (!stripeAccountId) {
-            const connectResult = await stripeService.createConnectedAccount(
-              userId,
-              user.email,
-              user.firstName,
-              user.lastName
-            );
-            stripeAccountId = connectResult.accountId;
-            
-            // Update user with Stripe account ID
-            await storage.updateUser(userId, {
-              stripeAccountId: stripeAccountId
-            });
-          }
-          
-          // Create onboarding link
-          const onboardingLink = await stripeService.createAccountOnboardingLink(
-            stripeAccountId,
-            userId
-          );
-          
-          res.json({
-            success: true,
-            paypalEmail: paypalEmail,
-            stripeAccountId: stripeAccountId,
-            onboardingUrl: onboardingLink,
-            message: "PayPal email saved. Complete Stripe verification to receive payouts.",
-            requiresOnboarding: true
-          });
-        } catch (stripeError) {
-          console.error('Stripe Connect setup error:', stripeError);
-          res.json({
-            success: true,
-            paypalEmail: paypalEmail,
-            message: "PayPal email saved. Stripe setup will be completed automatically for payouts.",
-            requiresOnboarding: true
-          });
-        }
+        // Clear any payment setup reminders
+        await paymentReminderService.resolvePaymentReminders(userId);
+        
+        res.json({
+          success: true,
+          paypalEmail: paypalEmail,
+          message: "PayPal account connected successfully - ready for payouts"
+        });
       } else {
         // Return indication that we need email input
         res.json({

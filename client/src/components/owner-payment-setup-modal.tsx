@@ -74,23 +74,11 @@ Don't have PayPal? Sign up free at paypal.com first.`;
 
       if (response.ok) {
         const data = await response.json();
-        
-        if (data.requiresOnboarding && data.onboardingUrl) {
-          toast({
-            title: "PayPal Email Saved!",
-            description: `Opening Stripe verification to enable payouts...`,
-          });
-          
-          // Open Stripe onboarding in new window
-          window.open(data.onboardingUrl, '_blank');
-          onComplete();
-        } else {
-          toast({
-            title: "PayPal Connected!",
-            description: `Your PayPal account (${data.paypalEmail}) is now connected.`,
-          });
-          onComplete();
-        }
+        toast({
+          title: "PayPal Connected!",
+          description: `Your PayPal account (${data.paypalEmail}) is now connected and ready for payouts.`,
+        });
+        onComplete();
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to connect PayPal');
@@ -211,7 +199,7 @@ Don't have PayPal? Sign up free at paypal.com first.`;
                       Requires existing PayPal account • <a href="https://paypal.com" target="_blank" className="text-blue-600 hover:underline">Sign up free</a>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Real payouts via Stripe Connect (we'll help you set this up)
+                      Real payouts processed manually by Lendibl team
                     </div>
                   </div>
                   <Button 
