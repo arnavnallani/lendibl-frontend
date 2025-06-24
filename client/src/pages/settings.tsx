@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { api } from '@/lib/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Save, ArrowLeft, Home, Settings as SettingsIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +29,8 @@ export default function Settings() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<any>(null);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
 
   const form = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
@@ -38,6 +41,29 @@ export default function Settings() {
       phone: user?.phone || '',
     },
   });
+
+  // Fetch payment setup status
+  useEffect(() => {
+    const fetchPaymentStatus = async () => {
+      try {
+        const response = await fetch('/api/payment-setup-status', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPaymentStatus(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch payment status:', error);
+      }
+    };
+
+    if (user) {
+      fetchPaymentStatus();
+    }
+  }, [user]);
 
   const onSubmit = async (values: SettingsFormData) => {
     setIsLoading(true);
@@ -60,6 +86,61 @@ export default function Settings() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateConnectAccount = async () => {
+    setIsCreatingAccount(true);
+    try {
+      const response = await fetch('/api/create-connect-account', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Connect Account Created",
+          description: "Redirecting to Stripe onboarding...",
+        });
+
+        // Redirect to Stripe onboarding
+        if (data.onboardingUrl) {
+          window.open(data.onboardingUrl, '_blank');
+        }
+
+        // Refresh payment status
+        setTimeout(async () => {
+          const statusResponse = await fetch('/api/payment-setup-status', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json();
+            setPaymentStatus(statusData);
+          }
+        }, 1000);
+
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to create Connect account",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Network error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingAccount(false);
     }
   };
 

@@ -162,6 +162,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Implemented Stripe Connect for real owner payouts - creates Express accounts for owners, handles onboarding, and enables actual money transfers from Lendibl to owner bank accounts/cards
 - June 24, 2025: Fixed Stripe payout implementation to use direct payouts from Lendibl's Stripe balance to owners, with simulation fallback for development - ensures exact list price transfers while Lendibl keeps commission
 - June 24, 2025: Successfully implemented and tested complete payment flow: renter payments go to Lendibl via Stripe, then exact list price amount ($0.50) transfers to owner while Lendibl keeps commission ($0.03) - verified working with booking ID 21
+- June 24, 2025: Created complete Stripe Connect onboarding system - owners can create Connect accounts via Settings page, complete onboarding through Stripe interface, and receive real money transfers upon rental completion
 
 ## User Preferences
 
