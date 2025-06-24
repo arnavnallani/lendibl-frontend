@@ -49,6 +49,12 @@ export default function OwnerPaymentSetupModal({
   };
 
   const handleConnectPayPal = async () => {
+    const paypalEmail = prompt("Enter your PayPal email address to receive payments:");
+    
+    if (!paypalEmail || !paypalEmail.trim()) {
+      return;
+    }
+
     setIsConnecting(true);
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -58,25 +64,25 @@ export default function OwnerPaymentSetupModal({
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ paypalEmail: paypalEmail.trim() }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.connectUrl) {
-          window.location.href = data.connectUrl;
-          toast({
-            title: "Redirecting to PayPal",
-            description: "You'll be redirected to PayPal to connect your account.",
-          });
-        }
+        toast({
+          title: "PayPal Connected!",
+          description: `Your PayPal account (${data.paypalEmail}) is now connected.`,
+        });
+        onComplete();
       } else {
-        throw new Error('Failed to create PayPal connection');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to connect PayPal');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('PayPal connection error:', error);
       toast({
         title: "Connection Failed",
-        description: "Unable to connect to PayPal. Please try again.",
+        description: error.message || "Unable to connect PayPal. Please try again.",
         variant: "destructive",
       });
     } finally {

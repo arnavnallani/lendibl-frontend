@@ -1055,32 +1055,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/connect-paypal", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
+      const { paypalEmail } = req.body;
       const user = await storage.getUser(userId);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      if (user.paypalEmail) {
-        return res.status(400).json({ message: "PayPal account already connected" });
-      }
+      // If PayPal email is provided, save it directly
+      if (paypalEmail) {
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(paypalEmail)) {
+          return res.status(400).json({ message: "Please enter a valid PayPal email address" });
+        }
 
-      if (!paypalService.isConfigured()) {
-        return res.status(500).json({ message: "PayPal not configured" });
-      }
+        await storage.updateUser(userId, {
+          paypalEmail: paypalEmail,
+          paypalAccountId: paypalEmail, // Use email as ID for simplicity
+          paymentSetupComplete: true
+        });
 
-      const connectUrl = await paypalService.createConnectUrl(userId);
-      
-      res.json({
-        success: true,
-        connectUrl: connectUrl,
-        message: "Redirect to PayPal to connect your account"
-      });
+        console.log(`PayPal email saved for user ${userId}: ${paypalEmail}`);
+        
+        res.json({
+          success: true,
+          paypalEmail: paypalEmail,
+          message: "PayPal account connected successfully"
+        });
+      } else {
+        // Return indication that we need email input
+        res.json({
+          success: true,
+          requiresEmail: true,
+          message: "Please provide your PayPal email address"
+        });
+      }
 
     } catch (error: any) {
       console.error('PayPal connection error:', error);
       res.status(500).json({ 
-        message: "Failed to create PayPal connection", 
+        message: "Failed to connect PayPal account", 
         error: error.message 
       });
     }

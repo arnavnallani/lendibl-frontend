@@ -41,14 +41,12 @@ export class PayPalService {
       const user = await storage.getUser(userId);
       if (!user) throw new Error('User not found');
 
-      // Use PayPal's standard OAuth2 authorization URL
-      const redirectUri = encodeURIComponent(`${process.env.REPL_URL || 'http://localhost:5000'}/paypal-callback`);
-      const scope = encodeURIComponent('openid email');
+      // For now, we'll use a simplified approach - prompt user for their PayPal email
+      // In production, you'd use PayPal's Partner onboarding or proper OAuth
+      console.log(`Creating simplified PayPal setup for user ${userId}`);
       
-      const connectUrl = `https://www.paypal.com/signin/authorize?client_id=${this.clientId}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}&state=${userId}`;
-      
-      console.log(`Generated PayPal connect URL for user ${userId}`);
-      return connectUrl;
+      // Return a special URL that triggers email collection
+      return `paypal-email-setup://${userId}`;
     } catch (error) {
       console.error('Failed to create PayPal connect URL:', error);
       throw error;

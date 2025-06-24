@@ -94,6 +94,12 @@ export default function Settings() {
   };
 
   const handleConnectPayPal = async () => {
+    const paypalEmail = prompt("Enter your PayPal email address to receive payments:");
+    
+    if (!paypalEmail || !paypalEmail.trim()) {
+      return;
+    }
+
     setIsCreatingAccount(true);
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
@@ -103,24 +109,30 @@ export default function Settings() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ paypalEmail: paypalEmail.trim() }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         toast({
-          title: "Redirecting to PayPal",
-          description: "Connect your PayPal account to receive payments...",
+          title: "PayPal Connected!",
+          description: `Your PayPal account (${data.paypalEmail}) is now connected.`,
         });
-
-        // Redirect to PayPal
-        if (data.connectUrl) {
-          window.location.href = data.connectUrl;
-          toast({
-            title: "Redirecting to PayPal",
-            description: "You'll be redirected to PayPal to connect your account.",
+        
+        // Refresh payment status
+        setTimeout(async () => {
+          const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+          const statusResponse = await fetch('/api/payment-setup-status', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
           });
-        }
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json();
+            setPaymentStatus(statusData);
+          }
+        }, 1000);
       } else {
         toast({
           title: "Error",
