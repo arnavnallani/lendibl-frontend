@@ -89,6 +89,47 @@ export default function Settings() {
     }
   };
 
+  const handleConnectPayPal = async () => {
+    setIsCreatingAccount(true);
+    try {
+      const response = await fetch('/api/connect-paypal', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Redirecting to PayPal",
+          description: "Connect your PayPal account to receive payments...",
+        });
+
+        // Redirect to PayPal
+        if (data.connectUrl) {
+          window.location.href = data.connectUrl;
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to connect PayPal",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Network error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingAccount(false);
+    }
+  };
+
   const handleCreateConnectAccount = async () => {
     setIsCreatingAccount(true);
     try {
@@ -368,37 +409,13 @@ export default function Settings() {
                           )}
                         </div>
                         
-                        {!paymentStatus.stripeAccountStatus ? (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                              Create a Stripe Connect account to receive payments from your rental listings.
-                            </p>
-                            <Button 
-                              onClick={handleCreateConnectAccount}
-                              disabled={isCreatingAccount}
-                              className="w-full"
-                            >
-                              {isCreatingAccount ? 'Creating Account...' : 'Create Connect Account'}
-                            </Button>
-                          </div>
-                        ) : !paymentStatus.stripeAccountStatus.payoutsEnabled ? (
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                              Complete your Stripe onboarding to start receiving payments.
-                            </p>
-                            {paymentStatus.onboardingUrl && (
-                              <Button 
-                                onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
-                                className="w-full"
-                              >
-                                Complete Stripe Onboarding
-                              </Button>
-                            )}
-                          </div>
-                        ) : (
+                        {paymentStatus.paypalConnected ? (
                           <div className="space-y-2">
                             <p className="text-sm text-green-700">
-                              Your Connect account is active and ready to receive payments.
+                              PayPal account connected: {paymentStatus.paypalEmail}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              You'll receive payments directly to your PayPal account.
                             </p>
                             {paymentStatus.pendingEarnings !== "0" && (
                               <div className="text-sm">
@@ -408,6 +425,83 @@ export default function Settings() {
                                 </span>
                               </div>
                             )}
+                          </div>
+                        ) : paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
+                          <div className="space-y-2">
+                            <p className="text-sm text-green-700">
+                              Stripe Connect account is active and ready to receive payments.
+                            </p>
+                            {paymentStatus.pendingEarnings !== "0" && (
+                              <div className="text-sm">
+                                <span className="text-gray-600">Pending earnings: </span>
+                                <span className="font-medium text-primary-blue">
+                                  ${paymentStatus.pendingEarnings}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <p className="text-sm text-gray-600">
+                              Choose your preferred payment method to receive rental earnings:
+                            </p>
+                            
+                            {/* PayPal Option */}
+                            {paymentStatus.paypalConfigured && (
+                              <div className="p-3 border rounded-lg bg-blue-50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">P</div>
+                                    <span className="font-medium text-blue-800">PayPal (Recommended)</span>
+                                  </div>
+                                  <Badge variant="secondary" className="text-xs">Simple Setup</Badge>
+                                </div>
+                                <p className="text-sm text-blue-700 mb-3">
+                                  Connect your existing PayPal account - no additional verification needed.
+                                </p>
+                                <Button 
+                                  onClick={handleConnectPayPal}
+                                  disabled={isCreatingAccount}
+                                  variant="outline"
+                                  className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                                >
+                                  {isCreatingAccount ? 'Connecting...' : 'Connect PayPal Account'}
+                                </Button>
+                              </div>
+                            )}
+                            
+                            {/* Stripe Connect Option */}
+                            <div className="p-3 border rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <CreditCard className="w-5 h-5 text-purple-600" />
+                                  <span className="font-medium text-gray-800">Stripe Connect</span>
+                                </div>
+                                <Badge variant="outline" className="text-xs">More Setup Required</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-3">
+                                Requires business verification and bank account details.
+                              </p>
+                              
+                              {!paymentStatus.stripeAccountStatus ? (
+                                <Button 
+                                  onClick={handleCreateConnectAccount}
+                                  disabled={isCreatingAccount}
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  {isCreatingAccount ? 'Creating Account...' : 'Setup Stripe Connect'}
+                                </Button>
+                              ) : (
+                                <Button 
+                                  onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
+                                  variant="outline"
+                                  className="w-full"
+                                >
+                                  Complete Stripe Onboarding
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>

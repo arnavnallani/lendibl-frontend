@@ -34,6 +34,8 @@ export const users = pgTable("users", {
   pendingEarnings: decimal("pending_earnings", { precision: 10, scale: 2 }).default("0"),
   paymentSetupReminders: integer("payment_setup_reminders").default(0),
   lastPaymentReminder: timestamp("last_payment_reminder"),
+  paypalEmail: text("paypal_email"),
+  paypalAccountId: text("paypal_account_id"),
 });
 
 export const categories = pgTable("categories", {

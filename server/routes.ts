@@ -9,6 +9,7 @@ import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
 import { stripeService } from "./stripe-service";
+import { paypalService } from "./paypal-service";
 import { z } from "zod";
 
 // Initialize Stripe (will be null if no secret key is provided)
@@ -936,10 +937,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paymentReminders = await storage.getPaymentReminders(userId);
       
-      // Check Stripe account status if available
+      // Check payment methods status
       let accountStatus = null;
+      let paypalConnected = false;
+      
       if (user?.stripeAccountId) {
         accountStatus = await stripeService.checkAccountStatus(user.stripeAccountId);
+      }
+      
+      if (user?.paypalEmail) {
+        paypalConnected = true;
       }
 
       res.json({ 
@@ -950,9 +957,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pendingEarnings: user?.pendingEarnings || "0",
         paymentReminders: paymentReminders,
         stripeAccountStatus: accountStatus,
+        paypalConnected: paypalConnected,
+        paypalEmail: user?.paypalEmail,
         onboardingUrl: user?.stripeAccountId && accountStatus && !accountStatus.payoutsEnabled ? 
           await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null,
-        needsConnectAccount: userItems.length > 0 && !user?.stripeAccountId
+        needsPaymentMethod: userItems.length > 0 && !user?.stripeAccountId && !user?.paypalEmail,
+        paypalConfigured: paypalService.isConfigured()
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });
@@ -1038,6 +1048,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Payout test failed', 
         error: error.message 
       });
+    }
+  });
+
+  // PayPal connection endpoints
+  app.post("/api/connect-paypal", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.paypalEmail) {
+        return res.status(400).json({ message: "PayPal account already connected" });
+      }
+
+      if (!paypalService.isConfigured()) {
+        return res.status(500).json({ message: "PayPal not configured" });
+      }
+
+      const connectUrl = await paypalService.createConnectUrl(userId);
+      
+      res.json({
+        success: true,
+        connectUrl: connectUrl,
+        message: "Redirect to PayPal to connect your account"
+      });
+
+    } catch (error: any) {
+      console.error('PayPal connection error:', error);
+      res.status(500).json({ 
+        message: "Failed to create PayPal connection", 
+        error: error.message 
+      });
+    }
+  });
+
+  app.get("/paypal-callback", async (req, res) => {
+    try {
+      const { code, state } = req.query;
+      const userId = parseInt(state as string);
+
+      if (!code || !userId) {
+        return res.redirect('/settings?paypal=error');
+      }
+
+      const success = await paypalService.verifyConnection(code as string, userId);
+      
+      if (success) {
+        res.redirect('/settings?paypal=success');
+      } else {
+        res.redirect('/settings?paypal=error');
+      }
+    } catch (error) {
+      console.error('PayPal callback error:', error);
+      res.redirect('/settings?paypal=error');
     }
   });
 
