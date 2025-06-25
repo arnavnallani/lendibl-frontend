@@ -73,6 +73,17 @@ app.use((req, res, next) => {
     const { paymentReminderService } = await import("./payment-reminder-service");
     paymentReminderService.startPeriodicReminderScheduler();
     console.log('Payment reminder scheduler started');
+    
+    // Start automatic payout checker for completed rentals
+    const { paymentScheduler } = await import("./payment-scheduler");
+    setInterval(async () => {
+      try {
+        await paymentScheduler.checkPendingBookings();
+      } catch (error) {
+        console.error('Error in automatic payout check:', error);
+      }
+    }, 60000); // Check every minute for completed rentals
+    console.log('Automatic payout checker started');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

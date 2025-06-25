@@ -99,20 +99,42 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process payout via improved money flow: Stripe → Lendibl PayPal → Owner PayPal
-        if (hasPayPal) {
-          console.log(`PROCESSING PAYOUT for PayPal user:`);
-          console.log(`- Renter paid: $${totalPaid} → Lendibl's Stripe account ✅`);
-          console.log(`- Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
+        // Process Stripe Connect payout to owner's bank account (preferred method)
+        if (hasStripeConnect) {
+          // Process via Stripe Connect
+          console.log(`PROCESSING REAL MONEY TRANSFER via Stripe Connect:`);
+          console.log(`- From: Lendibl's Stripe account balance`);
+          console.log(`- To: ${owner.email} (Account: ${owner.stripeAccountId})`);
+          console.log(`- Amount: $${ownerPayout} (exact list price)`);
           console.log(`- Commission kept: $${platformCommission}`);
           
-          console.log(`💰 IMPROVED MONEY FLOW:`);
-          console.log(`   Step 1: $${totalPaid} in Lendibl Stripe account ✅`);
-          console.log(`   Step 2: Transfer $${ownerPayout} to Lendibl PayPal account (manual)`);
-          console.log(`   Step 3: PayPal Payout $${ownerPayout} to ${owner.paypalEmail} (automated)`);
+          const transfer = await stripeService.createConnectedAccountPayout(
+            owner.stripeAccountId!,
+            ownerPayout,
+            `Rental payout for ${booking.item.title}`,
+            { bookingId: booking.id.toString(), userId: owner.id.toString() }
+          );
+          
+          console.log(`✓ REAL MONEY TRANSFER COMPLETED for booking ${bookingId}:`);
+          console.log(`  • Transfer ID: ${transfer.id}`);
+          console.log(`  • Amount sent to owner: $${ownerPayout}`);
+          console.log(`  • Stripe Connect Account: ${owner.stripeAccountId}`);
+          console.log(`  • Owner: ${owner.email}`);
+          console.log(`  • Lendibl commission: $${platformCommission}`);
+          
+          await storage.updateBooking(bookingId, {
+            payoutCompleted: new Date(),
+            stripeTransferId: transfer.id,
+            payoutNote: `Real Stripe Connect transfer: $${ownerPayout}`,
+            updatedAt: new Date()
+          });
+
+        } else if (hasPayPal) {
+          // Fallback to PayPal if no Stripe Connect
+          console.log(`PROCESSING PAYOUT for PayPal user (fallback):`);
+          console.log(`- Owner receives: $${ownerPayout} → ${owner.paypalEmail}`);
           
           try {
-            // Attempt PayPal payout (will work once Lendibl PayPal has funds)
             const payoutResult = await paypalService.sendPayout(
               owner.paypalEmail,
               ownerPayout,
@@ -121,9 +143,7 @@ export class PaymentScheduler {
             );
             
             if (payoutResult.success) {
-              console.log(`✅ PAYPAL PAYOUT SUCCESSFUL:`);
-              console.log(`   Batch ID: ${payoutResult.payoutId}`);
-              console.log(`   Flow: Stripe → Lendibl PayPal → Owner PayPal ✅`);
+              console.log(`✅ PAYPAL PAYOUT SUCCESSFUL - Batch: ${payoutResult.payoutId}`);
               
               await storage.updateBooking(bookingId, {
                 payoutCompleted: new Date(),
@@ -131,36 +151,21 @@ export class PaymentScheduler {
                 payoutNote: `PayPal payout completed - Batch: ${payoutResult.payoutId}`,
                 updatedAt: new Date()
               });
-              
-              await paymentReminderService.clearPendingEarnings(owner.id, ownerPayout.toString());
-              
             } else {
               throw new Error(payoutResult.error || 'PayPal payout failed');
             }
             
           } catch (error) {
-            if (error.message.includes('INSUFFICIENT_FUNDS')) {
-              console.log(`⚠️  LENDIBL PAYPAL NEEDS FUNDING:`);
-              console.log(`   1. Transfer $${ownerPayout} from Stripe to Lendibl's bank account`);
-              console.log(`   2. Add $${ownerPayout} to Lendibl's PayPal account balance`);
-              console.log(`   3. PayPal will then auto-send to ${owner.paypalEmail}`);
-            } else {
-              console.log(`❌ PAYPAL ERROR: ${error.message}`);
-            }
-            
-            console.log(`📤 MANUAL FUNDING REQUIRED:`);
-            console.log(`   Transfer $${ownerPayout} to Lendibl PayPal for automated payout`);
-            console.log(`   Reference: Booking #${bookingId} - ${booking.item.title}`);
+            console.log(`❌ PAYPAL ERROR: ${error.message}`);
             
             await storage.updateBooking(bookingId, {
               payoutCompleted: new Date(),
               stripeTransferId: `pending_paypal_funding_${Date.now()}`,
-              payoutNote: `PayPal funding needed: Add $${ownerPayout} to Lendibl PayPal, then auto-payout to ${owner.paypalEmail}. Booking #${bookingId}`,
+              payoutNote: `PayPal funding needed: ${error.message}. Booking #${bookingId}`,
               updatedAt: new Date()
             });
           }
 
-        // Process Stripe Connect payout to owner's bank account
           // Check if Stripe account is ready for payouts
           const accountStatus = await stripeService.checkAccountStatus(owner.stripeAccountId!);
           if (!accountStatus || !accountStatus.payoutsEnabled) {
@@ -304,11 +309,12 @@ export class PaymentScheduler {
         }
         
         // Check for immediate payouts when rental period ends
-        if (booking.status === 'approved' && !booking.payoutCompleted && booking.payoutScheduled) {
-          const payoutTime = new Date(booking.payoutScheduled);
+        if (booking.status === 'approved' && !booking.payoutCompleted) {
+          const rentalEndTime = new Date(booking.endDate);
           
-          if (now >= payoutTime) {
-            console.log(`Processing immediate payout for booking ${booking.id}`);
+          // Process payout if rental has ended
+          if (now >= rentalEndTime) {
+            console.log(`Rental period ended for booking ${booking.id} - processing payout now`);
             await this.processOwnerPayout(booking.id);
           }
         }
