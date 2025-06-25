@@ -5,8 +5,6 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface PricingSuggestion {
   dailyRate: number;
-  weeklyRate: number;
-  monthlyRate: number;
   confidence: number;
   reasoning: string[];
   marketInsights: {
@@ -56,8 +54,6 @@ Your goal is to suggest pricing that maximizes owner earnings while remaining co
 Respond with JSON in this exact format:
 {
   "dailyRate": number (recommended daily rental price),
-  "weeklyRate": number (recommended weekly price with discount),
-  "monthlyRate": number (recommended monthly price with larger discount),
   "confidence": number (0.0-1.0, how confident you are in this pricing),
   "reasoning": ["reason1", "reason2", "reason3"] (3-5 key factors that influenced pricing),
   "marketInsights": {
@@ -88,8 +84,6 @@ Respond with JSON in this exact format:
       // Validate and sanitize the response
       return {
         dailyRate: Math.max(1, Math.round(result.dailyRate * 100) / 100),
-        weeklyRate: Math.max(1, Math.round(result.weeklyRate * 100) / 100),
-        monthlyRate: Math.max(1, Math.round(result.monthlyRate * 100) / 100),
         confidence: Math.max(0, Math.min(1, result.confidence || 0.5)),
         reasoning: Array.isArray(result.reasoning) ? result.reasoning.slice(0, 5) : [],
         marketInsights: {
@@ -125,8 +119,6 @@ Respond with JSON in this exact format:
       
       return {
         dailyRate,
-        weeklyRate: Math.round(dailyRate * 6 * 100) / 100, // 15% weekly discount
-        monthlyRate: Math.round(dailyRate * 20 * 100) / 100, // 33% monthly discount
         confidence: 0.3,
         reasoning: [
           "AI pricing temporarily unavailable",

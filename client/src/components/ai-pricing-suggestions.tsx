@@ -8,8 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 
 interface PricingSuggestion {
   dailyRate: number;
-  weeklyRate: number;
-  monthlyRate: number;
   confidence: number;
   reasoning: string[];
   marketInsights: {
@@ -164,43 +162,38 @@ export function AIPricingSuggestions({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Pricing Options */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div 
-            className="p-4 bg-white rounded-lg border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all"
-            onClick={() => onPriceSelect(suggestions.dailyRate)}
-          >
+        {/* AI Suggested Daily Rate */}
+        <div className="flex justify-center">
+          <div className="p-6 bg-white rounded-lg border-2 border-blue-200 max-w-xs">
             <div className="text-center">
-              <DollarSign className="h-5 w-5 text-green-600 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-1">Daily Rate</p>
-              <p className="text-2xl font-bold text-gray-900">${suggestions.dailyRate}</p>
-              <p className="text-xs text-gray-500">Recommended</p>
+              <DollarSign className="h-6 w-6 text-green-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-1">AI Recommended Daily Rate</p>
+              <p className="text-3xl font-bold text-gray-900">${suggestions.dailyRate}</p>
+              <p className="text-xs text-gray-500 mt-1">Based on market analysis</p>
             </div>
           </div>
-          
-          <div 
-            className="p-4 bg-white rounded-lg border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all"
-            onClick={() => onPriceSelect(suggestions.weeklyRate / 7)}
-          >
-            <div className="text-center">
-              <DollarSign className="h-5 w-5 text-blue-600 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-1">Weekly Rate</p>
-              <p className="text-2xl font-bold text-gray-900">${suggestions.weeklyRate}</p>
-              <p className="text-xs text-gray-500">15% weekly discount</p>
-            </div>
-          </div>
-          
-          <div 
-            className="p-4 bg-white rounded-lg border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all"
-            onClick={() => onPriceSelect(suggestions.monthlyRate / 30)}
-          >
-            <div className="text-center">
-              <DollarSign className="h-5 w-5 text-purple-600 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-1">Monthly Rate</p>
-              <p className="text-2xl font-bold text-gray-900">${suggestions.monthlyRate}</p>
-              <p className="text-xs text-gray-500">Best value</p>
-            </div>
-          </div>
+        </div>
+
+        {/* Manual Price Override */}
+        <div className="pt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Enter rental price per day ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            placeholder={suggestions.dailyRate.toString()}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              if (!isNaN(value) && value > 0) {
+                onPriceSelect(value);
+              }
+            }}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Modify the AI suggestion or use your own price
+          </p>
         </div>
 
         {/* Market Insights */}

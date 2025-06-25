@@ -404,7 +404,7 @@ export default function ListItem() {
                         variant="outline"
                         className="flex-1 py-6"
                       >
-                        Enter Price Manually
+                        Enter Price Individually
                       </Button>
                     </div>
                     <p className="text-sm text-gray-500 text-center">
@@ -423,10 +423,6 @@ export default function ListItem() {
                     condition="good"
                     onPriceSelect={(price) => {
                       form.setValue("price", price);
-                      // Auto-submit form after price selection
-                      setTimeout(() => {
-                        form.handleSubmit(onSubmit)();
-                      }, 1000);
                     }}
                   />
                 )}
@@ -452,18 +448,28 @@ export default function ListItem() {
                         </FormItem>
                       )}
                     />
-                    <div className="flex justify-end space-x-4">
+                  </div>
+                )}
+
+                {/* Publish Button - appears after either pricing method is selected */}
+                {(showAIPricing || showManualPricing) && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center space-x-4">
                       <Button 
                         type="button" 
                         variant="outline"
-                        onClick={() => setShowManualPricing(false)}
+                        onClick={() => {
+                          setShowAIPricing(false);
+                          setShowManualPricing(false);
+                          form.setValue("price", undefined);
+                        }}
                       >
                         Back to Pricing Options
                       </Button>
                       <Button 
                         type="submit"
                         disabled={createItemMutation.isPending || !form.watch("price")}
-                        className="bg-primary-blue text-white hover:bg-primary-blue/90"
+                        className="bg-primary-blue text-white hover:bg-primary-blue/90 px-8 py-3"
                       >
                         {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
                       </Button>
