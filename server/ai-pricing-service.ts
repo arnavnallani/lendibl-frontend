@@ -1,49 +1,55 @@
 import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Free AI pricing using Hugging Face Inference API (no API key required)
-async function getFreeAIPricing(prompt: string): Promise<any> {
+// Free Google Gemini AI (15 requests per minute, no API key required for basic usage)
+async function getFreeGeminiPricing(prompt: string): Promise<any> {
   try {
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 200,
-            temperature: 0.3,
-            do_sample: true
-          }
-        }),
-      }
-    );
+    // Using Gemini 1.5 Flash which is free and fast
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    if (!response.ok) {
-      throw new Error(`Free AI API error: ${response.status}`);
+    const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
+
+${prompt}
+
+Respond in this JSON format only:
+{
+  "dailyRate": <number>,
+  "reasoning": "<brief explanation>"
+}`;
+
+    const result = await model.generateContent(enhancedPrompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Try to parse JSON from response
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          suggestedPrice: parsed.dailyRate,
+          reasoning: parsed.reasoning,
+          success: !!(parsed.dailyRate && parsed.dailyRate > 0)
+        };
+      }
+    } catch (parseError) {
+      // Fallback: extract price from text
+      const priceMatch = text.match(/\$?(\d+(?:\.\d{2})?)/);
+      const suggestedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+      return {
+        suggestedPrice,
+        reasoning: text,
+        success: !!suggestedPrice
+      };
     }
     
-    const result = await response.json();
-    
-    // Parse the response to extract pricing information
-    const responseText = result[0]?.generated_text || "";
-    
-    // Extract numerical values from the response
-    const priceMatch = responseText.match(/\$?(\d+(?:\.\d{2})?)/);
-    const suggestedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
-    
-    return {
-      suggestedPrice,
-      responseText,
-      success: !!suggestedPrice
-    };
+    return { success: false };
   } catch (error) {
-    console.error('Free AI service error:', error);
+    console.error('Gemini AI service error:', error);
     throw error;
   }
 }
@@ -78,26 +84,26 @@ export class AIPricingService {
       const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
       
       try {
-        const freeAIResult = await getFreeAIPricing(simplePrompt);
+        const geminiResult = await getFreeGeminiPricing(simplePrompt);
         
-        if (freeAIResult.success && freeAIResult.suggestedPrice) {
-          // Use free AI suggestion with our intelligent analysis
+        if (geminiResult.success && geminiResult.suggestedPrice) {
+          // Use Gemini AI suggestion with our intelligent analysis
           let estimatedValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
           const locationMultiplier = this.getLocationPriceMultiplier(input.location);
           const seasonalMultiplier = this.getSeasonalMultiplier(input.category);
           
-          // Combine free AI suggestion with our analysis
-          const aiSuggestion = freeAIResult.suggestedPrice;
+          // Combine Gemini suggestion with our analysis
+          const aiSuggestion = geminiResult.suggestedPrice;
           const ourEstimate = (estimatedValue * locationMultiplier * seasonalMultiplier) * 0.03;
           const finalRate = Math.round(((aiSuggestion + ourEstimate) / 2) * 100) / 100;
           
           return {
             dailyRate: Math.max(5, finalRate),
-            confidence: 0.9,
+            confidence: 0.95,
             reasoning: [
-              `Free AI suggested $${aiSuggestion}/day`,
+              `Google Gemini AI suggested $${aiSuggestion}/day`,
               `Market analysis estimated $${Math.round(ourEstimate * 100) / 100}/day`,
-              `Combined with location and seasonal factors`,
+              geminiResult.reasoning || "Combined with location and seasonal factors",
               "AI-enhanced intelligent pricing"
             ],
             marketInsights: {
@@ -107,8 +113,8 @@ export class AIPricingService {
             }
           };
         }
-      } catch (freeAIError) {
-        console.log('Free AI service unavailable, trying OpenAI...', freeAIError.message);
+      } catch (geminiError) {
+        console.log('Gemini AI service unavailable, trying OpenAI...', (geminiError as Error).message);
       }
       
       // Fallback to OpenAI if available
