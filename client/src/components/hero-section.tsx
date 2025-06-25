@@ -46,7 +46,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           ))}
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col items-center justify-center min-h-[60vh]">
         <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up text-shadow">
           Rent Anything<br />
           <span className="text-gradient bg-gradient-to-r from-white to-blue-200">Anytime</span>
