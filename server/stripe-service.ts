@@ -222,20 +222,37 @@ export class StripeService {
   // Create payout to connected account
   async createConnectedAccountPayout(accountId: string, amount: number, description: string, metadata: any) {
     try {
-      console.log(`Creating real money transfer to account ${accountId}: $${amount}`);
+      const amountInCents = Math.round(amount * 100);
       
+      // Check Stripe balance first
+      console.log(`Checking Stripe balance for payout of $${amount}...`);
+      const balance = await stripe.balance.retrieve();
+      const availableBalance = balance.available.find(b => b.currency === 'usd')?.amount || 0;
+      const pendingBalance = balance.pending.find(b => b.currency === 'usd')?.amount || 0;
+      const availableUSD = availableBalance / 100;
+      const pendingUSD = pendingBalance / 100;
+      
+      console.log(`Stripe balance - Available: $${availableUSD}, Pending: $${pendingUSD}, Need: $${amount}`);
+      
+      if (availableBalance < amountInCents) {
+        const message = `Insufficient funds in Stripe account. Available: $${availableUSD}, Pending: $${pendingUSD}, needed: $${amount}. Funds typically become available within 2-7 business days after payment.`;
+        console.error(message);
+        throw new Error(message);
+      }
+      
+      console.log(`Creating transfer of $${amount} to account ${accountId}`);
       const transfer = await stripe.transfers.create({
-        amount: Math.round(amount * 100), // Convert to cents
+        amount: amountInCents,
         currency: 'usd',
         destination: accountId,
         description: description,
-        metadata: metadata,
+        metadata: metadata
       });
       
-      console.log(`Real money transfer completed: ${transfer.id}`);
+      console.log(`Transfer successful: ${transfer.id}`);
       return transfer;
-    } catch (error) {
-      console.error('Error creating real money transfer:', error);
+    } catch (error: any) {
+      console.error('Stripe payout error:', error.message);
       throw error;
     }
   }

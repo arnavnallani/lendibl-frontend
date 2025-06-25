@@ -221,7 +221,23 @@ export class PaymentScheduler {
       } catch (transferError: any) {
         console.error(`Stripe Connect transfer failed for booking ${bookingId}:`, transferError.message);
         
-        // Add to pending earnings since payout failed
+        // Check if this is a balance issue (funds pending settlement)
+        if (transferError.message.includes('Insufficient funds') || transferError.message.includes('balance_insufficient')) {
+          console.log(`💰 STRIPE SETTLEMENT TIMING ISSUE:`);
+          console.log(`   Payment received but not yet settled in Stripe account`);
+          console.log(`   Funds typically available within 2-7 business days`);
+          console.log(`   Payout will be retried automatically once funds settle`);
+          
+          // Don't mark as failed - schedule for retry
+          await storage.updateBooking(bookingId, {
+            payoutNote: `Payout pending - waiting for Stripe settlement. Will retry automatically.`,
+            updatedAt: new Date()
+          });
+          
+          return false; // Will be retried by automatic checker
+        }
+        
+        // Add to pending earnings since payout failed for other reasons
         await paymentReminderService.updatePendingEarnings(
           booking.item.ownerId,
           ownerPayout.toString()

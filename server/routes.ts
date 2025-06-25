@@ -1413,5 +1413,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stripe balance check endpoint
+  app.get("/api/stripe-balance", async (req, res) => {
+    try {
+      if (!stripe) {
+        return res.status(400).json({ error: "Stripe not configured" });
+      }
+      
+      const balance = await stripe.balance.retrieve();
+      const availableUSD = balance.available.find(b => b.currency === 'usd')?.amount || 0;
+      const pendingUSD = balance.pending.find(b => b.currency === 'usd')?.amount || 0;
+      
+      res.json({
+        available: availableUSD / 100,
+        pending: pendingUSD / 100,
+        currency: 'USD',
+        message: pendingUSD > 0 ? 'Funds are pending settlement and will be available within 2-7 business days' : 'No pending funds'
+      });
+    } catch (error: any) {
+      console.error("Failed to get Stripe balance:", error);
+      res.status(500).json({ error: "Failed to get balance" });
+    }
+  });
+
   return httpServer;
 }
