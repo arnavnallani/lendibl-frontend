@@ -24,7 +24,6 @@ const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
-  originalPrice: z.coerce.number().min(0, "Original price must be a positive number").optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -65,7 +64,7 @@ export default function ListItem() {
       available: true,
       included: [],
       includedItems: "",
-      originalPrice: 0,
+
     },
   });
 
@@ -274,54 +273,33 @@ export default function ListItem() {
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="categoryId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            value={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id.toString()}>
-                                  {category.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="originalPrice"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Original Purchase Price ($)</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="categoryId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          value={field.value?.toString()}
+                        >
                           <FormControl>
-                            <Input 
-                              type="number"
-                              step="0.01"
-                              placeholder="500.00"
-                              {...field}
-                            />
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.id} value={category.id.toString()}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
 
 
@@ -440,7 +418,7 @@ export default function ListItem() {
                   <AIPricingSuggestions
                     itemTitle={form.watch("title")}
                     category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
-                    originalPrice={Number(form.watch("originalPrice")) || 0}
+                    originalPrice={0}
                     description={form.watch("description")}
                     location={form.watch("location")}
                     condition="good"
