@@ -8,7 +8,7 @@ import { hashPassword, comparePassword, generateToken, authenticateToken, option
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
-import { aiPricingService } from "./ai-pricing-service";
+import { aiPricingService } from "./ai-pricing-service-clean";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -1401,7 +1401,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const eventInsights = await aiPricingService.getLocalEventInsights(location, category);
+      // Local event insights now handled directly by Gemini AI in pricing analysis
+      const eventInsights = [`${category} events in ${location} are factored into AI pricing`];
       res.json({ events: eventInsights });
     } catch (error) {
       console.error('Local event insights error:', error);

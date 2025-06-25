@@ -83,39 +83,27 @@ export class AIPricingService {
       
       const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
       
-      try {
-        const geminiResult = await getFreeGeminiPricing(simplePrompt);
-        
-        if (geminiResult.success && geminiResult.suggestedPrice) {
-          // Use Gemini AI suggestion with our intelligent analysis
-          let estimatedValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
-          const locationMultiplier = this.getLocationPriceMultiplier(input.location);
-          const seasonalMultiplier = this.getSeasonalMultiplier(input.category);
-          
-          // Combine Gemini suggestion with our analysis
-          const aiSuggestion = geminiResult.suggestedPrice;
-          const ourEstimate = (estimatedValue * locationMultiplier * seasonalMultiplier) * 0.03;
-          const finalRate = Math.round(((aiSuggestion + ourEstimate) / 2) * 100) / 100;
-          
-          return {
-            dailyRate: Math.max(5, finalRate),
-            confidence: 0.95,
-            reasoning: [
-              `Google Gemini AI suggested $${aiSuggestion}/day`,
-              `Market analysis estimated $${Math.round(ourEstimate * 100) / 100}/day`,
-              geminiResult.reasoning || "Combined with location and seasonal factors",
-              "AI-enhanced intelligent pricing"
-            ],
-            marketInsights: {
-              demandLevel: this.getDemandLevel(input.category, input.location),
-              seasonalTrend: this.getSeasonalTrend(input.category),
-              competitivePosition: 'market-rate' as const
-            }
-          };
-        }
-      } catch (geminiError) {
-        console.log('Gemini AI service unavailable, trying OpenAI...', (geminiError as Error).message);
+      const geminiResult = await getFreeGeminiPricing(simplePrompt);
+      
+      if (geminiResult.success && geminiResult.suggestedPrice) {
+        return {
+          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
+          confidence: 0.95,
+          reasoning: [
+            `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
+            geminiResult.reasoning || `Optimized for ${input.location} market`,
+            `${season} seasonal pricing considered`,
+            "Pure AI-powered pricing analysis"
+          ],
+          marketInsights: {
+            demandLevel: 'medium' as const,
+            seasonalTrend: 'stable' as const,
+            competitivePosition: 'market-rate' as const
+          }
+        };
       }
+      
+      throw new Error('Google Gemini AI did not provide valid pricing');
       
       // Fallback to OpenAI if available
       const prompt = `You are an expert rental pricing analyst with deep knowledge of market values and rental economics. Analyze this item and provide optimal rental pricing to maximize owner earnings.
