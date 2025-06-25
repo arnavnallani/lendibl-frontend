@@ -1367,18 +1367,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Pricing Suggestions
   app.post("/api/pricing-suggestions", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const { itemTitle, category, originalPrice, description, location, condition } = req.body;
+      const { itemTitle, category, description, location, condition } = req.body;
 
-      if (!itemTitle || !category || !originalPrice || !description || !location) {
+      if (!itemTitle || !category || !description || !location) {
         return res.status(400).json({ 
-          message: "Missing required fields: itemTitle, category, originalPrice, description, location" 
+          message: "Missing required fields: itemTitle, category, description, location" 
         });
       }
 
       const pricingSuggestion = await aiPricingService.analyzePricing({
         itemTitle,
         category,
-        originalPrice: parseFloat(originalPrice),
         description,
         location,
         condition: condition || 'good'

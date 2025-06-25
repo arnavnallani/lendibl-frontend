@@ -22,7 +22,6 @@ interface PricingSuggestion {
 interface AIPricingSuggestionsProps {
   itemTitle: string;
   category: string;
-  originalPrice: number;
   description: string;
   location: string;
   condition?: string;
@@ -32,7 +31,6 @@ interface AIPricingSuggestionsProps {
 export function AIPricingSuggestions({
   itemTitle,
   category,
-  originalPrice,
   description,
   location,
   condition = 'good',
@@ -44,7 +42,7 @@ export function AIPricingSuggestions({
   const { toast } = useToast();
 
   const fetchPricingSuggestions = async () => {
-    if (!itemTitle || !category || !originalPrice || !description || !location) {
+    if (!itemTitle || !category || !description || !location) {
       return;
     }
 
@@ -53,7 +51,6 @@ export function AIPricingSuggestions({
       const response = await apiRequest("POST", "/api/pricing-suggestions", {
         itemTitle,
         category,
-        originalPrice,
         description,
         location,
         condition
@@ -124,7 +121,7 @@ export function AIPricingSuggestions({
               </p>
               <Button 
                 onClick={fetchPricingSuggestions}
-                disabled={loading || !itemTitle || !category || !originalPrice}
+                disabled={loading || !itemTitle || !category || !description}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Sparkles className="h-4 w-4 mr-2" />

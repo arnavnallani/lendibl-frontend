@@ -418,7 +418,6 @@ export default function ListItem() {
                   <AIPricingSuggestions
                     itemTitle={form.watch("title")}
                     category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
-                    originalPrice={0}
                     description={form.watch("description")}
                     location={form.watch("location")}
                     condition="good"
