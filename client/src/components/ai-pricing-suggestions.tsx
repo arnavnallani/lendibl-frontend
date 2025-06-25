@@ -152,13 +152,13 @@ export function AIPricingSuggestions({
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Brain className="h-5 w-5 text-blue-600" />
-          <span>AI Pricing Recommendations</span>
+          <span>Smart Pricing Analysis</span>
           <Badge variant="secondary" className="bg-blue-100 text-blue-700">
             {Math.round(suggestions.confidence * 100)}% confidence
           </Badge>
         </CardTitle>
         <CardDescription>
-          Optimized pricing to maximize your earnings based on current market conditions
+          Intelligent pricing based on market analysis, location factors, and seasonal demand
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
