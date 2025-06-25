@@ -97,8 +97,11 @@ export default function Settings() {
 
   const handleSetupStripe = async () => {
     setIsCreatingAccount(true);
+    
     try {
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      console.log('Starting Stripe Connect setup...');
+      
       const response = await fetch('/api/create-connect-account', {
         method: 'POST',
         headers: {
@@ -108,44 +111,62 @@ export default function Settings() {
       });
 
       const data = await response.json();
+      console.log('Connect account response:', data);
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         toast({
-          title: "Connect Account Created",
-          description: "Redirecting to Stripe onboarding...",
+          title: "Account Created",
+          description: "Opening Stripe setup window...",
         });
 
-        // Redirect to Stripe onboarding
+        // Open in new window with specific dimensions
         if (data.onboardingUrl) {
-          window.open(data.onboardingUrl, '_blank');
+          const popup = window.open(
+            data.onboardingUrl, 
+            'stripe-connect', 
+            'width=800,height=700,scrollbars=yes,resizable=yes,status=yes'
+          );
+          
+          if (!popup) {
+            // Fallback if popup blocked
+            toast({
+              title: "Popup Blocked",
+              description: "Please allow popups and try again, or click here to continue",
+            });
+            window.location.href = data.onboardingUrl;
+          } else {
+            popup.focus();
+          }
         }
 
-        // Refresh payment status
+        // Refresh status after delay
         setTimeout(async () => {
-          const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-          const statusResponse = await fetch('/api/payment-setup-status', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            setPaymentStatus(statusData);
+          try {
+            const statusResponse = await fetch('/api/payment-setup-status', {
+              headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (statusResponse.ok) {
+              const statusData = await statusResponse.json();
+              setPaymentStatus(statusData);
+            }
+          } catch (error) {
+            console.error('Status refresh error:', error);
           }
-        }, 1000);
+        }, 2000);
 
       } else {
-        const error = data;
+        console.error('Setup failed:', data);
         toast({
-          title: "Setup Failed",
-          description: error.message || "Failed to create Stripe account.",
+          title: "Setup Failed", 
+          description: data.message || "Failed to create Stripe account.",
           variant: "destructive",
         });
       }
     } catch (error) {
+      console.error('Network error:', error);
       toast({
-        title: "Error",
-        description: "Network error occurred",
+        title: "Network Error",
+        description: "Connection failed. Please check your network and try again.",
         variant: "destructive",
       });
     } finally {

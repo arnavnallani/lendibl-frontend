@@ -168,6 +168,12 @@ export class StripeService {
   // Check if Stripe account is ready for payouts
   async checkAccountStatus(accountId: string) {
     try {
+      // Skip mock accounts - they don't exist in real Stripe
+      if (accountId.includes('mock')) {
+        console.log('Skipping mock account status check:', accountId);
+        return null;
+      }
+
       // Check real Stripe account status
       const account = await stripe.accounts.retrieve(accountId);
       return {

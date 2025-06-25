@@ -1295,38 +1295,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      if (user.stripeAccountId) {
+      if (user.stripeAccountId && !user.stripeAccountId.includes('mock')) {
         return res.status(400).json({ message: "Connect account already exists" });
       }
 
       console.log(`Creating Connect account for user ${userId} (${user.email})`);
 
-      const accountId = await stripeService.createConnectedAccount(
-        userId,
-        user.email,
-        user.firstName,
-        user.lastName
-      );
+      try {
+        const accountId = await stripeService.createConnectedAccount(
+          userId,
+          user.email,
+          user.firstName,
+          user.lastName
+        );
 
-      if (!accountId) {
-        return res.status(500).json({ message: "Failed to create Connect account" });
+        if (!accountId) {
+          return res.status(500).json({ 
+            success: false,
+            message: "Failed to create Connect account" 
+          });
+        }
+
+        // Update user with Connect account ID
+        await storage.updateUser(userId, { stripeAccountId: accountId });
+
+        // Create onboarding link
+        const onboardingUrl = await stripeService.createAccountOnboardingLink(accountId, userId);
+
+        console.log(`Connect account created: ${accountId}`);
+        console.log(`Onboarding URL generated successfully`);
+
+        res.json({
+          success: true,
+          accountId: accountId,
+          onboardingUrl: onboardingUrl,
+          message: "Connect account created successfully"
+        });
+      } catch (createError) {
+        console.error('Account creation error:', createError);
+        return res.status(500).json({ 
+          success: false,
+          message: "Failed to create Stripe account: " + createError.message 
+        });
       }
-
-      // Update user with Connect account ID
-      await storage.updateUser(userId, { stripeAccountId: accountId });
-
-      // Create onboarding link
-      const onboardingUrl = await stripeService.createAccountOnboardingLink(accountId, userId);
-
-      console.log(`Connect account created: ${accountId}`);
-      console.log(`Onboarding URL: ${onboardingUrl}`);
-
-      res.json({
-        success: true,
-        accountId: accountId,
-        onboardingUrl: onboardingUrl,
-        message: "Connect account created. Complete onboarding to receive payments."
-      });
 
     } catch (error: any) {
       console.error('Connect account creation error:', error);
