@@ -55,7 +55,7 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
   if (items.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-medium text-lg mb-4">No items found matching your criteria.</p>
+        <p className="text-gray-medium text-lg mb-4">We don't have that yet...</p>
         <p className="text-gray-medium">Try adjusting your filters or search terms.</p>
       </div>
     );
