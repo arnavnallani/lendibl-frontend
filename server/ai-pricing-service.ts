@@ -3,6 +3,51 @@ import OpenAI from "openai";
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Free AI pricing using Hugging Face Inference API (no API key required)
+async function getFreeAIPricing(prompt: string): Promise<any> {
+  try {
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 200,
+            temperature: 0.3,
+            do_sample: true
+          }
+        }),
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Free AI API error: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    // Parse the response to extract pricing information
+    const responseText = result[0]?.generated_text || "";
+    
+    // Extract numerical values from the response
+    const priceMatch = responseText.match(/\$?(\d+(?:\.\d{2})?)/);
+    const suggestedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+    
+    return {
+      suggestedPrice,
+      responseText,
+      success: !!suggestedPrice
+    };
+  } catch (error) {
+    console.error('Free AI service error:', error);
+    throw error;
+  }
+}
+
 export interface PricingSuggestion {
   dailyRate: number;
   confidence: number;
@@ -25,10 +70,48 @@ export interface PricingAnalysisInput {
 export class AIPricingService {
   async analyzePricing(input: PricingAnalysisInput): Promise<PricingSuggestion> {
     try {
+      // First try free AI service
       const currentDate = new Date();
       const month = currentDate.toLocaleString('default', { month: 'long' });
       const season = this.getCurrentSeason();
       
+      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
+      
+      try {
+        const freeAIResult = await getFreeAIPricing(simplePrompt);
+        
+        if (freeAIResult.success && freeAIResult.suggestedPrice) {
+          // Use free AI suggestion with our intelligent analysis
+          let estimatedValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
+          const locationMultiplier = this.getLocationPriceMultiplier(input.location);
+          const seasonalMultiplier = this.getSeasonalMultiplier(input.category);
+          
+          // Combine free AI suggestion with our analysis
+          const aiSuggestion = freeAIResult.suggestedPrice;
+          const ourEstimate = (estimatedValue * locationMultiplier * seasonalMultiplier) * 0.03;
+          const finalRate = Math.round(((aiSuggestion + ourEstimate) / 2) * 100) / 100;
+          
+          return {
+            dailyRate: Math.max(5, finalRate),
+            confidence: 0.9,
+            reasoning: [
+              `Free AI suggested $${aiSuggestion}/day`,
+              `Market analysis estimated $${Math.round(ourEstimate * 100) / 100}/day`,
+              `Combined with location and seasonal factors`,
+              "AI-enhanced intelligent pricing"
+            ],
+            marketInsights: {
+              demandLevel: this.getDemandLevel(input.category, input.location),
+              seasonalTrend: this.getSeasonalTrend(input.category),
+              competitivePosition: 'market-rate' as const
+            }
+          };
+        }
+      } catch (freeAIError) {
+        console.log('Free AI service unavailable, trying OpenAI...', freeAIError.message);
+      }
+      
+      // Fallback to OpenAI if available
       const prompt = `You are an expert rental pricing analyst with deep knowledge of market values and rental economics. Analyze this item and provide optimal rental pricing to maximize owner earnings.
 
 Item Details:
