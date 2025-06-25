@@ -187,12 +187,23 @@ export class StripeService {
   // Get account onboarding link for Express accounts
   async createAccountOnboardingLink(accountId: string, userId: number) {
     try {
-      // Create real Stripe onboarding link
+      // Get the correct base URL with HTTPS for live mode
+      let baseUrl = process.env.REPL_URL || process.env.REPLIT_DEV_DOMAIN;
+      if (!baseUrl) {
+        baseUrl = 'http://localhost:5000';
+      } else if (!baseUrl.startsWith('https://') && !baseUrl.startsWith('http://')) {
+        baseUrl = `https://${baseUrl}`;
+      } else if (baseUrl.startsWith('http://') && !baseUrl.includes('localhost')) {
+        // Convert HTTP to HTTPS for live mode (except localhost)
+        baseUrl = baseUrl.replace('http://', 'https://');
+      }
+
       const accountLink = await stripe.accountLinks.create({
         account: accountId,
-        refresh_url: `${process.env.REPL_URL || 'http://localhost:5000'}/settings?setup=failed`,
-        return_url: `${process.env.REPL_URL || 'http://localhost:5000'}/settings?setup=complete`,
+        refresh_url: `${baseUrl}/settings?refresh=true&user=${userId}`,
+        return_url: `${baseUrl}/settings?success=true&user=${userId}`,
         type: 'account_onboarding',
+        collect: 'eventually_due'
       });
 
       return accountLink.url;

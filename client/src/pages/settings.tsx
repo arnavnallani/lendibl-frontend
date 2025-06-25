@@ -396,38 +396,52 @@ export default function Settings() {
                           </div>
                         ) : (
                           <div className="space-y-4">
-                            <p className="text-sm text-gray-600">
-                              Choose your preferred payment method to receive rental earnings:
-                            </p>
-                            
-                            {/* Stripe Connect Option */}
-                            <div className="p-3 border rounded-lg">
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Building2 className="w-5 h-5 text-blue-600" />
-                                  <span className="font-medium text-gray-800">Bank Account</span>
-                                </div>
-                                <Badge variant="outline" className="text-xs">Required</Badge>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-3">
-                                Connect your bank account to receive instant payments when rentals complete.
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <h4 className="font-medium text-blue-900 mb-2">Bank Account Connection</h4>
+                              <p className="text-sm text-blue-700 mb-4">
+                                Connect your bank account to receive payments when rentals complete.
                               </p>
                               
                               {!paymentStatus.stripeAccountStatus ? (
                                 <Button 
                                   onClick={handleSetupStripe}
                                   disabled={isCreatingAccount}
-                                  className="w-full"
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
                                 >
-                                  {isCreatingAccount ? 'Setting up...' : 'Connect Bank Account'}
+                                  {isCreatingAccount ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Creating Account...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Building2 className="w-4 h-4 mr-2" />
+                                      Connect Bank Account
+                                    </>
+                                  )}
                                 </Button>
                               ) : (
-                                <Button 
-                                  onClick={() => window.open(paymentStatus.onboardingUrl, '_blank')}
-                                  className="w-full"
-                                >
-                                  Complete Bank Setup
-                                </Button>
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                    <span className="text-sm font-medium text-green-700">Bank Account Connected</span>
+                                  </div>
+                                  {paymentStatus.stripeAccountStatus && (
+                                    <div className="bg-white rounded p-3 border">
+                                      <div className="text-sm">
+                                        <div className="mb-1">
+                                          <span className="font-medium">Status: </span>
+                                          <span className={paymentStatus.stripeAccountStatus.payoutsEnabled ? 'text-green-600' : 'text-orange-600'}>
+                                            {paymentStatus.stripeAccountStatus.payoutsEnabled ? 'Ready for Payouts' : 'Verification Required'}
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                          Account ID: {paymentStatus.stripeAccountStatus.accountId}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               )}
                             </div>
                           </div>
