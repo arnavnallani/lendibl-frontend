@@ -8,6 +8,7 @@ import { hashPassword, comparePassword, generateToken, authenticateToken, option
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
+import { aiPricingService } from "./ai-pricing-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -1360,6 +1361,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(reviews);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // AI Pricing Suggestions
+  app.post("/api/pricing-suggestions", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { itemTitle, category, originalPrice, description, location, condition } = req.body;
+
+      if (!itemTitle || !category || !originalPrice || !description || !location) {
+        return res.status(400).json({ 
+          message: "Missing required fields: itemTitle, category, originalPrice, description, location" 
+        });
+      }
+
+      const pricingSuggestion = await aiPricingService.analyzePricing({
+        itemTitle,
+        category,
+        originalPrice: parseFloat(originalPrice),
+        description,
+        location,
+        condition: condition || 'good'
+      });
+
+      res.json(pricingSuggestion);
+    } catch (error) {
+      console.error('Pricing suggestions error:', error);
+      res.status(500).json({ message: "Failed to generate pricing suggestions" });
+    }
+  });
+
+  // Local Event Insights for Pricing
+  app.post("/api/local-event-insights", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { location, category } = req.body;
+
+      if (!location || !category) {
+        return res.status(400).json({ 
+          message: "Missing required fields: location, category" 
+        });
+      }
+
+      const eventInsights = await aiPricingService.getLocalEventInsights(location, category);
+      res.json({ events: eventInsights });
+    } catch (error) {
+      console.error('Local event insights error:', error);
+      res.status(500).json({ message: "Failed to fetch local event insights" });
     }
   });
 

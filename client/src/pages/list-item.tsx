@@ -18,11 +18,13 @@ import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
+import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number"),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
+  originalPrice: z.coerce.number().min(0, "Original price must be a positive number").optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,13 +56,14 @@ export default function ListItem() {
       title: "",
       description: "",
       price: 0,
-      categoryId: "",
+      categoryId: 0,
       ownerId: 1, // Mock owner ID
       images: [],
       location: "",
       available: true,
       included: [],
       includedItems: "",
+      originalPrice: 0,
     },
   });
 
@@ -290,15 +293,15 @@ export default function ListItem() {
 
                     <FormField
                       control={form.control}
-                      name="price"
+                      name="originalPrice"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price per day ($)</FormLabel>
+                          <FormLabel>Original Purchase Price ($)</FormLabel>
                           <FormControl>
                             <Input 
                               type="number"
                               step="0.01"
-                              placeholder="25.00"
+                              placeholder="500.00"
                               {...field}
                             />
                           </FormControl>
@@ -307,6 +310,38 @@ export default function ListItem() {
                       )}
                     />
                   </div>
+
+                  {/* AI Pricing Suggestions */}
+                  {form.watch("title") && form.watch("description") && form.watch("originalPrice") && form.watch("location") && form.watch("categoryId") && (
+                    <AIPricingSuggestions
+                      itemTitle={form.watch("title")}
+                      category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
+                      originalPrice={Number(form.watch("originalPrice")) || 0}
+                      description={form.watch("description")}
+                      location={form.watch("location")}
+                      condition="good"
+                      onPriceSelect={(price) => form.setValue("price", price)}
+                    />
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rental Price per day ($)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            step="0.01"
+                            placeholder="25.00"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}
