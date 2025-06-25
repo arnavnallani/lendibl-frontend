@@ -22,7 +22,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
   const featuredCategories = categories.slice(0, 4);
 
   return (
-    <section className="gradient-bg text-white min-h-screen relative overflow-hidden flex items-center">
+    <section className="gradient-bg text-white py-[5rem] relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/10 rounded-full animate-float blur-sm"></div>
@@ -46,17 +46,14 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           ))}
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
-        {/* Main hero text centered */}
-        <div className="mb-16">
-          <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up text-shadow">
-            Rent Anything<br />
-            <span className="text-gradient bg-gradient-to-r from-white to-blue-200">Anytime</span>
-          </h2>
-          <p className="text-2xl md:text-3xl mb-12 opacity-95 animate-fade-in max-w-4xl mx-auto font-light leading-relaxed" style={{animationDelay: '0.3s'}}>
-            It's that simple.
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up text-shadow">
+          Rent Anything<br />
+          <span className="text-gradient bg-gradient-to-r from-white to-blue-200">Anytime</span>
+        </h2>
+        <p className="text-2xl md:text-3xl mb-12 opacity-95 animate-fade-in max-w-4xl mx-auto font-light leading-relaxed" style={{animationDelay: '0.3s'}}>
+          It's that simple.
+        </p>
         
         {/* Category Quick Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto animate-scale-in" style={{animationDelay: '0.6s'}}>
@@ -78,7 +75,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         </div>
 
         {/* Call to action */}
-        <div className="animate-fade-in absolute bottom-8 left-1/2 transform -translate-x-1/2" style={{animationDelay: '1.4s'}}>
+        <div className="animate-fade-in" style={{animationDelay: '1.4s', marginTop: '77px'}}>
           <div className="inline-flex items-center space-x-3 text-white/90 group cursor-pointer hover-float">
             <div className="w-3 h-3 bg-gradient-to-r from-white to-blue-200 rounded-full animate-pulse-glow"></div>
             <span className="text-lg font-medium group-hover:text-white transition-colors duration-300">Scroll down to explore</span>
