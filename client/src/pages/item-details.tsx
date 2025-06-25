@@ -178,7 +178,7 @@ export default function ItemDetails() {
                   onClick={handleBookNow}
                   className="w-full bg-primary-blue hover:bg-primary-blue/90 text-white py-4"
                   size="lg"
-                >Go to Reservation Page</Button>
+                >Open Reservation Page</Button>
               )}
             </div>
           </div>
