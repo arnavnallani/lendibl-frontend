@@ -56,7 +56,7 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-medium text-lg mb-4">We don't have that yet...</p>
-        <p className="text-gray-medium">Try adjusting your filters or search terms.</p>
+        <p className="text-gray-medium">New items can be added at any time though!</p>
       </div>
     );
   }
