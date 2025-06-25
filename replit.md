@@ -196,6 +196,7 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Implemented dynamic search functionality with real-time suggestions, auto-complete, recent searches, trending items, smart filtering, and enhanced UI with search API endpoint and debounced input
 - June 24, 2025: Successfully integrated dynamic search functionality directly into top header search bar with real-time suggestions, recent search tracking, smart auto-completions, "Search for anything..." placeholder, and automatic scrolling to items section when typing
 - June 24, 2025: Implemented real money transfer system with Stripe Connect - removed all simulations and test modes, system now creates actual Express accounts and processes real money transfers to owner bank accounts when rentals complete
+- June 25, 2025: Implemented AI-powered smart pricing feature on list item page - owners can choose between AI suggestions (analyzing demand, seasonality, local events) or manual pricing to maximize earnings
 
 ## User Preferences
 

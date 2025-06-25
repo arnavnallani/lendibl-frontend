@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, Upload, X, Sparkles } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,7 @@ import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
 
 const formSchema = insertItemSchema.extend({
-  price: z.coerce.number().min(0, "Price must be a positive number"),
+  price: z.coerce.number().min(0, "Price must be a positive number").optional(),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
   originalPrice: z.coerce.number().min(0, "Original price must be a positive number").optional(),
@@ -35,6 +35,8 @@ export default function ListItem() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isOwnerPaymentSetupOpen, setIsOwnerPaymentSetupOpen] = useState(false);
   const [listedItemTitle, setListedItemTitle] = useState("");
+  const [showAIPricing, setShowAIPricing] = useState(false);
+  const [showManualPricing, setShowManualPricing] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -148,6 +150,15 @@ export default function ListItem() {
       return;
     }
 
+    if (!values.price) {
+      toast({
+        title: "Price Required",
+        description: "Please set a price for your item.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const includedArray = values.includedItems
       ? values.includedItems.split('\n').filter(item => item.trim() !== '')
       : [];
@@ -161,8 +172,9 @@ export default function ListItem() {
       ownerId: user.id,
     };
 
-    // Remove the helper field
+    // Remove the helper fields
     delete (itemData as any).includedItems;
+    delete (itemData as any).originalPrice;
 
     createItemMutation.mutate(itemData);
   };
@@ -311,37 +323,7 @@ export default function ListItem() {
                     />
                   </div>
 
-                  {/* AI Pricing Suggestions */}
-                  {form.watch("title") && form.watch("description") && form.watch("originalPrice") && form.watch("location") && form.watch("categoryId") && (
-                    <AIPricingSuggestions
-                      itemTitle={form.watch("title")}
-                      category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
-                      originalPrice={Number(form.watch("originalPrice")) || 0}
-                      description={form.watch("description")}
-                      location={form.watch("location")}
-                      condition="good"
-                      onPriceSelect={(price) => form.setValue("price", price)}
-                    />
-                  )}
 
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Rental Price per day ($)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            step="0.01"
-                            placeholder="25.00"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
                   <FormField
                     control={form.control}
@@ -424,20 +406,101 @@ export default function ListItem() {
                   />
                 </div>
 
-                {/* Submit */}
-                <div className="flex justify-end space-x-4">
+                {/* Pricing Choice */}
+                {!showAIPricing && !showManualPricing && (
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-gray-dark text-center">Choose Your Pricing Method</h3>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button 
+                        type="button"
+                        onClick={() => setShowAIPricing(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white flex-1 py-6"
+                        disabled={!form.watch("title") || !form.watch("description") || !form.watch("location") || !form.watch("categoryId")}
+                      >
+                        <Sparkles className="h-5 w-5 mr-2" />
+                        Submit Information for Instant AI Pricing Suggestions
+                      </Button>
+                      <Button 
+                        type="button"
+                        onClick={() => setShowManualPricing(true)}
+                        variant="outline"
+                        className="flex-1 py-6"
+                      >
+                        Enter Price Manually
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-500 text-center">
+                      Fill out all item details above to enable AI pricing suggestions
+                    </p>
+                  </div>
+                )}
+
+                {/* AI Pricing Suggestions */}
+                {showAIPricing && (
+                  <AIPricingSuggestions
+                    itemTitle={form.watch("title")}
+                    category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
+                    originalPrice={Number(form.watch("originalPrice")) || 0}
+                    description={form.watch("description")}
+                    location={form.watch("location")}
+                    condition="good"
+                    onPriceSelect={(price) => {
+                      form.setValue("price", price);
+                      // Auto-submit form after price selection
+                      setTimeout(() => {
+                        form.handleSubmit(onSubmit)();
+                      }, 1000);
+                    }}
+                  />
+                )}
+
+                {/* Manual Pricing */}
+                {showManualPricing && (
+                  <div className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rental Price per day ($)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number"
+                              step="0.01"
+                              placeholder="25.00"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex justify-end space-x-4">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => setShowManualPricing(false)}
+                      >
+                        Back to Pricing Options
+                      </Button>
+                      <Button 
+                        type="submit"
+                        disabled={createItemMutation.isPending || !form.watch("price")}
+                        className="bg-primary-blue text-white hover:bg-primary-blue/90"
+                      >
+                        {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Cancel Button (always visible) */}
+                <div className="flex justify-center">
                   <Link href="/">
-                    <Button type="button" variant="outline">
-                      Cancel
+                    <Button type="button" variant="ghost" className="text-gray-500">
+                      Cancel and Return Home
                     </Button>
                   </Link>
-                  <Button 
-                    type="submit"
-                    disabled={createItemMutation.isPending}
-                    className="bg-primary-blue text-white hover:bg-primary-blue/90"
-                  >
-                    {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
-                  </Button>
                 </div>
               </form>
             </Form>
