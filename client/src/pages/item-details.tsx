@@ -81,7 +81,6 @@ export default function ItemDetails() {
           </Link>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Gallery */}
@@ -179,22 +178,18 @@ export default function ItemDetails() {
                   onClick={handleBookNow}
                   className="w-full bg-primary-blue hover:bg-primary-blue/90 text-white py-4"
                   size="lg"
-                >
-                  Reserve
-                </Button>
+                >Go to Reservation Page</Button>
               )}
             </div>
           </div>
         </div>
       </div>
-
       {/* Modals */}
       <BookingModal 
         item={item}
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
       />
-      
       <EditItemModal 
         item={item}
         isOpen={isEditModalOpen}
