@@ -136,20 +136,11 @@ export default function Settings() {
 
       } else {
         const error = data;
-        
-        if (error.tosError) {
-          toast({
-            title: "Stripe Configuration Required",
-            description: "Contact Stripe support for US marketplace configuration. See STRIPE_CONFIGURATION_GUIDE.md for details.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Setup Failed",
-            description: error.message || "Failed to create Stripe account.",
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "Setup Failed",
+          description: error.message || "Failed to create Stripe account.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({

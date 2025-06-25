@@ -1331,15 +1331,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Connect account creation error:', error);
       
-      // Handle ToS acceptance error specifically
-      if (error.message?.includes('recipient ToS agreement')) {
-        return res.status(400).json({ 
-          message: "US platform configuration issue - this requires Stripe support assistance",
-          tosError: true,
-          supportInfo: "Contact Stripe support for US domestic marketplace configuration"
-        });
-      }
-      
       res.status(500).json({ 
         message: "Failed to create Connect account", 
         error: error.message 

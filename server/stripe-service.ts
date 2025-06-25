@@ -140,11 +140,21 @@ export class StripeService {
     try {
       console.log(`Creating Stripe Express account for ${email}`);
       
-      // Create Express account without ToS acceptance for US domestic platforms
+      // Create Express account with standard onboarding flow
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
-        email: email
+        email: email,
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true }
+        },
+        business_type: 'individual',
+        individual: {
+          email: email,
+          first_name: firstName,
+          last_name: lastName
+        }
       });
       
       console.log(`Stripe Express account created: ${account.id}`);
