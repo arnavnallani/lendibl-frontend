@@ -81,7 +81,7 @@ export default function Home() {
         onSearch={handleSearch}
       />
       {currentMode === "renter" ? (
-        <div className="space-y-8">
+        <div>
           {/* AI Badge positioned top left */}
           <div className="fixed top-20 left-4 z-40">
             <AIBanner />
@@ -89,12 +89,12 @@ export default function Home() {
           <HeroSection onCategorySelect={handleCategorySelect} />
           
           {user && showRecommendations && Object.keys(filters).length === 0 && (
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-8">
               <RecommendationsSection onItemClick={handleItemClick} />
             </div>
           )}
           
-          <div id="items-section">
+          <div id="items-section" className="mt-8">
             <FilterBar 
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
