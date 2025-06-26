@@ -2,16 +2,11 @@ import { Sparkles } from "lucide-react";
 
 export function AIBanner() {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-b border-blue-100 dark:border-blue-800/30">
-      <div className="container mx-auto px-4 py-2">
-        <div className="flex items-center gap-2 text-sm">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span className="text-blue-800 dark:text-blue-200 font-medium">
-            Powered by AI
-          </span>
-          <span className="text-blue-600 dark:text-blue-400 text-xs">
-            Smart pricing & recommendations
-          </span>
+    <div className="fixed top-20 left-4 z-50">
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer backdrop-blur-sm border border-blue-400/20">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Sparkles className="w-4 h-4" />
+          <span>Powered by AI</span>
         </div>
       </div>
     </div>

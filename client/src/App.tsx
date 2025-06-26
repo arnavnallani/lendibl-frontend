@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
+import { AIBanner } from "@/components/ai-banner";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
@@ -38,6 +39,7 @@ function App() {
       <AuthContext.Provider value={auth}>
         <TooltipProvider>
           <Toaster />
+          <AIBanner />
           <Router />
         </TooltipProvider>
       </AuthContext.Provider>
