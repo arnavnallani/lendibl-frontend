@@ -80,7 +80,6 @@ export default function Home() {
         onModeChange={setCurrentMode}
         onSearch={handleSearch}
       />
-      
       {currentMode === "renter" ? (
         <div className="space-y-8">
           {/* AI Badge positioned top left */}
