@@ -376,10 +376,19 @@ export default function MyProfile() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="listings" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0">
-            <TabsTrigger value="listings" className="text-xs sm:text-sm">My Listings ({totalListings})</TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs sm:text-sm">My Bookings ({myBookings.length})</TabsTrigger>
-            <TabsTrigger value="rentals" className="text-xs sm:text-sm">Rental Requests ({myRentals.length})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 gap-1 sm:gap-0">
+            <TabsTrigger value="listings" className="text-xs sm:text-sm">
+              <span className="sm:hidden">Listings ({totalListings})</span>
+              <span className="hidden sm:inline">My Listings ({totalListings})</span>
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs sm:text-sm">
+              <span className="sm:hidden">Bookings ({myBookings.length})</span>
+              <span className="hidden sm:inline">My Bookings ({myBookings.length})</span>
+            </TabsTrigger>
+            <TabsTrigger value="rentals" className="text-xs sm:text-sm">
+              <span className="sm:hidden">Rentals ({myRentals.length})</span>
+              <span className="hidden sm:inline">Rental Requests ({myRentals.length})</span>
+            </TabsTrigger>
             <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
           </TabsList>
 

@@ -108,7 +108,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
                 }`}
               >
-                Rent Items
+                <span className="sm:hidden">Rent</span>
+                <span className="hidden sm:inline">Rent Items</span>
               </Button>
               <Button
                 variant={currentMode === "lister" ? "default" : "ghost"}
@@ -120,7 +121,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
                 }`}
               >
-                <Link href="/list-item">List Items</Link>
+                <Link href="/list-item">
+                  <span className="sm:hidden">List</span>
+                  <span className="hidden sm:inline">List Items</span>
+                </Link>
               </Button>
             </div>
 
