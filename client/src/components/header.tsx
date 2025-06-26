@@ -42,7 +42,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
@@ -127,18 +127,18 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
-                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
-                      <Zap className="w-6 h-6 group-hover:animate-pulse" />
+                    <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
 
                   {/* Messages */}
                   <Link href="/messages">
-                    <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
-                      <MessageSquare className="w-6 h-6 group-hover:animate-pulse" />
+                    <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                      <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
                 </div>
@@ -149,11 +149,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
+                      className="flex items-center space-x-2 sm:space-x-3 p-1 sm:p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
                     >
-                      <Menu className="h-4 w-4 text-gray-medium" />
-                      <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                        <span className="text-white font-semibold text-sm">
+                      <Menu className="h-3 w-3 sm:h-4 sm:w-4 text-gray-medium" />
+                      <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                        <span className="text-white font-semibold text-xs sm:text-sm">
                           {user.firstName[0]}{user.lastName[0]}
                         </span>
                       </div>

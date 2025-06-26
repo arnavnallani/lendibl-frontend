@@ -232,7 +232,7 @@ export default function MyProfile() {
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
       <div className="bg-white border-b border-gray-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
               <img 
@@ -250,7 +250,7 @@ export default function MyProfile() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Profile Header */}
         <Card className="mb-8">
           <CardContent className="pt-6">
