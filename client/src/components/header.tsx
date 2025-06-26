@@ -47,17 +47,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* Logo */}
           <div className="flex items-center mr-4 sm:mr-6">
             <Link href="/">
-              {/* Desktop Logo */}
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="hidden md:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
-              />
-              {/* Mobile Logo */}
-              <img 
-                src={mobileLogoImage} 
-                alt="Lendibl" 
-                className="md:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
