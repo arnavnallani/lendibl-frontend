@@ -232,7 +232,7 @@ export default function MyProfile() {
     <div className="min-h-screen bg-white">
       {/* Navigation Header */}
       <div className="bg-white border-b border-gray-light">
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
               <img 
@@ -250,7 +250,7 @@ export default function MyProfile() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
         <Card className="mb-8">
           <CardContent className="pt-6">
@@ -376,20 +376,11 @@ export default function MyProfile() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="listings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 h-auto">
-            <TabsTrigger value="listings" className="text-xs sm:text-sm p-2 sm:p-3">
-              <span className="hidden sm:inline">My Listings ({totalListings})</span>
-              <span className="sm:hidden">Listings</span>
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="text-xs sm:text-sm p-2 sm:p-3">
-              <span className="hidden sm:inline">My Bookings ({myBookings.length})</span>
-              <span className="sm:hidden">Bookings</span>
-            </TabsTrigger>
-            <TabsTrigger value="rentals" className="text-xs sm:text-sm p-2 sm:p-3">
-              <span className="hidden sm:inline">Rental Requests ({myRentals.length})</span>
-              <span className="sm:hidden">Requests</span>
-            </TabsTrigger>
-            <TabsTrigger value="reviews" className="text-xs sm:text-sm p-2 sm:p-3">Reviews</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="listings">My Listings ({totalListings})</TabsTrigger>
+            <TabsTrigger value="bookings">My Bookings ({myBookings.length})</TabsTrigger>
+            <TabsTrigger value="rentals">Rental Requests ({myRentals.length})</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-6">

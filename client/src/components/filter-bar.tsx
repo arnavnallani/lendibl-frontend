@@ -62,16 +62,16 @@ export default function FilterBar({ onFiltersChange, selectedCategoryId }: Filte
   };
 
   return (
-    <section className="bg-white border-b border-gray-light py-3 sm:py-4">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        <div className="flex flex-wrap gap-2 sm:gap-4 items-center">
+    <section className="bg-white border-b border-gray-light py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap gap-4 items-center">
           <Button variant="outline" className="flex items-center space-x-2 px-4 py-2 border border-gray-light rounded-full hover:border-gray-dark transition-colors">
             <SlidersHorizontal className="h-4 w-4 text-gray-medium" />
             <span className="text-gray-dark font-medium">Filters</span>
           </Button>
           
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="w-32 sm:w-48 px-2 sm:px-4 py-2 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-dark text-xs sm:text-sm">
+            <SelectTrigger className="w-48 px-4 py-2 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-dark">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -85,7 +85,7 @@ export default function FilterBar({ onFiltersChange, selectedCategoryId }: Filte
           </Select>
 
           <Select value={selectedPriceRange} onValueChange={handlePriceRangeChange}>
-            <SelectTrigger className="w-32 sm:w-48 px-2 sm:px-4 py-2 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-dark text-xs sm:text-sm">
+            <SelectTrigger className="w-48 px-4 py-2 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-dark">
               <SelectValue placeholder="Price Range" />
             </SelectTrigger>
             <SelectContent>
@@ -97,14 +97,14 @@ export default function FilterBar({ onFiltersChange, selectedCategoryId }: Filte
             </SelectContent>
           </Select>
 
-          <div className="flex items-center space-x-2 px-2 sm:px-4 py-2 border border-gray-light rounded-full">
+          <div className="flex items-center space-x-2 px-4 py-2 border border-gray-light rounded-full">
             <MapPin className="h-4 w-4 text-gray-medium" />
             <Input
               type="text"
               placeholder="Near me"
               value={location}
               onChange={handleLocationChange}
-              className="border-none outline-none text-gray-dark bg-transparent text-xs sm:text-sm w-20 sm:w-auto"
+              className="border-none outline-none text-gray-dark bg-transparent"
             />
           </div>
 

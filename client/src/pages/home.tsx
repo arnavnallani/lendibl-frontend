@@ -10,7 +10,6 @@ import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { AIBanner } from "@/components/ai-banner";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function Home() {
@@ -80,21 +79,18 @@ export default function Home() {
         onModeChange={setCurrentMode}
         onSearch={handleSearch}
       />
+      
       {currentMode === "renter" ? (
-        <div>
-          {/* AI Badge positioned top left */}
-          <div className="fixed top-20 left-4 z-40">
-            <AIBanner />
-          </div>
+        <div className="space-y-8">
           <HeroSection onCategorySelect={handleCategorySelect} />
           
           {user && showRecommendations && Object.keys(filters).length === 0 && (
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <RecommendationsSection onItemClick={handleItemClick} />
             </div>
           )}
           
-          <div id="items-section" className="mt-8">
+          <div id="items-section">
             <FilterBar 
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
@@ -103,7 +99,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-12 sm:py-20 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <div className="animate-slide-up">
             <h2 className="text-5xl font-bold text-gray-dark mb-8 text-gradient">List Your Items</h2>
             <p className="text-xl text-gray-medium mb-12 max-w-2xl mx-auto leading-relaxed">

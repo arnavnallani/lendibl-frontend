@@ -62,13 +62,13 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-      <div className="mb-4 sm:mb-6">
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-dark mb-2">Available Near You</h3>
-        <p className="text-gray-medium text-sm sm:text-base">Over {items.length} items available for rent</p>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold text-gray-dark mb-2">Available Near You</h3>
+        <p className="text-gray-medium">Over {items.length} items available for rent</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {items.map((item) => (
           <ItemCard 
             key={item.id} 

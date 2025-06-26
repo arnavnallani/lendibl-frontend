@@ -215,7 +215,7 @@ export default function ListItem() {
     <div className="min-h-screen bg-gray-bg">
       {/* Header */}
       <div className="bg-white border-b border-gray-light">
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Link href="/">
             <Button variant="ghost">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -225,7 +225,7 @@ export default function ListItem() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-gray-dark">List Your Item</CardTitle>
