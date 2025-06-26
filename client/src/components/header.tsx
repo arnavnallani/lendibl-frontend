@@ -8,7 +8,8 @@ import NotificationBell from "./notification-bell";
 import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
 import { useAuth } from "@/hooks/use-auth";
-import logoImage from "@assets/Image_Editor_1750903285363.png";
+import logoImage from "@assets/lendibl_logo1_1750383971030.png";
+import mobileLogoImage from "@assets/Image_Editor_1750901898287.png";
 
 interface HeaderProps {
   currentMode: "renter" | "lister";
@@ -46,10 +47,17 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* Logo */}
           <div className="flex items-center mr-4 sm:mr-6">
             <Link href="/">
+              {/* Desktop Logo */}
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="hidden md:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+              />
+              {/* Mobile Logo */}
+              <img 
+                src={mobileLogoImage} 
+                alt="Lendibl" 
+                className="md:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
