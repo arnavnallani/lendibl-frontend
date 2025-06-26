@@ -376,11 +376,11 @@ export default function MyProfile() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="listings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="listings">My Listings ({totalListings})</TabsTrigger>
-            <TabsTrigger value="bookings">My Bookings ({myBookings.length})</TabsTrigger>
-            <TabsTrigger value="rentals">Rental Requests ({myRentals.length})</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0">
+            <TabsTrigger value="listings" className="text-xs sm:text-sm">My Listings ({totalListings})</TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs sm:text-sm">My Bookings ({myBookings.length})</TabsTrigger>
+            <TabsTrigger value="rentals" className="text-xs sm:text-sm">Rental Requests ({myRentals.length})</TabsTrigger>
+            <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews</TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-6">

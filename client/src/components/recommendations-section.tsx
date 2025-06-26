@@ -98,7 +98,7 @@ export default function RecommendationsSection({ onItemClick }: RecommendationsS
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
             Recommended for You
@@ -108,19 +108,21 @@ export default function RecommendationsSection({ onItemClick }: RecommendationsS
               variant="outline"
               size="sm"
               onClick={() => setIsPreferencesModalOpen(true)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs sm:text-sm px-2 sm:px-3"
             >
-              <Settings className="h-4 w-4" />
-              Preferences
+              <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Preferences</span>
+              <span className="sm:hidden">Prefs</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs sm:text-sm px-2 sm:px-3"
             >
-              <RefreshCw className="h-4 w-4" />
-              Refresh
+              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Refresh</span>
+              <span className="sm:hidden">↻</span>
             </Button>
           </div>
         </div>

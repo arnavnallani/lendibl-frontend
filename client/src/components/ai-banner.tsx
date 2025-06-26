@@ -1,6 +1,14 @@
 import { Sparkles } from "lucide-react";
+import { useLocation } from "wouter";
 
 export function AIBanner() {
+  const [location] = useLocation();
+  
+  // Only show on home page
+  if (location !== "/") {
+    return null;
+  }
+
   return (
     <div className="fixed top-20 left-4 z-50">
       <div className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer backdrop-blur-sm border border-blue-500/20">
