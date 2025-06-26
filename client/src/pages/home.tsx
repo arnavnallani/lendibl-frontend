@@ -10,6 +10,7 @@ import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { AIBanner } from "@/components/ai-banner";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function Home() {
@@ -82,6 +83,10 @@ export default function Home() {
       
       {currentMode === "renter" ? (
         <div className="space-y-8">
+          {/* AI Badge positioned top left */}
+          <div className="fixed top-20 left-4 z-40">
+            <AIBanner />
+          </div>
           <HeroSection onCategorySelect={handleCategorySelect} />
           
           {user && showRecommendations && Object.keys(filters).length === 0 && (

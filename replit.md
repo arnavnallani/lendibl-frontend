@@ -204,6 +204,7 @@ The application uses PostgreSQL with the following main entities:
 - June 26, 2025: Updated mobile header with circular blue logo design and optimized navigation buttons for mobile screens  
 - June 26, 2025: Modified AI badge positioning to only appear at the top of list items and profile pages instead of fixed global placement
 - June 26, 2025: Optimized mobile layout spacing across all pages - restored action dashboard and messaging buttons on mobile with responsive sizing, improved header padding, FilterBar elements, and main content containers for better mobile visibility
+- June 26, 2025: Added spacing between logo and navigation buttons, fixed mobile tab bar overflow in profile page with responsive labels, and repositioned AI badge to top left of homepage only
 
 ## User Preferences
 

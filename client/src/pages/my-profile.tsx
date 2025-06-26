@@ -376,11 +376,20 @@ export default function MyProfile() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="listings" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="listings">My Listings ({totalListings})</TabsTrigger>
-            <TabsTrigger value="bookings">My Bookings ({myBookings.length})</TabsTrigger>
-            <TabsTrigger value="rentals">Rental Requests ({myRentals.length})</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 h-auto">
+            <TabsTrigger value="listings" className="text-xs sm:text-sm p-2 sm:p-3">
+              <span className="hidden sm:inline">My Listings ({totalListings})</span>
+              <span className="sm:hidden">Listings</span>
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="text-xs sm:text-sm p-2 sm:p-3">
+              <span className="hidden sm:inline">My Bookings ({myBookings.length})</span>
+              <span className="sm:hidden">Bookings</span>
+            </TabsTrigger>
+            <TabsTrigger value="rentals" className="text-xs sm:text-sm p-2 sm:p-3">
+              <span className="hidden sm:inline">Rental Requests ({myRentals.length})</span>
+              <span className="sm:hidden">Requests</span>
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="text-xs sm:text-sm p-2 sm:p-3">Reviews</TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-6">

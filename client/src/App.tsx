@@ -16,24 +16,18 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const [location] = useLocation();
-  const showAIBanner = ["/list-item", "/my-profile"].includes(location);
-  
   return (
-    <>
-      {showAIBanner && <AIBanner position="top" />}
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/item/:id" component={ItemDetails} />
-        <Route path="/list-item" component={ListItem} />
-        <Route path="/my-profile" component={MyProfile} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/action-dashboard" component={ActionDashboard} />
-        <Route path="/messages" component={Messages} />
-        <Route path="/privacy-policy" component={PrivacyPolicy} />
-        <Route component={NotFound} />
-      </Switch>
-    </>
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/item/:id" component={ItemDetails} />
+      <Route path="/list-item" component={ListItem} />
+      <Route path="/my-profile" component={MyProfile} />
+      <Route path="/settings" component={Settings} />
+      <Route path="/action-dashboard" component={ActionDashboard} />
+      <Route path="/messages" component={Messages} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

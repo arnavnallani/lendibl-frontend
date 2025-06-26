@@ -45,7 +45,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center mr-4 sm:mr-6">
             <Link href="/">
               {/* Desktop Logo */}
               <img 
