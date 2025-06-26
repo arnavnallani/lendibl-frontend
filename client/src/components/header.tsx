@@ -8,8 +8,7 @@ import NotificationBell from "./notification-bell";
 import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
 import { useAuth } from "@/hooks/use-auth";
-import logoImage from "@assets/lendibl_logo1_1750383971030.png";
-import mobileLogoImage from "@assets/Image_Editor_1750901898287.png";
+import logoImage from "@assets/Image_Editor_1750903285363.png";
 
 interface HeaderProps {
   currentMode: "renter" | "lister";
