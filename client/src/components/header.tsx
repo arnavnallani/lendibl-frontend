@@ -9,6 +9,7 @@ import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
 import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
+import mobileLogoImage from "@assets/Image_Editor_1750901898287.png";
 
 interface HeaderProps {
   currentMode: "renter" | "lister";
@@ -46,10 +47,17 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
+              {/* Desktop Logo */}
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="hidden md:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+              />
+              {/* Mobile Logo */}
+              <img 
+                src={mobileLogoImage} 
+                alt="Lendibl" 
+                className="md:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
@@ -87,14 +95,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-2 sm:space-x-5">
             {/* Mode Toggle */}
-            <div className="hidden sm:flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
+            <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("renter")}
-                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
+                className={`px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "renter" 
                     ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
@@ -106,7 +114,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "lister" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("lister")}
-                className={`px-6 py-3 text-sm font-bold rounded-2xl transition-all duration-500 ${
+                className={`px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "lister" 
                     ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
@@ -119,7 +127,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-12 w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
