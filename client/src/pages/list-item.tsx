@@ -19,6 +19,7 @@ import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
+import { AIBanner } from "@/components/ai-banner";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
@@ -224,6 +225,7 @@ export default function ListItem() {
           </Link>
         </div>
       </div>
+      <AIBanner />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>

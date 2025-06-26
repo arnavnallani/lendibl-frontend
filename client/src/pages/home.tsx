@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import Header from "@/components/header";
+import { AIBanner } from "@/components/ai-banner";
 import HeroSection from "@/components/hero-section";
 import FilterBar from "@/components/filter-bar";
 import ItemGrid from "@/components/item-grid";
@@ -79,6 +80,7 @@ export default function Home() {
         onModeChange={setCurrentMode}
         onSearch={handleSearch}
       />
+      <AIBanner />
       
       {currentMode === "renter" ? (
         <div className="space-y-8">
