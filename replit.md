@@ -201,6 +201,7 @@ The application uses PostgreSQL with the following main entities:
 - June 25, 2025: Updated AI pricing to use GPT-4o-mini for cost-effective analysis, resolving quota issues while maintaining intelligent pricing suggestions
 - June 25, 2025: Implemented pure Google Gemini AI pricing system - removed all market analysis fallbacks and OpenAI dependencies for completely free AI-powered pricing
 - June 25, 2025: Cleaned up marketplace database by removing all test items, bookings, and user interactions - marketplace now contains only legitimate rental items
+- June 27, 2025: Enhanced mobile UI optimization - removed AI badge from non-home pages, shortened navigation button text ("Rent"/"List" on mobile), improved profile tab labels, fixed mobile layout overflow issues, and optimized AI pricing button text for mobile devices
 
 ## User Preferences
 

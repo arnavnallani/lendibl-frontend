@@ -396,7 +396,8 @@ export default function ListItem() {
                         disabled={!form.watch("title") || !form.watch("description") || !form.watch("location") || !form.watch("categoryId")}
                       >
                         <Sparkles className="h-5 w-5 mr-2" />
-                        Submit Information for Instant AI Pricing Suggestions
+                        <span className="sm:hidden">Submit Info for AI Pricing Suggestions</span>
+                        <span className="hidden sm:inline">Submit Information for Instant AI Pricing Suggestions</span>
                       </Button>
                       <Button 
                         type="button"
