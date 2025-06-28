@@ -220,6 +220,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               {/* Date Selection */}
               <div>
                 <h4 className="font-semibold text-gray-dark mb-3">Select Dates</h4>
+                {(item.availableFrom || item.availableTo) && (
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      <Calendar className="inline w-4 h-4 mr-1" />
+                      Available: {item.availableFrom ? format(new Date(item.availableFrom), 'MMM d, yyyy') : 'Any date'} 
+                      {item.availableFrom && item.availableTo && ' - '}
+                      {item.availableTo ? format(new Date(item.availableTo), 'MMM d, yyyy') : (item.availableFrom ? ' onwards' : '')}
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="startDate" className="block text-sm text-gray-medium mb-1">
@@ -229,6 +239,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       id="startDate"
                       type="date"
                       value={startDate}
+                      min={item.availableFrom ? new Date(item.availableFrom).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                      max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setStartDate(e.target.value)}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       required
@@ -242,6 +254,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       id="endDate"
                       type="date"
                       value={endDate}
+                      min={startDate || (item.availableFrom ? new Date(item.availableFrom).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])}
+                      max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setEndDate(e.target.value)}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       required
