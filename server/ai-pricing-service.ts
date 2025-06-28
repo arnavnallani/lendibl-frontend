@@ -85,7 +85,9 @@ export class AIPricingService {
       
       const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What competitive daily rental rate would you suggest to maximize bookings? Focus on affordable pricing that attracts renters while still being profitable. Favor lower prices over higher prices to increase rental frequency. Consider market value, location, and ${season} seasonal demand.`;
       
+      console.log('AI Pricing: Calling Gemini with prompt:', simplePrompt.substring(0, 100) + '...');
       const geminiResult = await getFreeGeminiPricing(simplePrompt);
+      console.log('AI Pricing: Gemini result:', geminiResult);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
         // Apply 40% discount to favor lower prices and increase bookings
