@@ -24,26 +24,23 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert. You MUST suggest very low prices.
+  const enhancedPrompt = `You are a rental pricing expert focused on competitive pricing to maximize bookings.
 
 ${prompt}
 
-MANDATORY: Your suggested price must be extremely low to maximize bookings. Think of the lowest possible price that still makes sense.
-
-Examples of what I want:
-- Camera equipment: $15-25/day (not $40-60)
-- Power tools: $8-15/day (not $25-40) 
-- Electronics: $10-20/day (not $30-50)
-
-Your goal is MAXIMUM BOOKINGS, not maximum profit per rental.
+Suggest a competitive daily rental rate that balances affordability with profitability. Consider:
+- Market demand for this item category
+- Seasonal factors and location
+- Pricing to encourage frequent bookings
+- Competitive positioning in the rental market
 
 Respond in this JSON format only:
 {
-  "dailyRate": <very low number under $25>,
-  "reasoning": "Aggressive low pricing for maximum bookings",
-  "demandLevel": "medium",
-  "seasonalTrend": "stable", 
-  "competitivePosition": "below-market"
+  "dailyRate": <number>,
+  "reasoning": "<brief explanation of pricing strategy>",
+  "demandLevel": "low|medium|high",
+  "seasonalTrend": "increasing|stable|decreasing",
+  "competitivePosition": "below-market|market-rate|above-market"
 }`;
 
   const result = await model.generateContent(enhancedPrompt);
@@ -96,25 +93,18 @@ export class AIPricingService {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        // If AI didn't follow low pricing instructions, apply backup discount
-        let finalRate = geminiResult.suggestedPrice;
-        if (finalRate > 25) {
-          finalRate = finalRate * 0.6; // Apply 40% discount if price is too high
-          console.log(`AI suggested ${geminiResult.suggestedPrice}, applying backup 40% discount: ${finalRate}`);
-        }
+        const finalRate = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
         
-        finalRate = Math.max(5, Math.round(finalRate * 100) / 100);
-        
-        console.log(`Final AI pricing: $${finalRate}`);
+        console.log(`AI pricing: $${finalRate}`);
         
         return {
           dailyRate: finalRate,
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI with aggressive competitive pricing`,
-            `Low pricing strategy for maximum bookings`,
-            `Optimized for ${input.location} market`,
-            `${season} seasonal pricing for ${month}`
+            `Google Gemini AI competitive pricing`,
+            geminiResult.reasoning || `Optimized for ${input.location} market`,
+            `${season} seasonal pricing for ${month}`,
+            "AI-powered pricing analysis"
           ],
           marketInsights: {
             demandLevel: geminiResult.demandLevel || 'medium',
