@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Upload, X, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
+import { ImageUpload } from "@/components/image-upload";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
@@ -30,7 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function ListItem() {
   const [, setLocation] = useLocation();
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isOwnerPaymentSetupOpen, setIsOwnerPaymentSetupOpen] = useState(false);
   const [listedItemTitle, setListedItemTitle] = useState("");
@@ -88,8 +89,7 @@ export default function ListItem() {
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
           if (statusData.needsPaymentSetup) {
-            setPaymentSetupData(statusData);
-            setIsPaymentSetupOpen(true);
+            setIsOwnerPaymentSetupOpen(true);
             return; // Don't redirect yet, let user complete payment setup
           }
         }
@@ -165,7 +165,7 @@ export default function ListItem() {
     const itemData = {
       ...values,
       price: values.price.toString(),
-      images: imageUrls,
+      images: images,
       included: includedArray,
       categoryId: Number(values.categoryId),
       ownerId: user.id,
@@ -178,15 +178,8 @@ export default function ListItem() {
     createItemMutation.mutate(itemData);
   };
 
-  const handleImageUrlAdd = () => {
-    const url = prompt("Enter image URL:");
-    if (url && url.trim()) {
-      setImageUrls(prev => [...prev, url.trim()]);
-    }
-  };
-
-  const removeImageUrl = (index: number) => {
-    setImageUrls(prev => prev.filter((_, i) => i !== index));
+  const handleImagesChange = (newImages: string[]) => {
+    setImages(newImages);
   };
 
   if (!user) {
@@ -325,40 +318,12 @@ export default function ListItem() {
                 <div className="space-y-6">
                   <h3 className="text-xl font-semibold text-gray-dark">Photos</h3>
                   
-                  <div className="border-2 border-dashed border-gray-light rounded-lg p-8 text-center">
-                    <Upload className="h-12 w-12 mx-auto text-gray-medium mb-4" />
-                    <p className="text-gray-medium mb-4">Add photos of your item</p>
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={handleImageUrlAdd}
-                    >
-                      Add Image URL
-                    </Button>
-                  </div>
-
-                  {imageUrls.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {imageUrls.map((url, index) => (
-                        <div key={index} className="relative">
-                          <img 
-                            src={url} 
-                            alt={`Item image ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                            onClick={() => removeImageUrl(index)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <ImageUpload
+                    images={images}
+                    onImagesChange={handleImagesChange}
+                    maxImages={5}
+                    maxSizeInMB={10}
+                  />
                 </div>
 
                 {/* What's Included */}
