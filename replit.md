@@ -214,6 +214,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Split address field into separate components (address, city, state dropdown, zip code) with privacy protection - only city and state visible before rental approval, full address shared after approval through direct coordination
 - June 28, 2025: Restored red dot notification indicator to top right of account circle while maintaining count badge in dropdown menu for comprehensive notification visibility
 - June 28, 2025: Fixed account circle "0" display issue by improving notification count rendering logic and adding safe navigation for user name initials
+- June 28, 2025: Resolved notification badge "0" display in dropdown menu by fixing conditional rendering to only show badges when unreadCount > 0
 
 ## User Preferences
 

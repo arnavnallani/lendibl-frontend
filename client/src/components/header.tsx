@@ -164,11 +164,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <Menu className="h-4 w-4 text-gray-medium" />
                       <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
                         <span className="text-white font-semibold text-sm">
-                          {user.firstName?.[0] || ''}{user.lastName?.[0] || ''}
+                          {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
                         </span>
-                        {(unreadCount && unreadCount > 0) && (
+                        {unreadCount > 0 ? (
                           <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
-                        )}
+                        ) : null}
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
@@ -197,7 +197,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         <Bell className="mr-2 h-4 w-4" />
                         <span>Notifications</span>
                       </div>
-                      {unreadCount && unreadCount > 0 && (
+                      {unreadCount > 0 && (
                         <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </Badge>
