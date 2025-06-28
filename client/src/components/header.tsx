@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import NotificationBell from "./notification-bell";
+
 import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
 import { NotificationsPanel, useNotificationCount } from "./notifications-panel";
@@ -192,9 +192,16 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center">
-                      <Bell className="mr-2 h-4 w-4" />
-                      <span>Notifications</span>
+                    <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Bell className="mr-2 h-4 w-4" />
+                        <span>Notifications</span>
+                      </div>
+                      {unreadCount && unreadCount > 0 && (
+                        <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
