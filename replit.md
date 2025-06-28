@@ -207,6 +207,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Updated location field to address field in item listings with privacy notice explaining address is only shared with approved renters
 - June 28, 2025: Implemented address sharing in action dashboard - renters can see owner's pickup address after booking approval with coordination instructions
 - June 28, 2025: Completed comprehensive notification system with database storage, real-time updates, and account dropdown integration - covers all rental events (bookings, approvals, payments) with red dot indicator for unread notifications
+- June 28, 2025: Fixed notification UI to show only red dot indicator on account button without any number display - clean notification system with proper dropdown menu integration
 
 ## User Preferences
 
