@@ -24,19 +24,22 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert focused on maximizing bookings through competitive pricing. Analyze this item and suggest an AFFORDABLE daily rental rate that will attract many renters.
+  const enhancedPrompt = `You are a rental pricing expert focused on maximizing bookings through competitive pricing. 
 
+Step 1: First, analyze this item and estimate what the typical market rental rate would be:
 ${prompt}
 
-IMPORTANT: Suggest prices on the LOWER end of the market range to increase booking frequency. Better to rent frequently at lower prices than rarely at high prices.
+Step 2: After determining the market rate, apply a 40% discount to make it highly competitive and attractive to renters. This aggressive pricing strategy increases booking frequency.
+
+IMPORTANT: Your final suggested price should be 40% LOWER than typical market rates to maximize bookings. Better to rent frequently at lower prices than rarely at high prices.
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number>,
-  "reasoning": "<brief explanation>",
+  "dailyRate": <number (final price after 40% discount)>,
+  "reasoning": "<brief explanation including original estimate and 40% discount applied>",
   "demandLevel": "low|medium|high",
   "seasonalTrend": "increasing|stable|decreasing",
-  "competitivePosition": "below-market|market-rate|above-market"
+  "competitivePosition": "below-market"
 }`;
 
   const result = await model.generateContent(enhancedPrompt);
@@ -86,21 +89,17 @@ export class AIPricingService {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        // Apply 40% discount to favor lower prices and increase bookings
-        const originalPrice = geminiResult.suggestedPrice;
-        const competitiveRate = originalPrice * 0.6;
-        const finalRate = Math.max(5, Math.round(competitiveRate * 100) / 100);
+        const finalRate = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
         
-        console.log(`AI Pricing Debug: Original=${originalPrice}, After 40% discount=${competitiveRate}, Final=${finalRate}`);
+        console.log(`AI Pricing with built-in 40% discount: $${finalRate}`);
         
         return {
           dailyRate: finalRate,
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI suggested: $${originalPrice}/day`,
-            `Applied 40% discount: $${competitiveRate} → $${finalRate}/day`,
-            `Aggressive competitive pricing for maximum bookings`,
-            geminiResult.reasoning || `Optimized for ${input.location} market`,
+            `Google Gemini AI with competitive pricing strategy`,
+            geminiResult.reasoning || `40% below market rate for maximum bookings`,
+            `Optimized for ${input.location} market`,
             `${season} seasonal pricing for ${month}`
           ],
           marketInsights: {
