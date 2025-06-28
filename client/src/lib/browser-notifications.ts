@@ -72,6 +72,64 @@ export class BrowserNotificationService {
       data: { type: 'listing_published', itemId }
     });
   }
+
+  async showBookingRequestNotification(renterName: string, itemTitle: string) {
+    return this.showNotification('New Rental Request 📬', {
+      body: `${renterName} wants to rent your ${itemTitle}`,
+      url: '/action-dashboard',
+      data: { type: 'booking_request' }
+    });
+  }
+
+  async showBookingApprovedNotification(itemTitle: string) {
+    return this.showNotification('Rental Request Approved ✅', {
+      body: `Your request to rent ${itemTitle} has been approved!`,
+      url: '/action-dashboard',
+      data: { type: 'booking_approved' }
+    });
+  }
+
+  async showBookingDeclinedNotification(itemTitle: string) {
+    return this.showNotification('Rental Request Declined ❌', {
+      body: `Your request to rent ${itemTitle} was declined`,
+      url: '/',
+      data: { type: 'booking_declined' }
+    });
+  }
+
+  async showRentalStartedNotification(itemTitle: string, isOwner: boolean) {
+    const title = 'Rental Period Started 🚀';
+    const body = isOwner 
+      ? `Rental of your ${itemTitle} has begun`
+      : `Your rental of ${itemTitle} has begun`;
+    
+    return this.showNotification(title, {
+      body,
+      url: '/action-dashboard',
+      data: { type: 'rental_started' }
+    });
+  }
+
+  async showRentalEndedNotification(itemTitle: string, isOwner: boolean) {
+    const title = 'Rental Completed 🏁';
+    const body = isOwner 
+      ? `Rental of your ${itemTitle} has ended`
+      : `Your rental of ${itemTitle} has ended`;
+    
+    return this.showNotification(title, {
+      body,
+      url: '/action-dashboard',
+      data: { type: 'rental_ended' }
+    });
+  }
+
+  async showPaymentReceivedNotification(amount: string, itemTitle: string) {
+    return this.showNotification('Payment Received 💰', {
+      body: `You received ${amount} for renting out your ${itemTitle}`,
+      url: '/action-dashboard',
+      data: { type: 'payment_received' }
+    });
+  }
 }
 
 export const browserNotifications = BrowserNotificationService.getInstance();

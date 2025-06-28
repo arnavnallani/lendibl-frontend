@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
+import { useBrowserNotifications } from "@/hooks/use-browser-notifications";
 import { AIBanner } from "@/components/ai-banner";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
@@ -38,6 +39,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={auth}>
         <TooltipProvider>
+          <BrowserNotificationProvider />
           <Toaster />
           <AIBanner />
           <Router />
@@ -45,6 +47,11 @@ function App() {
       </AuthContext.Provider>
     </QueryClientProvider>
   );
+}
+
+function BrowserNotificationProvider() {
+  useBrowserNotifications();
+  return null;
 }
 
 export default App;
