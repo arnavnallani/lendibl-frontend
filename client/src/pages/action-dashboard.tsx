@@ -210,6 +210,22 @@ export default function ActionDashboard() {
                             ${rental.totalPrice}
                           </div>
                         </div>
+                        
+                        {/* Show address to renter for approved bookings */}
+                        {!isOwner && rental.status === 'approved' && rental.item.location && (
+                          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-start space-x-2">
+                              <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                              </div>
+                              <div className="text-sm">
+                                <p className="font-medium text-blue-700">Pickup Address</p>
+                                <p className="text-blue-600">{rental.item.location}</p>
+                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {isOverdue && (

@@ -205,6 +205,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Implemented comprehensive file upload system with drag-and-drop functionality for item images, replacing URL-based input with direct file selection and visual preview grid
 - June 28, 2025: Made interactive search bar fully functional on all screen sizes - mobile now has same DynamicSearch features as desktop including real-time suggestions and auto-scroll
 - June 28, 2025: Updated location field to address field in item listings with privacy notice explaining address is only shared with approved renters
+- June 28, 2025: Implemented address sharing in action dashboard - renters can see owner's pickup address after booking approval with coordination instructions
 
 ## User Preferences
 
