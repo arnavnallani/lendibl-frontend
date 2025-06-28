@@ -9,6 +9,7 @@ import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
 import { aiPricingService } from "./ai-pricing-service-clean";
+import { notificationService } from "./notification-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -466,19 +467,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           item.location
         );
         
-        // Send real-time notification to item owner
-        const notification = {
-          type: "booking_request",
-          id: Date.now(),
-          title: "New Rental Request",
-          message: `${req.user!.firstName} wants to rent your ${item.title}`,
-          itemId: item.id,
-          bookingId: booking.id,
-          timestamp: new Date().toISOString(),
-          read: false
-        };
-        
-        notifyUser(item.ownerId, notification);
+        // Send notification to item owner
+        await notificationService.notifyBookingRequest(
+          item.ownerId,
+          `${req.user!.firstName} ${req.user!.lastName}`,
+          item.title,
+          booking.id
+        );
       }
       
       res.status(201).json(booking);
@@ -556,61 +551,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Send appropriate notifications
       if (updatedBooking) {
-        if (status === 'cancelled') {
-          // Notify owner that renter cancelled
-          const ownerNotification = {
-            type: "booking_update",
-            id: Date.now(),
-            title: "Booking Cancelled",
-            message: `${booking.renter.firstName} cancelled their booking for ${booking.item.title}. Refund processed automatically.`,
-            itemId: booking.item.id,
-            bookingId: booking.id,
-            timestamp: new Date().toISOString(),
-            read: false
-          };
-          notifyUser(booking.item.ownerId, ownerNotification);
-          
-          // Notify renter of cancellation confirmation
-          const renterNotification = {
-            type: "booking_update",
-            id: Date.now(),
-            title: "Booking Cancelled",
-            message: `Your booking for ${booking.item.title} has been cancelled. Full refund processed.`,
-            itemId: booking.item.id,
-            bookingId: booking.id,
-            timestamp: new Date().toISOString(),
-            read: false
-          };
-          notifyUser(booking.renterId, renterNotification);
-        } else {
-          // Notify renter of owner's decision
-          const statusMessage = status === 'approved' ? 'approved! Payment captured. Check your notifications for next steps.' : 'declined. Full refund processed.';
-          const notification = {
-            type: "booking_update",
-            id: Date.now(),
-            title: `Booking ${status}`,
-            message: `Your booking for ${booking.item.title} has been ${statusMessage}`,
-            itemId: booking.item.id,
-            bookingId: booking.id,
-            timestamp: new Date().toISOString(),
-            read: false
-          };
-          notifyUser(booking.renterId, notification);
-
-          // If approved, also send notification to owner to coordinate
-          if (status === 'approved') {
-            const ownerNotification = {
-              type: "booking_approved",
-              id: Date.now(),
-              title: "Rental Approved - Coordinate Pickup",
-              message: `You approved ${booking.renter.firstName}'s rental of ${booking.item.title}. Go to Action Dashboard to coordinate pickup details.`,
-              itemId: booking.item.id,
-              bookingId: booking.id,
-              timestamp: new Date().toISOString(),
-              read: false
-            };
-            notifyUser(booking.item.ownerId, ownerNotification);
-          }
+        if (status === 'approved') {
+          await notificationService.notifyBookingApproved(
+            booking.renterId,
+            booking.item.title,
+            booking.id
+          );
+        } else if (status === 'declined') {
+          await notificationService.notifyBookingDeclined(
+            booking.renterId,
+            booking.item.title,
+            booking.id
+          );
+        } else if (status === 'in_progress') {
+          await notificationService.notifyRentalStarted(
+            booking.renterId,
+            booking.item.ownerId,
+            booking.item.title,
+            booking.id
+          );
+        } else if (status === 'completed') {
+          await notificationService.notifyRentalEnded(
+            booking.renterId,
+            booking.item.ownerId,
+            booking.item.title,
+            booking.id
+          );
         }
       }
       
@@ -1387,6 +1353,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Pricing suggestions error:', error);
       res.status(500).json({ message: "Failed to generate pricing suggestions" });
+    }
+  });
+
+  // Notification API endpoints
+  app.get("/api/notifications", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const notifications = await notificationService.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.get("/api/notifications/unread-count", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const count = await notificationService.getUnreadCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
+      res.status(500).json({ message: "Failed to fetch unread count" });
+    }
+  });
+
+  app.put("/api/notifications/:id/read", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const notificationId = parseInt(req.params.id);
+      await notificationService.markAsRead(notificationId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  app.put("/api/notifications/mark-all-read", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      await notificationService.markAllAsRead(userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+      res.status(500).json({ message: "Failed to mark all notifications as read" });
     }
   });
 

@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, Menu, User, LogOut, Settings, Zap, MessageSquare } from "lucide-react";
+import { Search, Menu, User, LogOut, Settings, Zap, MessageSquare, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import NotificationBell from "./notification-bell";
 import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
+import { NotificationsPanel, useNotificationCount } from "./notifications-panel";
 import { useAuth } from "@/hooks/use-auth";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 import mobileLogoImage from "@assets/Image_Editor_1750901898287.png";
@@ -20,7 +22,9 @@ interface HeaderProps {
 export default function Header({ currentMode, onModeChange, onSearch }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const unreadCount = useNotificationCount();
   const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -145,6 +149,20 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
+
+                  {/* Notifications */}
+                  <Button 
+                    variant="ghost" 
+                    className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group relative"
+                    onClick={() => setIsNotificationsOpen(true)}
+                  >
+                    <Bell className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
+                    {unreadCount && unreadCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0 animate-pulse">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
                 </div>
 
                 {/* User Menu */}
@@ -207,6 +225,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
       />
+
+      {/* Notifications Panel */}
+      {user && (
+        <NotificationsPanel 
+          isOpen={isNotificationsOpen}
+          onClose={() => setIsNotificationsOpen(false)}
+        />
+      )}
 
       {/* Mobile Search */}
       <div className="md:hidden px-4 pb-4">

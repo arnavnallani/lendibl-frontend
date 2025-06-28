@@ -14,6 +14,19 @@ export const paymentReminders = pgTable("payment_reminders", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Notifications table
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(), // "booking_request", "booking_approved", "rental_started", "rental_ended", "payment_received"
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  actionUrl: text("action_url"), // URL to navigate when clicked
+  relatedId: integer("related_id"), // booking ID, item ID, etc.
+  read: boolean("read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -172,6 +185,16 @@ export const insertPaymentReminderSchema = createInsertSchema(paymentReminders).
   createdAt: true,
 });
 
+export const insertRentalMessageSchema = createInsertSchema(rentalMessages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -199,6 +222,9 @@ export type InsertRentalMessage = z.infer<typeof insertRentalMessageSchema>;
 
 export type PaymentReminder = typeof paymentReminders.$inferSelect;
 export type InsertPaymentReminder = z.infer<typeof insertPaymentReminderSchema>;
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {
