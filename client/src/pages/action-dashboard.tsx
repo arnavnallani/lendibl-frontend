@@ -223,7 +223,7 @@ export default function ActionDashboard() {
                           </div>
                         </div>
                         
-                        {/* Show city/state to renter for approved bookings */}
+                        {/* Show full address to renter for approved bookings */}
                         {!isOwner && rental.status === 'approved' && rental.item.location && (
                           <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-start space-x-2">
@@ -232,8 +232,8 @@ export default function ActionDashboard() {
                               </div>
                               <div className="text-sm">
                                 <p className="font-medium text-blue-700">Pickup Location</p>
-                                <p className="text-blue-600">{getDisplayLocation(rental.item.location)}</p>
-                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time and exact address</p>
+                                <p className="text-blue-600">{rental.item.location}</p>
+                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time</p>
                               </div>
                             </div>
                           </div>
