@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import Stripe from "stripe";
@@ -1439,6 +1439,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Local event insights error:', error);
       res.status(500).json({ message: "Failed to fetch local event insights" });
+    }
+  });
+
+  // Manual payout processing (admin endpoint)
+  app.post("/api/process-payout", async (req, res) => {
+    try {
+      const { bookingId } = req.body;
+
+      if (!bookingId) {
+        return res.status(400).json({ message: "Missing bookingId" });
+      }
+
+      console.log(`Manual payout trigger for booking ${bookingId}`);
+      const success = await paymentScheduler.processOwnerPayout(parseInt(bookingId));
+      
+      if (success) {
+        res.json({ message: "Payout processed successfully", bookingId });
+      } else {
+        res.status(400).json({ message: "Payout failed - check logs for details", bookingId });
+      }
+    } catch (error) {
+      console.error('Manual payout error:', error);
+      res.status(500).json({ message: "Failed to process payout" });
     }
   });
 
