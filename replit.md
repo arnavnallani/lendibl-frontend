@@ -209,6 +209,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Completed comprehensive notification system with database storage, real-time updates, and account dropdown integration - covers all rental events (bookings, approvals, payments) with red dot indicator for unread notifications
 - June 28, 2025: Fixed notification UI to show only red dot indicator on account button without any number display - clean notification system with proper dropdown menu integration
 - June 28, 2025: Completely removed unread count display from header - notifications now handled exclusively through dropdown menu panel with no number indicators
+- June 28, 2025: Added clean red dot notification indicator to top right of account circle - appears only when notifications exist, no "0" display when empty
 
 ## User Preferences
 
