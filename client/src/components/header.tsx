@@ -193,15 +193,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Bell className="mr-2 h-4 w-4" />
+                      <div className="flex items-center space-x-3">
+                        <Bell className="h-4 w-4" />
                         <span>Notifications</span>
+                        {unreadCount > 0 && (
+                          <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </Badge>
+                        )}
                       </div>
-                      {unreadCount > 0 && (
-                        <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </Badge>
-                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
