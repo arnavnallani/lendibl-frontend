@@ -54,8 +54,17 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
       markAsReadMutation.mutate(notification.id);
     }
     
-    if (notification.actionUrl) {
-      setLocation(notification.actionUrl);
+    // Navigate to specific MyProfile tabs based on notification type
+    let navigationUrl = notification.actionUrl;
+    
+    if (notification.type === 'listing_published') {
+      navigationUrl = '/my-profile?tab=listings';
+    } else if (notification.type === 'booking_request') {
+      navigationUrl = '/my-profile?tab=requests';
+    }
+    
+    if (navigationUrl) {
+      setLocation(navigationUrl);
       onClose();
     }
   };

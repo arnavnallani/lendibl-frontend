@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { api } from '@/lib/api';
+import { useLocation } from 'wouter';
 import ItemCard from '@/components/item-card';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +47,8 @@ type EditItemFormData = z.infer<typeof editItemSchema>;
 
 export default function MyProfile() {
   const { user } = useAuth();
+  const [location] = useLocation();
+  const [activeTab, setActiveTab] = useState('listings');
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditItemOpen, setIsEditItemOpen] = useState(false);
@@ -54,6 +57,26 @@ export default function MyProfile() {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [selectedRenter, setSelectedRenter] = useState<any>(null);
   const [isRenterProfileOpen, setIsRenterProfileOpen] = useState(false);
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam) {
+      // Map notification tab names to actual tab values
+      const tabMapping: { [key: string]: string } = {
+        'listings': 'listings',
+        'requests': 'rentals', // booking requests go to rentals tab
+        'bookings': 'bookings',
+        'rentals': 'rentals',
+        'reviews': 'reviews'
+      };
+      
+      const mappedTab = tabMapping[tabParam] || 'listings';
+      setActiveTab(mappedTab);
+    }
+  }, [location]);
 
   const profileForm = useForm<EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
@@ -375,7 +398,7 @@ export default function MyProfile() {
         </Card>
 
         {/* Tabs for different sections */}
-        <Tabs defaultValue="listings" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 gap-1 sm:gap-0">
             <TabsTrigger value="listings" className="text-xs sm:text-sm">
               <span className="sm:hidden">Listings ({totalListings})</span>

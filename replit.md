@@ -221,6 +221,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Corrected notification icon alignment by removing custom flex classes and using default DropdownMenuItem styling to match Settings and Profile items perfectly
 - June 28, 2025: Implemented browser desktop notifications for listing publications - users now receive desktop notifications when they successfully publish listings with click-to-view functionality
 - June 28, 2025: Extended desktop browser notifications to all notification types - booking requests, approvals, rental updates, and payments now trigger system notifications with relevant emojis and click-to-navigate functionality
+- June 28, 2025: Enhanced notification navigation to direct users to specific MyProfile tabs - listing published notifications go to My Listings tab, rental request notifications go to Rental Requests tab with URL parameter support
 
 ## User Preferences
 
