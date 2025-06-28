@@ -9,23 +9,26 @@ async function getFreeGeminiPricing(prompt: string): Promise<any> {
   try {
     // Using Gemini 2.5 Flash for improved pricing analysis
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      systemInstruction: "You are a new pricing analyst with no previous knowledge of pricing ranges. Analyze each item fresh and suggest competitive rental prices based solely on market analysis."
+    });
     
-    const freshPrompt = `Rental pricing analysis task:
+    const freshPrompt = `Market Analysis Request:
 
-Item: ${prompt}
+${prompt}
 
-As a marketplace pricing specialist, determine an attractive daily rental rate that will encourage bookings. Focus on affordability and market competitiveness rather than premium pricing.
+Determine a competitive daily rental price for this item. Your analysis should be based on:
+- Current market conditions
+- Item desirability and demand
+- Competitive advantage pricing
 
-Consider:
-- What would make this item irresistible to rent?
-- Price point that beats traditional rental shops
-- Encouraging repeat customers through value pricing
+Important: Do NOT reference any pre-existing price ranges or categories. Base your decision purely on the item's characteristics and market appeal.
 
-Output JSON format:
+Provide your analysis in JSON:
 {
-  "dailyRate": <suggested_price>,
-  "reasoning": "<explanation_of_pricing_approach>"
+  "dailyRate": <your_suggested_price>,
+  "reasoning": "<market_analysis_explanation>"
 }`;
 
     const result = await model.generateContent(freshPrompt);
