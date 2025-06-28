@@ -24,7 +24,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { user, logout } = useAuth();
-  const unreadCount = useNotificationCount();
+  // Removed unread count from header - notifications handled in panel only
   const [location] = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -167,9 +167,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           {user.firstName[0]}{user.lastName[0]}
                         </span>
                       </div>
-                      {unreadCount && unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>
-                      )}
+
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
