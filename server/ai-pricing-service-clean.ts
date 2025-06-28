@@ -22,30 +22,26 @@ export interface PricingAnalysisInput {
 // Google Gemini AI pricing analysis
 async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest the best daily rental rate.
+  const freshPrompt = `Rental Market Analysis Task:
 
-${prompt}
+Item Details: ${prompt}
 
-Provide your pricing analysis considering market conditions, demand, and location. DO NOT apply any discounts or percentages - just suggest the fair market rental rate for this item.
+As a rental pricing specialist, determine the competitive daily rate for this item. Consider the local market, item condition, and rental demand.
 
-Your reasoning should explain your pricing based on:
-- Item value and condition
-- Local market rates
-- Seasonal demand
-- Category popularity
-
-Respond in this JSON format only:
+Required output format (JSON only):
 {
-  "dailyRate": <number>,
-  "reasoning": "<explain why this price is appropriate for the market>",
-  "demandLevel": "low|medium|high",
+  "dailyRate": number,
+  "reasoning": "Brief market analysis explanation",
+  "demandLevel": "low|medium|high", 
   "seasonalTrend": "increasing|stable|decreasing",
   "competitivePosition": "below-market|market-rate|above-market"
-}`;
+}
 
-  const result = await model.generateContent(enhancedPrompt);
+Note: Provide direct market pricing without calculating reductions from higher amounts.`;
+
+  const result = await model.generateContent(freshPrompt);
   const response = await result.response;
   const text = response.text();
   
