@@ -81,24 +81,29 @@ export class AIPricingService {
       const month = currentDate.toLocaleString('default', { month: 'long' });
       const season = this.getCurrentSeason();
       
-      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
+      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What competitive daily rental rate would you suggest to maximize bookings? Focus on affordable pricing that attracts renters while still being profitable. Favor lower prices over higher prices to increase rental frequency. Consider market value, location, and ${season} seasonal demand.`;
       
       const geminiResult = await getFreeGeminiPricing(simplePrompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
+        // Apply 20% discount to favor lower prices and increase bookings
+        const competitiveRate = geminiResult.suggestedPrice * 0.8;
+        const finalRate = Math.max(5, Math.round(competitiveRate * 100) / 100);
+        
         return {
-          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
+          dailyRate: finalRate,
           confidence: 0.95,
           reasoning: [
             `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
+            `Competitive pricing: 20% below market for more bookings`,
             geminiResult.reasoning || `Optimized for ${input.location} market`,
             `${season} seasonal pricing considered`,
-            "Pure AI-powered pricing analysis"
+            "Lower pricing strategy to maximize rental frequency"
           ],
           marketInsights: {
             demandLevel: 'medium' as const,
             seasonalTrend: 'stable' as const,
-            competitivePosition: 'market-rate' as const
+            competitivePosition: 'below-market' as const
           }
         };
       }
