@@ -345,6 +345,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ownerId: req.user!.id, // Set owner to authenticated user
       });
       const item = await storage.createItem(validatedData);
+      
+      // Create a success notification for the user
+      await notificationService.createNotification({
+        userId: req.user!.id,
+        type: 'listing_published',
+        title: 'Listing Published Successfully!',
+        message: `Your ${item.title} listing is now live and available for rent.`,
+        actionUrl: `/items/${item.id}`,
+        relatedId: item.id
+      });
+      
       res.status(201).json(item);
     } catch (error) {
       if (error instanceof z.ZodError) {

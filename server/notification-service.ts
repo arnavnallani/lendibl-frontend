@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 
 export interface NotificationData {
   userId: number;
-  type: 'booking_request' | 'booking_approved' | 'booking_declined' | 'rental_started' | 'rental_ended' | 'payment_received';
+  type: 'booking_request' | 'booking_approved' | 'booking_declined' | 'rental_started' | 'rental_ended' | 'payment_received' | 'listing_published';
   title: string;
   message: string;
   actionUrl?: string;
