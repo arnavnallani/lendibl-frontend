@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
+import { browserNotifications } from "@/lib/browser-notifications";
 import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
 import AuthModal from "@/components/auth-modal";
@@ -104,6 +105,11 @@ export default function ListItem() {
     }
   }, [user]);
 
+  // Request notification permission when component mounts
+  useEffect(() => {
+    browserNotifications.requestPermission();
+  }, []);
+
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],
     queryFn: () => api.getCategories(),
@@ -131,11 +137,17 @@ export default function ListItem() {
 
   const createItemMutation = useMutation({
     mutationFn: api.createItem,
-    onSuccess: async () => {
+    onSuccess: async (createdItem) => {
+      const itemTitle = form.getValues("title");
+      
       toast({
         title: "Success!",
         description: "Your item has been listed successfully.",
       });
+      
+      // Show browser notification
+      browserNotifications.showListingPublishedNotification(itemTitle, createdItem.id);
+      
       queryClient.invalidateQueries({ queryKey: ["/api/items"] });
       
       // Check if user needs payment setup after listing their first item

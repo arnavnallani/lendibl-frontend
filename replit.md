@@ -219,6 +219,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Updated notification menu item spacing to match Settings and Profile items using consistent mr-2 spacing for uniform dropdown menu alignment
 - June 28, 2025: Fixed notification menu item structure to match exact alignment of other dropdown items by removing nested div wrapper and using direct icon placement
 - June 28, 2025: Corrected notification icon alignment by removing custom flex classes and using default DropdownMenuItem styling to match Settings and Profile items perfectly
+- June 28, 2025: Implemented browser desktop notifications for listing publications - users now receive desktop notifications when they successfully publish listings with click-to-view functionality
 
 ## User Preferences
 
