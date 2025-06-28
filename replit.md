@@ -227,7 +227,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Added booking date validation - renters can only select dates within the owner's specified availability window with visual availability display and automatic date restrictions
 - June 28, 2025: Diagnosed payout system - money is available in Lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
 - June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from Lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
-- June 28, 2025: Optimized AI pricing system for lower price targets - switched to gemini-2.5-flash model and updated prompt to suggest $8-20 range for most items with category-specific examples to maximize booking frequency while maintaining profitability
+- June 28, 2025: Optimized AI pricing system for ultra-low price targets - updated prompt to enforce $5-15 range for ALL items with category-specific maximums (tools: $5-8, electronics: $6-10, sports: $7-12, cameras: $8-15) to maximize booking volume
 
 ## User Preferences
 
