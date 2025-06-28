@@ -125,11 +125,6 @@ export function NotificationsPanel({ isOpen, onClose }: NotificationsPanelProps)
             <DialogTitle className="flex items-center gap-2">
               <Bell className="h-5 w-5" />
               Notifications
-              {unreadCount > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {unreadCount}
-                </Badge>
-              )}
             </DialogTitle>
             {unreadCount > 0 && (
               <Button
