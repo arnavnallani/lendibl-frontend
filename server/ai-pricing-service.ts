@@ -11,19 +11,24 @@ async function getFreeGeminiPricing(prompt: string): Promise<any> {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
-    const enhancedPrompt = `You are a rental pricing expert focused on affordable pricing to maximize bookings. Analyze this item and suggest a competitive daily rental rate.
+    const freshPrompt = `Rental pricing analysis task:
 
-${prompt}
+Item: ${prompt}
 
-Your goal is to suggest LOW prices that encourage frequent rentals. Price items affordably to attract many renters rather than maximizing profit per rental. Consider the item's value and market demand, but favor lower pricing to increase booking frequency.
+As a marketplace pricing specialist, determine an attractive daily rental rate that will encourage bookings. Focus on affordability and market competitiveness rather than premium pricing.
 
-Respond in this JSON format only:
+Consider:
+- What would make this item irresistible to rent?
+- Price point that beats traditional rental shops
+- Encouraging repeat customers through value pricing
+
+Output JSON format:
 {
-  "dailyRate": <number>,
-  "reasoning": "<brief explanation of affordable pricing strategy>"
+  "dailyRate": <suggested_price>,
+  "reasoning": "<explanation_of_pricing_approach>"
 }`;
 
-    const result = await model.generateContent(enhancedPrompt);
+    const result = await model.generateContent(freshPrompt);
     const response = await result.response;
     const text = response.text();
     
