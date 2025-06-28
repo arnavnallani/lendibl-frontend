@@ -226,6 +226,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Implemented date range calendar for item availability - owners can now set specific availability periods when listing items with intuitive calendar interface and flexible date management
 - June 28, 2025: Added booking date validation - renters can only select dates within the owner's specified availability window with visual availability display and automatic date restrictions
 - June 28, 2025: Diagnosed payout system - money is available in Lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
+- June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from Lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
 
 ## User Preferences
 
