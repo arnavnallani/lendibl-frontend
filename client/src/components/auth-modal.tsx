@@ -116,9 +116,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-dark">
-            Welcome to Lendibl
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center text-gray-dark">Welcome to lendibl</DialogTitle>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
