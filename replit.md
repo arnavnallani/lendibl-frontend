@@ -204,6 +204,7 @@ The application uses PostgreSQL with the following main entities:
 - June 27, 2025: Enhanced mobile UI optimization - removed AI badge from non-home pages, shortened navigation button text ("Rent"/"List" on mobile), improved profile tab labels, fixed mobile layout overflow issues, and optimized AI pricing button text for mobile devices
 - June 28, 2025: Implemented comprehensive file upload system with drag-and-drop functionality for item images, replacing URL-based input with direct file selection and visual preview grid
 - June 28, 2025: Made interactive search bar fully functional on all screen sizes - mobile now has same DynamicSearch features as desktop including real-time suggestions and auto-scroll
+- June 28, 2025: Updated location field to address field in item listings with privacy notice explaining address is only shared with approved renters
 
 ## User Preferences
 

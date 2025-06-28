@@ -301,13 +301,22 @@ export default function ListItem() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Location</FormLabel>
+                        <FormLabel>Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="e.g., San Francisco, CA"
+                            placeholder="e.g., 123 Main St, San Francisco, CA 94105"
                             {...field}
                           />
                         </FormControl>
+                        <div className="flex items-start space-x-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                          </div>
+                          <div className="text-sm text-blue-700">
+                            <p className="font-medium">Privacy Protected</p>
+                            <p className="text-blue-600">Your address will only be shared with renters after you approve their booking request. It remains private until then.</p>
+                          </div>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
