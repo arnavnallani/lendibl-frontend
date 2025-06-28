@@ -210,16 +210,34 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
       {/* Mobile Search */}
       <div className="md:hidden px-4 pb-4">
-        <form onSubmit={handleSearch} className="relative">
-          <Input
-            type="text"
-            placeholder="What would you like to rent?"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-medium h-5 w-5" />
-        </form>
+        <div className="relative w-full group">
+          <div className="relative overflow-hidden rounded-full bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative">
+              <DynamicSearch
+                value={searchQuery}
+                onChange={(value) => {
+                  setSearchQuery(value);
+                  onSearch(value);
+                  // Auto-scroll to items section when typing
+                  if (value.trim()) {
+                    setTimeout(() => {
+                      const itemsSection = document.getElementById('items-section');
+                      if (itemsSection) {
+                        itemsSection.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'start' 
+                        });
+                      }
+                    }, 100);
+                  }
+                }}
+                placeholder="Search for anything..."
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
