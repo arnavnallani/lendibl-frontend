@@ -101,7 +101,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           {/* User Controls */}
           <div className="flex items-center space-x-2 sm:space-x-5">
             {/* Mode Toggle */}
-            <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm ml-2 sm:ml-0">
+            <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
