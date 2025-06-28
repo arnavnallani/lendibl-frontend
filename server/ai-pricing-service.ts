@@ -11,16 +11,25 @@ async function getFreeGeminiPricing(prompt: string): Promise<any> {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const enhancedPrompt = `You are a rental pricing expert focused on maximizing bookings through competitive pricing. Analyze this item and suggest an AFFORDABLE daily rental rate that will attract many renters.
+    const enhancedPrompt = `You are a rental pricing expert focused on affordable pricing. Analyze this item and suggest a LOW daily rental rate that maximizes bookings.
 
 ${prompt}
 
-IMPORTANT: Suggest prices on the LOWER end of the market range to increase booking frequency. Better to rent frequently at lower prices than rarely at high prices.
+TARGET: Suggest prices between $8-20 for most items to encourage frequent rentals. Consider:
+- Items should be priced LOW to attract many renters
+- Better to have many bookings at low prices than few at high prices
+- Price competitively to beat market rates
+
+Examples of target pricing:
+- Power tools: $8-12/day
+- Electronics: $10-15/day  
+- Sports equipment: $10-18/day
+- Cameras: $12-20/day
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number>,
-  "reasoning": "<brief explanation>"
+  "dailyRate": <number under $25>,
+  "reasoning": "<brief explanation of low pricing strategy>"
 }`;
 
     const result = await model.generateContent(enhancedPrompt);
