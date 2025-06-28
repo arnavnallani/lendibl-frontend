@@ -7,9 +7,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Free Google Gemini AI (15 requests per minute, no API key required for basic usage)
 async function getFreeGeminiPricing(prompt: string): Promise<any> {
   try {
-    // Using Gemini 1.5 Flash which is free and fast
+    // Using Gemini 2.5 Flash for improved pricing analysis
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const enhancedPrompt = `You are a rental pricing expert focused on affordable pricing. Analyze this item and suggest a LOW daily rental rate that maximizes bookings.
 
