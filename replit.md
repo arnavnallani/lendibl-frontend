@@ -216,6 +216,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Fixed account circle "0" display issue by improving notification count rendering logic and adding safe navigation for user name initials
 - June 28, 2025: Resolved notification badge "0" display in dropdown menu by fixing conditional rendering to only show badges when unreadCount > 0
 - June 28, 2025: Enhanced notification dropdown menu with inline count badge next to "Notifications" text and improved spacing using space-x-3 for clean visual hierarchy
+- June 28, 2025: Updated notification menu item spacing to match Settings and Profile items using consistent mr-2 spacing for uniform dropdown menu alignment
 
 ## User Preferences
 
