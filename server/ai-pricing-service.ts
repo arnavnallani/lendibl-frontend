@@ -11,9 +11,11 @@ async function getFreeGeminiPricing(prompt: string): Promise<any> {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
+    const enhancedPrompt = `You are a rental pricing expert focused on maximizing bookings through competitive pricing. Analyze this item and suggest an AFFORDABLE daily rental rate that will attract many renters.
 
 ${prompt}
+
+IMPORTANT: Suggest prices on the LOWER end of the market range to increase booking frequency. Better to rent frequently at lower prices than rarely at high prices.
 
 Respond in this JSON format only:
 {
@@ -86,19 +88,22 @@ export class AIPricingService {
       const geminiResult = await getFreeGeminiPricing(simplePrompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        // Apply 20% discount to favor lower prices and increase bookings
-        const competitiveRate = geminiResult.suggestedPrice * 0.8;
+        // Apply 40% discount to favor lower prices and increase bookings
+        const originalPrice = geminiResult.suggestedPrice;
+        const competitiveRate = originalPrice * 0.6;
         const finalRate = Math.max(5, Math.round(competitiveRate * 100) / 100);
+        
+        console.log(`AI Pricing Debug: Original=${originalPrice}, After 40% discount=${competitiveRate}, Final=${finalRate}`);
         
         return {
           dailyRate: finalRate,
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
-            `Competitive pricing: 20% below market for more bookings`,
+            `Google Gemini AI suggested: $${originalPrice}/day`,
+            `Applied 40% discount: $${competitiveRate} → $${finalRate}/day`,
+            `Aggressive competitive pricing for maximum bookings`,
             geminiResult.reasoning || `Optimized for ${input.location} market`,
-            `${season} seasonal pricing considered`,
-            "Lower pricing strategy to maximize rental frequency"
+            `${season} seasonal pricing considered`
           ],
           marketInsights: {
             demandLevel: 'medium' as const,
