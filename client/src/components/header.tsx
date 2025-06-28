@@ -150,19 +150,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     </Button>
                   </Link>
 
-                  {/* Notifications */}
-                  <Button 
-                    variant="ghost" 
-                    className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group relative"
-                    onClick={() => setIsNotificationsOpen(true)}
-                  >
-                    <Bell className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
-                    {unreadCount && unreadCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0 animate-pulse">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </Badge>
-                    )}
-                  </Button>
+
                 </div>
 
                 {/* User Menu */}
@@ -171,7 +159,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift"
+                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
                     >
                       <Menu className="h-4 w-4 text-gray-medium" />
                       <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
@@ -179,6 +167,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           {user.firstName[0]}{user.lastName[0]}
                         </span>
                       </div>
+                      {unreadCount && unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -200,6 +191,17 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                       </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Bell className="mr-2 h-4 w-4" />
+                        <span>Notifications</span>
+                      </div>
+                      {unreadCount && unreadCount > 0 && (
+                        <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
