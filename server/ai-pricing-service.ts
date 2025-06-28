@@ -7,31 +7,21 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Free Google Gemini AI (15 requests per minute, no API key required for basic usage)
 async function getFreeGeminiPricing(prompt: string): Promise<any> {
   try {
-    // Using Gemini 1.5 Pro for fresh pricing analysis
+    // Using Gemini 1.5 Flash which is free and fast
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro"
-    });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const freshPrompt = `You are analyzing a rental item for pricing. Here are the details:
+    const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
 
 ${prompt}
 
-Task: Suggest a daily rental price that would be attractive to customers while ensuring the owner makes money.
-
-Think about:
-- What similar items cost to buy new
-- How much people would pay to avoid buying
-- Local market conditions
-- Making the price appealing to renters
-
-Return only JSON format:
+Respond in this JSON format only:
 {
   "dailyRate": <number>,
   "reasoning": "<brief explanation>"
 }`;
 
-    const result = await model.generateContent(freshPrompt);
+    const result = await model.generateContent(enhancedPrompt);
     const response = await result.response;
     const text = response.text();
     
@@ -91,27 +81,24 @@ export class AIPricingService {
       const month = currentDate.toLocaleString('default', { month: 'long' });
       const season = this.getCurrentSeason();
       
-      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What competitive daily rental rate would you suggest to maximize bookings? Focus on affordable pricing that attracts renters while still being profitable. Favor lower prices over higher prices to increase rental frequency. Consider market value, location, and ${season} seasonal demand.`;
+      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
       
-      console.log('AI Pricing: Calling Gemini with prompt:', simplePrompt.substring(0, 100) + '...');
       const geminiResult = await getFreeGeminiPricing(simplePrompt);
-      console.log('AI Pricing: Gemini result:', geminiResult);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        const finalRate = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
-        
         return {
-          dailyRate: finalRate,
+          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI competitive pricing`,
+            `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
             geminiResult.reasoning || `Optimized for ${input.location} market`,
-            `${season} seasonal pricing considered`
+            `${season} seasonal pricing considered`,
+            "Pure AI-powered pricing analysis"
           ],
           marketInsights: {
             demandLevel: 'medium' as const,
             seasonalTrend: 'stable' as const,
-            competitivePosition: 'below-market' as const
+            competitivePosition: 'market-rate' as const
           }
         };
       }
