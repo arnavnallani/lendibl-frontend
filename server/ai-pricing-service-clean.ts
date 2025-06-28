@@ -24,9 +24,11 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
+  const enhancedPrompt = `You are a rental pricing expert focused on affordable pricing. Analyze this item and suggest a budget-friendly daily rental rate that encourages rentals.
 
 ${prompt}
+
+Important: Suggest prices that are accessible and affordable for most renters. Consider that rental items should be priced to move quickly and maximize utilization.
 
 Respond in this JSON format only:
 {
@@ -84,14 +86,16 @@ export class AIPricingService {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
+        // Apply 30% reduction to AI suggestions for more affordable pricing
+        const reducedPrice = geminiResult.suggestedPrice * 0.7;
         return {
-          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
+          dailyRate: Math.max(3, Math.round(reducedPrice * 100) / 100),
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
-            geminiResult.reasoning || `Optimized for ${input.location} market`,
-            `${season} seasonal pricing for ${month}`,
-            "Pure AI-powered pricing analysis"
+            `AI suggests affordable rate: $${reducedPrice}/day`,
+            geminiResult.reasoning || `Budget-friendly pricing for ${input.location}`,
+            `${season} seasonal pricing optimized for quick rental`,
+            "AI-powered accessible pricing to maximize utilization"
           ],
           marketInsights: {
             demandLevel: geminiResult.demandLevel || 'medium',
