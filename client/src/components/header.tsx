@@ -167,9 +167,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           {user.firstName[0]}{user.lastName[0]}
                         </span>
                       </div>
-                      {unreadCount && unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>
-                      )}
 
                     </Button>
                   </DropdownMenuTrigger>
@@ -193,9 +190,16 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         <span>Settings</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center">
-                      <Bell className="mr-2 h-4 w-4" />
-                      <span>Notifications</span>
+                    <DropdownMenuItem onClick={() => setIsNotificationsOpen(true)} className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Bell className="mr-2 h-4 w-4" />
+                        <span>Notifications</span>
+                      </div>
+                      {unreadCount && unreadCount > 0 && (
+                        <Badge className="h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center p-0">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </Badge>
+                      )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
