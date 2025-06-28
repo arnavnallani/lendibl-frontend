@@ -162,10 +162,13 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
                     >
                       <Menu className="h-4 w-4 text-gray-medium" />
-                      <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md">
+                      <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
                         <span className="text-white font-semibold text-sm">
                           {user.firstName[0]}{user.lastName[0]}
                         </span>
+                        {unreadCount && unreadCount > 0 && (
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                        )}
                       </div>
 
                     </Button>
