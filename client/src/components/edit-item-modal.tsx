@@ -20,11 +20,68 @@ const editItemSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   price: z.string().min(1, 'Price is required'),
   categoryId: z.number().min(1, 'Category is required'),
-  location: z.string().min(1, 'Location is required'),
+  location: z.string().min(1, 'Location is required'), // Keep for backward compatibility
+  address: z.string().min(1, 'Address is required'),
+  city: z.string().min(1, 'City is required'),
+  state: z.string().min(1, 'State is required'),
+  zipCode: z.string().min(5, 'Valid zip code is required'),
   images: z.array(z.string()).default([]),
   included: z.array(z.string()).default([]),
   available: z.boolean().default(true),
 });
+
+const US_STATES = [
+  { value: "AL", label: "Alabama" },
+  { value: "AK", label: "Alaska" },
+  { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" },
+  { value: "CA", label: "California" },
+  { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" },
+  { value: "DE", label: "Delaware" },
+  { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" },
+  { value: "HI", label: "Hawaii" },
+  { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" },
+  { value: "IN", label: "Indiana" },
+  { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" },
+  { value: "KY", label: "Kentucky" },
+  { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" },
+  { value: "MD", label: "Maryland" },
+  { value: "MA", label: "Massachusetts" },
+  { value: "MI", label: "Michigan" },
+  { value: "MN", label: "Minnesota" },
+  { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" },
+  { value: "MT", label: "Montana" },
+  { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" },
+  { value: "NH", label: "New Hampshire" },
+  { value: "NJ", label: "New Jersey" },
+  { value: "NM", label: "New Mexico" },
+  { value: "NY", label: "New York" },
+  { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" },
+  { value: "OH", label: "Ohio" },
+  { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" },
+  { value: "PA", label: "Pennsylvania" },
+  { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" },
+  { value: "SD", label: "South Dakota" },
+  { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" },
+  { value: "UT", label: "Utah" },
+  { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" },
+  { value: "WA", label: "Washington" },
+  { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" },
+  { value: "WY", label: "Wyoming" },
+];
 
 type EditItemFormData = z.infer<typeof editItemSchema>;
 
@@ -52,6 +109,10 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       price: '',
       categoryId: 1,
       location: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
       images: [],
       included: [],
       available: true,
@@ -62,15 +123,29 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
   React.useEffect(() => {
     if (item) {
       setImageUrls(item.images || []);
+      
+      // Parse existing location into separate fields if available
+      const locationParts = item.location.split(',').map(part => part.trim());
+      const address = locationParts[0] || '';
+      const city = locationParts[1] || '';
+      const stateZip = locationParts[2] || '';
+      const stateZipParts = stateZip.split(' ');
+      const state = stateZipParts[0] || '';
+      const zipCode = stateZipParts[1] || '';
+      
       form.reset({
         title: item.title,
         description: item.description,
         price: item.price.toString(),
         categoryId: item.categoryId,
         location: item.location,
+        address: address,
+        city: city,
+        state: state,
+        zipCode: zipCode,
         images: item.images || [],
         included: item.included || [],
-        available: item.available,
+        available: item.available ?? true,
       });
     }
   }, [item, form]);
@@ -78,10 +153,14 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
   const onSubmit = async (values: EditItemFormData) => {
     if (!item) return;
     
+    // Combine address fields into location for backward compatibility
+    const fullAddress = `${values.address}, ${values.city}, ${values.state} ${values.zipCode}`;
+    
     try {
       await api.updateItem(item.id, {
         ...values,
-        price: parseFloat(values.price),
+        price: values.price.toString(),
+        location: fullAddress,
         images: imageUrls,
       });
       onClose();
@@ -187,19 +266,77 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Address Fields */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 123 Main Street" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>City</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., San Francisco" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select state" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {US_STATES.map((state) => (
+                            <SelectItem key={state.value} value={state.value}>
+                              {state.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Zip Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 94105" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
             <FormField
               control={form.control}
               name="included"

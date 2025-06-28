@@ -25,7 +25,64 @@ const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
+  address: z.string().min(1, "Address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipCode: z.string().min(5, "Valid zip code is required"),
 });
+
+const US_STATES = [
+  { value: "AL", label: "Alabama" },
+  { value: "AK", label: "Alaska" },
+  { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" },
+  { value: "CA", label: "California" },
+  { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" },
+  { value: "DE", label: "Delaware" },
+  { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" },
+  { value: "HI", label: "Hawaii" },
+  { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" },
+  { value: "IN", label: "Indiana" },
+  { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" },
+  { value: "KY", label: "Kentucky" },
+  { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" },
+  { value: "MD", label: "Maryland" },
+  { value: "MA", label: "Massachusetts" },
+  { value: "MI", label: "Michigan" },
+  { value: "MN", label: "Minnesota" },
+  { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" },
+  { value: "MT", label: "Montana" },
+  { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" },
+  { value: "NH", label: "New Hampshire" },
+  { value: "NJ", label: "New Jersey" },
+  { value: "NM", label: "New Mexico" },
+  { value: "NY", label: "New York" },
+  { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" },
+  { value: "OH", label: "Ohio" },
+  { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" },
+  { value: "PA", label: "Pennsylvania" },
+  { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" },
+  { value: "SD", label: "South Dakota" },
+  { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" },
+  { value: "UT", label: "Utah" },
+  { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" },
+  { value: "WA", label: "Washington" },
+  { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" },
+  { value: "WY", label: "Wyoming" },
+];
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -62,10 +119,13 @@ export default function ListItem() {
       ownerId: 1, // Mock owner ID
       images: [],
       location: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
       available: true,
       included: [],
       includedItems: "",
-
     },
   });
 
@@ -162,6 +222,9 @@ export default function ListItem() {
       ? values.includedItems.split('\n').filter(item => item.trim() !== '')
       : [];
 
+    // Combine address fields into location for backward compatibility
+    const fullAddress = `${values.address}, ${values.city}, ${values.state} ${values.zipCode}`;
+
     const itemData = {
       ...values,
       price: values.price.toString(),
@@ -169,6 +232,7 @@ export default function ListItem() {
       included: includedArray,
       categoryId: Number(values.categoryId),
       ownerId: user.id,
+      location: fullAddress, // Combined address for backward compatibility
     };
 
     // Remove the helper fields
@@ -296,31 +360,96 @@ export default function ListItem() {
 
 
 
+                  {/* Address Fields */}
+                <div className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="location"
+                    name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel>Street Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="e.g., 123 Main St, San Francisco, CA 94105"
+                            placeholder="e.g., 123 Main Street"
                             {...field}
                           />
                         </FormControl>
-                        <div className="flex items-start space-x-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          </div>
-                          <div className="text-sm text-blue-700">
-                            <p className="font-medium">Privacy Protected</p>
-                            <p className="text-blue-600">Your address will only be shared with renters after you approve their booking request. It remains private until then.</p>
-                          </div>
-                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., San Francisco"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select state" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {US_STATES.map((state) => (
+                                <SelectItem key={state.value} value={state.value}>
+                                  {state.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="zipCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Zip Code</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., 94105"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="flex items-start space-x-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    </div>
+                    <div className="text-sm text-blue-700">
+                      <p className="font-medium">Privacy Protected</p>
+                      <p className="text-blue-600">Your address will only be shared with renters after you approve their booking request. It remains private until then.</p>
+                    </div>
+                  </div>
+                </div>
                 </div>
 
                 {/* Images */}
@@ -367,7 +496,7 @@ export default function ListItem() {
                         type="button"
                         onClick={() => setShowAIPricing(true)}
                         className="bg-blue-600 hover:bg-blue-700 text-white flex-1 py-6"
-                        disabled={!form.watch("title") || !form.watch("description") || !form.watch("location") || !form.watch("categoryId")}
+                        disabled={!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")}
                       >
                         <Sparkles className="h-5 w-5 mr-2" />
                         <span className="sm:hidden">Submit Info for AI Pricing Suggestions</span>
@@ -394,7 +523,7 @@ export default function ListItem() {
                     itemTitle={form.watch("title")}
                     category={categories.find(c => c.id === Number(form.watch("categoryId")))?.name || ""}
                     description={form.watch("description")}
-                    location={form.watch("location")}
+                    location={`${form.watch("address")}, ${form.watch("city")}, ${form.watch("state")} ${form.watch("zipCode")}`}
                     condition="good"
                     onPriceSelect={(price) => {
                       form.setValue("price", price);

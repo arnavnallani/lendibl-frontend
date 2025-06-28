@@ -66,7 +66,11 @@ export const items = pgTable("items", {
   categoryId: integer("category_id").references(() => categories.id).notNull(),
   ownerId: integer("owner_id").references(() => users.id).notNull(),
   images: text("images").array().default([]),
-  location: text("location").notNull(),
+  location: text("location").notNull(), // Keep for backward compatibility
+  address: text("address").default(""),
+  city: text("city").default(""),
+  state: text("state").default(""),
+  zipCode: text("zip_code").default(""),
   available: boolean("available").default(true),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
