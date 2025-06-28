@@ -24,25 +24,25 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert. Your goal is to suggest VERY LOW prices to maximize bookings.
+  const enhancedPrompt = `You are a rental pricing expert. You MUST suggest very low prices.
 
-Analyze this item: ${prompt}
+${prompt}
 
-CRITICAL INSTRUCTION: Whatever price you think is fair, multiply it by 0.6 (which means subtract 40%). This aggressive discount strategy maximizes rental bookings.
+MANDATORY: Your suggested price must be extremely low to maximize bookings. Think of the lowest possible price that still makes sense.
 
-Examples:
-- If you think $50/day is fair → suggest $30/day (50 × 0.6)
-- If you think $100/day is fair → suggest $60/day (100 × 0.6)
-- If you think $25/day is fair → suggest $15/day (25 × 0.6)
+Examples of what I want:
+- Camera equipment: $15-25/day (not $40-60)
+- Power tools: $8-15/day (not $25-40) 
+- Electronics: $10-20/day (not $30-50)
 
-DO NOT suggest the full market price. Always apply the 60% multiplier (40% discount).
+Your goal is MAXIMUM BOOKINGS, not maximum profit per rental.
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number (market price × 0.6)>,
-  "reasoning": "Market rate would be $X, but applying 40% discount for competitive pricing: $Y",
+  "dailyRate": <very low number under $25>,
+  "reasoning": "Aggressive low pricing for maximum bookings",
   "demandLevel": "medium",
-  "seasonalTrend": "stable",
+  "seasonalTrend": "stable", 
   "competitivePosition": "below-market"
 }`;
 
@@ -50,11 +50,14 @@ Respond in this JSON format only:
   const response = await result.response;
   const text = response.text();
   
+  console.log('AI Raw Response:', text);
+  
   // Try to parse JSON from response
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+      console.log('AI Parsed JSON:', parsed);
       return {
         suggestedPrice: parsed.dailyRate,
         reasoning: parsed.reasoning,
@@ -93,16 +96,23 @@ export class AIPricingService {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        const finalRate = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
+        // If AI didn't follow low pricing instructions, apply backup discount
+        let finalRate = geminiResult.suggestedPrice;
+        if (finalRate > 25) {
+          finalRate = finalRate * 0.6; // Apply 40% discount if price is too high
+          console.log(`AI suggested ${geminiResult.suggestedPrice}, applying backup 40% discount: ${finalRate}`);
+        }
         
-        console.log(`AI Pricing with built-in 40% discount: $${finalRate}`);
+        finalRate = Math.max(5, Math.round(finalRate * 100) / 100);
+        
+        console.log(`Final AI pricing: $${finalRate}`);
         
         return {
           dailyRate: finalRate,
           confidence: 0.95,
           reasoning: [
-            `Google Gemini AI with competitive pricing strategy`,
-            geminiResult.reasoning || `40% below market rate for maximum bookings`,
+            `Google Gemini AI with aggressive competitive pricing`,
+            `Low pricing strategy for maximum bookings`,
             `Optimized for ${input.location} market`,
             `${season} seasonal pricing for ${month}`
           ],
