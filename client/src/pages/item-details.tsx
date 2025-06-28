@@ -19,6 +19,18 @@ export default function ItemDetails() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
+  // Extract city and state from location for privacy
+  const getDisplayLocation = (location: string) => {
+    const parts = location.split(',').map(part => part.trim());
+    if (parts.length >= 3) {
+      const city = parts[1] || '';
+      const stateZip = parts[2] || '';
+      const state = stateZip.split(' ')[0] || '';
+      return `${city}, ${state}`;
+    }
+    return location; // Fallback to full location if parsing fails
+  };
+  
   const { data: item, isLoading, error } = useQuery({
     queryKey: ["/api/items", parseInt(id!)],
     queryFn: () => api.getItem(parseInt(id!)),
@@ -102,7 +114,7 @@ export default function ItemDetails() {
                 <span className="text-gray-medium ml-1">({item.reviewCount} reviews)</span>
                 <span className="mx-2 text-gray-light">•</span>
                 <MapPin className="h-4 w-4 text-gray-medium" />
-                <span className="text-gray-medium ml-1">{item.location}</span>
+                <span className="text-gray-medium ml-1">{getDisplayLocation(item.location)}</span>
               </div>
             </div>
 

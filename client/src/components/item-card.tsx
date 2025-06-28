@@ -12,7 +12,18 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
   const { user } = useAuth();
   const isOwner = user && item.ownerId === user.id;
   
-  // Clean up debug logging
+  // Extract city and state from location for privacy
+  const getDisplayLocation = (location: string) => {
+    const parts = location.split(',').map(part => part.trim());
+    if (parts.length >= 3) {
+      const city = parts[1] || '';
+      const stateZip = parts[2] || '';
+      const state = stateZip.split(' ')[0] || '';
+      return `${city}, ${state}`;
+    }
+    return location; // Fallback to full location if parsing fails
+  };
+  
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : defaultImage;
 
@@ -61,7 +72,7 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
           </div>
           <div className="flex items-center text-sm text-gray-medium bg-gray-light/50 px-3 py-1 rounded-full">
             <MapPin className="h-3 w-3 mr-1" />
-            <span className="font-medium">{item.location}</span>
+            <span className="font-medium">{getDisplayLocation(item.location)}</span>
           </div>
         </div>
 

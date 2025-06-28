@@ -30,6 +30,18 @@ export default function ActionDashboard() {
   const [selectedRental, setSelectedRental] = useState<BookingWithDetails | null>(null);
   const [messageText, setMessageText] = useState("");
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  
+  // Extract city and state from location for privacy
+  const getDisplayLocation = (location: string) => {
+    const parts = location.split(',').map(part => part.trim());
+    if (parts.length >= 3) {
+      const city = parts[1] || '';
+      const stateZip = parts[2] || '';
+      const state = stateZip.split(' ')[0] || '';
+      return `${city}, ${state}`;
+    }
+    return location; // Fallback to full location if parsing fails
+  };
 
   const { data: activeRentals = [], isLoading } = useQuery({
     queryKey: ['/api/bookings', 'active-rentals'],
@@ -211,7 +223,7 @@ export default function ActionDashboard() {
                           </div>
                         </div>
                         
-                        {/* Show address to renter for approved bookings */}
+                        {/* Show city/state to renter for approved bookings */}
                         {!isOwner && rental.status === 'approved' && rental.item.location && (
                           <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="flex items-start space-x-2">
@@ -219,9 +231,9 @@ export default function ActionDashboard() {
                                 <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                               </div>
                               <div className="text-sm">
-                                <p className="font-medium text-blue-700">Pickup Address</p>
-                                <p className="text-blue-600">{rental.item.location}</p>
-                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time</p>
+                                <p className="font-medium text-blue-700">Pickup Location</p>
+                                <p className="text-blue-600">{getDisplayLocation(rental.item.location)}</p>
+                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time and exact address</p>
                               </div>
                             </div>
                           </div>

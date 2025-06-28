@@ -211,6 +211,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Completely removed unread count display from header - notifications now handled exclusively through dropdown menu panel with no number indicators
 - June 28, 2025: Added clean red dot notification indicator to top right of account circle - appears only when notifications exist, no "0" display when empty
 - June 28, 2025: Modified notification UI to show count badge only inside dropdown menu next to "Notifications" button - removed red dot from account circle for cleaner interface
+- June 28, 2025: Split address field into separate components (address, city, state dropdown, zip code) with privacy protection - only city and state visible before rental approval, full address shared after approval through direct coordination
 
 ## User Preferences
 
