@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,12 +10,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
 import { browserNotifications } from "@/lib/browser-notifications";
 import { insertItemSchema } from "@shared/schema";
 import { z } from "zod";
+import { format } from "date-fns";
 import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
@@ -30,6 +33,8 @@ const formSchema = insertItemSchema.extend({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().min(5, "Valid zip code is required"),
+  availableFrom: z.date().optional(),
+  availableTo: z.date().optional(),
 });
 
 const US_STATES = [
@@ -245,6 +250,8 @@ export default function ListItem() {
       categoryId: Number(values.categoryId),
       ownerId: user.id,
       location: fullAddress, // Combined address for backward compatibility
+      availableFrom: values.availableFrom || null,
+      availableTo: values.availableTo || null,
     };
 
     // Remove the helper fields
@@ -462,6 +469,101 @@ export default function ListItem() {
                     </div>
                   </div>
                 </div>
+                </div>
+
+                {/* Availability Dates */}
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-gray-dark">Availability</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="availableFrom"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Available From</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick start date</span>
+                                  )}
+                                  <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date < new Date() || date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="availableTo"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Available Until</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick end date</span>
+                                  )}
+                                  <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date < new Date() || date < new Date("1900-01-01")
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="flex items-start space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="w-4 h-4 bg-green-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                    </div>
+                    <div className="text-sm text-green-700">
+                      <p className="font-medium">Flexible Availability</p>
+                      <p className="text-green-600">Set when your item is available for rental. You can always update these dates later or leave them blank for open availability.</p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Images */}

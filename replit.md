@@ -223,6 +223,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Extended desktop browser notifications to all notification types - booking requests, approvals, rental updates, and payments now trigger system notifications with relevant emojis and click-to-navigate functionality
 - June 28, 2025: Enhanced notification navigation to direct users to specific MyProfile tabs - listing published notifications go to My Listings tab, rental request notifications go to Rental Requests tab with URL parameter support
 - June 28, 2025: Fixed full address display in Action Dashboard - approved bookings now show complete pickup address to renters instead of just city/state for proper coordination
+- June 28, 2025: Implemented date range calendar for item availability - owners can now set specific availability periods when listing items with intuitive calendar interface and flexible date management
 
 ## User Preferences
 

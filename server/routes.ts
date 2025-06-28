@@ -340,8 +340,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/items", authenticateToken, async (req: AuthRequest, res) => {
     try {
+      // Process availability dates if provided
+      const processedData = { ...req.body };
+      if (processedData.availableFrom) {
+        processedData.availableFrom = new Date(processedData.availableFrom);
+      }
+      if (processedData.availableTo) {
+        processedData.availableTo = new Date(processedData.availableTo);
+      }
+      
       const validatedData = insertItemSchema.parse({
-        ...req.body,
+        ...processedData,
         ownerId: req.user!.id, // Set owner to authenticated user
       });
       const item = await storage.createItem(validatedData);

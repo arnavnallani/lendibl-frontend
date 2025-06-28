@@ -34,7 +34,13 @@ export const api = {
   },
 
   createItem: async (item: InsertItem): Promise<ItemWithDetails> => {
-    const res = await apiRequest("POST", "/api/items", item);
+    // Serialize dates to ISO strings for the API
+    const serializedItem = {
+      ...item,
+      availableFrom: item.availableFrom instanceof Date ? item.availableFrom.toISOString() : item.availableFrom,
+      availableTo: item.availableTo instanceof Date ? item.availableTo.toISOString() : item.availableTo,
+    };
+    const res = await apiRequest("POST", "/api/items", serializedItem);
     return res.json();
   },
 

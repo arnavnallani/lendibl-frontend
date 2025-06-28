@@ -72,6 +72,8 @@ export const items = pgTable("items", {
   state: text("state").default(""),
   zipCode: text("zip_code").default(""),
   available: boolean("available").default(true),
+  availableFrom: timestamp("available_from"),
+  availableTo: timestamp("available_to"),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
   included: text("included").array().default([]),
