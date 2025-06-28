@@ -24,20 +24,22 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert focused on competitive pricing to maximize bookings.
+  const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest the best daily rental rate.
 
 ${prompt}
 
-Suggest a competitive daily rental rate that balances affordability with profitability. Consider:
-- Market demand for this item category
-- Seasonal factors and location
-- Pricing to encourage frequent bookings
-- Competitive positioning in the rental market
+Provide your pricing analysis considering market conditions, demand, and location. DO NOT apply any discounts or percentages - just suggest the fair market rental rate for this item.
+
+Your reasoning should explain your pricing based on:
+- Item value and condition
+- Local market rates
+- Seasonal demand
+- Category popularity
 
 Respond in this JSON format only:
 {
   "dailyRate": <number>,
-  "reasoning": "<brief explanation of pricing strategy>",
+  "reasoning": "<explain why this price is appropriate for the market>",
   "demandLevel": "low|medium|high",
   "seasonalTrend": "increasing|stable|decreasing",
   "competitivePosition": "below-market|market-rate|above-market"
