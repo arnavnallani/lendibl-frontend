@@ -24,21 +24,25 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  const enhancedPrompt = `You are a rental pricing expert focused on maximizing bookings through competitive pricing. 
+  const enhancedPrompt = `You are a rental pricing expert. Your goal is to suggest VERY LOW prices to maximize bookings.
 
-Step 1: First, analyze this item and estimate what the typical market rental rate would be:
-${prompt}
+Analyze this item: ${prompt}
 
-Step 2: After determining the market rate, apply a 40% discount to make it highly competitive and attractive to renters. This aggressive pricing strategy increases booking frequency.
+CRITICAL INSTRUCTION: Whatever price you think is fair, multiply it by 0.6 (which means subtract 40%). This aggressive discount strategy maximizes rental bookings.
 
-IMPORTANT: Your final suggested price should be 40% LOWER than typical market rates to maximize bookings. Better to rent frequently at lower prices than rarely at high prices.
+Examples:
+- If you think $50/day is fair → suggest $30/day (50 × 0.6)
+- If you think $100/day is fair → suggest $60/day (100 × 0.6)
+- If you think $25/day is fair → suggest $15/day (25 × 0.6)
+
+DO NOT suggest the full market price. Always apply the 60% multiplier (40% discount).
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number (final price after 40% discount)>,
-  "reasoning": "<brief explanation including original estimate and 40% discount applied>",
-  "demandLevel": "low|medium|high",
-  "seasonalTrend": "increasing|stable|decreasing",
+  "dailyRate": <number (market price × 0.6)>,
+  "reasoning": "Market rate would be $X, but applying 40% discount for competitive pricing: $Y",
+  "demandLevel": "medium",
+  "seasonalTrend": "stable",
   "competitivePosition": "below-market"
 }`;
 
