@@ -200,11 +200,12 @@ export function useNotificationCount() {
     queryFn: async (): Promise<number> => {
       const response = await apiRequest("GET", "/api/notifications/unread-count");
       const data = await response.json();
-      return data.count;
+      return data.count || 0;
     },
     enabled: !!user,
     refetchInterval: 30000,
   });
 
-  return count;
+  // Ensure we never return null/undefined that could accidentally render
+  return count || 0;
 }
