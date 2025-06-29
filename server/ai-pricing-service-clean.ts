@@ -22,7 +22,7 @@ export interface PricingAnalysisInput {
 // Google Gemini AI pricing analysis
 async function getGeminiPricing(prompt: string): Promise<any> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
   const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
 
@@ -88,7 +88,13 @@ export class AIPricingService {
 
 CRITICAL PRICING CONSTRAINT: This item has an estimated original value of $${estimatedValue}. Since this is ${estimatedValue <= 5000 ? 'under $5000' : 'over $5000'}, you MUST suggest a daily rental rate that does NOT exceed $${maxAllowedPrice}. This is a hard maximum limit.
 
-Consider market value, location, and ${season} seasonal demand for ${month}, but your suggested daily rate MUST be $${maxAllowedPrice} or less.`;
+PRICING GUIDELINES FOR ITEMS UNDER $5000:
+- $1000 items should be around $35/day
+- $2000 items should be around $40/day  
+- $3000 items should be around $45/day
+- $4000 items should be around $50/day
+
+For this $${estimatedValue} item, aim for pricing that follows these guidelines while considering market value, location, and ${season} seasonal demand for ${month}. Your suggested daily rate MUST be $${maxAllowedPrice} or less.`;
     
     try {
       const geminiResult = await getGeminiPricing(prompt);
