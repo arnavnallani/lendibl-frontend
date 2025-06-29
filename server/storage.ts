@@ -28,7 +28,7 @@ export interface IStorage {
   updateBooking(id: number, updates: Partial<Booking>): Promise<Booking | undefined>;
   
   // Reviews
-  getReviews(itemId?: number, userId?: number): Promise<Review[]>;
+  getReviews(itemId?: number, revieweeId?: number): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
   
   // User Interactions (for recommendations)

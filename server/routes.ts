@@ -12,6 +12,8 @@ import { aiPricingService } from "./ai-pricing-service-clean";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
+import { db } from "./db";
+import { users } from "@shared/schema";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -1512,6 +1514,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const review = await storage.createReview(reviewData);
       
+      // Update reviewee's rating based on all their reviews
+      await updateUserRating(parseInt(revieweeId));
+      
       // Mark review prompt as completed
       await reviewPromptService.markAsCompleted(parseInt(bookingId), reviewerId);
 
@@ -1519,6 +1524,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to create review:', error);
       res.status(500).json({ message: "Failed to create review" });
+    }
+  });
+
+  // Helper function to update user rating based on reviews
+  async function updateUserRating(userId: number) {
+    try {
+      const userReviews = await storage.getReviews(undefined, userId);
+      
+      if (userReviews.length === 0) {
+        // No reviews yet, keep rating at 0
+        await storage.updateUser(userId, { 
+          rating: "0.0",
+          reviewCount: 0
+        });
+        return;
+      }
+
+      // Calculate average rating
+      const totalRating = userReviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = (totalRating / userReviews.length).toFixed(1);
+      
+      await storage.updateUser(userId, { 
+        rating: averageRating,
+        reviewCount: userReviews.length
+      });
+      
+      console.log(`Updated user ${userId} rating: ${averageRating} (${userReviews.length} reviews)`);
+    } catch (error) {
+      console.error('Failed to update user rating:', error);
+    }
+  }
+
+  // Recalculate all user ratings based on existing reviews
+  app.post("/api/recalculate-ratings", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      // Get all users
+      const allUsers = await db.select({ id: users.id }).from(users);
+      
+      for (const user of allUsers) {
+        await updateUserRating(user.id);
+      }
+      
+      res.json({ message: "All user ratings recalculated successfully" });
+    } catch (error) {
+      console.error('Failed to recalculate ratings:', error);
+      res.status(500).json({ message: "Failed to recalculate ratings" });
     }
   });
 

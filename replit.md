@@ -241,6 +241,8 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Updated pricing constraint for items under $1000 from $40 maximum to $35 maximum daily rate
 - June 29, 2025: Enhanced AI pricing to suggest much lower prices in general for items under $1000 to be more competitive
 - June 29, 2025: Implemented AI chatbot assistant with floating circle interface in bottom right corner - answers questions about Lendibl using Gemini 2.5 Flash model
+- June 29, 2025: Implemented comprehensive review prompt system that automatically triggers after completed transactions - users prompted to rate their experience with star ratings and comments
+- June 29, 2025: Reset all user ratings to 0 and implemented authentic rating system - ratings only update based on actual submitted reviews, calculating accurate averages
 
 ## User Preferences
 
