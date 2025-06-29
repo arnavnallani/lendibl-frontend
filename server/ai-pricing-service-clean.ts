@@ -84,7 +84,7 @@ export class AIPricingService {
 
 PRICING RULES:
 1. First estimate the original purchase price of this item
-2. If original price is under $1000: Maximum daily rate is $35, suggest slightly lower prices in general to be competitive
+2. If original price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be competitive
 3. If original price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
 
 EXAMPLES:
