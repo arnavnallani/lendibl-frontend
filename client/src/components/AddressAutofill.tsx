@@ -22,6 +22,9 @@ interface AddressSuggestion {
     house_number?: string;
     road?: string;
     city?: string;
+    town?: string;
+    village?: string;
+    hamlet?: string;
     state?: string;
     postcode?: string;
   };
@@ -111,18 +114,39 @@ export function AddressAutofill({
       'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
     };
 
-    const stateAbbr = address.state ? (stateMap[address.state] || address.state) : '';
+    // Extract city - try multiple fields since different addresses may have different structures
+    const city = address.city || address.town || address.village || address.hamlet || '';
+    
+    // Extract state and convert to abbreviation
+    const stateName = address.state || '';
+    const stateAbbr = stateMap[stateName] || stateName;
+
+    // Extract zip code
+    const zipCode = address.postcode || '';
+
+    // Debug log to see what data we're getting
+    console.log('Raw address data:', address);
+    console.log('Parsed address:', {
+      streetAddress,
+      city,
+      state: stateName,
+      stateAbbr,
+      zipCode
+    });
 
     onChange?.(streetAddress);
     setShowSuggestions(false);
     setSuggestions([]);
 
-    onAddressSelect({
-      streetAddress,
-      city: address.city || '',
-      state: stateAbbr,
-      zipCode: address.postcode || ''
-    });
+    // Small delay to ensure form updates properly
+    setTimeout(() => {
+      onAddressSelect({
+        streetAddress,
+        city,
+        state: stateAbbr,
+        zipCode
+      });
+    }, 50);
   };
 
   // Handle clicks outside suggestions

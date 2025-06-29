@@ -394,10 +394,14 @@ export default function ListItem() {
                             onChange={field.onChange}
                             placeholder="Start typing your address..."
                             onAddressSelect={(addressData) => {
+                              console.log('Setting form values:', addressData);
                               form.setValue("address", addressData.streetAddress);
                               form.setValue("city", addressData.city);
                               form.setValue("state", addressData.state);
                               form.setValue("zipCode", addressData.zipCode);
+                              
+                              // Trigger form validation/updates
+                              form.trigger(["city", "state", "zipCode"]);
                             }}
                           />
                         </FormControl>
@@ -430,7 +434,7 @@ export default function ListItem() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>State</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select state" />
