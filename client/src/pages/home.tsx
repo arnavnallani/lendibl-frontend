@@ -10,6 +10,7 @@ import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useAISearch } from "@/hooks/use-ai-search";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function Home() {
@@ -26,9 +27,20 @@ export default function Home() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(true);
+  const [useAIResults, setUseAIResults] = useState(false);
+  
+  // Get AI search results
+  const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
 
   const handleSearch = (query: string) => {
     setFilters(prev => ({ ...prev, search: query }));
+    setUseAIResults(query.length >= 3); // Use AI for queries 3+ characters
+    if (query.length >= 1) {
+      setShowRecommendations(false);
+    } else {
+      setShowRecommendations(true);
+      setUseAIResults(false);
+    }
   };
 
   const handleCategorySelect = (categoryId: number) => {
@@ -95,7 +107,13 @@ export default function Home() {
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
             />
-            <ItemGrid filters={filters} onItemClick={handleItemClick} />
+            <ItemGrid 
+              filters={filters} 
+              aiResults={aiSearchResults}
+              useAIResults={useAIResults}
+              aiLoading={aiLoading}
+              onItemClick={handleItemClick} 
+            />
           </div>
         </div>
       ) : (

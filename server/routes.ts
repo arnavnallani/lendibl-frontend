@@ -12,6 +12,7 @@ import { aiPricingService } from "./ai-pricing-service-clean";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
+import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
 import { users } from "@shared/schema";
 
@@ -233,7 +234,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logout successful" });
   });
 
-  // Search suggestions endpoint
+  // AI-powered search endpoint
+  app.get("/api/ai-search", async (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || typeof q !== 'string') {
+        return res.json([]);
+      }
+
+      const allItems = await storage.getItems();
+      const aiResults = await aiSearchService.enhancedSearch(q, allItems);
+      
+      res.json(aiResults);
+    } catch (error) {
+      console.error('AI search error:', error);
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
+  // Enhanced search suggestions endpoint with AI integration
   app.get("/api/search-suggestions", async (req, res) => {
     try {
       const { q } = req.query;
@@ -248,18 +267,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allItems = await storage.getItems();
       const categories = await storage.getCategories();
 
-      // Item name matches
-      const itemMatches = allItems
+      // Use AI to analyze the query for better suggestions
+      let aiAnalysis = null;
+      try {
+        aiAnalysis = await aiSearchService.analyzeSearchQuery(query);
+      } catch (error) {
+        console.log('AI analysis failed, using fallback');
+      }
+
+      // AI-enhanced item matches
+      if (aiAnalysis) {
+        const aiMatches = await aiSearchService.scoreItemRelevance(allItems, aiAnalysis);
+        const topAiMatches = aiMatches.slice(0, 3).map(match => ({
+          type: 'item',
+          text: match.title,
+          subtitle: `AI match: ${match.reason}`,
+          count: 1,
+          aiScore: match.score
+        }));
+        suggestions.push(...topAiMatches);
+      }
+
+      // Traditional exact matches as fallback
+      const exactMatches = allItems
         .filter(item => item.title.toLowerCase().includes(query))
-        .slice(0, 3)
+        .filter(item => !suggestions.some(s => s.text === item.title)) // Avoid duplicates
+        .slice(0, 2)
         .map(item => ({
           type: 'item',
           text: item.title,
-          subtitle: `$${item.dailyRate}/day`,
+          subtitle: `$${item.price}/day`,
           count: 1
         }));
 
-      suggestions.push(...itemMatches);
+      suggestions.push(...exactMatches);
 
       // Category matches
       const categoryMatches = categories

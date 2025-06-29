@@ -12,10 +12,13 @@ interface ItemGridProps {
     priceRange?: string;
     location?: string;
   };
+  aiResults?: ItemWithDetails[];
+  useAIResults?: boolean;
+  aiLoading?: boolean;
   onItemClick: (item: ItemWithDetails) => void;
 }
 
-export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
+export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, onItemClick }: ItemGridProps) {
   const queryFilters = filters ? {
     categoryId: filters.categoryId,
     search: filters.search,
@@ -31,15 +34,23 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
     } : {}),
   } : undefined;
 
-  const { data: items = [], isLoading, error } = useQuery({
+  const { data: regularItems = [], isLoading: regularLoading, error } = useQuery({
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
+    enabled: !useAIResults, // Only fetch regular items when not using AI
   });
+
+  // Use AI results or regular items based on flag
+  const items = useAIResults ? (aiResults || []) : regularItems;
+  const isLoading = useAIResults ? aiLoading : regularLoading;
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
+        {useAIResults && (
+          <span className="ml-2 text-sm text-muted-foreground">AI analyzing your search...</span>
+        )}
       </div>
     );
   }
@@ -64,8 +75,21 @@ export default function ItemGrid({ filters, onItemClick }: ItemGridProps) {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-dark mb-2">Available Near You</h3>
-        <p className="text-gray-medium">Over {items.length} items available for rent</p>
+        <h3 className="text-2xl font-bold text-gray-dark mb-2">
+          {useAIResults ? "AI Search Results" : "Available Near You"}
+        </h3>
+        <p className="text-gray-medium">
+          {useAIResults ? 
+            `Found ${items.length} items matching your search with AI analysis` :
+            `Over ${items.length} items available for rent`
+          }
+        </p>
+        {useAIResults && items.length > 0 && (
+          <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+            AI-powered semantic search
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
