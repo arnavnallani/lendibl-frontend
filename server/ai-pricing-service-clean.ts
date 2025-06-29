@@ -145,12 +145,16 @@ For this $${estimatedValue} item, aim for pricing that follows these guidelines 
       { keywords: ['professional', 'commercial', 'industrial'], baseValue: 540 },
       { keywords: ['drill', 'saw', 'grinder'], baseValue: 180 },
       
-      // Electronics - Direct realistic pricing
-      { keywords: ['macbook pro 16'], baseValue: 2800 },
-      { keywords: ['macbook pro 14'], baseValue: 1600 },
-      { keywords: ['macbook pro'], baseValue: 2000 },
-      { keywords: ['macbook air'], baseValue: 1200 },
-      { keywords: ['macbook'], baseValue: 1500 },
+      // Electronics - More specific MacBook pricing
+      { keywords: ['14‑inch macbook pro', '14-inch macbook pro', 'macbook pro 14‑inch', 'macbook pro 14-inch'], baseValue: 1600 },
+      { keywords: ['16‑inch macbook pro', '16-inch macbook pro', 'macbook pro 16‑inch', 'macbook pro 16-inch'], baseValue: 2800 },
+      { keywords: ['macbook pro m3 max', 'macbook pro m2 max', 'macbook pro max'], baseValue: 3200 },
+      { keywords: ['macbook pro m3', 'macbook pro m2'], baseValue: 2000 },
+      { keywords: ['macbook pro space black', 'macbook pro silver'], baseValue: 1600 },
+      { keywords: ['macbook pro'], baseValue: 1800 },
+      { keywords: ['macbook air m3', 'macbook air m2'], baseValue: 1200 },
+      { keywords: ['macbook air'], baseValue: 1100 },
+      { keywords: ['macbook'], baseValue: 1400 },
       { keywords: ['gaming laptop'], baseValue: 1980 },
       { keywords: ['laptop', 'computer', 'desktop'], baseValue: 960 },
       { keywords: ['camera', 'dslr', 'mirrorless'], baseValue: 840 },
@@ -173,12 +177,22 @@ For this $${estimatedValue} item, aim for pricing that follows these guidelines 
     ];
     
     let estimatedValue = 100; // Default minimum
+    let bestMatch = { value: 100, specificity: 0 };
     
+    // Find the most specific match (longer keywords = more specific)
     for (const indicator of valueIndicators) {
-      if (indicator.keywords.some(keyword => text.includes(keyword))) {
-        estimatedValue = Math.max(estimatedValue, indicator.baseValue);
+      for (const keyword of indicator.keywords) {
+        if (text.includes(keyword)) {
+          const specificity = keyword.length;
+          if (specificity > bestMatch.specificity || 
+              (specificity === bestMatch.specificity && indicator.baseValue > bestMatch.value)) {
+            bestMatch = { value: indicator.baseValue, specificity };
+          }
+        }
       }
     }
+    
+    estimatedValue = bestMatch.value;
     
     return Math.round(estimatedValue);
   }
