@@ -238,6 +238,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Enhanced AI pricing accuracy with specific MacBook model recognition - 14-inch MacBook Pro Space Black correctly identified at $1600, improved keyword matching for more precise original price estimation
 - June 29, 2025: Fixed AI pricing logic - items under $1000 max $40 suggestion, items over $1000 use formula y=0.005x+30 with market flexibility, added Apple Vision Pro at $3500 original price
 - June 29, 2025: Removed keyword-based item estimation - AI now naturally understands items and applies pricing rules directly without preset keywords or $100 defaults
+- June 29, 2025: Updated pricing constraint for items under $1000 from $40 maximum to $35 maximum daily rate
 
 ## User Preferences
 
