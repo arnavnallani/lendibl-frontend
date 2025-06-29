@@ -15,14 +15,6 @@ async function getFreeGeminiPricing(prompt: string): Promise<any> {
 
 ${prompt}
 
-PRICING GUIDELINES - Follow these rates based on item value:
-- $1000 items should be around $50/day
-- $2000 items should be around $60/day  
-- $3000 items should be around $65/day
-- Scale proportionally for other values (roughly 5% of item value for lower-end items, decreasing percentage as value increases)
-
-First estimate the item's original purchase value from the title and description, then apply the appropriate pricing tier.
-
 Respond in this JSON format only:
 {
   "dailyRate": <number>,

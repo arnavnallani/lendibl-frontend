@@ -228,7 +228,6 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Diagnosed payout system - money is available in Lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
 - June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from Lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
 - June 28, 2025: Implemented free address autofill using OpenStreetMap Nominatim API - automatically fills city, state, and zip code when users select address suggestions, no API keys required
-- June 29, 2025: Updated Gemini AI pricing guidelines to follow specific rates: $1000 items → $50/day, $2000 items → $60/day, $3000 items → $65/day with proportional scaling
 
 ## User Preferences
 
