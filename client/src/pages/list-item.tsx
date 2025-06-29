@@ -24,6 +24,7 @@ import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
 import { ImageUpload } from "@/components/image-upload";
+import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
@@ -388,9 +389,16 @@ export default function ListItem() {
                       <FormItem>
                         <FormLabel>Street Address</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="e.g., 123 Main Street"
-                            {...field}
+                          <AddressAutofill
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Start typing your address..."
+                            onAddressSelect={(addressData) => {
+                              form.setValue("address", addressData.streetAddress);
+                              form.setValue("city", addressData.city);
+                              form.setValue("state", addressData.state);
+                              form.setValue("zipCode", addressData.zipCode);
+                            }}
                           />
                         </FormControl>
                         <FormMessage />
