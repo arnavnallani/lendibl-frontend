@@ -24,20 +24,72 @@ export interface ItemMatch {
 }
 
 export class AISearchService {
+  private getSmartFallbackAnalysis(query: string): SearchAnalysis {
+    const lowercaseQuery = query.toLowerCase();
+    
+    // Enhanced semantic mapping for better understanding
+    const semanticMappings = {
+      // Tech and computers
+      'computer': { intent: 'computing device rental', keywords: ['computer', 'laptop', 'pc'], categories: ['Electronics'], synonyms: ['laptop', 'macbook', 'pc', 'desktop', 'notebook'], relatedTerms: ['macbook', 'laptop', 'gaming pc', 'workstation', 'tablet'] },
+      'laptop': { intent: 'portable computer rental', keywords: ['laptop', 'computer'], categories: ['Electronics'], synonyms: ['macbook', 'notebook', 'computer'], relatedTerms: ['macbook pro', 'gaming laptop', 'business laptop'] },
+      'macbook': { intent: 'apple laptop rental', keywords: ['macbook', 'apple', 'laptop'], categories: ['Electronics'], synonyms: ['laptop', 'computer', 'apple'], relatedTerms: ['macbook pro', 'macbook air', 'laptop'] },
+      
+      // Cool/awesome items
+      'cool': { intent: 'interesting or trendy items', keywords: ['cool', 'awesome', 'interesting'], categories: ['Electronics', 'Photography', 'Sports'], synonyms: ['awesome', 'amazing', 'trendy', 'popular'], relatedTerms: ['camera', 'drone', 'gaming', 'tech', 'gadget'] },
+      'awesome': { intent: 'impressive rental items', keywords: ['awesome', 'cool', 'amazing'], categories: ['Electronics', 'Photography', 'Sports'], synonyms: ['cool', 'amazing', 'impressive'], relatedTerms: ['camera', 'drone', 'gaming', 'sports gear'] },
+      'stuff': { intent: 'general items for rent', keywords: ['items', 'things', 'stuff'], categories: ['Tools', 'Electronics', 'Sports'], synonyms: ['items', 'things', 'equipment'], relatedTerms: ['tools', 'electronics', 'gear', 'equipment'] },
+      
+      // Photography
+      'camera': { intent: 'photography equipment', keywords: ['camera', 'photo'], categories: ['Photography', 'Electronics'], synonyms: ['photography', 'photo', 'lens'], relatedTerms: ['dslr', 'mirrorless', 'lens', 'tripod'] },
+      'photo': { intent: 'photography equipment', keywords: ['photo', 'camera'], categories: ['Photography'], synonyms: ['photography', 'camera', 'picture'], relatedTerms: ['camera', 'lens', 'lighting', 'tripod'] },
+      
+      // Tools
+      'drill': { intent: 'power tools for projects', keywords: ['drill', 'tool'], categories: ['Tools'], synonyms: ['power drill', 'driver'], relatedTerms: ['screwdriver', 'saw', 'hammer'] },
+      'tool': { intent: 'construction and repair tools', keywords: ['tool', 'tools'], categories: ['Tools'], synonyms: ['equipment', 'instrument'], relatedTerms: ['drill', 'saw', 'hammer', 'screwdriver'] },
+      
+      // Gaming
+      'gaming': { intent: 'gaming equipment rental', keywords: ['gaming', 'game'], categories: ['Electronics'], synonyms: ['video games', 'console'], relatedTerms: ['playstation', 'xbox', 'nintendo', 'pc gaming'] },
+      'game': { intent: 'gaming equipment', keywords: ['game', 'gaming'], categories: ['Electronics'], synonyms: ['gaming', 'console'], relatedTerms: ['controller', 'headset', 'gaming chair'] },
+    };
+    
+    // Find best match
+    for (const [key, mapping] of Object.entries(semanticMappings)) {
+      if (lowercaseQuery.includes(key)) {
+        return mapping;
+      }
+    }
+    
+    // General fallback with basic keyword extraction
+    const words = lowercaseQuery.split(' ').filter(word => word.length > 2);
+    return {
+      intent: `rental items related to ${query}`,
+      keywords: words,
+      categories: ['Electronics', 'Tools', 'Sports'],
+      synonyms: words,
+      relatedTerms: words
+    };
+  }
+
   async analyzeSearchQuery(query: string): Promise<SearchAnalysis> {
     try {
       const prompt = `Analyze this search query for a rental marketplace: "${query}"
 
+You must understand semantic meaning and context. Be smart about matching:
+- "computer" should match MacBooks, laptops, PCs, gaming computers
+- "cool stuff" should match trendy electronics, cameras, gaming gear, drones
+- "awesome" should match high-end electronics, professional equipment
+- Be creative with synonyms and related terms
+
 Return JSON with:
-- intent: What the user is looking for (be specific)
-- keywords: Key terms from the query
-- categories: Likely rental categories (Tools, Electronics, Sports, Outdoor, Photography, etc.)
-- synonyms: Alternative words for the same items
+- intent: What the user is really looking for (be specific and semantic)
+- keywords: Key terms plus semantic matches
+- categories: Likely rental categories (Tools, Electronics, Sports, Outdoor, Photography, Gaming, etc.)
+- synonyms: Alternative words including brand names and specific models
 - relatedTerms: Related items they might also want
 
 Examples:
-- "need something to fix my fence" → intent: "tool for fence repair", keywords: ["fix", "fence"], categories: ["Tools"], synonyms: ["repair", "build", "construct"], relatedTerms: ["drill", "saw", "hammer", "screwdriver"]
-- "going camping this weekend" → intent: "camping equipment rental", keywords: ["camping", "weekend"], categories: ["Outdoor", "Sports"], synonyms: ["outdoor", "hiking", "backpacking"], relatedTerms: ["tent", "sleeping bag", "lantern", "stove"]`;
+- "computer" → intent: "computing devices including laptops and desktops", keywords: ["computer", "laptop", "macbook", "pc"], categories: ["Electronics"], synonyms: ["laptop", "macbook", "desktop", "notebook", "gaming pc"], relatedTerms: ["macbook pro", "gaming laptop", "workstation", "tablet"]
+- "cool stuff" → intent: "trendy and interesting rental items", keywords: ["cool", "awesome", "trendy"], categories: ["Electronics", "Photography", "Gaming"], synonyms: ["awesome", "amazing", "popular", "trendy"], relatedTerms: ["camera", "drone", "gaming gear", "macbook", "gadgets"]`;
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
@@ -66,15 +118,9 @@ Examples:
       }
     } catch (error) {
       console.error('AI search analysis failed:', error);
-      // Fallback to basic keyword extraction
-      const words = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
-      return {
-        intent: query,
-        keywords: words,
-        categories: [],
-        synonyms: words,
-        relatedTerms: words
-      };
+      // Use smart fallback with enhanced semantic understanding
+      console.log("Using smart fallback analysis for:", query);
+      return this.getSmartFallbackAnalysis(query);
     }
   }
 
@@ -85,47 +131,82 @@ Examples:
       let score = 0;
       const reasons: string[] = [];
 
-      // Check title matches
       const titleLower = item.title.toLowerCase();
       const descLower = item.description.toLowerCase();
+      const fullText = `${titleLower} ${descLower}`;
       
-      // Exact keyword matches in title (highest score)
+      // Enhanced semantic matching
+      // Direct keyword matches (highest score)
       for (const keyword of searchAnalysis.keywords) {
-        if (titleLower.includes(keyword.toLowerCase())) {
-          score += 10;
+        const keywordLower = keyword.toLowerCase();
+        if (titleLower.includes(keywordLower)) {
+          score += 15;
           reasons.push(`Title contains "${keyword}"`);
-        }
-      }
-
-      // Synonym matches in title
-      for (const synonym of searchAnalysis.synonyms) {
-        if (titleLower.includes(synonym.toLowerCase())) {
+        } else if (descLower.includes(keywordLower)) {
           score += 8;
-          reasons.push(`Title matches synonym "${synonym}"`);
-        }
-      }
-
-      // Related term matches in title
-      for (const term of searchAnalysis.relatedTerms) {
-        if (titleLower.includes(term.toLowerCase())) {
-          score += 6;
-          reasons.push(`Title contains related term "${term}"`);
-        }
-      }
-
-      // Description matches (lower weight)
-      for (const keyword of searchAnalysis.keywords) {
-        if (descLower.includes(keyword.toLowerCase())) {
-          score += 3;
           reasons.push(`Description contains "${keyword}"`);
         }
       }
 
-      // Category relevance
-      // This would need category name lookup, simplified for now
-      if (searchAnalysis.categories.length > 0) {
-        score += 2;
-        reasons.push('Category relevance');
+      // Synonym matches with semantic understanding
+      for (const synonym of searchAnalysis.synonyms) {
+        const synonymLower = synonym.toLowerCase();
+        if (titleLower.includes(synonymLower)) {
+          score += 12;
+          reasons.push(`Title matches synonym "${synonym}"`);
+        } else if (descLower.includes(synonymLower)) {
+          score += 6;
+          reasons.push(`Description matches synonym "${synonym}"`);
+        }
+      }
+
+      // Related term matches
+      for (const term of searchAnalysis.relatedTerms) {
+        const termLower = term.toLowerCase();
+        if (titleLower.includes(termLower)) {
+          score += 10;
+          reasons.push(`Title contains related term "${term}"`);
+        } else if (descLower.includes(termLower)) {
+          score += 5;
+          reasons.push(`Description contains related term "${term}"`);
+        }
+      }
+
+      // Special semantic boost for high-value items when searching for "cool" or "awesome"
+      const isHighValueQuery = searchAnalysis.intent.toLowerCase().includes('cool') || 
+                              searchAnalysis.intent.toLowerCase().includes('awesome') ||
+                              searchAnalysis.intent.toLowerCase().includes('trendy');
+      
+      if (isHighValueQuery) {
+        // Boost electronics, gaming, photography items
+        if (fullText.includes('macbook') || fullText.includes('camera') || 
+            fullText.includes('gaming') || fullText.includes('drone') ||
+            fullText.includes('pro') || fullText.includes('professional')) {
+          score += 8;
+          reasons.push('High-value tech item');
+        }
+      }
+
+      // Computer query semantic matching
+      const isComputerQuery = searchAnalysis.intent.toLowerCase().includes('computer') ||
+                             searchAnalysis.intent.toLowerCase().includes('computing');
+      
+      if (isComputerQuery) {
+        // Strong boost for laptops, MacBooks, PCs
+        if (fullText.includes('macbook') || fullText.includes('laptop') || 
+            fullText.includes('computer') || fullText.includes('pc')) {
+          score += 12;
+          reasons.push('Computing device match');
+        }
+      }
+
+      // Brand recognition boost
+      const premiumBrands = ['apple', 'macbook', 'canon', 'nikon', 'sony', 'gaming'];
+      for (const brand of premiumBrands) {
+        if (fullText.includes(brand)) {
+          score += 3;
+          reasons.push(`Premium brand: ${brand}`);
+        }
       }
 
       if (score > 0) {
