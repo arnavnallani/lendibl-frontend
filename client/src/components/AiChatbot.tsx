@@ -101,7 +101,7 @@ export default function AiChatbot() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Card className="w-80 h-96 shadow-2xl border-0 bg-white dark:bg-gray-900 overflow-hidden">
+      <Card className="w-80 h-[28rem] shadow-2xl border-0 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export default function AiChatbot() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4 h-72">
+        <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -169,7 +169,7 @@ export default function AiChatbot() {
         </ScrollArea>
 
         {/* Input */}
-        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800">
+        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={inputText}
