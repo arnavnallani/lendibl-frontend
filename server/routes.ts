@@ -215,7 +215,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
-    res.json({ user: req.user });
+    try {
+      // Fetch fresh user data from database to get current rating
+      const user = await storage.getUser(req.user!.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ user });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user data" });
+    }
   });
 
   app.post("/api/auth/logout", (req, res) => {

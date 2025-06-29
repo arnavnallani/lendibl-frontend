@@ -5,6 +5,10 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  rating: string | null;
+  reviewCount: number | null;
+  phone: string | null;
+  avatar: string | null;
 }
 
 interface AuthContextType {
