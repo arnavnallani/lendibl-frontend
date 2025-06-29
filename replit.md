@@ -236,6 +236,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Reverted AI pricing system back to Gemini 1.5 Flash model for better performance
 - June 29, 2025: Switched back to Gemini 2.5 Flash and implemented specific pricing guidelines - $1000 items target $35/day, $2000 items target $40/day, $3000 items target $45/day, $4000 items target $50/day
 - June 29, 2025: Enhanced AI pricing accuracy with specific MacBook model recognition - 14-inch MacBook Pro Space Black correctly identified at $1600, improved keyword matching for more precise original price estimation
+- June 29, 2025: Fixed AI pricing logic - items under $1000 max $40 suggestion, items over $1000 use formula y=0.005x+30 with market flexibility, added Apple Vision Pro at $3500 original price
 
 ## User Preferences
 

@@ -82,19 +82,33 @@ export class AIPricingService {
     
     // Estimate original item value to determine pricing constraints
     const estimatedValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
-    const maxAllowedPrice = estimatedValue <= 5000 ? 50 : Math.floor(estimatedValue * 0.15);
+    
+    let maxAllowedPrice: number;
+    let pricingGuidelines: string;
+    
+    if (estimatedValue <= 1000) {
+      maxAllowedPrice = 40;
+      pricingGuidelines = `PRICING GUIDELINES FOR ITEMS UNDER $1000:
+- Maximum daily rate is $40
+- Consider demand, seasonality, and location
+- Suggest optimal pricing within this $40 limit`;
+    } else {
+      // Use formula y = 0.005x + 30 for items over $1000
+      const formulaPrice = Math.round((0.005 * estimatedValue + 30) * 100) / 100;
+      maxAllowedPrice = Math.min(formulaPrice + 10, formulaPrice * 1.2); // Allow some flexibility based on market demand
+      pricingGuidelines = `PRICING GUIDELINES FOR ITEMS OVER $1000:
+- Base formula: y = 0.005x + 30 = $${formulaPrice}/day
+- You have flexibility to adjust based on market demand
+- Maximum allowed: $${maxAllowedPrice}/day`;
+    }
     
     const prompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. Condition: ${input.condition}.
 
-CRITICAL PRICING CONSTRAINT: This item has an estimated original value of $${estimatedValue}. Since this is ${estimatedValue <= 5000 ? 'under $5000' : 'over $5000'}, you MUST suggest a daily rental rate that does NOT exceed $${maxAllowedPrice}. This is a hard maximum limit.
+CRITICAL PRICING CONSTRAINT: This item has an estimated original value of $${estimatedValue}. You MUST suggest a daily rental rate that does NOT exceed $${maxAllowedPrice}. This is a hard maximum limit.
 
-PRICING GUIDELINES FOR ITEMS UNDER $5000:
-- $1000 items should be around $35/day
-- $2000 items should be around $40/day  
-- $3000 items should be around $45/day
-- $4000 items should be around $50/day
+${pricingGuidelines}
 
-For this $${estimatedValue} item, aim for pricing that follows these guidelines while considering market value, location, and ${season} seasonal demand for ${month}. Your suggested daily rate MUST be $${maxAllowedPrice} or less.`;
+Consider market value, location, and ${season} seasonal demand for ${month}. Your suggested daily rate MUST be $${maxAllowedPrice} or less.`;
     
     try {
       const geminiResult = await getGeminiPricing(prompt);
@@ -113,7 +127,10 @@ For this $${estimatedValue} item, aim for pricing that follows these guidelines 
         
         // Add constraint note if price was capped
         if (geminiResult.suggestedPrice > maxAllowedPrice) {
-          reasoning.push(`Price capped at $${maxAllowedPrice} (max for items under $5000)`);
+          const constraintReason = estimatedValue <= 1000 
+            ? `Price capped at $${maxAllowedPrice} (max for items under $1000)`
+            : `Price capped at $${maxAllowedPrice} (formula-based limit with market flexibility)`;
+          reasoning.push(constraintReason);
         }
         
         return {
@@ -157,6 +174,8 @@ For this $${estimatedValue} item, aim for pricing that follows these guidelines 
       { keywords: ['macbook'], baseValue: 1400 },
       { keywords: ['gaming laptop'], baseValue: 1980 },
       { keywords: ['laptop', 'computer', 'desktop'], baseValue: 960 },
+      { keywords: ['apple vision pro', 'vision pro'], baseValue: 3500 },
+      { keywords: ['meta quest', 'oculus', 'vr headset'], baseValue: 500 },
       { keywords: ['camera', 'dslr', 'mirrorless'], baseValue: 840 },
       { keywords: ['iphone', 'samsung', 'smartphone'], baseValue: 480 },
       
