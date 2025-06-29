@@ -18,7 +18,7 @@ export default function AiChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Lendibl's AI assistant. I can help you with questions about renting items, listing your belongings, payments, or anything else about our platform. How can I help you today?",
+      text: "Hi! I'm Lendibot, your helpful AI assistant. I can help you with questions about renting items, listing your belongings, payments, or anything else about our platform. How can I help you today?",
       isUser: false,
       timestamp: new Date()
     }
@@ -106,7 +106,7 @@ export default function AiChatbot() {
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
-            <span className="font-semibold">Lendibl Assistant</span>
+            <span className="font-semibold">Lendibot</span>
           </div>
           <div className="flex gap-1">
             <Button

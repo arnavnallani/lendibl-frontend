@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export async function getChatbotResponse(userMessage: string): Promise<string> {
   try {
-    const prompt = `You are Lendibl's helpful AI assistant. Lendibl is a peer-to-peer rental marketplace where people can rent and list items in their community.
+    const prompt = `You are Lendibot, Lendibl's helpful AI assistant. Lendibl is a peer-to-peer rental marketplace where people can rent and list items in their community.
 
 Key information about Lendibl:
 - Users can browse and rent items from neighbors
