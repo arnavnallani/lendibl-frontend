@@ -232,6 +232,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Fixed MacBook Pro pricing estimation - corrected overestimation issue where MacBook Pro 14-inch was valued at $4,050 instead of realistic $2,200, removed Electronics category multiplier for accurate pricing
 - June 29, 2025: Removed all multipliers from AI pricing system - simplified to use direct base values only for consistent and predictable item value estimation
 - June 29, 2025: Updated MacBook Pro 14-inch pricing to $1,600 for accurate market value estimation
+- June 29, 2025: Switched AI pricing system to use Gemini 2.5 Flash model for improved accuracy and performance
 
 ## User Preferences
 
