@@ -1469,6 +1469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/review-prompts", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
+      console.log(`Review prompts requested for user ID: ${userId}`);
       
       // For testing: always return a test prompt
       const testPrompt = {
@@ -1487,6 +1488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       };
       
+      console.log('Returning test prompt:', testPrompt);
       res.json([testPrompt]);
     } catch (error) {
       console.error('Failed to get review prompts:', error);
