@@ -458,6 +458,8 @@ export class DatabaseStorage implements IStorage {
       .filter(row => row.items && row.users && row.categories)
       .map(row => ({
         ...row.items!,
+        rating: row.users!.rating, // Use owner's current rating instead of cached item rating
+        reviewCount: row.users!.reviewCount, // Use owner's current review count
         owner: row.users!,
         category: row.categories!,
       }));
@@ -475,6 +477,8 @@ export class DatabaseStorage implements IStorage {
 
     return {
       ...result.items,
+      rating: result.users.rating, // Use owner's current rating instead of cached item rating
+      reviewCount: result.users.reviewCount, // Use owner's current review count
       owner: result.users,
       category: result.categories,
     };

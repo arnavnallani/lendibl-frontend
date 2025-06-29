@@ -243,6 +243,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Implemented AI chatbot assistant with floating circle interface in bottom right corner - answers questions about Lendibl using Gemini 2.5 Flash model
 - June 29, 2025: Implemented comprehensive review prompt system that automatically triggers after completed transactions - users prompted to rate their experience with star ratings and comments
 - June 29, 2025: Reset all user ratings to 0 and implemented authentic rating system - ratings only update based on actual submitted reviews, calculating accurate averages
+- June 29, 2025: Fixed rating display caching issue - items now show owner's current rating from users table instead of cached item ratings, ensuring authentic rating display
 
 ## User Preferences
 
