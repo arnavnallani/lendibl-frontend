@@ -80,58 +80,33 @@ export class AIPricingService {
     const month = currentDate.toLocaleString('default', { month: 'long' });
     const season = this.getCurrentSeason();
     
-    // Estimate original item value to determine pricing constraints
-    const estimatedValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
-    
-    let maxAllowedPrice: number;
-    let pricingGuidelines: string;
-    
-    if (estimatedValue <= 1000) {
-      maxAllowedPrice = 40;
-      pricingGuidelines = `PRICING GUIDELINES FOR ITEMS UNDER $1000:
-- Maximum daily rate is $40
-- Consider demand, seasonality, and location
-- Suggest optimal pricing within this $40 limit`;
-    } else {
-      // Use formula y = 0.005x + 30 for items over $1000
-      const formulaPrice = Math.round((0.005 * estimatedValue + 30) * 100) / 100;
-      maxAllowedPrice = Math.min(formulaPrice + 10, formulaPrice * 1.2); // Allow some flexibility based on market demand
-      pricingGuidelines = `PRICING GUIDELINES FOR ITEMS OVER $1000:
-- Base formula: y = 0.005x + 30 = $${formulaPrice}/day
-- You have flexibility to adjust based on market demand
-- Maximum allowed: $${maxAllowedPrice}/day`;
-    }
-    
     const prompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. Condition: ${input.condition}.
 
-CRITICAL PRICING CONSTRAINT: This item has an estimated original value of $${estimatedValue}. You MUST suggest a daily rental rate that does NOT exceed $${maxAllowedPrice}. This is a hard maximum limit.
+PRICING RULES:
+1. First estimate the original purchase price of this item
+2. If original price is under $1000: Maximum daily rate is $40
+3. If original price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
 
-${pricingGuidelines}
+EXAMPLES:
+- MacBook Pro 14-inch ($1600 original) → ~$38/day base
+- Apple Vision Pro ($3500 original) → ~$47.50/day base  
+- Basic drill ($120 original) → ~$25/day (under $40 max)
+- Professional camera ($800 original) → ~$35/day (under $40 max)
 
-Consider market value, location, and ${season} seasonal demand for ${month}. Your suggested daily rate MUST be $${maxAllowedPrice} or less.`;
+Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
     
     try {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
-        // Enforce the pricing constraint
-        const constrainedPrice = Math.min(geminiResult.suggestedPrice, maxAllowedPrice);
-        const finalPrice = Math.max(5, Math.round(constrainedPrice * 100) / 100);
+        const finalPrice = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
         
         const reasoning = [
-          `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
+          `AI-powered pricing: $${geminiResult.suggestedPrice}/day`,
           geminiResult.reasoning || `Optimized for ${input.location} market`,
           `${season} seasonal pricing for ${month}`,
-          "Pure AI-powered pricing analysis"
+          "Natural AI understanding of item value"
         ];
-        
-        // Add constraint note if price was capped
-        if (geminiResult.suggestedPrice > maxAllowedPrice) {
-          const constraintReason = estimatedValue <= 1000 
-            ? `Price capped at $${maxAllowedPrice} (max for items under $1000)`
-            : `Price capped at $${maxAllowedPrice} (formula-based limit with market flexibility)`;
-          reasoning.push(constraintReason);
-        }
         
         return {
           dailyRate: finalPrice,
@@ -153,67 +128,19 @@ Consider market value, location, and ${season} seasonal demand for ${month}. You
   }
 
   private estimateItemValue(title: string, description: string, category: string): number {
-    const text = `${title} ${description}`.toLowerCase();
+    // Use category-based estimation with reasonable defaults
+    const categoryDefaults: { [key: string]: number } = {
+      'Electronics': 800,
+      'Tools & Equipment': 200,
+      'Outdoor & Sports': 300,
+      'Vehicles & Transportation': 5000,
+      'Home & Garden': 150,
+      'Clothing & Accessories': 100,
+      'Books & Media': 50,
+      'Health & Beauty': 80
+    };
     
-    // Simple value estimation with direct base values - no multipliers
-    const valueIndicators = [
-      // Tools & Equipment
-      { keywords: ['dewalt', 'milwaukee', 'makita', 'bosch'], baseValue: 300 },
-      { keywords: ['professional', 'commercial', 'industrial'], baseValue: 540 },
-      { keywords: ['drill', 'saw', 'grinder'], baseValue: 180 },
-      
-      // Electronics - More specific MacBook pricing
-      { keywords: ['14‑inch macbook pro', '14-inch macbook pro', 'macbook pro 14‑inch', 'macbook pro 14-inch'], baseValue: 1600 },
-      { keywords: ['16‑inch macbook pro', '16-inch macbook pro', 'macbook pro 16‑inch', 'macbook pro 16-inch'], baseValue: 2800 },
-      { keywords: ['macbook pro m3 max', 'macbook pro m2 max', 'macbook pro max'], baseValue: 3200 },
-      { keywords: ['macbook pro m3', 'macbook pro m2'], baseValue: 2000 },
-      { keywords: ['macbook pro space black', 'macbook pro silver'], baseValue: 1600 },
-      { keywords: ['macbook pro'], baseValue: 1800 },
-      { keywords: ['macbook air m3', 'macbook air m2'], baseValue: 1200 },
-      { keywords: ['macbook air'], baseValue: 1100 },
-      { keywords: ['macbook'], baseValue: 1400 },
-      { keywords: ['gaming laptop'], baseValue: 1980 },
-      { keywords: ['laptop', 'computer', 'desktop'], baseValue: 960 },
-      { keywords: ['apple vision pro', 'vision pro'], baseValue: 3500 },
-      { keywords: ['meta quest', 'oculus', 'vr headset'], baseValue: 500 },
-      { keywords: ['camera', 'dslr', 'mirrorless'], baseValue: 840 },
-      { keywords: ['iphone', 'samsung', 'smartphone'], baseValue: 480 },
-      
-      // Vehicles & Transportation
-      { keywords: ['tesla', 'bmw', 'mercedes'], baseValue: 75000 },
-      { keywords: ['bike', 'bicycle', 'mountain'], baseValue: 650 },
-      { keywords: ['motorcycle', 'scooter'], baseValue: 11200 },
-      
-      // Outdoor & Sports
-      { keywords: ['kayak', 'canoe', 'boat'], baseValue: 1120 },
-      { keywords: ['tent', 'camping'], baseValue: 240 },
-      { keywords: ['snowboard', 'skis'], baseValue: 520 },
-      
-      // Home & Garden
-      { keywords: ['pressure washer'], baseValue: 325 },
-      { keywords: ['generator'], baseValue: 700 },
-      { keywords: ['ladder'], baseValue: 180 }
-    ];
-    
-    let estimatedValue = 100; // Default minimum
-    let bestMatch = { value: 100, specificity: 0 };
-    
-    // Find the most specific match (longer keywords = more specific)
-    for (const indicator of valueIndicators) {
-      for (const keyword of indicator.keywords) {
-        if (text.includes(keyword)) {
-          const specificity = keyword.length;
-          if (specificity > bestMatch.specificity || 
-              (specificity === bestMatch.specificity && indicator.baseValue > bestMatch.value)) {
-            bestMatch = { value: indicator.baseValue, specificity };
-          }
-        }
-      }
-    }
-    
-    estimatedValue = bestMatch.value;
-    
-    return Math.round(estimatedValue);
+    return categoryDefaults[category] || 200;
   }
 
   private getCurrentSeason(): string {
