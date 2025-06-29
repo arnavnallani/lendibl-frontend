@@ -37,6 +37,8 @@ export function AIPricingSuggestions({
   const [suggestions, setSuggestions] = useState<PricingSuggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
   const { toast } = useToast();
 
   const fetchPricingSuggestions = async () => {
