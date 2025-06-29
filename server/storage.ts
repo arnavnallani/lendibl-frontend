@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
 
@@ -49,6 +49,12 @@ export interface IStorage {
   createPaymentReminder(reminder: InsertPaymentReminder): Promise<PaymentReminder>;
   updatePaymentReminder(id: number, updates: Partial<PaymentReminder>): Promise<PaymentReminder | undefined>;
   getUsersWithPendingEarnings(): Promise<User[]>;
+
+  // Review Prompts
+  getReviewPrompts(userId: number): Promise<any[]>;
+  createReviewPrompt(prompt: InsertReviewPrompt): Promise<ReviewPrompt>;
+  updateReviewPrompt(id: number, updates: Partial<ReviewPrompt>): Promise<ReviewPrompt | undefined>;
+  deleteReviewPrompt(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -691,6 +697,62 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .where(and(gt(users.pendingEarnings, "0"), eq(users.paymentSetupComplete, false)));
+  }
+
+  // Review Prompts
+  async getReviewPrompts(userId: number): Promise<any[]> {
+    return await db
+      .select({
+        id: reviewPrompts.id,
+        bookingId: reviewPrompts.bookingId,
+        targetUserId: reviewPrompts.targetUserId,
+        role: reviewPrompts.role,
+        targetUser: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        },
+        item: {
+          id: items.id,
+          title: items.title,
+        },
+      })
+      .from(reviewPrompts)
+      .innerJoin(users, eq(reviewPrompts.targetUserId, users.id))
+      .innerJoin(bookings, eq(reviewPrompts.bookingId, bookings.id))
+      .innerJoin(items, eq(bookings.itemId, items.id))
+      .where(
+        and(
+          eq(reviewPrompts.userId, userId),
+          eq(reviewPrompts.isPrompted, false),
+          eq(reviewPrompts.isCompleted, false)
+        )
+      )
+      .orderBy(desc(reviewPrompts.createdAt));
+  }
+
+  async createReviewPrompt(prompt: InsertReviewPrompt): Promise<ReviewPrompt> {
+    const [result] = await db
+      .insert(reviewPrompts)
+      .values(prompt)
+      .returning();
+    return result;
+  }
+
+  async updateReviewPrompt(id: number, updates: Partial<ReviewPrompt>): Promise<ReviewPrompt | undefined> {
+    const [result] = await db
+      .update(reviewPrompts)
+      .set(updates)
+      .where(eq(reviewPrompts.id, id))
+      .returning();
+    return result || undefined;
+  }
+
+  async deleteReviewPrompt(id: number): Promise<boolean> {
+    const result = await db
+      .delete(reviewPrompts)
+      .where(eq(reviewPrompts.id, id));
+    return result.rowCount > 0;
   }
 }
 

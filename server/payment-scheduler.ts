@@ -2,6 +2,7 @@ import { storage } from "./storage";
 import { paymentReminderService } from "./payment-reminder-service";
 import { stripeService } from "./stripe-service";
 import { paypalService } from "./paypal-service";
+import { reviewPromptService } from "./review-prompt-service";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY 
@@ -215,6 +216,9 @@ export class PaymentScheduler {
           booking.item.ownerId,
           ownerPayout.toString()
         );
+
+        // Create review prompts for completed transaction
+        await reviewPromptService.createReviewPrompts(bookingId);
 
         return true;
         

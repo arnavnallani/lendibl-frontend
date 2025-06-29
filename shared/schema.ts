@@ -201,6 +201,22 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
+export const reviewPrompts = pgTable("review_prompts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  targetUserId: integer("target_user_id").references(() => users.id).notNull(),
+  role: text("role").notNull(), // 'renter' or 'owner'
+  isPrompted: boolean("is_prompted").default(false),
+  isCompleted: boolean("is_completed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertReviewPromptSchema = createInsertSchema(reviewPrompts).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -231,6 +247,9 @@ export type InsertPaymentReminder = z.infer<typeof insertPaymentReminderSchema>;
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export type ReviewPrompt = typeof reviewPrompts.$inferSelect;
+export type InsertReviewPrompt = z.infer<typeof insertReviewPromptSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

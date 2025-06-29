@@ -7,6 +7,7 @@ import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
 import { useBrowserNotifications } from "@/hooks/use-browser-notifications";
 import { AIBanner } from "@/components/ai-banner";
 import AiChatbot from "@/components/AiChatbot";
+import ReviewPromptProvider from "@/components/ReviewPromptProvider";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
@@ -45,6 +46,7 @@ function App() {
           <AIBanner />
           <Router />
           <AiChatbot />
+          <ReviewPromptProvider />
         </TooltipProvider>
       </AuthContext.Provider>
     </QueryClientProvider>

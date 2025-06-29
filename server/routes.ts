@@ -11,6 +11,7 @@ import { paymentReminderService } from "./payment-reminder-service";
 import { aiPricingService } from "./ai-pricing-service-clean";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
+import { reviewPromptService } from "./review-prompt-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -1459,6 +1460,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         response: "I'm having trouble connecting right now. Please try again in a moment, or feel free to contact our support team if you need immediate assistance!" 
       });
+    }
+  });
+
+  // Review prompt endpoints
+  app.get("/api/review-prompts", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const prompts = await reviewPromptService.getPendingReviewPrompts(userId);
+      res.json(prompts);
+    } catch (error) {
+      console.error('Failed to get review prompts:', error);
+      res.status(500).json({ message: "Failed to get review prompts" });
+    }
+  });
+
+  app.put("/api/review-prompts/:id/prompted", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const promptId = parseInt(req.params.id);
+      await reviewPromptService.markAsPrompted(promptId);
+      res.json({ message: "Review prompt marked as prompted" });
+    } catch (error) {
+      console.error('Failed to mark review prompt as prompted:', error);
+      res.status(500).json({ message: "Failed to update review prompt" });
+    }
+  });
+
+  app.put("/api/review-prompts/:id/dismiss", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const promptId = parseInt(req.params.id);
+      await reviewPromptService.dismissPrompt(promptId);
+      res.json({ message: "Review prompt dismissed" });
+    } catch (error) {
+      console.error('Failed to dismiss review prompt:', error);
+      res.status(500).json({ message: "Failed to dismiss review prompt" });
+    }
+  });
+
+  app.post("/api/reviews", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, revieweeId, rating, comment } = req.body;
+      const reviewerId = req.user!.id;
+
+      const reviewData = {
+        bookingId: parseInt(bookingId),
+        reviewerId,
+        revieweeId: parseInt(revieweeId),
+        rating: parseInt(rating),
+        comment
+      };
+
+      const review = await storage.createReview(reviewData);
+      
+      // Mark review prompt as completed
+      await reviewPromptService.markAsCompleted(parseInt(bookingId), reviewerId);
+
+      res.status(201).json(review);
+    } catch (error) {
+      console.error('Failed to create review:', error);
+      res.status(500).json({ message: "Failed to create review" });
     }
   });
 
