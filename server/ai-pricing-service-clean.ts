@@ -132,59 +132,46 @@ Consider market value, location, and ${season} seasonal demand for ${month}, but
   private estimateItemValue(title: string, description: string, category: string): number {
     const text = `${title} ${description}`.toLowerCase();
     
-    // Realistic value estimation with more accurate pricing
+    // Simple value estimation with direct base values - no multipliers
     const valueIndicators = [
       // Tools & Equipment
-      { keywords: ['dewalt', 'milwaukee', 'makita', 'bosch'], baseValue: 200, multiplier: 1.5 },
-      { keywords: ['professional', 'commercial', 'industrial'], baseValue: 300, multiplier: 1.8 },
-      { keywords: ['drill', 'saw', 'grinder'], baseValue: 150, multiplier: 1.2 },
+      { keywords: ['dewalt', 'milwaukee', 'makita', 'bosch'], baseValue: 300 },
+      { keywords: ['professional', 'commercial', 'industrial'], baseValue: 540 },
+      { keywords: ['drill', 'saw', 'grinder'], baseValue: 180 },
       
-      // Electronics - More realistic MacBook pricing
-      { keywords: ['macbook pro 16'], baseValue: 2800, multiplier: 1.0 },
-      { keywords: ['macbook pro 14'], baseValue: 2200, multiplier: 1.0 },
-      { keywords: ['macbook pro'], baseValue: 2000, multiplier: 1.0 },
-      { keywords: ['macbook air'], baseValue: 1200, multiplier: 1.0 },
-      { keywords: ['macbook'], baseValue: 1500, multiplier: 1.0 },
-      { keywords: ['gaming laptop'], baseValue: 1800, multiplier: 1.1 },
-      { keywords: ['laptop', 'computer', 'desktop'], baseValue: 800, multiplier: 1.2 },
-      { keywords: ['camera', 'dslr', 'mirrorless'], baseValue: 600, multiplier: 1.4 },
-      { keywords: ['iphone', 'samsung', 'smartphone'], baseValue: 400, multiplier: 1.2 },
+      // Electronics - Direct realistic pricing
+      { keywords: ['macbook pro 16'], baseValue: 2800 },
+      { keywords: ['macbook pro 14'], baseValue: 2200 },
+      { keywords: ['macbook pro'], baseValue: 2000 },
+      { keywords: ['macbook air'], baseValue: 1200 },
+      { keywords: ['macbook'], baseValue: 1500 },
+      { keywords: ['gaming laptop'], baseValue: 1980 },
+      { keywords: ['laptop', 'computer', 'desktop'], baseValue: 960 },
+      { keywords: ['camera', 'dslr', 'mirrorless'], baseValue: 840 },
+      { keywords: ['iphone', 'samsung', 'smartphone'], baseValue: 480 },
       
       // Vehicles & Transportation
-      { keywords: ['tesla', 'bmw', 'mercedes'], baseValue: 50000, multiplier: 1.5 },
-      { keywords: ['bike', 'bicycle', 'mountain'], baseValue: 500, multiplier: 1.3 },
-      { keywords: ['motorcycle', 'scooter'], baseValue: 8000, multiplier: 1.4 },
+      { keywords: ['tesla', 'bmw', 'mercedes'], baseValue: 75000 },
+      { keywords: ['bike', 'bicycle', 'mountain'], baseValue: 650 },
+      { keywords: ['motorcycle', 'scooter'], baseValue: 11200 },
       
       // Outdoor & Sports
-      { keywords: ['kayak', 'canoe', 'boat'], baseValue: 800, multiplier: 1.4 },
-      { keywords: ['tent', 'camping'], baseValue: 200, multiplier: 1.2 },
-      { keywords: ['snowboard', 'skis'], baseValue: 400, multiplier: 1.3 },
+      { keywords: ['kayak', 'canoe', 'boat'], baseValue: 1120 },
+      { keywords: ['tent', 'camping'], baseValue: 240 },
+      { keywords: ['snowboard', 'skis'], baseValue: 520 },
       
       // Home & Garden
-      { keywords: ['pressure washer'], baseValue: 250, multiplier: 1.3 },
-      { keywords: ['generator'], baseValue: 500, multiplier: 1.4 },
-      { keywords: ['ladder'], baseValue: 150, multiplier: 1.2 }
+      { keywords: ['pressure washer'], baseValue: 325 },
+      { keywords: ['generator'], baseValue: 700 },
+      { keywords: ['ladder'], baseValue: 180 }
     ];
     
     let estimatedValue = 100; // Default minimum
     
     for (const indicator of valueIndicators) {
       if (indicator.keywords.some(keyword => text.includes(keyword))) {
-        estimatedValue = Math.max(estimatedValue, indicator.baseValue * indicator.multiplier);
+        estimatedValue = Math.max(estimatedValue, indicator.baseValue);
       }
-    }
-    
-    // Category-based adjustments - reduced Electronics multiplier for more realistic pricing
-    const categoryMultipliers: { [key: string]: number } = {
-      'Electronics': 1.0, // Removed multiplier since base values are now realistic
-      'Vehicles': 10.0,
-      'Tools & Equipment': 1.2,
-      'Outdoor & Sports': 1.3,
-      'Home & Garden': 1.1
-    };
-    
-    if (categoryMultipliers[category]) {
-      estimatedValue *= categoryMultipliers[category];
     }
     
     return Math.round(estimatedValue);
