@@ -84,14 +84,14 @@ export class AIPricingService {
 
 PRICING RULES:
 1. First estimate the original purchase price of this item
-2. If original price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be competitive
+2. If original price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be very competitive and affordable
 3. If original price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
 
 EXAMPLES:
 - MacBook Pro 14-inch ($1600 original) → ~$38/day base
 - Apple Vision Pro ($3500 original) → ~$47.50/day base  
-- Basic drill ($120 original) → ~$25/day (under $35 max)
-- Professional camera ($800 original) → ~$30/day (under $35 max)
+- Basic drill ($120 original) → ~$15/day (much lower than max)
+- Professional camera ($800 original) → ~$20/day (much lower than max)
 
 Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
     
