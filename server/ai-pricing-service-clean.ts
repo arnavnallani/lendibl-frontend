@@ -26,11 +26,13 @@ async function getGeminiPricing(prompt: string): Promise<any> {
   
   const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
 
+IMPORTANT: The maximum daily rental rate is $50. Never suggest a price above $50.
+
 ${prompt}
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number>,
+  "dailyRate": <number between 1 and 50>,
   "reasoning": "<brief explanation>",
   "demandLevel": "low|medium|high",
   "seasonalTrend": "increasing|stable|decreasing",
@@ -46,19 +48,23 @@ Respond in this JSON format only:
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+      // Enforce $50 maximum price limit
+      const dailyRate = Math.min(parsed.dailyRate || 0, 50);
       return {
-        suggestedPrice: parsed.dailyRate,
+        suggestedPrice: dailyRate,
         reasoning: parsed.reasoning,
         demandLevel: parsed.demandLevel,
         seasonalTrend: parsed.seasonalTrend,
         competitivePosition: parsed.competitivePosition,
-        success: !!(parsed.dailyRate && parsed.dailyRate > 0)
+        success: !!(dailyRate && dailyRate > 0)
       };
     }
   } catch (parseError) {
     // Fallback: extract price from text
     const priceMatch = text.match(/\$?(\d+(?:\.\d{2})?)/);
-    const suggestedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+    const extractedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+    // Enforce $50 maximum price limit
+    const suggestedPrice = extractedPrice ? Math.min(extractedPrice, 50) : null;
     return {
       suggestedPrice,
       reasoning: text,
@@ -84,8 +90,10 @@ export class AIPricingService {
       const geminiResult = await getGeminiPricing(prompt);
       
       if (geminiResult.success && geminiResult.suggestedPrice) {
+        // Enforce $50 maximum price limit with $5 minimum
+        const constrainedPrice = Math.max(5, Math.min(50, Math.round(geminiResult.suggestedPrice * 100) / 100));
         return {
-          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
+          dailyRate: constrainedPrice,
           confidence: 0.95,
           reasoning: [
             `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
