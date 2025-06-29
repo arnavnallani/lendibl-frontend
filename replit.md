@@ -245,6 +245,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Reset all user ratings to 0 and implemented authentic rating system - ratings only update based on actual submitted reviews, calculating accurate averages
 - June 29, 2025: Fixed rating display caching issue - items now show owner's current rating from users table instead of cached item ratings, ensuring authentic rating display
 - June 29, 2025: Fixed hardcoded 4.8 rating in MyProfile page - now displays user's actual rating (4.0 for epicswag) from database instead of static value
+- June 29, 2025: Modified review prompt system for testing - now shows review modal every time app opens instead of only after completed transactions
 
 ## User Preferences
 
