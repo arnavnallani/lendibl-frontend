@@ -228,6 +228,7 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Diagnosed payout system - money is available in Lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
 - June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from Lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
 - June 28, 2025: Implemented free address autofill using OpenStreetMap Nominatim API - automatically fills city, state, and zip code when users select address suggestions, no API keys required
+- June 29, 2025: Enhanced AI pricing system with hard $50 maximum constraint for items with original prices up to $5000 - AI now understands and enforces pricing limits with clear prompting and fallback enforcement
 
 ## User Preferences
 
