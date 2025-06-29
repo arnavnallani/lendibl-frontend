@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
 import { useBrowserNotifications } from "@/hooks/use-browser-notifications";
 import { AIBanner } from "@/components/ai-banner";
+import AiChatbot from "@/components/AiChatbot";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
@@ -43,6 +44,7 @@ function App() {
           <Toaster />
           <AIBanner />
           <Router />
+          <AiChatbot />
         </TooltipProvider>
       </AuthContext.Provider>
     </QueryClientProvider>

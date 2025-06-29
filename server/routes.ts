@@ -9,6 +9,7 @@ import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
 import { aiPricingService } from "./ai-pricing-service-clean";
+import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 
 // Helper function for smart search completions
@@ -1439,6 +1440,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Local event insights error:', error);
       res.status(500).json({ message: "Failed to fetch local event insights" });
+    }
+  });
+
+  // AI Chatbot endpoint
+  app.post("/api/chatbot", async (req, res) => {
+    try {
+      const { message, context } = req.body;
+
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      const response = await getChatbotResponse(message);
+      res.json({ response });
+    } catch (error) {
+      console.error('Chatbot error:', error);
+      res.json({ 
+        response: "I'm having trouble connecting right now. Please try again in a moment, or feel free to contact our support team if you need immediate assistance!" 
+      });
     }
   });
 

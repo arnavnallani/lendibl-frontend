@@ -240,6 +240,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Removed keyword-based item estimation - AI now naturally understands items and applies pricing rules directly without preset keywords or $100 defaults
 - June 29, 2025: Updated pricing constraint for items under $1000 from $40 maximum to $35 maximum daily rate
 - June 29, 2025: Enhanced AI pricing to suggest much lower prices in general for items under $1000 to be more competitive
+- June 29, 2025: Implemented AI chatbot assistant with floating circle interface in bottom right corner - answers questions about Lendibl using Gemini 2.5 Flash model
 
 ## User Preferences
 
