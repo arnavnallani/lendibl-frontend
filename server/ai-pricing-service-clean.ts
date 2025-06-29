@@ -141,7 +141,7 @@ Consider market value, location, and ${season} seasonal demand for ${month}, but
       
       // Electronics - Direct realistic pricing
       { keywords: ['macbook pro 16'], baseValue: 2800 },
-      { keywords: ['macbook pro 14'], baseValue: 2200 },
+      { keywords: ['macbook pro 14'], baseValue: 1600 },
       { keywords: ['macbook pro'], baseValue: 2000 },
       { keywords: ['macbook air'], baseValue: 1200 },
       { keywords: ['macbook'], baseValue: 1500 },
