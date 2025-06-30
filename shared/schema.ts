@@ -102,11 +102,6 @@ export const bookings = pgTable("bookings", {
   stripeTransferId: text("stripe_transfer_id"),
   payoutNote: text("payout_note"),
   refundIssued: boolean("refund_issued").default(false),
-  preRental360Images: text("pre_rental_360_images").array(),
-  postRental360Images: text("post_rental_360_images").array(),
-  damageReported: boolean("damage_reported").default(false),
-  damageReportedBy: text("damage_reported_by", { enum: ["owner", "renter"] }),
-  damageDescription: text("damage_description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
