@@ -153,7 +153,7 @@ export default function ReviewPromptModal({ prompts, onClose }: ReviewPromptModa
               How was your experience with <span className="font-semibold">{targetName}</span>?
             </p>
             <p className="text-xs text-gray-500">
-              You {roleText} "{currentPrompt.item.title}"
+              Item you rented: "{currentPrompt.item.title}"
             </p>
           </div>
 
