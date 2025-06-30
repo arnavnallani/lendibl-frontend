@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Wrench, Car, Camera, Home } from "lucide-react";
+import { Wrench, Car, Camera, Home, Dribbble, TreePine, Shirt } from "lucide-react";
 
 const categoryIcons = {
   "tools": Wrench,
   "vehicles": Car,
   "electronics": Camera,
   "home-garden": Home,
+  "sports": Dribbble,
+  "outdoor": TreePine,
+  "clothing": Shirt,
 };
 
 interface HeroSectionProps {
@@ -19,7 +22,10 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
     queryFn: () => api.getCategories(),
   });
 
-  const featuredCategories = categories.slice(0, 4);
+  // Select specific featured categories to ensure Sports Gear is included
+  const featuredCategories = categories.filter(category => 
+    ['Tools & Equipment', 'Electronics', 'Home & Garden', 'Sports Gear'].includes(category.name)
+  ).slice(0, 4);
 
   return (
     <section className="gradient-bg text-white py-[5rem] relative overflow-hidden">
