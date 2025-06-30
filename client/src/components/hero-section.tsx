@@ -24,7 +24,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
 
   // Select specific featured categories to ensure Sports Gear is included
   const featuredCategories = categories.filter(category => 
-    ['Tools & Equipment', 'Electronics', 'Home & Garden', 'Sports Gear'].includes(category.name)
+    ['Tools & Equipment', 'Electronics', 'Sports Gear', 'Vehicles'].includes(category.name)
   ).slice(0, 4);
 
   return (
