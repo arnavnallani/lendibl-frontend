@@ -37,84 +37,59 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
   }, [isMobile]);
 
   const startCamera = async () => {
+    console.log("Starting camera...");
     setCameraLoading(true);
+    
     try {
-      // Check if getUserMedia is available
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        toast({
-          title: "Camera Not Supported",
-          description: "Your browser doesn't support camera access. Please use a modern browser.",
-          variant: "destructive"
-        });
+      // Check basic support
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera not supported in this browser");
+      }
+
+      console.log("Requesting camera permissions...");
+      
+      // Simple camera request
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        }
+      });
+      
+      console.log("Camera stream received:", stream);
+      console.log("Video tracks:", stream.getVideoTracks());
+      
+      if (!videoRef.current) {
+        console.error("Video ref is null!");
+        stream.getTracks().forEach(track => track.stop());
         setCameraLoading(false);
         return;
       }
-
-      console.log("Requesting camera access...");
       
-      let stream;
+      // Assign stream to video element
+      videoRef.current.srcObject = stream;
+      streamRef.current = stream;
+      setIsScanning(true);
+      
+      console.log("Stream assigned to video element");
+      
+      // Try to play the video
       try {
-        // Try with preferred settings first
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: 'environment', // Use back camera on mobile
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        });
-      } catch (constraintError) {
-        console.log("Falling back to basic camera settings:", constraintError);
-        // Fallback to basic camera access if constraints fail
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true
-        });
+        await videoRef.current.play();
+        console.log("Video is playing successfully");
+        setCameraLoading(false);
+      } catch (playError) {
+        console.log("Video play failed, but continuing:", playError);
+        setCameraLoading(false);
       }
       
-      console.log("Camera access granted:", stream);
-      
-      if (videoRef.current && stream) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        
-        // Ensure video plays automatically
-        videoRef.current.onloadedmetadata = () => {
-          console.log("Video metadata loaded");
-          setCameraLoading(false);
-          videoRef.current?.play().catch(e => console.log("Play error:", e));
-        };
-        
-        // Set scanning state immediately to show video container
-        setIsScanning(true);
-        console.log("Camera preview should now be visible");
-      }
     } catch (error) {
-      console.error("Camera error:", error);
+      console.error("Camera setup failed:", error);
       setCameraLoading(false);
-      
-      let errorMessage = "Unable to access camera. Please check permissions.";
-      
-      if (error instanceof DOMException) {
-        switch (error.name) {
-          case "NotAllowedError":
-            errorMessage = "Camera access denied. Please allow camera permissions and try again.";
-            break;
-          case "NotFoundError":
-            errorMessage = "No camera found on your device.";
-            break;
-          case "NotReadableError":
-            errorMessage = "Camera is already in use by another application.";
-            break;
-          case "OverconstrainedError":
-            errorMessage = "Camera doesn't support the requested settings.";
-            break;
-          default:
-            errorMessage = `Camera error: ${error.message}`;
-        }
-      }
       
       toast({
         title: "Camera Error",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Failed to access camera",
         variant: "destructive"
       });
     }
@@ -295,12 +270,24 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                 playsInline
                 muted
                 className="w-full rounded-lg min-h-[300px] bg-gray-100"
-                onError={(e) => console.error("Video error:", e)}
-                onLoadStart={() => console.log("Video load started")}
-                onCanPlay={() => console.log("Video can play")}
+                onError={(e) => {
+                  console.error("Video error:", e);
+                  setCameraLoading(false);
+                }}
+                onLoadStart={() => {
+                  console.log("Video load started");
+                }}
+                onCanPlay={() => {
+                  console.log("Video can play - hiding loading");
+                  setCameraLoading(false);
+                }}
+                onPlaying={() => {
+                  console.log("Video is playing");
+                  setCameraLoading(false);
+                }}
               />
               {cameraLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
                   <div className="text-center">
                     <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
                     <p className="text-gray-600">Initializing camera...</p>
