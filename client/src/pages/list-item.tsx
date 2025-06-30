@@ -471,6 +471,30 @@ export default function ListItem() {
                       )}
                     />
                   </div>
+
+                  {/* Current Real Price of Item */}
+                  <FormField
+                    control={form.control}
+                    name="currentPrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Real Price of Item ($)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            step="0.01"
+                            placeholder="1500.00"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </FormControl>
+                        <p className="text-sm text-gray-500">
+                          What would this item cost to buy new today? This helps AI give more accurate pricing suggestions.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
                   <div className="flex items-start space-x-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
@@ -665,46 +689,6 @@ export default function ListItem() {
                 {/* Manual Pricing */}
                 {showManualPricing && (
                   <div className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="currentPrice"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Current Real Price of Item ($)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number"
-                              step="0.01"
-                              placeholder="1500.00"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <p className="text-sm text-gray-500">
-                            What would this item cost to buy new today? This helps with pricing suggestions.
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    {/* AI Suggestions Button - shown after current price is entered */}
-                    {form.watch("currentPrice") && (
-                      <div className="flex justify-center">
-                        <Button 
-                          type="button"
-                          onClick={() => {
-                            setShowAIPricing(true);
-                            setShowManualPricing(false);
-                          }}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Submit Information for Instant AI Pricing Suggestions
-                        </Button>
-                      </div>
-                    )}
-                    
                     <FormField
                       control={form.control}
                       name="price"
