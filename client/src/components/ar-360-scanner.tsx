@@ -21,6 +21,7 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
   const [showMobilePrompt, setShowMobilePrompt] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [cameraLoading, setCameraLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -36,6 +37,7 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
   }, [isMobile]);
 
   const startCamera = async () => {
+    setCameraLoading(true);
     try {
       // Check if getUserMedia is available
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -44,6 +46,7 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
           description: "Your browser doesn't support camera access. Please use a modern browser.",
           variant: "destructive"
         });
+        setCameraLoading(false);
         return;
       }
 
@@ -69,19 +72,24 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
       
       console.log("Camera access granted:", stream);
       
-      if (videoRef.current) {
+      if (videoRef.current && stream) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
-        setIsScanning(true);
         
-        // Wait for video to load
+        // Ensure video plays automatically
         videoRef.current.onloadedmetadata = () => {
           console.log("Video metadata loaded");
-          videoRef.current?.play();
+          setCameraLoading(false);
+          videoRef.current?.play().catch(e => console.log("Play error:", e));
         };
+        
+        // Set scanning state immediately to show video container
+        setIsScanning(true);
+        console.log("Camera preview should now be visible");
       }
     } catch (error) {
       console.error("Camera error:", error);
+      setCameraLoading(false);
       
       let errorMessage = "Unable to access camera. Please check permissions.";
       
@@ -285,8 +293,20 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                 ref={videoRef}
                 autoPlay
                 playsInline
-                className="w-full rounded-lg"
+                muted
+                className="w-full rounded-lg min-h-[300px] bg-gray-100"
+                onError={(e) => console.error("Video error:", e)}
+                onLoadStart={() => console.log("Video load started")}
+                onCanPlay={() => console.log("Video can play")}
               />
+              {cameraLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+                  <div className="text-center">
+                    <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <p className="text-gray-600">Initializing camera...</p>
+                  </div>
+                </div>
+              )}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-48 h-48 border-4 border-white border-dashed rounded-lg flex items-center justify-center">
                   <span className="text-white font-semibold bg-black bg-opacity-50 px-2 py-1 rounded">
@@ -298,6 +318,7 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                 onClick={captureImage}
                 className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
                 size="lg"
+                disabled={cameraLoading}
               >
                 <Camera className="h-5 w-5 mr-2" />
                 Capture ({capturedImages.length + 1}/{requiredImages})
@@ -323,9 +344,9 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                     )}
                   </div>
                   <div className="flex gap-2 justify-center">
-                    <Button onClick={startCamera} size="lg">
+                    <Button onClick={startCamera} size="lg" disabled={cameraLoading}>
                       <Camera className="h-4 w-4 mr-2" />
-                      Start Camera
+                      {cameraLoading ? "Starting Camera..." : "Start Camera"}
                     </Button>
                     <Button onClick={() => {
                       // For now, show a simple file input
