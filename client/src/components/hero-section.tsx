@@ -22,10 +22,11 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
     queryFn: () => api.getCategories(),
   });
 
-  // Select specific featured categories to ensure Sports Gear is included
-  const featuredCategories = categories.filter(category => 
-    ['Tools & Equipment', 'Electronics', 'Sports Gear', 'Vehicles'].includes(category.name)
-  ).slice(0, 4);
+  // Select specific featured categories in the requested order
+  const categoryOrder = ['Tools & Equipment', 'Electronics', 'Sports Gear', 'Home & Garden'];
+  const featuredCategories = categoryOrder.map(name => 
+    categories.find(category => category.name === name)
+  ).filter(Boolean);
 
   return (
     <section className="gradient-bg text-white py-[5rem] relative overflow-hidden">
