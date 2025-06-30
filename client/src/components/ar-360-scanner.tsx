@@ -20,6 +20,7 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
   const [currentAngle, setCurrentAngle] = useState(0);
   const [showMobilePrompt, setShowMobilePrompt] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -36,23 +37,76 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment', // Use back camera on mobile
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          title: "Camera Not Supported",
+          description: "Your browser doesn't support camera access. Please use a modern browser.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log("Requesting camera access...");
+      
+      let stream;
+      try {
+        // Try with preferred settings first
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: 'environment', // Use back camera on mobile
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+      } catch (constraintError) {
+        console.log("Falling back to basic camera settings:", constraintError);
+        // Fallback to basic camera access if constraints fail
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true
+        });
+      }
+      
+      console.log("Camera access granted:", stream);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsScanning(true);
+        
+        // Wait for video to load
+        videoRef.current.onloadedmetadata = () => {
+          console.log("Video metadata loaded");
+          videoRef.current?.play();
+        };
       }
     } catch (error) {
+      console.error("Camera error:", error);
+      
+      let errorMessage = "Unable to access camera. Please check permissions.";
+      
+      if (error instanceof DOMException) {
+        switch (error.name) {
+          case "NotAllowedError":
+            errorMessage = "Camera access denied. Please allow camera permissions and try again.";
+            break;
+          case "NotFoundError":
+            errorMessage = "No camera found on your device.";
+            break;
+          case "NotReadableError":
+            errorMessage = "Camera is already in use by another application.";
+            break;
+          case "OverconstrainedError":
+            errorMessage = "Camera doesn't support the requested settings.";
+            break;
+          default:
+            errorMessage = `Camera error: ${error.message}`;
+        }
+      }
+      
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions.",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -95,6 +149,25 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
       startCamera();
     }
   };
+
+  const handleFileUpload = (files: File[]) => {
+    const promises = files.slice(0, requiredImages - capturedImages.length).map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(promises).then(dataUrls => {
+      setCapturedImages(prev => [...prev, ...dataUrls]);
+      toast({
+        title: "Images Uploaded",
+        description: `Added ${dataUrls.length} images to your 360° scan.`
+      });
+    });
+  };
+
 
   const uploadScan = async () => {
     if (capturedImages.length < requiredImages) {
@@ -243,11 +316,35 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                     <p className="text-sm text-gray-600 mt-1">
                       Position the item in good lighting and start capturing
                     </p>
+                    {!window.isSecureContext && (
+                      <p className="text-xs text-orange-600 mt-2">
+                        ⚠️ Camera requires HTTPS for security. Use manual upload if camera doesn't work.
+                      </p>
+                    )}
                   </div>
-                  <Button onClick={startCamera} size="lg">
-                    <Camera className="h-4 w-4 mr-2" />
-                    Start Camera
-                  </Button>
+                  <div className="flex gap-2 justify-center">
+                    <Button onClick={startCamera} size="lg">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Start Camera
+                    </Button>
+                    <Button onClick={() => {
+                      // For now, show a simple file input
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.multiple = true;
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const files = (e.target as HTMLInputElement).files;
+                        if (files) {
+                          handleFileUpload(Array.from(files));
+                        }
+                      };
+                      input.click();
+                    }} variant="outline" size="lg">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Photos
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
