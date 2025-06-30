@@ -246,8 +246,6 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Fixed rating display caching issue - items now show owner's current rating from users table instead of cached item ratings, ensuring authentic rating display
 - June 29, 2025: Fixed hardcoded 4.8 rating in MyProfile page - now displays user's actual rating (4.0 for epicswag) from database instead of static value
 - June 29, 2025: Modified review prompt system for testing - now shows review modal every time app opens instead of only after completed transactions
-- June 30, 2025: Updated review modal text from "Item you rented" to "Transaction Item" for better clarity
-- June 30, 2025: Restructured marketplace categories to: Electronics, Home & Garden, Sports Equipment/Outdoor Gear, Clothing, Vehicles - consolidated from 9 categories to 5 main categories for better organization
 
 ## User Preferences
 
