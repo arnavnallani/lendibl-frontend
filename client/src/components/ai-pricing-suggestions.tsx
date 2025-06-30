@@ -23,6 +23,7 @@ interface AIPricingSuggestionsProps {
   description: string;
   location: string;
   condition?: string;
+  currentPrice?: number; // Current real market price of the item
   onPriceSelect: (price: number) => void;
 }
 
@@ -32,6 +33,7 @@ export function AIPricingSuggestions({
   description,
   location,
   condition = 'good',
+  currentPrice,
   onPriceSelect
 }: AIPricingSuggestionsProps) {
   const [suggestions, setSuggestions] = useState<PricingSuggestion | null>(null);
@@ -51,7 +53,8 @@ export function AIPricingSuggestions({
         category,
         description,
         location,
-        condition
+        condition,
+        currentPrice
       });
 
       if (!response.ok) {

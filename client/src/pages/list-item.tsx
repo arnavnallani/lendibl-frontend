@@ -28,6 +28,7 @@ import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
   price: z.coerce.number().min(0, "Price must be a positive number").optional(),
+  currentPrice: z.coerce.string().optional().transform((val) => val === "" ? null : val),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
   address: z.string().min(1, "Address is required"),
@@ -651,6 +652,10 @@ export default function ListItem() {
                     description={form.watch("description")}
                     location={`${form.watch("address")}, ${form.watch("city")}, ${form.watch("state")} ${form.watch("zipCode")}`}
                     condition="good"
+                    currentPrice={(() => {
+                      const val = form.watch("currentPrice");
+                      return val ? parseFloat(val) : undefined;
+                    })()}
                     onPriceSelect={(price) => {
                       form.setValue("price", price);
                     }}
@@ -660,6 +665,46 @@ export default function ListItem() {
                 {/* Manual Pricing */}
                 {showManualPricing && (
                   <div className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="currentPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Real Price of Item ($)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number"
+                              step="0.01"
+                              placeholder="1500.00"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <p className="text-sm text-gray-500">
+                            What would this item cost to buy new today? This helps with pricing suggestions.
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* AI Suggestions Button - shown after current price is entered */}
+                    {form.watch("currentPrice") && (
+                      <div className="flex justify-center">
+                        <Button 
+                          type="button"
+                          onClick={() => {
+                            setShowAIPricing(true);
+                            setShowManualPricing(false);
+                          }}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Get AI Pricing Suggestions with Real Price
+                        </Button>
+                      </div>
+                    )}
+                    
                     <FormField
                       control={form.control}
                       name="price"

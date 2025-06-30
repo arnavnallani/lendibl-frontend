@@ -17,6 +17,7 @@ export interface PricingAnalysisInput {
   description: string;
   location: string;
   condition: string;
+  currentPrice?: number; // Current market value provided by user
 }
 
 // Google Gemini AI pricing analysis
@@ -80,18 +81,20 @@ export class AIPricingService {
     const month = currentDate.toLocaleString('default', { month: 'long' });
     const season = this.getCurrentSeason();
     
+    // Use provided current price or estimate if not provided
+    const originalPrice = input.currentPrice || this.estimateItemValue(input.itemTitle, input.description, input.category);
+    
     const prompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. Condition: ${input.condition}.
 
-PRICING RULES:
-1. First estimate the original purchase price of this item
-2. If original price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be very competitive and affordable
-3. If original price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
+IMPORTANT: The current real market price of this item is $${originalPrice}.
 
-EXAMPLES:
-- MacBook Pro 14-inch ($1600 original) → ~$38/day base
-- Apple Vision Pro ($3500 original) → ~$47.50/day base  
-- Basic drill ($120 original) → ~$15/day (much lower than max)
-- Professional camera ($800 original) → ~$20/day (much lower than max)
+PRICING RULES:
+1. Use the provided current price: $${originalPrice}
+2. If current price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be very competitive and affordable
+3. If current price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
+
+EXAMPLES BASED ON PROVIDED PRICE:
+- Current price $${originalPrice} ${originalPrice < 1000 ? `(under $1000) → suggest competitive rate under $35/day` : `(over $1000) → suggest around $${Math.round((0.005 * originalPrice + 30) * 100) / 100}/day base`}
 
 Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
     

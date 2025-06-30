@@ -63,6 +63,7 @@ export const items = pgTable("items", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }), // Current market value for AI pricing
   categoryId: integer("category_id").references(() => categories.id).notNull(),
   ownerId: integer("owner_id").references(() => users.id).notNull(),
   images: text("images").array().default([]),

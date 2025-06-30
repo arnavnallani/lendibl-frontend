@@ -1408,7 +1408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Pricing Suggestions
   app.post("/api/pricing-suggestions", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const { itemTitle, category, description, location, condition } = req.body;
+      const { itemTitle, category, description, location, condition, currentPrice } = req.body;
 
       if (!itemTitle || !category || !description || !location) {
         return res.status(400).json({ 
@@ -1421,7 +1421,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         category,
         description,
         location,
-        condition: condition || 'good'
+        condition: condition || 'good',
+        currentPrice: currentPrice ? parseFloat(currentPrice) : undefined
       });
 
       res.json(pricingSuggestion);
