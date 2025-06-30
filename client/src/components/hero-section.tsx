@@ -24,9 +24,9 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
 
   // Select specific featured categories in the requested order
   const categoryOrder = ['Tools & Equipment', 'Electronics', 'Sports Gear', 'Home & Garden'];
-  const featuredCategories = categoryOrder.map(name => 
-    categories.find(category => category.name === name)
-  ).filter(Boolean);
+  const featuredCategories = categoryOrder
+    .map(name => categories.find(category => category.name === name))
+    .filter((category): category is NonNullable<typeof category> => Boolean(category));
 
   return (
     <section className="gradient-bg text-white py-[5rem] relative overflow-hidden">

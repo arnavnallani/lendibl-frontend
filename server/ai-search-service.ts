@@ -249,8 +249,87 @@ Examples:
         };
       });
 
+    // If no good matches found, find alternative suggestions
+    if (relevantItems.length === 0) {
+      const alternativeMatches = await this.findAlternativeSuggestions(query, allItems, searchAnalysis);
+      console.log(`No exact matches for "${query}", suggesting ${alternativeMatches.length} alternatives`);
+      return alternativeMatches.map(match => ({
+        ...match,
+        isAlternativeSuggestion: true,
+        originalQuery: query
+      }));
+    }
+
     console.log(`AI Search found ${relevantItems.length} relevant items for "${query}"`);
     return relevantItems;
+  }
+
+  async findAlternativeSuggestions(originalQuery: string, allItems: any[], searchAnalysis: SearchAnalysis): Promise<any[]> {
+    // Create broader search terms based on the query category
+    const broadSearchTerms = this.getBroadSearchTerms(originalQuery, searchAnalysis);
+    
+    const suggestions: any[] = [];
+    
+    for (const broadTerm of broadSearchTerms) {
+      const broadAnalysis = await this.analyzeSearchQuery(broadTerm);
+      const scoredItems = await this.scoreItemRelevance(allItems, broadAnalysis);
+      
+      const matches = scoredItems
+        .filter(item => item.score >= 2) // Lower threshold for suggestions
+        .slice(0, 3)
+        .map(match => {
+          const originalItem = allItems.find(item => item.id === match.id);
+          return {
+            ...originalItem,
+            aiScore: match.score,
+            aiReason: match.reason,
+            suggestionReason: `Similar to ${originalQuery}`
+          };
+        });
+      
+      suggestions.push(...matches);
+    }
+    
+    // Remove duplicates and return top 4 suggestions
+    const uniqueSuggestions = suggestions.filter((item, index, self) => 
+      index === self.findIndex(t => t.id === item.id)
+    );
+    
+    return uniqueSuggestions.slice(0, 4);
+  }
+
+  private getBroadSearchTerms(query: string, searchAnalysis: SearchAnalysis): string[] {
+    const queryLower = query.toLowerCase();
+    
+    // Mapping specific brands/products to broader categories
+    if (queryLower.includes('bose') && queryLower.includes('headphone')) {
+      return ['headphones', 'wireless earbuds', 'audio equipment'];
+    }
+    if (queryLower.includes('airpods')) {
+      return ['wireless earbuds', 'headphones', 'apple accessories'];
+    }
+    if (queryLower.includes('iphone')) {
+      return ['smartphone', 'phone', 'mobile device'];
+    }
+    if (queryLower.includes('macbook')) {
+      return ['laptop', 'computer', 'apple laptop'];
+    }
+    if (queryLower.includes('canon') && queryLower.includes('camera')) {
+      return ['camera', 'photography equipment', 'dslr'];
+    }
+    if (queryLower.includes('nintendo')) {
+      return ['gaming console', 'gaming', 'console'];
+    }
+    if (queryLower.includes('tesla')) {
+      return ['electric car', 'vehicle', 'car'];
+    }
+    
+    // Fallback to search analysis categories and synonyms
+    return [
+      ...searchAnalysis.categories.map(cat => cat.toLowerCase()),
+      ...searchAnalysis.synonyms.slice(0, 2),
+      ...searchAnalysis.relatedTerms.slice(0, 2)
+    ].filter(term => term && term.length > 2);
   }
 }
 
