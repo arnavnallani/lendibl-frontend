@@ -218,6 +218,36 @@ export const insertReviewPromptSchema = createInsertSchema(reviewPrompts).omit({
   createdAt: true,
 });
 
+export const itemScans = pgTable("item_scans", {
+  id: serial("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  scanType: text("scan_type").notNull(), // 'pre_rental', 'post_rental'
+  scanImages: text("scan_images").array().notNull(), // Array of image URLs from 360 scan
+  createdAt: timestamp("created_at").defaultNow(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+});
+
+export const insertItemScanSchema = createInsertSchema(itemScans).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const damageReports = pgTable("damage_reports", {
+  id: serial("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id).notNull(),
+  reporterId: integer("reporter_id").references(() => users.id).notNull(),
+  reporterType: text("reporter_type").notNull(), // 'owner' or 'renter'
+  description: text("description").notNull(),
+  images: text("images").array(),
+  status: text("status").default("pending"), // 'pending', 'investigating', 'resolved'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDamageReportSchema = createInsertSchema(damageReports).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -251,6 +281,12 @@ export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 
 export type ReviewPrompt = typeof reviewPrompts.$inferSelect;
 export type InsertReviewPrompt = z.infer<typeof insertReviewPromptSchema>;
+
+export type ItemScan = typeof itemScans.$inferSelect;
+export type InsertItemScan = z.infer<typeof insertItemScanSchema>;
+
+export type DamageReport = typeof damageReports.$inferSelect;
+export type InsertDamageReport = z.infer<typeof insertDamageReportSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

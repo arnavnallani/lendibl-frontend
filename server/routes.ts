@@ -1670,6 +1670,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // 360° Item Scanning API endpoints
+  app.post("/api/item-scans", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, scanType, scanImages } = req.body;
+      const userId = req.user!.id;
+
+      if (!bookingId || !scanType || !scanImages || !Array.isArray(scanImages)) {
+        return res.status(400).json({ 
+          message: "Missing required fields: bookingId, scanType, scanImages" 
+        });
+      }
+
+      // Verify user has permission for this booking
+      const booking = await storage.getBookingWithDetails(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (booking.item.ownerId !== userId && booking.renterId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const itemScan = await storage.createItemScan({
+        bookingId,
+        scanType,
+        scanImages,
+        userId
+      });
+
+      res.json(itemScan);
+    } catch (error) {
+      console.error('Failed to create item scan:', error);
+      res.status(500).json({ message: "Failed to save scan" });
+    }
+  });
+
+  app.get("/api/item-scans/:bookingId", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const bookingId = parseInt(req.params.bookingId);
+      const userId = req.user!.id;
+
+      // Verify user has permission for this booking
+      const booking = await storage.getBookingWithDetails(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (booking.item.ownerId !== userId && booking.renterId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const scans = await storage.getItemScansByBooking(bookingId);
+      res.json(scans);
+    } catch (error) {
+      console.error('Failed to fetch item scans:', error);
+      res.status(500).json({ message: "Failed to fetch scans" });
+    }
+  });
+
+  // Damage reporting endpoints
+  app.post("/api/damage-reports", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, reporterType, description, images } = req.body;
+      const reporterId = req.user!.id;
+
+      if (!bookingId || !reporterType || !description) {
+        return res.status(400).json({ 
+          message: "Missing required fields: bookingId, reporterType, description" 
+        });
+      }
+
+      const damageReport = await storage.createDamageReport({
+        bookingId,
+        reporterId,
+        reporterType,
+        description,
+        images: images || []
+      });
+
+      res.json(damageReport);
+    } catch (error) {
+      console.error('Failed to create damage report:', error);
+      res.status(500).json({ message: "Failed to submit damage report" });
+    }
+  });
+
+  app.post("/api/send-damage-report-email", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId, reporterType, description } = req.body;
+      const user = req.user!;
+
+      // Get booking details
+      const booking = await storage.getBookingWithDetails(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Send email to Lendibl
+      const emailSubject = `Damage Report - Booking #${bookingId}`;
+      const emailBody = `
+        Damage Report Submitted
+        
+        Booking ID: ${bookingId}
+        Item: ${booking.item.title}
+        Reporter: ${user.firstName} ${user.lastName} (${user.email})
+        Reporter Type: ${reporterType}
+        
+        Description:
+        ${description}
+        
+        Please investigate this damage report.
+      `;
+
+      // In a real implementation, you would send this email using a service like SendGrid
+      console.log('Damage report email would be sent to arnav.nallani@gmail.com:');
+      console.log('Subject:', emailSubject);
+      console.log('Body:', emailBody);
+
+      res.json({ message: "Damage report sent successfully" });
+    } catch (error) {
+      console.error('Failed to send damage report email:', error);
+      res.status(500).json({ message: "Failed to send damage report" });
+    }
+  });
+
+  app.post("/api/confirm-good-condition", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { bookingId } = req.body;
+      const userId = req.user!.id;
+
+      // Verify user is the owner of this booking
+      const booking = await storage.getBookingWithDetails(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      if (booking.item.ownerId !== userId) {
+        return res.status(403).json({ message: "Only the owner can confirm condition" });
+      }
+
+      // Update booking status to indicate condition confirmed
+      await storage.updateBooking(bookingId, { 
+        status: 'condition_confirmed' 
+      });
+
+      res.json({ message: "Condition confirmed successfully" });
+    } catch (error) {
+      console.error('Failed to confirm condition:', error);
+      res.status(500).json({ message: "Failed to confirm condition" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // Setup WebSocket server for real-time notifications

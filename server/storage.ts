@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
 
@@ -55,6 +55,17 @@ export interface IStorage {
   createReviewPrompt(prompt: InsertReviewPrompt): Promise<ReviewPrompt>;
   updateReviewPrompt(id: number, updates: Partial<ReviewPrompt>): Promise<ReviewPrompt | undefined>;
   deleteReviewPrompt(id: number): Promise<boolean>;
+
+  // Item Scans (360° documentation)
+  getItemScansByBooking(bookingId: number): Promise<any[]>;
+  createItemScan(scan: any): Promise<any>;
+
+  // Damage Reports
+  createDamageReport(report: any): Promise<any>;
+
+  // Additional methods
+  getAllUsers(): Promise<User[]>;
+  getBookingWithDetails(id: number): Promise<any | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -756,7 +767,83 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(reviewPrompts)
       .where(eq(reviewPrompts.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Item Scans (360° documentation)
+  async getItemScansByBooking(bookingId: number): Promise<any[]> {
+    const scans = await db
+      .select({
+        id: itemScans.id,
+        bookingId: itemScans.bookingId,
+        scanType: itemScans.scanType,
+        scanImages: itemScans.scanImages,
+        createdAt: itemScans.createdAt,
+        userId: itemScans.userId,
+        user: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        }
+      })
+      .from(itemScans)
+      .leftJoin(users, eq(itemScans.userId, users.id))
+      .where(eq(itemScans.bookingId, bookingId))
+      .orderBy(desc(itemScans.createdAt));
+    
+    return scans;
+  }
+
+  async createItemScan(scan: InsertItemScan): Promise<ItemScan> {
+    const [result] = await db
+      .insert(itemScans)
+      .values(scan)
+      .returning();
+    return result;
+  }
+
+  // Damage Reports
+  async createDamageReport(report: InsertDamageReport): Promise<DamageReport> {
+    const [result] = await db
+      .insert(damageReports)
+      .values(report)
+      .returning();
+    return result;
+  }
+
+  // Additional methods
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async getBookingWithDetails(id: number): Promise<BookingWithDetails | undefined> {
+    const [result] = await db
+      .select({
+        booking: bookings,
+        item: items,
+        owner: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          rating: users.rating,
+          reviewCount: users.reviewCount,
+          responseRate: users.responseRate,
+          responseTime: users.responseTime,
+        },
+      })
+      .from(bookings)
+      .leftJoin(items, eq(bookings.itemId, items.id))
+      .leftJoin(users, eq(items.ownerId, users.id))
+      .where(eq(bookings.id, id));
+
+    if (!result) return undefined;
+
+    return {
+      ...result.booking,
+      item: result.item!,
+      owner: result.owner!,
+    };
   }
 }
 
