@@ -108,7 +108,7 @@ Consider ${season} seasonal demand for ${month} and ${input.location} market con
           `AI-powered pricing: $${geminiResult.suggestedPrice}/day`,
           geminiResult.reasoning || `Optimized for ${input.location} market`,
           `${season} seasonal pricing for ${month}`,
-          "Natural AI understanding of item value"
+          input.currentPrice ? `Based on provided real price: $${originalPrice}` : "AI estimated item value"
         ];
         
         return {

@@ -700,7 +700,7 @@ export default function ListItem() {
                           className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           <Sparkles className="h-4 w-4 mr-2" />
-                          Get AI Pricing Suggestions with Real Price
+                          Submit Information for Instant AI Pricing Suggestions
                         </Button>
                       </div>
                     )}

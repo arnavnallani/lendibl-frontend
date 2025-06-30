@@ -1410,6 +1410,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { itemTitle, category, description, location, condition, currentPrice } = req.body;
 
+      console.log('DEBUG: Pricing suggestions request received with currentPrice:', currentPrice);
+      console.log('DEBUG: currentPrice type:', typeof currentPrice);
+
       if (!itemTitle || !category || !description || !location) {
         return res.status(400).json({ 
           message: "Missing required fields: itemTitle, category, description, location" 
