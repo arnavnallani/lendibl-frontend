@@ -224,6 +224,27 @@ Examples:
     return scoredItems.sort((a, b) => b.score - a.score);
   }
 
+  private shouldTriggerAlternatives(query: string, relevantItems: any[]): boolean {
+    const queryLower = query.toLowerCase();
+    
+    // Trigger alternatives for specific brand searches that return low-quality matches
+    const specificBrands = ['bose', 'beats', 'sony', 'samsung', 'lg', 'microsoft', 'google'];
+    const containsSpecificBrand = specificBrands.some(brand => queryLower.includes(brand));
+    
+    if (containsSpecificBrand) {
+      // If we found results but none are high-scoring matches for the specific brand
+      const hasHighQualityBrandMatch = relevantItems.some(item => {
+        const itemText = `${item.title} ${item.description}`.toLowerCase();
+        return specificBrands.some(brand => 
+          queryLower.includes(brand) && itemText.includes(brand)
+        );
+      });
+      return !hasHighQualityBrandMatch;
+    }
+    
+    return false;
+  }
+
   async enhancedSearch(query: string, allItems: any[]): Promise<any[]> {
     if (!query || query.trim().length < 2) {
       return [];
@@ -238,7 +259,7 @@ Examples:
     
     // Return top matches with scores above threshold
     const relevantItems = scoredItems
-      .filter(item => item.score >= 3)
+      .filter(item => item.score >= 8) // Higher threshold for direct matches
       .slice(0, 10)
       .map(match => {
         const originalItem = allItems.find(item => item.id === match.id);
@@ -249,8 +270,11 @@ Examples:
         };
       });
 
-    // If no good matches found, find alternative suggestions
-    if (relevantItems.length === 0) {
+    // Check if we should show alternative suggestions
+    // Show alternatives if no high-quality matches OR if query contains specific brand not found
+    const shouldShowAlternatives = relevantItems.length === 0 || this.shouldTriggerAlternatives(query, relevantItems);
+    
+    if (shouldShowAlternatives) {
       const alternativeMatches = await this.findAlternativeSuggestions(query, allItems, searchAnalysis);
       console.log(`No exact matches for "${query}", suggesting ${alternativeMatches.length} alternatives`);
       return alternativeMatches.map(match => ({
