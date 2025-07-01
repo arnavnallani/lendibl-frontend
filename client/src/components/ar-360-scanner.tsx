@@ -46,9 +46,11 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
         throw new Error("Camera not supported in this browser");
       }
 
-      // Get camera stream with simple settings
+      // Get camera stream with back camera preference
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true
+        video: {
+          facingMode: { ideal: 'environment' } // Request back camera
+        }
       });
       
       // Wait for video element to be ready
