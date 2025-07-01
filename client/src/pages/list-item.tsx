@@ -27,7 +27,7 @@ import { ImageUpload } from "@/components/image-upload";
 import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
-  price: z.coerce.number().min(0, "Price must be a positive number").optional(),
+  price: z.coerce.number().min(0.01, "Price must be greater than 0"),
   currentPrice: z.coerce.string().optional().transform((val) => val === "" ? null : val),
   categoryId: z.coerce.number().min(1, "Category is required"),
   includedItems: z.string().optional(),
@@ -127,7 +127,8 @@ export default function ListItem() {
     defaultValues: {
       title: "",
       description: "",
-      price: 0,
+      price: 1,
+      currentPrice: "",
       categoryId: 0,
       ownerId: 1, // Mock owner ID
       images: [],
@@ -139,6 +140,8 @@ export default function ListItem() {
       available: true,
       included: [],
       includedItems: "",
+      availableFrom: undefined,
+      availableTo: undefined,
     },
   });
 
@@ -219,6 +222,8 @@ export default function ListItem() {
   };
 
   const onSubmit = (values: FormValues) => {
+    console.log("Form submission started", values);
+    
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -236,6 +241,8 @@ export default function ListItem() {
       });
       return;
     }
+
+    console.log("All validations passed, proceeding with submission");
 
     const includedArray = values.includedItems
       ? values.includedItems.split('\n').filter(item => item.trim() !== '')
@@ -720,7 +727,7 @@ export default function ListItem() {
                         onClick={() => {
                           setShowAIPricing(false);
                           setShowManualPricing(false);
-                          form.setValue("price", undefined);
+                          form.setValue("price", 1);
                         }}
                       >
                         Back to Pricing Options
