@@ -153,11 +153,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
                 </div>
 
-                {/* Greeting Message */}
-                <div className="hidden sm:block text-gray-700 font-medium">
-                  Sup, {user.firstName}!
-                </div>
-
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -213,6 +208,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                {/* Greeting Message - Rightmost Element */}
+                <div className="hidden sm:block text-gray-700 font-medium ml-3">
+                  Sup {user.firstName}!
+                </div>
               </>
             ) : (
               <Button
