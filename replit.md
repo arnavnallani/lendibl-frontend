@@ -259,7 +259,7 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Added "Hey [Name]!" greeting message in header navigation for logged-in users, now visible on both mobile and desktop
 - July 1, 2025: Restored responsive logo switching to lg breakpoint (1024px) - desktop logo shows until actually cramped, then switches to mobile logo  
 - July 1, 2025: Optimized header layout with flex-shrink-0 to prevent logo cramping and distortion at all screen sizes
-- July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints
+- July 1, 2025: Made search bar always visible on all screen sizes - removed mobile-only search section and made main search responsive across all breakpoints
 - July 1, 2025: Implemented smart alternative suggestions for empty search results with "We don't have that yet... but you may be interested in..." fallback showing similar items based on category relationships
 
 ## User Preferences

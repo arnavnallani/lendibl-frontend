@@ -66,8 +66,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </Link>
           </div>
 
-          {/* Enhanced Search Bar (Desktop) */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8 xl:mx-12">
+          {/* Enhanced Search Bar (Always Visible) */}
+          <div className="flex flex-1 max-w-xs sm:max-w-md lg:max-w-2xl mx-2 sm:mx-4 lg:mx-8 xl:mx-12">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -238,38 +238,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           onClose={() => setIsNotificationsOpen(false)}
         />
       )}
-
-      {/* Mobile Search */}
-      <div className="md:hidden px-4 pb-4">
-        <div className="relative w-full group">
-          <div className="relative overflow-hidden rounded-full bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative">
-              <DynamicSearch
-                value={searchQuery}
-                onChange={(value) => {
-                  setSearchQuery(value);
-                  onSearch(value);
-                  // Auto-scroll to items section when typing
-                  if (value.trim()) {
-                    setTimeout(() => {
-                      const itemsSection = document.getElementById('items-section');
-                      if (itemsSection) {
-                        itemsSection.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
-                        });
-                      }
-                    }, 100);
-                  }
-                }}
-                placeholder="Search for anything..."
-                className="w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
     </header>
   );
 }
