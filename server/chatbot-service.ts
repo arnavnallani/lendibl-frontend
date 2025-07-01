@@ -23,7 +23,7 @@ User question: ${userMessage}
 Provide a helpful, friendly response about Lendibl. Keep it concise but informative. If asked about technical details you're unsure about, suggest contacting support.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       contents: prompt,
     });
 

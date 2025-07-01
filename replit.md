@@ -250,6 +250,10 @@ The application uses PostgreSQL with the following main entities:
 - June 30, 2025: Updated category structure to: Electronics, Home & Garden, Tools & Equipment, Sports Gear, Outdoor, Clothing, Vehicles - Sports Gear now features basketball icon in hero section
 - June 30, 2025: Fixed review modal text from "Item you rented" to "Transaction Item" for clearer terminology
 - June 30, 2025: Added "Current Real Price of Item" field to main listing form before pricing buttons - owners specify actual market value, AI automatically uses this real data for accurate pricing suggestions instead of estimation
+- July 1, 2025: Fixed camera system to use back camera for AR item scanning - resolved loading issues and improved reliability
+- July 1, 2025: Fixed publish listing button by resolving form validation issues and fixing price schema requirements
+- July 1, 2025: Increased Express server body parser limit to 10MB to support image uploads in listings
+- July 1, 2025: Switched all AI services from Gemini 2.5 to Gemini 1.5 - updated pricing, search, and chatbot services per user request
 
 ## User Preferences
 
