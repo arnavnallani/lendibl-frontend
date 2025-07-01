@@ -4,8 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import { paymentScheduler } from "./payment-scheduler";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
