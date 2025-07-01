@@ -208,10 +208,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Centered between dropdown and right edge */}
-                <div className="hidden sm:flex flex-1 justify-center">
-                  <div className="text-gray-700 font-medium">
+                <div className="hidden sm:flex flex-1 justify-center items-center">
+                  <span className="text-gray-700 font-medium whitespace-nowrap">
                     Hey {user.firstName}!
-                  </div>
+                  </span>
                 </div>
               </>
             ) : (
