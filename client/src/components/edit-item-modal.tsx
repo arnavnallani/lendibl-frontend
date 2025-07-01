@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { ItemWithDetails } from '@shared/schema';
+import { ImageUpload } from '@/components/image-upload';
 
 const editItemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -93,8 +94,7 @@ interface EditItemModalProps {
 }
 
 export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: EditItemModalProps) {
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   
   const { data: categories = [] } = useQuery({
     queryKey: ['/api/categories'],
@@ -122,7 +122,7 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
   // Reset form and images when item changes
   React.useEffect(() => {
     if (item) {
-      setImageUrls(item.images || []);
+      setImages(item.images || []);
       
       // Parse existing location into separate fields if available
       const locationParts = item.location.split(',').map(part => part.trim());
@@ -161,7 +161,7 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
         ...values,
         price: values.price.toString(),
         location: fullAddress,
-        images: imageUrls,
+        images: images,
       });
       onClose();
       onItemUpdated?.();
@@ -170,15 +170,8 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
     }
   };
 
-  const addImage = () => {
-    if (newImageUrl && !imageUrls.includes(newImageUrl)) {
-      setImageUrls([...imageUrls, newImageUrl]);
-      setNewImageUrl('');
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImageUrls(imageUrls.filter((_, i) => i !== index));
+  const handleImagesChange = (newImages: string[]) => {
+    setImages(newImages);
   };
 
   const handleDelete = async () => {
@@ -361,69 +354,14 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
               )}
             />
             
-            {/* Image Management Section */}
-            <div className="space-y-4 border-2 border-blue-200 p-4 rounded-lg bg-blue-50">
-              <FormLabel className="text-lg font-semibold text-blue-700">Manage Photos</FormLabel>
-              
-              {/* Current Images Display */}
-              <div className="text-sm text-gray-600 mb-2">
-                Current photos: {imageUrls.length}
-              </div>
-              {imageUrls.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {imageUrls.map((url, index) => (
-                    <Card key={index} className="relative">
-                      <CardContent className="p-2">
-                        <img 
-                          src={url} 
-                          alt={`Item photo ${index + 1}`}
-                          className="w-full h-24 object-cover rounded"
-                          onError={(e) => {
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                  <p>No photos yet. Add some photos to make your listing more attractive!</p>
-                </div>
-              )}
-              
-              {/* Add New Image */}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter image URL (e.g., from Unsplash)"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addImage}
-                  disabled={!newImageUrl}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add
-                </Button>
-              </div>
-              
-              <p className="text-sm text-muted-foreground">
-                Add high-quality photos to attract more renters. You can use image URLs from sites like Unsplash.
-              </p>
+            {/* Image Upload Section */}
+            <div className="space-y-4">
+              <FormLabel className="text-lg font-semibold">Photos</FormLabel>
+              <ImageUpload
+                images={images}
+                onImagesChange={handleImagesChange}
+                maxImages={5}
+              />
             </div>
             
             <div className="flex justify-between pt-4">
