@@ -222,7 +222,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
             {/* Greeting Message - Far Right */}
             {user && (
-              <div className="hidden sm:block text-gray-700 font-medium">
+              <div className="hidden sm:block text-gray-700 font-medium ml-6">
                 Hey {user.firstName}!
               </div>
             )}
