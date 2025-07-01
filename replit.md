@@ -257,8 +257,9 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Updated edit item modal to use image upload component instead of URL input - consistent with list items page for better user experience
 - July 1, 2025: Fixed review prompt system to only show after completed transactions instead of on every app load
 - July 1, 2025: Added "Hey [Name]!" greeting message in header navigation for logged-in users, now visible on both mobile and desktop
-- July 1, 2025: Enhanced responsive logo switching to use xl breakpoint - mobile logo now shows at much larger screen sizes to prevent any cramping
+- July 1, 2025: Enhanced responsive logo switching with custom 1200px breakpoint - full desktop logo shows until window gets cramped, then switches to mobile logo
 - July 1, 2025: Optimized header layout with flex-shrink-0 and improved spacing to prevent logo cramping at all screen sizes
+- July 1, 2025: Added comprehensive responsive search bar coverage with multiple breakpoints (desktop 1200px+, large 1024-1199px, medium 768-1023px, mobile <768px)
 - July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints
 - July 1, 2025: Implemented smart alternative suggestions for empty search results with "We don't have that yet... but you may be interested in..." fallback showing similar items based on category relationships
 

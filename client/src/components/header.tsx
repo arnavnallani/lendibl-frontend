@@ -49,25 +49,25 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center flex-shrink-0">
+          <div className="flex items-center flex-shrink-0 min-w-0">
             <Link href="/">
-              {/* Desktop Logo - shows only on very large screens with plenty of space */}
+              {/* Desktop Logo - shows when there's sufficient space (1200px+) */}
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="hidden xl:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="hidden min-[1200px]:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
-              {/* Mobile Logo - shows on all other screens to prevent cramping */}
+              {/* Mobile Logo - shows when space is limited (<1200px) */}
               <img 
                 src={mobileLogoImage} 
                 alt="Lendibl" 
-                className="xl:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="min-[1200px]:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
 
           {/* Enhanced Search Bar (Desktop) */}
-          <div className="hidden xl:flex flex-1 max-w-2xl mx-8 lg:mx-12">
+          <div className="hidden min-[1200px]:flex flex-1 max-w-2xl mx-8 lg:mx-12">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -98,8 +98,40 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </div>
           </div>
 
-          {/* Tablet Search Bar (Large screens) */}
-          <div className="hidden lg:flex xl:hidden flex-1 max-w-xl mx-4">
+          {/* Tablet Search Bar (Medium-Large screens) */}
+          <div className="hidden lg:flex min-[1200px]:hidden flex-1 max-w-xl mx-4">
+            <div className="relative w-full group">
+              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative">
+                  <DynamicSearch
+                    value={searchQuery}
+                    onChange={(value) => {
+                      setSearchQuery(value);
+                      onSearch(value);
+                      // Auto-scroll to items section when typing
+                      if (value.trim()) {
+                        setTimeout(() => {
+                          const itemsSection = document.getElementById('items-section');
+                          if (itemsSection) {
+                            itemsSection.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'start' 
+                            });
+                          }
+                        }, 100);
+                      }
+                    }}
+                    placeholder="Search for anything..."
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Medium Search Bar (768px-1024px) */}
+          <div className="hidden md:flex lg:hidden flex-1 max-w-lg mx-3">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
