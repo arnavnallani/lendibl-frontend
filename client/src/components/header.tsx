@@ -194,7 +194,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
+                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:space-x-3"
                     >
                       {/* Mobile: Just circle */}
                       <div className="sm:hidden w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
@@ -206,17 +206,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         ) : null}
                       </div>
                       
-                      {/* Desktop: Menu icon + circle */}
-                      <div className="hidden sm:flex items-center space-x-3">
-                        <Menu className="h-4 w-4 text-gray-medium" />
-                        <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
-                          <span className="text-white font-semibold text-sm">
-                            {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
-                          </span>
-                          {unreadCount > 0 ? (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
-                          ) : null}
-                        </div>
+                      {/* Desktop: Menu icon + circle - restored to original structure */}
+                      <Menu className="hidden sm:block h-4 w-4 text-gray-medium" />
+                      <div className="hidden sm:flex w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full items-center justify-center shadow-md relative">
+                        <span className="text-white font-semibold text-sm">
+                          {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
+                        </span>
+                        {unreadCount > 0 ? (
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                        ) : null}
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
@@ -259,9 +257,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
                 {/* Greeting Message - Rightmost Element */}
                 <div className="text-gray-700 font-medium text-xs sm:text-sm lg:text-base text-right leading-tight">
-                  <div className="sm:whitespace-nowrap">
-                    <div className="sm:inline">Hey</div>
-                    <div className="sm:inline sm:ml-1">{user.firstName}!</div>
+                  {/* Mobile: Two lines */}
+                  <div className="sm:hidden">
+                    <div>Hey</div>
+                    <div>{user.firstName}!</div>
+                  </div>
+                  
+                  {/* Desktop: Single line - restored to original */}
+                  <div className="hidden sm:block whitespace-nowrap">
+                    Hey {user.firstName}!
                   </div>
                 </div>
               </>
