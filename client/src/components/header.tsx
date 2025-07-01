@@ -98,8 +98,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </div>
           </div>
 
-          {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-5">
+          {/* User Controls and Greeting */}
+          <div className="flex items-center justify-end space-x-2 sm:space-x-5 flex-1">
+            <div className="flex items-center space-x-2 sm:space-x-5">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
@@ -208,11 +209,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                {/* Greeting Message - Rightmost Element */}
-                <div className="hidden sm:block text-gray-700 font-medium ml-20">
-                  Hey {user.firstName}!
-                </div>
               </>
             ) : (
               <Button
@@ -221,6 +217,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               >
                 Login
               </Button>
+            )}
+            </div>
+
+            {/* Greeting Message - Far Right */}
+            {user && (
+              <div className="hidden sm:block text-gray-700 font-medium">
+                Hey {user.firstName}!
+              </div>
             )}
           </div>
         </div>
