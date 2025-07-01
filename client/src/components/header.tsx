@@ -99,7 +99,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-5">
+          <div className="flex items-center space-x-2 sm:space-x-5 flex-1">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
