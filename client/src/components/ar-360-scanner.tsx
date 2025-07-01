@@ -37,59 +37,65 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
   }, [isMobile]);
 
   const startCamera = async () => {
-    console.log("Starting camera...");
     setCameraLoading(true);
+    setIsScanning(true); // Show video container immediately
     
     try {
-      // Check basic support
+      // Check if browser supports camera
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error("Camera not supported in this browser");
       }
 
-      console.log("Requesting camera permissions...");
-      
-      // Simple camera request
+      // Get camera stream with simple settings
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        }
+        video: true
       });
       
-      console.log("Camera stream received:", stream);
-      console.log("Video tracks:", stream.getVideoTracks());
-      
+      // Wait for video element to be ready
       if (!videoRef.current) {
-        console.error("Video ref is null!");
         stream.getTracks().forEach(track => track.stop());
-        setCameraLoading(false);
-        return;
+        throw new Error("Video element not ready");
       }
       
-      // Assign stream to video element
-      videoRef.current.srcObject = stream;
+      // Set up video element
+      const video = videoRef.current;
+      video.srcObject = stream;
       streamRef.current = stream;
-      setIsScanning(true);
       
-      console.log("Stream assigned to video element");
+      // Wait for video to load and start playing
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("Camera timeout"));
+        }, 5000);
+        
+        video.onloadeddata = () => {
+          clearTimeout(timeout);
+          video.play()
+            .then(resolve)
+            .catch(reject);
+        };
+        
+        video.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error("Video error"));
+        };
+      });
       
-      // Try to play the video
-      try {
-        await videoRef.current.play();
-        console.log("Video is playing successfully");
-        setCameraLoading(false);
-      } catch (playError) {
-        console.log("Video play failed, but continuing:", playError);
-        setCameraLoading(false);
-      }
+      setCameraLoading(false);
       
     } catch (error) {
-      console.error("Camera setup failed:", error);
       setCameraLoading(false);
+      setIsScanning(false);
+      
+      // Stop any streams that might have been created
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
       
       toast({
         title: "Camera Error",
-        description: error instanceof Error ? error.message : "Failed to access camera",
+        description: error instanceof Error ? error.message : "Failed to access camera. Try manual upload instead.",
         variant: "destructive"
       });
     }
@@ -269,28 +275,15 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
                 autoPlay
                 playsInline
                 muted
-                className="w-full rounded-lg min-h-[300px] bg-gray-100"
-                onError={(e) => {
-                  console.error("Video error:", e);
-                  setCameraLoading(false);
-                }}
-                onLoadStart={() => {
-                  console.log("Video load started");
-                }}
-                onCanPlay={() => {
-                  console.log("Video can play - hiding loading");
-                  setCameraLoading(false);
-                }}
-                onPlaying={() => {
-                  console.log("Video is playing");
-                  setCameraLoading(false);
-                }}
+                controls={false}
+                className="w-full rounded-lg min-h-[300px] bg-gray-900"
+                style={{ objectFit: 'cover' }}
               />
               {cameraLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
-                  <div className="text-center">
-                    <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
-                    <p className="text-gray-600">Initializing camera...</p>
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80 rounded-lg z-10">
+                  <div className="text-center text-white">
+                    <div className="animate-spin w-8 h-8 border-4 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
+                    <p>Connecting to camera...</p>
                   </div>
                 </div>
               )}
