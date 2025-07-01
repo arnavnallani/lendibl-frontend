@@ -209,9 +209,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Greeting Message - Centered between dropdown and right edge */}
-                <div className="hidden sm:flex flex-1 justify-center text-gray-700 font-medium">
-                  Hey <span className="font-bold">{user.firstName}!</span>
+                {/* Greeting Message - Rightmost Element */}
+                <div className="hidden sm:block text-gray-700 font-medium ml-3">
+                  Hey {user.firstName}!
                 </div>
               </>
             ) : (
