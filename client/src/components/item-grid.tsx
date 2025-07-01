@@ -52,20 +52,6 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const items: EnhancedItem[] = useAIResults ? (aiResults || []) : regularItems;
   const isLoading = useAIResults ? aiLoading : regularLoading;
 
-  // Fetch recommendations for empty state - always call to maintain hook order
-  const { data: recommendationsData } = useQuery({
-    queryKey: ["/api/recommendations"],
-    queryFn: async () => {
-      const res = await fetch("/api/recommendations", {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      return res.json();
-    },
-    enabled: items.length === 0 && !isLoading, // Only fetch when no items found and not loading
-  });
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
@@ -90,28 +76,11 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const hasAlternatives = items.length > 0 && firstItem?.isAlternativeSuggestion;
   const originalQuery = hasAlternatives ? firstItem?.originalQuery : null;
 
-  const recommendedItems = recommendationsData?.items || [];
-
   if (items.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-medium text-lg mb-4">We don't have that yet...</p>
-        {recommendedItems.length > 0 ? (
-          <>
-            <p className="text-gray-medium mb-8">But you may be interested in...</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {recommendedItems.slice(0, 6).map((item: ItemWithDetails) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  onClick={() => onItemClick(item)}
-                />
-              ))}
-            </div>
-          </>
-        ) : (
-          <p className="text-gray-medium">New items can be added at any time though!</p>
-        )}
+        <p className="text-gray-medium">New items can be added at any time though!</p>
       </div>
     );
   }
