@@ -256,12 +256,7 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Switched all AI services from Gemini 2.5 to Gemini 1.5 - updated pricing, search, and chatbot services per user request
 - July 1, 2025: Updated edit item modal to use image upload component instead of URL input - consistent with list items page for better user experience
 - July 1, 2025: Fixed review prompt system to only show after completed transactions instead of on every app load
-- July 1, 2025: Added "Hey [Name]!" greeting message in header navigation for logged-in users, now visible on both mobile and desktop with 2-line mobile layout
-- July 1, 2025: Enhanced mobile spacing throughout header with improved padding and gap proportions for better visual balance
-- July 1, 2025: Fixed mobile greeting message overflow by implementing compact layout with truncation and optimized spacing constraints
-- July 1, 2025: Restored full "Hey [Name]!" greeting and shifted all header elements left for better proportional spacing with controlled flex layout
-- July 1, 2025: Implemented two-line mobile greeting layout - "Hey" on first line, "[Name]!" on second line for better mobile fit while maintaining single line on desktop
-- July 1, 2025: Optimized account dropdown for mobile - shows only circle avatar on mobile, full menu+avatar on desktop for better space utilization and proportional element spacing
+- July 1, 2025: Added "Hey [Name]!" greeting message in header navigation for logged-in users, now visible on both mobile and desktop
 - July 1, 2025: Enhanced responsive logo switching to use xl breakpoint - mobile logo now shows at much larger screen sizes to prevent any cramping
 - July 1, 2025: Optimized header layout with flex-shrink-0 and improved spacing to prevent logo cramping at all screen sizes
 - July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints

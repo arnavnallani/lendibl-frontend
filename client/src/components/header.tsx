@@ -46,8 +46,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-4">
-        <div className="flex items-center w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link href="/">
@@ -130,11 +130,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </div>
           </div>
 
-          {/* Spacer to push user controls right but not all the way */}
-          <div className="flex-1 max-w-xs"></div>
-          
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 xl:space-x-5 flex-shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3 xl:space-x-5 flex-shrink-0">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
@@ -170,7 +167,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
@@ -194,29 +191,16 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
+                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
                     >
-                      {/* Mobile: Just circle */}
-                      <div className="sm:hidden w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
+                      <Menu className="h-4 w-4 text-gray-medium" />
+                      <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
                         <span className="text-white font-semibold text-sm">
                           {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
                         </span>
                         {unreadCount > 0 ? (
                           <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
                         ) : null}
-                      </div>
-                      
-                      {/* Desktop: Menu icon + circle */}
-                      <div className="hidden sm:flex items-center space-x-3">
-                        <Menu className="h-4 w-4 text-gray-medium" />
-                        <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
-                          <span className="text-white font-semibold text-sm">
-                            {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
-                          </span>
-                          {unreadCount > 0 ? (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
-                          ) : null}
-                        </div>
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
@@ -258,11 +242,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium text-xs sm:text-sm lg:text-base text-right leading-tight">
-                  <div className="sm:whitespace-nowrap">
-                    <div className="sm:inline">Hey</div>
-                    <div className="sm:inline sm:ml-1">{user.firstName}!</div>
-                  </div>
+                <div className="text-gray-700 font-medium ml-1 sm:ml-2 lg:ml-3 text-xs sm:text-sm lg:text-base whitespace-nowrap">
+                  Hey {user.firstName}!
                 </div>
               </>
             ) : (
