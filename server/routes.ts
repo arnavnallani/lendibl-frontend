@@ -1526,25 +1526,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       console.log(`Review prompts requested for user ID: ${userId}`);
       
-      // For testing: always return a test prompt
-      const testPrompt = {
-        id: 999,
-        bookingId: 1,
-        targetUserId: userId === 3 ? 2 : 3, // Different target based on current user
-        role: 'renter',
-        targetUser: {
-          id: userId === 3 ? 2 : 3,
-          firstName: userId === 3 ? 'Arnav' : 'Epic',
-          lastName: userId === 3 ? 'Nallani' : 'Swag',
-        },
-        item: {
-          id: 2,
-          title: 'DeWalt Power Drill Set',
-        },
-      };
+      const prompts = await reviewPromptService.getPendingReviewPrompts(userId);
+      console.log(`Found ${prompts.length} pending review prompts for user ${userId}`);
       
-      console.log('Returning test prompt:', testPrompt);
-      res.json([testPrompt]);
+      res.json(prompts);
     } catch (error) {
       console.error('Failed to get review prompts:', error);
       res.status(500).json({ message: "Failed to get review prompts" });
