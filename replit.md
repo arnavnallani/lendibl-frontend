@@ -261,6 +261,7 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Fixed mobile greeting message overflow by implementing compact layout with truncation and optimized spacing constraints
 - July 1, 2025: Restored full "Hey [Name]!" greeting and shifted all header elements left for better proportional spacing with controlled flex layout
 - July 1, 2025: Implemented two-line mobile greeting layout - "Hey" on first line, "[Name]!" on second line for better mobile fit while maintaining single line on desktop
+- July 1, 2025: Optimized account dropdown for mobile - shows only circle avatar on mobile, full menu+avatar on desktop for better space utilization and proportional element spacing
 - July 1, 2025: Enhanced responsive logo switching to use xl breakpoint - mobile logo now shows at much larger screen sizes to prevent any cramping
 - July 1, 2025: Optimized header layout with flex-shrink-0 and improved spacing to prevent logo cramping at all screen sizes
 - July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints
