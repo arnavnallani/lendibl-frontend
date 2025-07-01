@@ -245,8 +245,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium text-xs sm:text-sm lg:text-base text-right leading-tight whitespace-nowrap">
-                  Hey {user.firstName}!
+                <div className="text-gray-700 font-medium text-xs sm:text-sm lg:text-base text-right leading-tight">
+                  <div className="sm:whitespace-nowrap">
+                    <div className="sm:inline">Hey</div>
+                    <div className="sm:inline sm:ml-1">{user.firstName}!</div>
+                  </div>
                 </div>
               </>
             ) : (
