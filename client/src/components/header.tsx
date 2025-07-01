@@ -191,10 +191,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-3 sm:space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:w-auto w-11 h-11 sm:h-auto justify-center sm:justify-start"
+                      className="flex items-center space-x-3 p-2 border-2 border-gray-light rounded-2xl hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative"
                     >
-                      {/* Menu icon - only show on larger screens */}
-                      <Menu className="h-4 w-4 text-gray-medium hidden sm:block" />
+                      <Menu className="h-4 w-4 text-gray-medium" />
                       <div className="w-9 h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
                         <span className="text-white font-semibold text-sm">
                           {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'S'}
@@ -242,9 +241,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Greeting Message - Always Show "Hey arnav!" */}
-                <div className="text-gray-700 font-medium ml-3 text-sm sm:text-base">
-                  Hey arnav!
+                {/* Greeting Message - Rightmost Element */}
+                <div className="hidden sm:block text-gray-700 font-medium ml-3">
+                  Hey {user.firstName}!
                 </div>
               </>
             ) : (
