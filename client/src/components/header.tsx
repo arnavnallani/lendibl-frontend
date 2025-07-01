@@ -46,7 +46,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
@@ -99,7 +99,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-5 flex-1">
+          <div className="flex items-center space-x-2 sm:space-x-5">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
@@ -149,6 +149,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
+
+
                 </div>
 
                 {/* User Menu */}
@@ -206,6 +208,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                {/* Greeting Message - Rightmost Element */}
+                <div className="hidden sm:block text-gray-700 font-medium ml-3">
+                  Hey {user.firstName}!
+                </div>
               </>
             ) : (
               <Button
@@ -214,15 +221,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               >
                 Login
               </Button>
-            )}
-
-            {/* Greeting Message - Takes space between dropdown and right edge */}
-            {user && (
-              <div className="hidden sm:flex flex-1 justify-center items-center">
-                <span className="text-gray-700 font-medium whitespace-nowrap">
-                  Hey {user.firstName}!
-                </span>
-              </div>
             )}
           </div>
         </div>
