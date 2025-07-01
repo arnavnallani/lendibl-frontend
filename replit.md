@@ -260,6 +260,8 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Enhanced responsive logo switching to use larger breakpoint (lg instead of md) - mobile logo now shows when window gets smaller and logo would start shrinking
 - July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints
 - July 1, 2025: Implemented smart alternative suggestions for empty search results with "We don't have that yet... but you may be interested in..." fallback showing similar items based on category relationships
+- July 1, 2025: Updated greeting to always show "Hey arnav!" on all screens instead of dynamic user name
+- July 1, 2025: Modified account dropdown to show circle-only button on small screens and menu+circle on larger screens for better responsive UX
 
 ## User Preferences
 
