@@ -216,9 +216,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               </Button>
             )}
 
-            {/* Greeting Message - Positioned between dropdown and right edge */}
+            {/* Greeting Message - Takes space between dropdown and right edge */}
             {user && (
-              <div className="hidden sm:block absolute right-8 top-1/2 transform -translate-y-1/2">
+              <div className="hidden sm:flex flex-1 justify-center items-center">
                 <span className="text-gray-700 font-medium whitespace-nowrap">
                   Hey {user.firstName}!
                 </span>
