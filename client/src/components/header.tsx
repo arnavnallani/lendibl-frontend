@@ -211,7 +211,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
                 {/* Greeting Message - Rightmost Element */}
                 <div className="hidden sm:block text-gray-700 font-medium ml-3">
-                  Sup {user.firstName}!
+                  Hey {user.firstName}!
                 </div>
               </>
             ) : (
