@@ -47,7 +47,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
       <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 py-4 sm:py-4">
-        <div className="flex items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link href="/">
@@ -131,7 +131,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 xl:space-x-5 flex-shrink-0">
+          <div className="flex items-center space-x-1 sm:space-x-3 lg:space-x-4 xl:space-x-5 flex-shrink-0">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
@@ -167,7 +167,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1 sm:gap-3">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
@@ -242,10 +242,10 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium ml-2 sm:ml-3 lg:ml-4 text-xs sm:text-sm lg:text-base text-right leading-tight">
+                <div className="text-gray-700 font-medium ml-1 sm:ml-3 lg:ml-4 text-xs sm:text-sm lg:text-base text-right leading-tight min-w-0 flex-shrink max-w-[80px] sm:max-w-none">
                   <span className="sm:whitespace-nowrap">
-                    <span className="block sm:inline">Hey</span>
-                    <span className="block sm:inline sm:ml-1">{user.firstName}!</span>
+                    <span className="hidden sm:inline">Hey </span>
+                    <span className="truncate">{user.firstName}!</span>
                   </span>
                 </div>
               </>

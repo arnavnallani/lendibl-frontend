@@ -258,6 +258,7 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Fixed review prompt system to only show after completed transactions instead of on every app load
 - July 1, 2025: Added "Hey [Name]!" greeting message in header navigation for logged-in users, now visible on both mobile and desktop with 2-line mobile layout
 - July 1, 2025: Enhanced mobile spacing throughout header with improved padding and gap proportions for better visual balance
+- July 1, 2025: Fixed mobile greeting message overflow by implementing compact layout with truncation and optimized spacing constraints
 - July 1, 2025: Enhanced responsive logo switching to use xl breakpoint - mobile logo now shows at much larger screen sizes to prevent any cramping
 - July 1, 2025: Optimized header layout with flex-shrink-0 and improved spacing to prevent logo cramping at all screen sizes
 - July 1, 2025: Added tablet search bar for medium screens to provide better responsive experience between desktop and mobile breakpoints
