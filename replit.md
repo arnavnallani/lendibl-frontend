@@ -255,6 +255,8 @@ The application uses PostgreSQL with the following main entities:
 - July 1, 2025: Increased Express server body parser limit to 10MB to support image uploads in listings
 - July 1, 2025: Switched all AI services from Gemini 2.5 to Gemini 1.5 - updated pricing, search, and chatbot services per user request
 - July 1, 2025: Updated edit item modal to use image upload component instead of URL input - consistent with list items page for better user experience
+- July 1, 2025: Fixed review prompt system to only show after completed transactions instead of on every app load
+- July 1, 2025: Added "Sup, [Name]!" greeting message in header navigation for logged-in users
 
 ## User Preferences
 

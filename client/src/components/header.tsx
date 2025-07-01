@@ -153,6 +153,11 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
 
                 </div>
 
+                {/* Greeting Message */}
+                <div className="hidden sm:block text-gray-700 font-medium">
+                  Sup, {user.firstName}!
+                </div>
+
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
