@@ -49,25 +49,25 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link href="/">
-              {/* Desktop Logo - shows on larger screens when there's enough space */}
+              {/* Desktop Logo - shows only on very large screens with plenty of space */}
               <img 
                 src={logoImage} 
                 alt="Lendibl" 
-                className="hidden lg:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="hidden xl:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
-              {/* Mobile Logo - shows when space is limited */}
+              {/* Mobile Logo - shows on all other screens to prevent cramping */}
               <img 
                 src={mobileLogoImage} 
                 alt="Lendibl" 
-                className="lg:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="xl:hidden h-10 w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>
           </div>
 
           {/* Enhanced Search Bar (Desktop) */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-12">
+          <div className="hidden xl:flex flex-1 max-w-2xl mx-8 lg:mx-12">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -98,8 +98,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             </div>
           </div>
 
-          {/* Tablet Search Bar (Medium screens) */}
-          <div className="hidden md:flex lg:hidden flex-1 max-w-xl mx-4">
+          {/* Tablet Search Bar (Large screens) */}
+          <div className="hidden lg:flex xl:hidden flex-1 max-w-xl mx-4">
             <div className="relative w-full group">
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -131,7 +131,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-5">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3 xl:space-x-5 flex-shrink-0">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm">
               <Button
@@ -242,7 +242,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium ml-2 sm:ml-3 text-sm sm:text-base">
+                <div className="text-gray-700 font-medium ml-1 sm:ml-2 lg:ml-3 text-xs sm:text-sm lg:text-base whitespace-nowrap">
                   Hey {user.firstName}!
                 </div>
               </>
