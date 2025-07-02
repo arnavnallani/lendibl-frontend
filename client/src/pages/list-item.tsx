@@ -24,6 +24,7 @@ import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
 import { AR360Scanner } from "@/components/ar-360-scanner";
+import ARPreviewModal from "@/components/ar-preview-modal";
 import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
@@ -864,108 +865,12 @@ export default function ListItem() {
         />
       )}
 
-      {/* AR Preview Modal */}
+      {/* AR Preview Modal with Live Camera */}
       {showARPreview && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Your AR Scan Results
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowARPreview(false)}
-                >
-                  ×
-                </Button>
-              </div>
-              
-              <div className="space-y-4">
-                <p className="text-gray-600">
-                  Review your completed 360° AR scan. This shows how your item was documented during the scanning process.
-                </p>
-                
-                {/* Mock AR Interface Preview */}
-                <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-48 h-48 border-4 border-white border-dashed rounded-lg flex items-center justify-center animate-pulse">
-                      <span className="text-white font-semibold bg-black bg-opacity-50 px-3 py-2 rounded">
-                        0° - 360°
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Progress indicator */}
-                  <div className="absolute top-4 left-4 right-4">
-                    <div className="flex items-center space-x-2 text-white">
-                      <div className="flex-1 bg-white/20 rounded-full h-2">
-                        <div 
-                          className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                          style={{ width: "100%" }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">8/8 ✓</span>
-                    </div>
-                  </div>
-                  
-                  {/* Capture button */}
-                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-                      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                        <Camera className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Corner thumbnails - show completed captures */}
-                  <div className="absolute top-4 right-4 space-y-2">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].slice(0, 4).map((i) => (
-                      <div key={i} className="w-12 h-8 bg-green-500/30 rounded border border-green-400/60 flex items-center justify-center">
-                        <span className="text-green-300 text-xs font-bold">✓</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Instructions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">📱 How it works:</h4>
-                    <ul className="space-y-1 text-gray-600">
-                      <li>• Position your item in the center</li>
-                      <li>• Capture photos every 45 degrees</li>
-                      <li>• The interface guides you through each angle</li>
-                      <li>• Complete all 8 shots for full protection</li>
-                    </ul>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium">✅ Benefits:</h4>
-                    <ul className="space-y-1 text-gray-600">
-                      <li>• Document item condition thoroughly</li>
-                      <li>• Protect against damage disputes</li>
-                      <li>• Build renter confidence</li>
-                      <li>• Professional listing presentation</li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="flex justify-center pt-4">
-                  <Button
-                    onClick={() => setShowARPreview(false)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Close Preview
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ARPreviewModal 
+          onClose={() => setShowARPreview(false)}
+          capturedImages={images}
+        />
       )}
     </div>
   );
