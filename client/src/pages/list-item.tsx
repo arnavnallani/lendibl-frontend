@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, Calendar, Camera, RotateCcw } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, Camera, RotateCcw, Eye, Play } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,6 +103,7 @@ export default function ListItem() {
   const [showAIPricing, setShowAIPricing] = useState(false);
   const [showManualPricing, setShowManualPricing] = useState(false);
   const [showARScanner, setShowARScanner] = useState(false);
+  const [showARPreview, setShowARPreview] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -618,16 +619,27 @@ export default function ListItem() {
                   
                   {images.length === 0 ? (
                     <div className="text-center space-y-4">
-                      <Button
-                        type="button"
-                        onClick={() => setShowARScanner(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Camera className="h-5 w-5 mr-2" />
-                        Start 360° AR Scan
-                      </Button>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button
+                          type="button"
+                          onClick={() => setShowARPreview(true)}
+                          variant="outline"
+                          className="border-blue-200 hover:bg-blue-50"
+                        >
+                          <Eye className="h-5 w-5 mr-2" />
+                          Preview AR Mode
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => setShowARScanner(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          <Camera className="h-5 w-5 mr-2" />
+                          Start 360° AR Scan
+                        </Button>
+                      </div>
                       <p className="text-sm text-gray-500">
-                        Scan your item from 8 different angles for complete documentation
+                        Preview the AR scanning interface or start scanning your item from 8 different angles
                       </p>
                     </div>
                   ) : (
@@ -851,6 +863,111 @@ export default function ListItem() {
           }}
           onCancel={() => setShowARScanner(false)}
         />
+      )}
+
+      {/* AR Preview Modal */}
+      {showARPreview && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  AR Scanning Preview
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowARPreview(false)}
+                >
+                  ×
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  Here's what the 360° AR scanning interface looks like. You'll capture 8 photos by rotating around your item.
+                </p>
+                
+                {/* Mock AR Interface Preview */}
+                <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-48 h-48 border-4 border-white border-dashed rounded-lg flex items-center justify-center animate-pulse">
+                      <span className="text-white font-semibold bg-black bg-opacity-50 px-3 py-2 rounded">
+                        0° - 360°
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Progress indicator */}
+                  <div className="absolute top-4 left-4 right-4">
+                    <div className="flex items-center space-x-2 text-white">
+                      <div className="flex-1 bg-white/20 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                          style={{ width: "37.5%" }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium">3/8</span>
+                    </div>
+                  </div>
+                  
+                  {/* Capture button */}
+                  <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                        <Camera className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Corner thumbnails */}
+                  <div className="absolute top-4 right-4 space-y-2">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="w-12 h-8 bg-white/20 rounded border border-white/40"></div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Instructions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <h4 className="font-medium">📱 How it works:</h4>
+                    <ul className="space-y-1 text-gray-600">
+                      <li>• Position your item in the center</li>
+                      <li>• Capture photos every 45 degrees</li>
+                      <li>• The interface guides you through each angle</li>
+                      <li>• Complete all 8 shots for full protection</li>
+                    </ul>
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium">✅ Benefits:</h4>
+                    <ul className="space-y-1 text-gray-600">
+                      <li>• Document item condition thoroughly</li>
+                      <li>• Protect against damage disputes</li>
+                      <li>• Build renter confidence</li>
+                      <li>• Professional listing presentation</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center pt-4">
+                  <Button
+                    onClick={() => {
+                      setShowARPreview(false);
+                      setShowARScanner(true);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start AR Scanning Now
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
