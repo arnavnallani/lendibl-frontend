@@ -170,14 +170,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 <div className="flex items-center gap-1 sm:gap-1 lg:gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
-                    <Button variant="ghost" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                    <Button variant="ghost" className="h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
                       <Zap className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
 
                   {/* Messages */}
                   <Link href="/messages">
-                    <Button variant="ghost" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
+                    <Button variant="ghost" className="h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
                       <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 group-hover:animate-pulse" />
                     </Button>
                   </Link>
