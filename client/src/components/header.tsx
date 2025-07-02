@@ -23,6 +23,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [hasScrolledToItems, setHasScrolledToItems] = useState(false);
   const { user, logout } = useAuth();
   const unreadCount = useNotificationCount();
   const [location] = useLocation();
@@ -77,8 +78,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section when typing
-                      if (value.trim()) {
+                      // Auto-scroll to items section only once when starting to type
+                      if (value.trim() && !hasScrolledToItems) {
+                        setHasScrolledToItems(true);
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -88,6 +90,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             });
                           }
                         }, 100);
+                      } else if (!value.trim()) {
+                        // Reset scroll flag when search is cleared
+                        setHasScrolledToItems(false);
                       }
                     }}
                     placeholder="Search for anything..."
@@ -109,8 +114,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section when typing
-                      if (value.trim()) {
+                      // Auto-scroll to items section only once when starting to type
+                      if (value.trim() && !hasScrolledToItems) {
+                        setHasScrolledToItems(true);
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -120,6 +126,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             });
                           }
                         }, 100);
+                      } else if (!value.trim()) {
+                        // Reset scroll flag when search is cleared
+                        setHasScrolledToItems(false);
                       }
                     }}
                     placeholder="Search for anything..."
@@ -282,8 +291,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 onChange={(value) => {
                   setSearchQuery(value);
                   onSearch(value);
-                  // Auto-scroll to items section when typing
-                  if (value.trim()) {
+                  // Auto-scroll to items section only once when starting to type
+                  if (value.trim() && !hasScrolledToItems) {
+                    setHasScrolledToItems(true);
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection) {
@@ -293,6 +303,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         });
                       }
                     }, 100);
+                  } else if (!value.trim()) {
+                    // Reset scroll flag when search is cleared
+                    setHasScrolledToItems(false);
                   }
                 }}
                 placeholder="Search for anything..."
