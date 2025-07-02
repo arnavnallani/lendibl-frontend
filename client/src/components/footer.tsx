@@ -12,9 +12,7 @@ export default function Footer() {
               alt="Lendibl" 
               className="h-8 w-auto"
             />
-            <span className="text-gray-600 text-sm">
-              © 2025 Lendibl. All rights reserved.
-            </span>
+            <span className="text-gray-600 text-sm">© 2025 lendibl. All rights reserved.</span>
           </div>
           
           <div className="flex items-center space-x-6">
