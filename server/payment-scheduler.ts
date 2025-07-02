@@ -6,7 +6,7 @@ import { reviewPromptService } from "./review-prompt-service";
 import Stripe from "stripe";
 
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-05-28.basil" })
   : null;
 
 // Payment scheduler for escrow functionality
@@ -88,6 +88,12 @@ export class PaymentScheduler {
 
         if (!hasPayPal && !hasStripeConnect) {
           console.log(`⚠️  Owner ${owner.id} has no payment method setup - cannot process payout`);
+          
+          // Mark booking as blocked to prevent repeated processing attempts
+          await storage.updateBooking(bookingId, {
+            payoutNote: 'Payout blocked - Owner has no payment method setup',
+            updatedAt: new Date()
+          });
           
           // Add to pending earnings and send reminder
           await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
@@ -331,6 +337,11 @@ export class PaymentScheduler {
         // Check for immediate payouts when rental period ends
         if (booking.status === 'approved' && !booking.payoutCompleted) {
           const rentalEndTime = new Date(booking.endDate);
+          
+          // Skip if payout is blocked due to payment setup issues
+          if (booking.payoutNote && booking.payoutNote.includes('blocked')) {
+            continue;
+          }
           
           // Process payout if rental has ended
           if (now >= rentalEndTime) {
