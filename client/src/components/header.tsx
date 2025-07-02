@@ -242,7 +242,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium ml-2 text-sm sm:text-base sm:ml-3 flex-shrink-0">
+                <div className="text-gray-700 font-medium ml-3">
                   Hey {user.firstName}!
                 </div>
               </>
