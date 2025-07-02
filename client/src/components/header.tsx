@@ -167,7 +167,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="flex items-center gap-1 sm:gap-1 lg:gap-2">
+                <div className="flex items-center gap-1 sm:gap-1 lg:gap-2 -ml-1 sm:ml-0">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-9 w-9 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
@@ -191,7 +191,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-2 border-2 border-gray-light hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:rounded-2xl rounded-full"
+                      className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-2 border-2 border-gray-light hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:rounded-2xl rounded-full -ml-1 sm:ml-0"
                     >
                       <Menu className="h-3 w-3 sm:h-4 sm:w-4 text-gray-medium sm:block hidden" />
                       <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
@@ -242,7 +242,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium ml-2 sm:ml-2 lg:ml-3 text-sm sm:text-base">
+                <div className="text-gray-700 font-medium ml-1 sm:ml-2 lg:ml-3 text-sm sm:text-base">
                   Hey {user.firstName}!
                 </div>
               </>
