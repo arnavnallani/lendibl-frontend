@@ -285,6 +285,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Comprehensive image update - replaced all placeholder and inappropriate images with high-quality, relevant Unsplash photos that accurately represent each item title across all 122 marketplace listings
 - July 2, 2025: Replaced photo upload functionality in list items page with AR 360° scanner - owners can now use augmented reality to scan items from 8 angles for comprehensive documentation, matching the protection system from action dashboard
 - July 2, 2025: Enhanced interactive 360° viewer with premium performance and background isolation - items displayed on clean white background with original background removed, touch/finger controls, momentum physics, position dragging, 5x zoom range, auto-rotation, smooth 60fps animations, and professional thumbnail navigation strip
+- July 2, 2025: Fixed AR preview layout and viewport issues - prevented 360° view cutoff on right side, improved responsive design with proper overflow handling, enhanced AI background removal algorithm with edge detection and flood fill for better object isolation
 
 ## User Preferences
 

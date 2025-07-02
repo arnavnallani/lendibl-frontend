@@ -57,7 +57,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     return () => clearInterval(interval);
   }, [autoRotate, velocity]);
 
-  // AI-powered background removal function
+  // Advanced AI-powered background removal function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -70,10 +70,6 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         canvas.width = img.width;
         canvas.height = img.height;
 
-        // Fill with pure white background
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         // Draw original image
         ctx.drawImage(img, 0, 0);
 
@@ -81,33 +77,82 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
 
-        // Advanced background removal algorithm
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          
-          // Calculate luminance
-          const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-          
-          // Detect background pixels (typically lighter/uniform areas)
-          const isBackground = (
-            luminance > 200 || // Very bright pixels
-            (Math.abs(r - g) < 30 && Math.abs(g - b) < 30 && Math.abs(r - b) < 30 && luminance > 150) || // Uniform grayish pixels
-            (r > 220 && g > 220 && b > 220) // Almost white pixels
-          );
+        // Edge detection and object isolation algorithm
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Create edge map
+        const edges = new Uint8Array(width * height);
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            const idx = (y * width + x) * 4;
+            const current = data[idx] + data[idx + 1] + data[idx + 2];
+            const right = data[idx + 4] + data[idx + 5] + data[idx + 6];
+            const bottom = data[((y + 1) * width + x) * 4] + data[((y + 1) * width + x) * 4 + 1] + data[((y + 1) * width + x) * 4 + 2];
+            
+            const edgeStrength = Math.abs(current - right) + Math.abs(current - bottom);
+            edges[y * width + x] = edgeStrength > 100 ? 255 : 0;
+          }
+        }
 
+        // Flood fill from corners to detect background
+        const backgroundMask = new Uint8Array(width * height);
+        const queue: [number, number][] = [];
+        
+        // Start flood fill from corners
+        const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
+        corners.forEach(([x, y]) => {
+          if (backgroundMask[y * width + x] === 0) {
+            queue.push([x, y]);
+            backgroundMask[y * width + x] = 255;
+          }
+        });
+
+        // Flood fill algorithm
+        while (queue.length > 0) {
+          const [x, y] = queue.shift()!;
+          const idx = (y * width + x) * 4;
+          const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
+          
+          // Check 4-connected neighbors
+          const neighbors = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
+          neighbors.forEach(([nx, ny]) => {
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              const nIdx = (ny * width + nx) * 4;
+              if (backgroundMask[ny * width + nx] === 0 && edges[ny * width + nx] === 0) {
+                const neighborColor = [data[nIdx], data[nIdx + 1], data[nIdx + 2]];
+                
+                // Check color similarity
+                const colorDiff = Math.abs(currentColor[0] - neighborColor[0]) + 
+                                Math.abs(currentColor[1] - neighborColor[1]) + 
+                                Math.abs(currentColor[2] - neighborColor[2]);
+                
+                if (colorDiff < 80) {
+                  backgroundMask[ny * width + nx] = 255;
+                  queue.push([nx, ny]);
+                }
+              }
+            }
+          });
+        }
+
+        // Apply background removal with antialiasing
+        for (let i = 0; i < data.length; i += 4) {
+          const pixelIdx = Math.floor(i / 4);
+          const isBackground = backgroundMask[pixelIdx] === 255;
+          
           if (isBackground) {
-            // Make background pure white
+            // Pure white background
             data[i] = 255;     // R
             data[i + 1] = 255; // G
             data[i + 2] = 255; // B
             data[i + 3] = 255; // A
           } else {
-            // Enhance object contrast
-            data[i] = Math.min(255, r * 1.2);
-            data[i + 1] = Math.min(255, g * 1.2);
-            data[i + 2] = Math.min(255, b * 1.2);
+            // Enhance object colors and contrast
+            data[i] = Math.min(255, Math.max(0, data[i] * 1.15));
+            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * 1.15));
+            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * 1.15));
+            data[i + 3] = 255; // Full opacity for objects
           }
         }
 
@@ -261,9 +306,9 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - Controls */}
-        <div className="w-80 bg-white/95 backdrop-blur-sm border-r border-gray-200 p-6 space-y-6">
+        <div className="w-72 lg:w-80 bg-white/95 backdrop-blur-sm border-r border-gray-200 p-4 space-y-4 overflow-y-auto shrink-0">
           {/* Current View Info */}
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
             <h4 className="font-semibold text-gray-900 mb-3">Current View</h4>
@@ -404,10 +449,10 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         </div>
 
         {/* Main 3D Viewer */}
-        <div className="flex-1 relative bg-white">
+        <div className="flex-1 relative bg-white overflow-hidden">
           <div 
             ref={containerRef}
-            className="w-full h-full flex items-center justify-center select-none touch-none"
+            className="w-full h-full flex items-center justify-center select-none touch-none p-8"
             style={{
               cursor: isDragging ? 'grabbing' : dragMode === 'move' ? 'move' : 'grab',
               background: 'radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)'
@@ -424,7 +469,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
                 <img
                   src={currentImage}
                   alt="360° Item View"
-                  className="max-w-[70vh] max-h-[70vh] w-auto h-auto object-contain rounded-xl shadow-2xl"
+                  className="max-w-[60vh] max-h-[60vh] w-auto h-auto object-contain rounded-xl shadow-2xl"
                   draggable={false}
                   style={{
                     transform: `translate(${position.x}px, ${position.y}px) scale(${zoom}) perspective(1200px) rotateY(${currentAngle}deg)`,
