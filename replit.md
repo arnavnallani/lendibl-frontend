@@ -282,6 +282,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Switched all AI services from Google Gemini 1.5 to ChatGPT 3.5-turbo for pricing, search, and chatbot features per user request
 - July 2, 2025: Fixed recommendation system interaction tracking - now properly tracks when users click on items and automatically updates user preferences for better personalized recommendations
 - July 2, 2025: Updated AI pricing system to suggest significantly lower prices - items under $1000 now max $25/day (targeting $15-20), items over $1000 use formula (y = 0.003x + 25) for more competitive and affordable pricing
+- July 2, 2025: Comprehensive image update - replaced all placeholder and inappropriate images with high-quality, relevant Unsplash photos that accurately represent each item title across all 122 marketplace listings
 
 ## User Preferences
 
