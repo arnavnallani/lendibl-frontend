@@ -23,7 +23,8 @@ import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Scan } from "lucide-react";
+import MobileImageScanner from "@/components/mobile-image-scanner";
 import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
@@ -149,6 +150,7 @@ export default function ListItem() {
   const [showAIPricing, setShowAIPricing] = useState(false);
   const [showManualPricing, setShowManualPricing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -680,14 +682,26 @@ export default function ListItem() {
                     <p className="text-sm text-gray-500 mb-4">
                       PNG, JPG, GIF up to 10MB each (max 8 images)
                     </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="relative"
-                      onClick={() => document.getElementById('image-upload')?.click()}
-                    >
-                      Choose Files
-                    </Button>
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="relative"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Choose Files
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowScanner(true)}
+                        className="relative"
+                      >
+                        <Scan className="h-4 w-4 mr-2" />
+                        Scan Documents
+                      </Button>
+                    </div>
                     <input
                       id="image-upload"
                       type="file"
@@ -887,6 +901,21 @@ export default function ListItem() {
         itemTitle={listedItemTitle}
       />
 
+      {/* Mobile Image Scanner */}
+      {showScanner && (
+        <MobileImageScanner
+          onCapture={(scannedImages) => {
+            setImages(prev => [...prev, ...scannedImages]);
+            setShowScanner(false);
+            toast({
+              title: "Documents Scanned!",
+              description: `Added ${scannedImages.length} scanned images to your listing.`,
+            });
+          }}
+          onClose={() => setShowScanner(false)}
+          maxImages={8 - images.length}
+        />
+      )}
 
     </div>
   );
