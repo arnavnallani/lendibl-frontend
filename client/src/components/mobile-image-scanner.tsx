@@ -15,6 +15,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   const [isCapturing, setIsCapturing] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [flashEnabled, setFlashEnabled] = useState(false);
+  const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
@@ -59,72 +60,6 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
     }
   };
 
-  const detectDocumentEdges = (imageData: ImageData): [number, number][] => {
-    const { data, width, height } = imageData;
-    const edges: [number, number][] = [];
-    
-    // Simple edge detection - find corners of rectangular objects
-    const threshold = 100;
-    const corners: [number, number][] = [
-      [width * 0.1, height * 0.1], // Top-left
-      [width * 0.9, height * 0.1], // Top-right
-      [width * 0.9, height * 0.9], // Bottom-right
-      [width * 0.1, height * 0.9], // Bottom-left
-    ];
-    
-    // For now, return default corners - can be enhanced with computer vision
-    return corners;
-  };
-
-  const perspectiveCorrection = (canvas: HTMLCanvasElement, corners: [number, number][]): string => {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return canvas.toDataURL();
-
-    // Create a new canvas for the corrected image
-    const correctedCanvas = document.createElement('canvas');
-    const correctedCtx = correctedCanvas.getContext('2d');
-    if (!correctedCtx) return canvas.toDataURL();
-
-    // Set standard document size
-    correctedCanvas.width = 595; // A4 width at 72 DPI
-    correctedCanvas.height = 842; // A4 height at 72 DPI
-
-    // Draw white background
-    correctedCtx.fillStyle = 'white';
-    correctedCtx.fillRect(0, 0, correctedCanvas.width, correctedCanvas.height);
-
-    // Simple perspective correction - map corners to rectangle
-    const srcCorners = corners;
-    const dstCorners: [number, number][] = [
-      [50, 50],
-      [correctedCanvas.width - 50, 50],
-      [correctedCanvas.width - 50, correctedCanvas.height - 50],
-      [50, correctedCanvas.height - 50]
-    ];
-
-    // For a complete perspective correction, we'd use matrix transformations
-    // For now, we'll just crop and scale the center area
-    const sourceData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    // Calculate crop area from corners
-    const minX = Math.min(...srcCorners.map(c => c[0]));
-    const maxX = Math.max(...srcCorners.map(c => c[0]));
-    const minY = Math.min(...srcCorners.map(c => c[1]));
-    const maxY = Math.max(...srcCorners.map(c => c[1]));
-    
-    const cropWidth = maxX - minX;
-    const cropHeight = maxY - minY;
-    
-    // Draw the cropped area scaled to fit the corrected canvas
-    correctedCtx.drawImage(
-      canvas,
-      minX, minY, cropWidth, cropHeight,
-      50, 50, correctedCanvas.width - 100, correctedCanvas.height - 100
-    );
-
-    return correctedCanvas.toDataURL('image/jpeg', 0.9);
-  };
-
   const enhanceImage = (canvas: HTMLCanvasElement): string => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return canvas.toDataURL();
@@ -132,19 +67,34 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
-    // Enhance contrast and brightness for document scanning
-    const contrastFactor = 1.2;
-    const brightnessFactor = 10;
+    // Enhance image quality for product photography
+    const contrastFactor = 1.1;
+    const brightnessFactor = 5;
+    const saturationFactor = 1.15;
 
     for (let i = 0; i < data.length; i += 4) {
+      let r = data[i];
+      let g = data[i + 1];
+      let b = data[i + 2];
+
       // Apply contrast and brightness
-      data[i] = Math.min(255, Math.max(0, (data[i] - 128) * contrastFactor + 128 + brightnessFactor));     // R
-      data[i + 1] = Math.min(255, Math.max(0, (data[i + 1] - 128) * contrastFactor + 128 + brightnessFactor)); // G
-      data[i + 2] = Math.min(255, Math.max(0, (data[i + 2] - 128) * contrastFactor + 128 + brightnessFactor)); // B
+      r = Math.min(255, Math.max(0, (r - 128) * contrastFactor + 128 + brightnessFactor));
+      g = Math.min(255, Math.max(0, (g - 128) * contrastFactor + 128 + brightnessFactor));
+      b = Math.min(255, Math.max(0, (b - 128) * contrastFactor + 128 + brightnessFactor));
+
+      // Apply saturation enhancement
+      const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+      r = Math.min(255, Math.max(0, gray + saturationFactor * (r - gray)));
+      g = Math.min(255, Math.max(0, gray + saturationFactor * (g - gray)));
+      b = Math.min(255, Math.max(0, gray + saturationFactor * (b - gray)));
+
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
     }
 
     ctx.putImageData(imageData, 0, 0);
-    return canvas.toDataURL('image/jpeg', 0.9);
+    return canvas.toDataURL('image/jpeg', 0.95);
   };
 
   const captureImage = async () => {
@@ -166,37 +116,15 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       // Draw current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Get image data for processing
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // Enhance the captured image
+      const enhancedImage = enhanceImage(canvas);
       
-      // Detect document edges
-      const corners = detectDocumentEdges(imageData);
+      setCapturedImages(prev => [...prev, enhancedImage]);
       
-      // Apply perspective correction
-      const correctedImage = perspectiveCorrection(canvas, corners);
-      
-      // Create a new canvas for enhancement
-      const enhanceCanvas = document.createElement('canvas');
-      const enhanceCtx = enhanceCanvas.getContext('2d');
-      if (!enhanceCtx) return;
-
-      const img = new Image();
-      img.onload = () => {
-        enhanceCanvas.width = img.width;
-        enhanceCanvas.height = img.height;
-        enhanceCtx.drawImage(img, 0, 0);
-        
-        // Enhance the image
-        const enhancedImage = enhanceImage(enhanceCanvas);
-        
-        setCapturedImages(prev => [...prev, enhancedImage]);
-        
-        toast({
-          title: "Image Captured",
-          description: `Captured ${capturedImages.length + 1} of ${maxImages} images`,
-        });
-      };
-      img.src = correctedImage;
+      toast({
+        title: "Image Captured",
+        description: `Captured ${capturedImages.length + 1} of ${maxImages} images`,
+      });
 
     } catch (error) {
       console.error('Error capturing image:', error);
@@ -258,6 +186,36 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
     setCapturedImages([]);
   };
 
+  const handleTapToFocus = async (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!stream) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.touches[0].clientX - rect.left) / rect.width) * 100;
+    const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+
+    setFocusPoint({ x, y });
+
+    // Clear focus point after animation
+    setTimeout(() => setFocusPoint(null), 1000);
+
+    try {
+      const track = stream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities() as any;
+      
+      if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+        await track.applyConstraints({
+          advanced: [{ 
+            focusMode: 'continuous',
+            pointsOfInterest: [{ x: x / 100, y: y / 100 }]
+          } as any]
+        });
+      }
+    } catch (error) {
+      console.log('Manual focus not supported on this device');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       {/* Header */}
@@ -266,7 +224,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
           <X className="h-5 w-5" />
         </Button>
         <span className="text-sm font-medium">
-          Scan Documents ({capturedImages.length}/{maxImages})
+          Photo Capture ({capturedImages.length}/{maxImages})
         </span>
         <Button variant="ghost" size="sm" onClick={toggleFlash}>
           <Flashlight className={`h-5 w-5 ${flashEnabled ? 'text-yellow-400' : ''}`} />
@@ -274,7 +232,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       </div>
 
       {/* Camera View */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden" onTouchStart={handleTapToFocus}>
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
@@ -282,20 +240,40 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
           muted
         />
         
-        {/* Document Detection Overlay */}
+        {/* Focus Point Indicator */}
+        {focusPoint && (
+          <div 
+            className="absolute w-16 h-16 border-2 border-yellow-400 rounded-full animate-ping pointer-events-none"
+            style={{
+              left: `${focusPoint.x}%`,
+              top: `${focusPoint.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
+        )}
+        
+        {/* Photo Guidance Overlay */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="w-full h-full border-2 border-white/30 relative">
-            {/* Corner guides */}
-            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-white"></div>
-            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-white"></div>
-            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-white"></div>
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-white"></div>
+          <div className="w-full h-full relative">
+            {/* Center circle guide for focus */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 border-2 border-white/50 rounded-full"></div>
+            </div>
+            
+            {/* Rule of thirds grid */}
+            <div className="absolute inset-0">
+              <div className="w-full h-full grid grid-cols-3 grid-rows-3">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="border border-white/20"></div>
+                ))}
+              </div>
+            </div>
             
             {/* Center guidance text */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-black/50 text-white px-4 py-2 rounded-lg text-center">
-                <p className="text-sm">Position document within frame</p>
-                <p className="text-xs text-gray-300">Ensure good lighting and steady hands</p>
+            <div className="absolute bottom-20 left-0 right-0 flex items-center justify-center">
+              <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-center">
+                <p className="text-sm">Position your item in good lighting</p>
+                <p className="text-xs text-gray-300">Tap to focus • Hold steady when capturing</p>
               </div>
             </div>
           </div>

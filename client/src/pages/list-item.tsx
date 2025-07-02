@@ -699,7 +699,7 @@ export default function ListItem() {
                         className="relative"
                       >
                         <Scan className="h-4 w-4 mr-2" />
-                        Scan Documents
+                        Camera Capture
                       </Button>
                     </div>
                     <input
@@ -908,8 +908,8 @@ export default function ListItem() {
             setImages(prev => [...prev, ...scannedImages]);
             setShowScanner(false);
             toast({
-              title: "Documents Scanned!",
-              description: `Added ${scannedImages.length} scanned images to your listing.`,
+              title: "Photos Captured!",
+              description: `Added ${scannedImages.length} enhanced photos to your listing.`,
             });
           }}
           onClose={() => setShowScanner(false)}
