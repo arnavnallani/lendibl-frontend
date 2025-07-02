@@ -23,6 +23,14 @@ export class RecommendationEngine {
         interactionType,
         weight: weight.toString(),
       });
+
+      // Auto-update user preferences based on interactions
+      if (interactionType === 'view' && weight >= 1.0) {
+        const item = await storage.getItem(itemId);
+        if (item) {
+          await this.updateUserPreferences(userId, item.categoryId);
+        }
+      }
     } catch (error) {
       console.error("Error tracking interaction:", error);
     }

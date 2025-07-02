@@ -1,6 +1,7 @@
 import { Star, MapPin, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
+import { api } from "@/lib/api";
 import type { ItemWithDetails } from "@shared/schema";
 
 interface ItemCardProps {
@@ -11,6 +12,20 @@ interface ItemCardProps {
 export default function ItemCard({ item, onClick }: ItemCardProps) {
   const { user } = useAuth();
   const isOwner = user && item.ownerId === user.id;
+
+  const handleClick = async () => {
+    // Track interaction for recommendation system
+    if (user) {
+      try {
+        await api.trackInteraction(item.id, 'view', 1.0);
+      } catch (error) {
+        console.error('Failed to track interaction:', error);
+      }
+    }
+    
+    // Call the original onClick handler
+    onClick(item);
+  };
   
   // Extract city and state from location for privacy
   const getDisplayLocation = (location: string) => {
@@ -30,7 +45,7 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
   return (
     <Card 
       className="bg-white rounded-2xl shadow-sm border border-gray-light overflow-hidden cursor-pointer card-hover group animate-fade-in"
-      onClick={() => onClick(item)}
+      onClick={handleClick}
     >
       <div className="relative overflow-hidden">
         <img 

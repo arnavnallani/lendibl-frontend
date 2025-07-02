@@ -279,6 +279,8 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Updated Professional DSLR Camera Kit price to $22.00
 - July 2, 2025: Updated Professional DSLR Camera Kit image to show actual camera equipment and removed AirPods Pro from marketplace
 - July 2, 2025: Added 100 diverse rental items across all categories - tools, electronics, sports gear, outdoor equipment, vehicles, home & garden, and clothing items to create a comprehensive marketplace with 112 total items
+- July 2, 2025: Switched all AI services from Google Gemini 1.5 to ChatGPT 3.5-turbo for pricing, search, and chatbot features per user request
+- July 2, 2025: Fixed recommendation system interaction tracking - now properly tracks when users click on items and automatically updates user preferences for better personalized recommendations
 
 ## User Preferences
 
