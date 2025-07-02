@@ -288,9 +288,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection && window.innerWidth < 768) {
-                        // On mobile, scroll lower to show actual items while keeping search bar visible
-                        const headerHeight = 60; // Mobile header height
-                        const scrollPosition = itemsSection.offsetTop - headerHeight + 80;
+                        // On mobile, scroll to position that keeps search bar visible
+                        const headerHeight = 80; // Mobile header height
+                        const scrollPosition = itemsSection.offsetTop - headerHeight - 20;
                         
                         window.scrollTo({
                           top: Math.max(0, scrollPosition),
