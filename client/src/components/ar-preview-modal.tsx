@@ -86,35 +86,55 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         const w = canvas.width;
         const h = canvas.height;
 
-        // Quick corner sampling for background color
-        const corners = [
-          [0, 0], [w-1, 0], [0, h-1], [w-1, h-1], // 4 corners
-          [Math.floor(w/2), 0], [Math.floor(w/2), h-1], // top/bottom center
-          [0, Math.floor(h/2)], [w-1, Math.floor(h/2)] // left/right center
-        ];
-        
+        // Sample only from outer edges (likely pure background)
+        const edgeWidth = Math.min(5, Math.floor(Math.min(w, h) * 0.02));
         const bgColors: number[][] = [];
-        corners.forEach(([x, y]) => {
-          const idx = (y * w + x) * 4;
-          bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
-        });
+        
+        // Sample from thin border around image edges
+        for (let i = 0; i < edgeWidth; i++) {
+          for (let x = 0; x < w; x += 4) {
+            // Top edge
+            let idx = (i * w + x) * 4;
+            if (idx < data.length) bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+            
+            // Bottom edge  
+            idx = ((h - 1 - i) * w + x) * 4;
+            if (idx < data.length) bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+          }
+          for (let y = 0; y < h; y += 4) {
+            // Left edge
+            let idx = (y * w + i) * 4;
+            if (idx < data.length) bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+            
+            // Right edge
+            idx = (y * w + (w - 1 - i)) * 4;
+            if (idx < data.length) bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+          }
+        }
 
-        // Fast pixel processing - check every pixel against background colors
+        // Very conservative background removal - only remove obvious matches
         for (let i = 0; i < data.length; i += 4) {
           const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+          const x = (i / 4) % w;
+          const y = Math.floor((i / 4) / w);
           
-          // Quick background check
-          let isBg = false;
-          for (const [br, bg, bb] of bgColors) {
-            if (Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb) < 80) {
-              isBg = true;
-              break;
+          // Only check pixels near edges for background removal
+          const nearEdge = x < w * 0.15 || x > w * 0.85 || y < h * 0.15 || y > h * 0.85;
+          
+          if (nearEdge) {
+            let isBg = false;
+            for (const [br, bg, bb] of bgColors) {
+              if (Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb) < 40) {
+                isBg = true;
+                break;
+              }
+            }
+            
+            if (isBg) {
+              data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; // White background
             }
           }
-          
-          if (isBg) {
-            data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; // White background
-          }
+          // Center pixels are never removed to preserve the object
         }
 
         ctx.putImageData(imageData, 0, 0);
