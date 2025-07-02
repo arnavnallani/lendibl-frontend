@@ -23,16 +23,29 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
   // Process images for AI background removal on load
   useEffect(() => {
     const processImagesForBackgroundRemoval = async () => {
-      const processed = await Promise.all(
-        capturedImages.map(async (imageUrl) => {
-          return await createCleanBackground(imageUrl);
-        })
-      );
-      setProcessedImages(processed);
+      try {
+        const processed = await Promise.all(
+          capturedImages.map(async (imageUrl) => {
+            try {
+              return await createCleanBackground(imageUrl);
+            } catch (error) {
+              console.error('Background removal failed for image:', error);
+              return imageUrl; // Return original if processing fails
+            }
+          })
+        );
+        setProcessedImages(processed);
+      } catch (error) {
+        console.error('Background removal process failed:', error);
+        setProcessedImages(capturedImages); // Use original images if processing fails
+      }
     };
 
     if (capturedImages.length > 0) {
-      processImagesForBackgroundRemoval();
+      // Temporarily use original images until background removal is fixed
+      setProcessedImages(capturedImages);
+      // TODO: Re-enable background processing once fixed
+      // setTimeout(processImagesForBackgroundRemoval, 100);
     }
   }, [capturedImages]);
 
@@ -58,9 +71,16 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
   // Fast and effective background removal function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
+      // Add timeout to prevent infinite loading
+      const timeout = setTimeout(() => {
+        resolve(imageUrl); // Return original image if processing takes too long
+      }, 5000); // 5 second timeout
+
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
+        clearTimeout(timeout);
+        try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (!ctx) return resolve(imageUrl);
@@ -136,7 +156,17 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         // Apply processed data
         ctx.putImageData(imageData, 0, 0);
         resolve(canvas.toDataURL('image/jpeg', 0.9));
+        } catch (error) {
+          console.error('Canvas processing error:', error);
+          resolve(imageUrl); // Return original on error
+        }
       };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        resolve(imageUrl); // Return original if image fails to load
+      };
+      
       img.src = imageUrl;
     });
   };
