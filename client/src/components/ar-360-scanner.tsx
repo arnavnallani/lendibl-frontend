@@ -172,14 +172,17 @@ export function AR360Scanner({ bookingId, scanType, onComplete, onCancel }: AR36
 
     setIsUploading(true);
     try {
-      const response = await apiRequest("POST", "/api/item-scans", {
-        bookingId,
-        scanType,
-        scanImages: capturedImages
-      });
+      // If bookingId is 0 or falsy, we're in listing mode - skip API save
+      if (bookingId && bookingId > 0) {
+        const response = await apiRequest("POST", "/api/item-scans", {
+          bookingId,
+          scanType,
+          scanImages: capturedImages
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to save scan');
+        if (!response.ok) {
+          throw new Error('Failed to save scan');
+        }
       }
 
       toast({
