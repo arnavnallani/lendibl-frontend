@@ -269,6 +269,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Fixed mobile search scroll behavior to prevent rapid scrolling during typing - now scrolls to items section only once when starting to type and stays there
 - July 2, 2025: Enhanced mobile search positioning to show both search bar and items section when keyboard is up - optimized scroll position to keep both elements visible during typing
 - July 2, 2025: Fixed mobile search to stay focused on items section when typing - removed state tracking and simplified scroll behavior to scroll down further and stay at items level
+- July 2, 2025: Fixed mobile search scrolling to only affect mobile screens and keep search bar visible - mobile search now scrolls to items section while maintaining search bar visibility
 
 ## User Preferences
 
