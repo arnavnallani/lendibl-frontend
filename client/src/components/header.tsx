@@ -23,7 +23,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [hasScrolledToItems, setHasScrolledToItems] = useState(false);
+
   const { user, logout } = useAuth();
   const unreadCount = useNotificationCount();
   const [location] = useLocation();
@@ -78,9 +78,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section only once when starting to type
-                      if (value.trim() && !hasScrolledToItems) {
-                        setHasScrolledToItems(true);
+                      // Auto-scroll to items section when typing
+                      if (value.trim()) {
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -90,9 +89,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             });
                           }
                         }, 100);
-                      } else if (!value.trim()) {
-                        // Reset scroll flag when search is cleared
-                        setHasScrolledToItems(false);
                       }
                     }}
                     placeholder="Search for anything..."
@@ -114,9 +110,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section only once when starting to type
-                      if (value.trim() && !hasScrolledToItems) {
-                        setHasScrolledToItems(true);
+                      // Auto-scroll to items section when typing
+                      if (value.trim()) {
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -126,9 +121,6 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             });
                           }
                         }, 100);
-                      } else if (!value.trim()) {
-                        // Reset scroll flag when search is cleared
-                        setHasScrolledToItems(false);
                       }
                     }}
                     placeholder="Search for anything..."
@@ -296,17 +288,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection) {
-                        // On mobile, scroll to show both search bar and items
-                        const headerHeight = document.querySelector('header')?.offsetHeight || 0;
-                        const searchBarHeight = 60; // Approximate mobile search bar height
-                        const scrollPosition = itemsSection.offsetTop - headerHeight - searchBarHeight - 10;
+                        // Scroll down to show items section with more space for items
+                        const scrollPosition = itemsSection.offsetTop + 100;
                         
                         window.scrollTo({
-                          top: Math.max(0, scrollPosition),
+                          top: scrollPosition,
                           behavior: 'smooth'
                         });
                       }
-                    }, 100);
+                    }, 50);
                   }
                 }}
                 placeholder="Search for anything..."
