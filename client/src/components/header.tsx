@@ -23,6 +23,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileScrolling, setIsMobileScrolling] = useState(false);
 
   const { user, logout } = useAuth();
   const unreadCount = useNotificationCount();
@@ -284,20 +285,24 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                   setSearchQuery(value);
                   onSearch(value);
                   // Auto-scroll to items section when typing on mobile - only once
-                  if (value.trim() && value.length === 1) {
-                    setTimeout(() => {
+                  if (value.trim() && value.length === 1 && window.innerWidth < 768) {
+                    // Multiple attempts to ensure scroll position sticks on mobile
+                    const scrollToItems = () => {
                       const itemsSection = document.getElementById('items-section');
-                      if (itemsSection && window.innerWidth < 768) {
-                        // On mobile, scroll down to show actual items while keeping search bar visible
-                        const headerHeight = 60; // Mobile header height
-                        const scrollPosition = itemsSection.offsetTop - headerHeight + 150; // Scroll down more to show items
-                        
-                        window.scrollTo({
-                          top: Math.max(0, scrollPosition),
-                          behavior: 'smooth'
-                        });
+                      if (itemsSection) {
+                        const headerHeight = 60;
+                        const scrollPosition = itemsSection.offsetTop - headerHeight + 150;
+                        window.scrollTo(0, Math.max(0, scrollPosition));
                       }
-                    }, 100);
+                    };
+                    
+                    // Immediate scroll
+                    scrollToItems();
+                    
+                    // Follow-up scrolls to prevent bounce-back
+                    setTimeout(scrollToItems, 50);
+                    setTimeout(scrollToItems, 150);
+                    setTimeout(scrollToItems, 300);
                   }
                 }}
                 placeholder="Search for anything..."
