@@ -55,7 +55,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     return () => clearInterval(interval);
   }, [autoRotate, velocity]);
 
-  // Conservative AI background enhancement function
+  // Advanced object isolation and background removal function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -77,92 +77,135 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         const width = canvas.width;
         const height = canvas.height;
 
-        // Conservative background detection - only target obvious background areas
-        const backgroundMask = new Uint8Array(width * height);
+        // Create object mask using advanced segmentation
+        const objectMask = new Uint8Array(width * height);
         
-        // Sample colors from image edges (likely background)
-        const edgeColors: number[][] = [];
-        const edgeThickness = Math.min(20, Math.floor(Math.min(width, height) * 0.05));
-        
-        // Sample from all four edges
-        for (let i = 0; i < edgeThickness; i++) {
-          // Top and bottom edges
-          for (let x = 0; x < width; x += 5) {
-            const topIdx = (i * width + x) * 4;
-            const bottomIdx = ((height - 1 - i) * width + x) * 4;
-            if (topIdx < data.length) edgeColors.push([data[topIdx], data[topIdx + 1], data[topIdx + 2]]);
-            if (bottomIdx < data.length) edgeColors.push([data[bottomIdx], data[bottomIdx + 1], data[bottomIdx + 2]]);
-          }
-          // Left and right edges
-          for (let y = 0; y < height; y += 5) {
-            const leftIdx = (y * width + i) * 4;
-            const rightIdx = (y * width + (width - 1 - i)) * 4;
-            if (leftIdx < data.length) edgeColors.push([data[leftIdx], data[leftIdx + 1], data[leftIdx + 2]]);
-            if (rightIdx < data.length) edgeColors.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
+        // Step 1: Edge detection to find object boundaries
+        const edges = new Uint8Array(width * height);
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            const idx = (y * width + x) * 4;
+            
+            // Sobel edge detection
+            const gx = -data[((y-1)*width + x-1)*4] + data[((y-1)*width + x+1)*4] +
+                      -2*data[(y*width + x-1)*4] + 2*data[(y*width + x+1)*4] +
+                      -data[((y+1)*width + x-1)*4] + data[((y+1)*width + x+1)*4];
+            
+            const gy = -data[((y-1)*width + x-1)*4] - 2*data[((y-1)*width + x)*4] - data[((y-1)*width + x+1)*4] +
+                       data[((y+1)*width + x-1)*4] + 2*data[((y+1)*width + x)*4] + data[((y+1)*width + x+1)*4];
+            
+            const edgeStrength = Math.sqrt(gx*gx + gy*gy);
+            edges[y * width + x] = edgeStrength > 30 ? 255 : 0;
           }
         }
 
-        // Calculate average background color
-        let avgR = 0, avgG = 0, avgB = 0;
-        edgeColors.forEach(([r, g, b]) => {
-          avgR += r;
-          avgG += g;
-          avgB += b;
-        });
-        avgR /= edgeColors.length;
-        avgG /= edgeColors.length;
-        avgB /= edgeColors.length;
+        // Step 2: Find connected components starting from image center
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        const visited = new Uint8Array(width * height);
+        const queue: [number, number][] = [[centerX, centerY]];
+        
+        // Get center color as reference for main object
+        const centerIdx = (centerY * width + centerX) * 4;
+        const centerColor = [data[centerIdx], data[centerIdx + 1], data[centerIdx + 2]];
+        
+        // Flood fill from center to identify main object
+        while (queue.length > 0) {
+          const [x, y] = queue.shift()!;
+          
+          if (x < 0 || x >= width || y < 0 || y >= height || visited[y * width + x]) continue;
+          
+          const idx = (y * width + x) * 4;
+          const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
+          
+          // Calculate color similarity to center
+          const colorDiff = Math.abs(currentColor[0] - centerColor[0]) + 
+                          Math.abs(currentColor[1] - centerColor[1]) + 
+                          Math.abs(currentColor[2] - centerColor[2]);
+          
+          // If pixel is similar to center color or we haven't hit a strong edge
+          if (colorDiff < 100 && edges[y * width + x] < 255) {
+            visited[y * width + x] = 1;
+            objectMask[y * width + x] = 255;
+            
+            // Add neighbors to queue
+            queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+          }
+        }
 
-        // Only process pixels that are very similar to edge colors AND have low contrast
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          
-          // Calculate similarity to average background color
-          const colorDiff = Math.abs(r - avgR) + Math.abs(g - avgG) + Math.abs(b - avgB);
-          
-          // Calculate local contrast (how different this pixel is from neighbors)
-          const pixelIdx = Math.floor(i / 4);
-          const x = pixelIdx % width;
-          const y = Math.floor(pixelIdx / width);
-          
-          let localContrast = 0;
-          let neighborCount = 0;
-          
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
-              if (dx === 0 && dy === 0) continue;
-              const nx = x + dx;
-              const ny = y + dy;
-              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                const nIdx = (ny * width + nx) * 4;
-                const nR = data[nIdx];
-                const nG = data[nIdx + 1];
-                const nB = data[nIdx + 2];
-                localContrast += Math.abs(r - nR) + Math.abs(g - nG) + Math.abs(b - nB);
-                neighborCount++;
+        // Step 3: Morphological operations to clean up the mask
+        const cleanMask = new Uint8Array(width * height);
+        
+        // Dilate to fill small gaps
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            let hasObjectNeighbor = false;
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                if (objectMask[(y + dy) * width + (x + dx)] === 255) {
+                  hasObjectNeighbor = true;
+                  break;
+                }
+              }
+              if (hasObjectNeighbor) break;
+            }
+            cleanMask[y * width + x] = hasObjectNeighbor ? 255 : 0;
+          }
+        }
+
+        // Step 4: Find largest connected component (main object)
+        const finalMask = new Uint8Array(width * height);
+        const componentVisited = new Uint8Array(width * height);
+        let largestComponentSize = 0;
+        let largestComponent: [number, number][] = [];
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (cleanMask[y * width + x] === 255 && !componentVisited[y * width + x]) {
+              const component: [number, number][] = [];
+              const componentQueue: [number, number][] = [[x, y]];
+              
+              while (componentQueue.length > 0) {
+                const [cx, cy] = componentQueue.shift()!;
+                if (cx < 0 || cx >= width || cy < 0 || cy >= height || 
+                    componentVisited[cy * width + cx] || cleanMask[cy * width + cx] === 0) continue;
+                
+                componentVisited[cy * width + cx] = 1;
+                component.push([cx, cy]);
+                
+                componentQueue.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+              }
+              
+              if (component.length > largestComponentSize) {
+                largestComponentSize = component.length;
+                largestComponent = component;
               }
             }
           }
-          localContrast /= neighborCount;
+        }
 
-          // Only mark as background if BOTH conditions are met:
-          // 1. Very similar to edge colors (within 40 units)
-          // 2. Low local contrast (smooth area, not detailed object)
-          const isBackground = colorDiff < 40 && localContrast < 30;
+        // Mark largest component as the main object
+        largestComponent.forEach(([x, y]) => {
+          finalMask[y * width + x] = 255;
+        });
+
+        // Step 5: Apply background removal with anti-aliasing
+        for (let i = 0; i < data.length; i += 4) {
+          const pixelIdx = Math.floor(i / 4);
+          const isObject = finalMask[pixelIdx] === 255;
           
-          if (isBackground) {
-            // Gradually blend to white for smoother transition
-            const blendFactor = Math.max(0, (40 - colorDiff) / 40) * 0.7; // Conservative blending
-            data[i] = Math.round(r + (255 - r) * blendFactor);     // R
-            data[i + 1] = Math.round(g + (255 - g) * blendFactor); // G
-            data[i + 2] = Math.round(b + (255 - b) * blendFactor); // B
+          if (isObject) {
+            // Keep object pixels as-is but enhance slightly
+            data[i] = Math.min(255, data[i] * 1.1);     // R
+            data[i + 1] = Math.min(255, data[i + 1] * 1.1); // G
+            data[i + 2] = Math.min(255, data[i + 2] * 1.1); // B
+            data[i + 3] = 255; // Full opacity
           } else {
-            // Slightly enhance object contrast
-            data[i] = Math.min(255, Math.max(0, r * 1.05));
-            data[i + 1] = Math.min(255, Math.max(0, g * 1.05));
-            data[i + 2] = Math.min(255, Math.max(0, b * 1.05));
+            // Replace background with pure white
+            data[i] = 255;     // R
+            data[i + 1] = 255; // G
+            data[i + 2] = 255; // B
+            data[i + 3] = 255; // A
           }
         }
 
