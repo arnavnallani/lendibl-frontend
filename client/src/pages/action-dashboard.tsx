@@ -11,10 +11,7 @@ import {
   Calendar,
   DollarSign,
   User,
-  Send,
-  Camera,
-  ShieldCheck,
-  Eye
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,8 +23,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import type { BookingWithDetails } from "@shared/schema";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
-import { AR360Scanner } from "@/components/ar-360-scanner";
-import { Item360Viewer } from "@/components/item-360-viewer";
+
 
 export default function ActionDashboard() {
   const { user } = useAuth();
@@ -35,11 +31,7 @@ export default function ActionDashboard() {
   const [selectedRental, setSelectedRental] = useState<BookingWithDetails | null>(null);
   const [messageText, setMessageText] = useState("");
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
-  const [isARScannerOpen, setIsARScannerOpen] = useState(false);
-  const [scannerBookingId, setScannerBookingId] = useState<number | null>(null);
-  const [scannerType, setScannerType] = useState<'pre_rental' | 'post_rental'>('pre_rental');
-  const [is360ViewerOpen, setIs360ViewerOpen] = useState(false);
-  const [viewerBookingId, setViewerBookingId] = useState<number | null>(null);
+
   
   // Extract city and state from location for privacy
   const getDisplayLocation = (location: string) => {
@@ -149,34 +141,7 @@ export default function ActionDashboard() {
     }
   };
 
-  // AR 360 Scanner handlers
-  const handlePreRentalScan = (bookingId: number) => {
-    setScannerBookingId(bookingId);
-    setScannerType('pre_rental');
-    setIsARScannerOpen(true);
-  };
 
-  const handlePostRentalScan = (bookingId: number) => {
-    setScannerBookingId(bookingId);
-    setScannerType('post_rental');
-    setIsARScannerOpen(true);
-  };
-
-  const handleViewScans = (bookingId: number) => {
-    setViewerBookingId(bookingId);
-    setIs360ViewerOpen(true);
-  };
-
-  const handleScanComplete = (scanImages: string[]) => {
-    setIsARScannerOpen(false);
-    setScannerBookingId(null);
-    queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
-  };
-
-  const handleScanCancel = () => {
-    setIsARScannerOpen(false);
-    setScannerBookingId(null);
-  };
 
   if (!user) {
     return (
@@ -355,39 +320,7 @@ export default function ActionDashboard() {
                           {isOwner ? 'Message Renter' : 'Message Owner'}
                         </Button>
                       )}
-                      
-                      {/* 360° AR Documentation Controls */}
-                      {status === 'pre-rental' && isOwner && (
-                        <Button
-                          variant="outline"
-                          onClick={() => handlePreRentalScan(rental.id)}
-                          className="flex items-center gap-2 border-blue-300 hover:bg-blue-50"
-                        >
-                          <Camera className="h-4 w-4" />
-                          360° Pre-Scan
-                        </Button>
-                      )}
 
-                      {status === 'completed' && isOwner && (
-                        <Button
-                          variant="outline"
-                          onClick={() => handlePostRentalScan(rental.id)}
-                          className="flex items-center gap-2 border-green-300 hover:bg-green-50"
-                        >
-                          <ShieldCheck className="h-4 w-4" />
-                          360° Post-Scan
-                        </Button>
-                      )}
-
-                      {/* View existing scans */}
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleViewScans(rental.id)}
-                        className="flex items-center gap-2 text-blue-600 hover:bg-blue-50"
-                      >
-                        <Eye className="h-4 w-4" />
-                        View Documentation
-                      </Button>
                       
                       {/* Owner Controls */}
                       {isOwner && canStartRental(rental) && (
@@ -509,23 +442,7 @@ export default function ActionDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* AR 360 Scanner Modal */}
-      {isARScannerOpen && scannerBookingId && (
-        <AR360Scanner
-          bookingId={scannerBookingId}
-          scanType={scannerType}
-          onComplete={handleScanComplete}
-          onCancel={handleScanCancel}
-        />
-      )}
 
-      {/* 360 Viewer Modal */}
-      {is360ViewerOpen && viewerBookingId && (
-        <Item360Viewer
-          bookingId={viewerBookingId}
-          onClose={() => setIs360ViewerOpen(false)}
-        />
-      )}
     </div>
   );
 }
