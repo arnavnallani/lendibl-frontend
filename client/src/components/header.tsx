@@ -282,18 +282,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 onChange={(value) => {
                   setSearchQuery(value);
                   onSearch(value);
-                  // Auto-scroll to items section when typing
-                  if (value.trim()) {
-                    setTimeout(() => {
-                      const itemsSection = document.getElementById('items-section');
-                      if (itemsSection) {
-                        itemsSection.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
-                        });
-                      }
-                    }, 100);
-                  }
+                  // No auto-scroll on mobile to prevent jumping
                 }}
                 placeholder="Search for anything..."
                 className="w-full"
