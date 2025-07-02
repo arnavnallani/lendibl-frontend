@@ -291,21 +291,22 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 onChange={(value) => {
                   setSearchQuery(value);
                   onSearch(value);
-                  // Auto-scroll to items section only once when starting to type
-                  if (value.trim() && !hasScrolledToItems) {
-                    setHasScrolledToItems(true);
+                  // Auto-scroll to items section when typing on mobile
+                  if (value.trim()) {
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection) {
-                        itemsSection.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
+                        // On mobile, scroll to show both search bar and items
+                        const headerHeight = document.querySelector('header')?.offsetHeight || 0;
+                        const searchBarHeight = 60; // Approximate mobile search bar height
+                        const scrollPosition = itemsSection.offsetTop - headerHeight - searchBarHeight - 10;
+                        
+                        window.scrollTo({
+                          top: Math.max(0, scrollPosition),
+                          behavior: 'smooth'
                         });
                       }
                     }, 100);
-                  } else if (!value.trim()) {
-                    // Reset scroll flag when search is cleared
-                    setHasScrolledToItems(false);
                   }
                 }}
                 placeholder="Search for anything..."

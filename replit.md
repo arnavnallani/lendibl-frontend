@@ -267,6 +267,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Increased action dashboard and messaging button size on mobile from 8x8 to 9x9 pixels for better usability while maintaining navbar integration
 - July 2, 2025: Moved action dashboard, messaging, account buttons and greeting message 1 pixel left on mobile view for improved positioning and visual balance
 - July 2, 2025: Fixed mobile search scroll behavior to prevent rapid scrolling during typing - now scrolls to items section only once when starting to type and stays there
+- July 2, 2025: Enhanced mobile search positioning to show both search bar and items section when keyboard is up - optimized scroll position to keep both elements visible during typing
 
 ## User Preferences
 
