@@ -42,10 +42,8 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     };
 
     if (capturedImages.length > 0) {
-      // Temporarily use original images until background removal is fixed
-      setProcessedImages(capturedImages);
-      // TODO: Re-enable background processing once fixed
-      // setTimeout(processImagesForBackgroundRemoval, 100);
+      // Process images with fast background removal
+      processImagesForBackgroundRemoval();
     }
   }, [capturedImages]);
 
@@ -68,105 +66,62 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     return () => clearInterval(interval);
   }, [autoRotate, velocity]);
 
-  // Fast and effective background removal function
+  // Ultra-fast background removal function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
-      // Add timeout to prevent infinite loading
-      const timeout = setTimeout(() => {
-        resolve(imageUrl); // Return original image if processing takes too long
-      }, 5000); // 5 second timeout
-
       const img = new Image();
       img.crossOrigin = 'anonymous';
+      
       img.onload = () => {
-        clearTimeout(timeout);
-        try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (!ctx) return resolve(imageUrl);
 
         canvas.width = img.width;
         canvas.height = img.height;
-
-        // Draw original image
         ctx.drawImage(img, 0, 0);
 
-        // Get image data for processing
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-        const width = canvas.width;
-        const height = canvas.height;
+        const w = canvas.width;
+        const h = canvas.height;
 
-        // Sample background colors from image borders (likely background)
-        const borderColors: number[][] = [];
-        const borderWidth = Math.min(10, Math.floor(Math.min(width, height) * 0.05));
+        // Quick corner sampling for background color
+        const corners = [
+          [0, 0], [w-1, 0], [0, h-1], [w-1, h-1], // 4 corners
+          [Math.floor(w/2), 0], [Math.floor(w/2), h-1], // top/bottom center
+          [0, Math.floor(h/2)], [w-1, Math.floor(h/2)] // left/right center
+        ];
         
-        // Sample from borders only
-        for (let i = 0; i < borderWidth; i++) {
-          for (let x = 0; x < width; x += 3) {
-            // Top border
-            const topIdx = (i * width + x) * 4;
-            if (topIdx < data.length) borderColors.push([data[topIdx], data[topIdx + 1], data[topIdx + 2]]);
-            
-            // Bottom border
-            const bottomIdx = ((height - 1 - i) * width + x) * 4;
-            if (bottomIdx < data.length) borderColors.push([data[bottomIdx], data[bottomIdx + 1], data[bottomIdx + 2]]);
-          }
-          for (let y = 0; y < height; y += 3) {
-            // Left border
-            const leftIdx = (y * width + i) * 4;
-            if (leftIdx < data.length) borderColors.push([data[leftIdx], data[leftIdx + 1], data[leftIdx + 2]]);
-            
-            // Right border
-            const rightIdx = (y * width + (width - 1 - i)) * 4;
-            if (rightIdx < data.length) borderColors.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
-          }
-        }
+        const bgColors: number[][] = [];
+        corners.forEach(([x, y]) => {
+          const idx = (y * w + x) * 4;
+          bgColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+        });
 
-        // Process each pixel - simple and fast approach
+        // Fast pixel processing - check every pixel against background colors
         for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
+          const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
           
-          // Check if pixel is similar to any border color
-          let isBackground = false;
-          for (const [br, bg, bb] of borderColors) {
-            const colorDiff = Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb);
-            if (colorDiff < 60) { // Conservative similarity threshold
-              isBackground = true;
+          // Quick background check
+          let isBg = false;
+          for (const [br, bg, bb] of bgColors) {
+            if (Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb) < 80) {
+              isBg = true;
               break;
             }
           }
           
-          if (isBackground) {
-            // Replace with white
-            data[i] = 255;     // R
-            data[i + 1] = 255; // G
-            data[i + 2] = 255; // B
-            data[i + 3] = 255; // A
-          } else {
-            // Keep object pixel with slight enhancement
-            data[i] = Math.min(255, r * 1.05);
-            data[i + 1] = Math.min(255, g * 1.05);
-            data[i + 2] = Math.min(255, b * 1.05);
+          if (isBg) {
+            data[i] = 255; data[i + 1] = 255; data[i + 2] = 255; // White background
           }
         }
 
-        // Apply processed data
         ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL('image/jpeg', 0.9));
-        } catch (error) {
-          console.error('Canvas processing error:', error);
-          resolve(imageUrl); // Return original on error
-        }
+        resolve(canvas.toDataURL('image/jpeg', 0.95));
       };
       
-      img.onerror = () => {
-        clearTimeout(timeout);
-        resolve(imageUrl); // Return original if image fails to load
-      };
-      
+      img.onerror = () => resolve(imageUrl);
       img.src = imageUrl;
     });
   };
