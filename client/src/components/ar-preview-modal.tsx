@@ -161,37 +161,74 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
                   transformStyle: 'preserve-3d'
                 }}
               >
-                {/* White background container for clean isolation */}
+                {/* Clean white showcase container */}
                 <div 
-                  className="relative bg-white rounded-3xl shadow-2xl border border-gray-100"
+                  className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
                   style={{
-                    padding: '40px',
+                    padding: '60px',
                     filter: 'drop-shadow(0 25px 80px rgba(0,0,0,0.12))'
                   }}
                 >
-                  {/* Background isolation technique */}
+                  {/* Multi-layer background removal system */}
                   <div className="relative">
+                    {/* Base white background layer */}
+                    <div 
+                      className="absolute inset-0 bg-white rounded-2xl"
+                      style={{ zIndex: 1 }}
+                    />
+                    
+                    {/* Layer 1: Duplicate image for background removal base */}
                     <img
                       src={currentImage}
-                      alt="360° Item View"
-                      className="max-w-[60vh] max-h-[60vh] w-auto h-auto object-contain relative z-10"
-                      draggable={false}
+                      alt=""
+                      className="absolute max-w-[55vh] max-h-[55vh] w-auto h-auto object-contain mx-auto inset-0"
                       style={{
-                        backfaceVisibility: 'hidden',
-                        filter: 'contrast(1.15) saturate(1.1) brightness(1.05)'
+                        filter: 'contrast(2) brightness(2) saturate(0) blur(1px)',
+                        mixBlendMode: 'hard-light',
+                        opacity: 0.8,
+                        zIndex: 2
                       }}
                     />
                     
-                    {/* White background force isolation */}
+                    {/* Layer 2: Main item image with strong enhancement */}
+                    <img
+                      src={currentImage}
+                      alt="360° Item View"
+                      className="relative max-w-[55vh] max-h-[55vh] w-auto h-auto object-contain mx-auto block"
+                      draggable={false}
+                      style={{
+                        backfaceVisibility: 'hidden',
+                        filter: 'contrast(1.6) saturate(1.4) brightness(1.2) drop-shadow(0 0 30px white)',
+                        mixBlendMode: 'multiply',
+                        zIndex: 5
+                      }}
+                    />
+                    
+                    {/* Layer 3: Aggressive edge masking */}
                     <div 
-                      className="absolute inset-0 rounded-2xl"
+                      className="absolute inset-0 pointer-events-none"
                       style={{
                         background: `
-                          radial-gradient(ellipse 60% 60% at center, transparent 25%, white 65%),
-                          linear-gradient(45deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.9) 100%)
+                          radial-gradient(ellipse 35% 35% at center, transparent 0%, rgba(255,255,255,0.7) 50%, white 85%),
+                          radial-gradient(ellipse 50% 50% at center, transparent 0%, rgba(255,255,255,0.5) 60%, white 90%),
+                          linear-gradient(0deg, white 0%, transparent 20%, transparent 80%, white 100%),
+                          linear-gradient(90deg, white 0%, transparent 20%, transparent 80%, white 100%),
+                          linear-gradient(45deg, white 0%, transparent 30%, transparent 70%, white 100%),
+                          linear-gradient(-45deg, white 0%, transparent 30%, transparent 70%, white 100%)
                         `,
+                        mixBlendMode: 'lighten',
+                        zIndex: 3
+                      }}
+                    />
+                    
+                    {/* Layer 4: Final white overlay for complete background removal */}
+                    <div 
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background: 'radial-gradient(ellipse 70% 70% at center, transparent 30%, white 80%)',
                         mixBlendMode: 'screen',
-                        zIndex: 5
+                        opacity: 0.9,
+                        zIndex: 4
                       }}
                     />
                   </div>
