@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, X, Camera } from "lucide-react";
+import { Eye, X, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
 
 interface ARPreviewModalProps {
   onClose: () => void;
@@ -8,191 +8,210 @@ interface ARPreviewModalProps {
 }
 
 export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewModalProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isStreamActive, setIsStreamActive] = useState(false);
-  const [streamError, setStreamError] = useState<string | null>(null);
+  const [currentAngle, setCurrentAngle] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [autoRotate, setAutoRotate] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Auto-rotate effect
   useEffect(() => {
-    startCamera();
-    return () => {
-      stopCamera();
-    };
-  }, []);
+    if (!autoRotate) return;
+    
+    const interval = setInterval(() => {
+      setCurrentAngle(prev => (prev + 1) % 360);
+    }, 50);
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'environment', // Back camera for better AR experience
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsStreamActive(true);
-        setStreamError(null);
-      }
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      setStreamError('Unable to access camera. Please allow camera permissions.');
-      setIsStreamActive(false);
-    }
+    return () => clearInterval(interval);
+  }, [autoRotate]);
+
+  // Get the image for current angle (8 images = 45° each)
+  const getCurrentImage = () => {
+    if (capturedImages.length === 0) return null;
+    const imageIndex = Math.floor(currentAngle / 45) % capturedImages.length;
+    return capturedImages[imageIndex] || capturedImages[0];
   };
 
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-      setIsStreamActive(false);
-    }
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setAutoRotate(false);
+    setDragStart({ x: e.clientX, y: e.clientY });
   };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaX = e.clientX - dragStart.x;
+    const sensitivity = 0.5;
+    const newAngle = (currentAngle + deltaX * sensitivity) % 360;
+    setCurrentAngle(newAngle < 0 ? newAngle + 360 : newAngle);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY * -0.001;
+    setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
+  };
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.5));
+  const toggleAutoRotate = () => setAutoRotate(prev => !prev);
+
+  const currentImage = getCurrentImage();
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-100 to-gray-200 z-50 flex flex-col">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-black/50 backdrop-blur-sm">
-        <div className="flex items-center justify-between p-4 text-white">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <Eye className="h-6 w-6" />
-            AR Preview - Your Scan Results
-          </h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-white hover:bg-white/20"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-        </div>
+      <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b">
+        <h3 className="text-xl font-semibold flex items-center gap-2 text-gray-800">
+          <Eye className="h-6 w-6" />
+          360° Item Viewer
+        </h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="text-gray-600 hover:bg-gray-200"
+        >
+          <X className="h-6 w-6" />
+        </Button>
       </div>
 
-      {/* Camera View */}
-      <div className="flex-1 relative">
-        {streamError ? (
-          <div className="flex items-center justify-center h-full bg-gray-900 text-white text-center p-8">
-            <div className="space-y-4">
-              <Camera className="h-16 w-16 mx-auto text-gray-400" />
-              <p className="text-lg">{streamError}</p>
-              <Button 
-                onClick={startCamera}
-                className="bg-blue-600 hover:bg-blue-700"
+      {/* 3D Model Viewer */}
+      <div className="flex-1 relative overflow-hidden">
+        <div 
+          ref={containerRef}
+          className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+        >
+          {currentImage ? (
+            <div className="relative">
+              {/* Main 3D Object */}
+              <div 
+                className="transition-transform duration-100 ease-out"
+                style={{
+                  transform: `scale(${zoom}) perspective(1000px) rotateY(${currentAngle}deg)`,
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                Try Again
-              </Button>
+                <img
+                  src={currentImage}
+                  alt="360° Item View"
+                  className="max-w-none max-h-none w-auto h-auto max-w-[80vh] max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                  draggable={false}
+                />
+              </div>
+
+              {/* Floating angle indicator */}
+              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
+                <div className="text-sm font-medium">
+                  {Math.round(currentAngle)}°
+                </div>
+              </div>
+
+              {/* 360° rotation guide */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-black/70 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm">
+                  Drag to rotate • Scroll to zoom
+                </div>
+              </div>
             </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              <div className="w-32 h-32 mx-auto mb-4 bg-gray-300 rounded-lg flex items-center justify-center">
+                <Eye className="h-16 w-16 text-gray-400" />
+              </div>
+              <p>No scan images available</p>
+            </div>
+          )}
+        </div>
+
+        {/* Image thumbnails strip */}
+        {capturedImages.length > 0 && (
+          <div className="absolute bottom-4 right-4 space-y-1">
+            {capturedImages.map((image, index) => {
+              const angle = index * 45;
+              const isActive = Math.abs(currentAngle - angle) < 22.5 || 
+                             Math.abs(currentAngle - angle - 360) < 22.5 ||
+                             Math.abs(currentAngle - angle + 360) < 22.5;
+              
+              return (
+                <div
+                  key={index}
+                  className={`w-12 h-8 rounded border-2 overflow-hidden cursor-pointer transition-all ${
+                    isActive ? 'border-blue-400 scale-110' : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onClick={() => {
+                    setCurrentAngle(angle);
+                    setAutoRotate(false);
+                  }}
+                >
+                  <img 
+                    src={image} 
+                    alt={`Angle ${angle}°`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
-            
-            {/* AR Overlays */}
-            {isStreamActive && (
-              <>
-                {/* Scanning frame - shows completed scan area */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-64 h-64 border-4 border-green-400 border-dashed rounded-lg flex items-center justify-center animate-pulse">
-                    <div className="bg-green-500/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                      <span className="text-green-300 font-semibold text-lg">
-                        ✓ Scan Complete
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Progress indicator */}
-                <div className="absolute top-20 left-4 right-4">
-                  <div className="bg-black/50 backdrop-blur-sm rounded-lg p-3">
-                    <div className="flex items-center space-x-3 text-white">
-                      <div className="flex-1 bg-white/20 rounded-full h-3">
-                        <div 
-                          className="bg-green-500 h-3 rounded-full transition-all duration-1000"
-                          style={{ width: "100%" }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">8/8 Photos ✓</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Captured images preview */}
-                <div className="absolute top-20 right-4 space-y-2 max-h-96 overflow-y-auto">
-                  {capturedImages.slice(0, 8).map((image, index) => (
-                    <div 
-                      key={index} 
-                      className="w-16 h-12 bg-black/50 backdrop-blur-sm rounded border-2 border-green-400 overflow-hidden"
-                    >
-                      <img 
-                        src={image} 
-                        alt={`Scan ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-green-300 text-xs font-bold bg-black/50 rounded px-1">
-                          ✓
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Angle indicators around the scanning frame */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="relative w-80 h-80">
-                    {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, index) => {
-                      const radian = (angle * Math.PI) / 180;
-                      const x = Math.cos(radian) * 140;
-                      const y = Math.sin(radian) * 140;
-                      
-                      return (
-                        <div
-                          key={angle}
-                          className="absolute w-8 h-8 bg-green-500/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-green-300"
-                          style={{
-                            left: `calc(50% + ${x}px - 16px)`,
-                            top: `calc(50% + ${y}px - 16px)`,
-                          }}
-                        >
-                          ✓
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* AR Instructions overlay */}
-                <div className="absolute bottom-20 left-4 right-4">
-                  <div className="bg-black/70 backdrop-blur-sm rounded-lg p-4 text-white text-center">
-                    <h4 className="font-semibold mb-2">360° Documentation Complete</h4>
-                    <p className="text-sm text-gray-300">
-                      This is how your item was scanned and documented. All 8 angles captured successfully for comprehensive protection.
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-          </>
         )}
       </div>
 
-      {/* Bottom controls */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-black/50 backdrop-blur-sm">
-        <div className="flex justify-center space-x-4">
+      {/* Controls */}
+      <div className="bg-white/80 backdrop-blur-sm border-t p-4">
+        <div className="flex items-center justify-center space-x-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomOut}
+            disabled={zoom <= 0.5}
+          >
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          
+          <div className="text-sm text-gray-600 min-w-[60px] text-center">
+            {Math.round(zoom * 100)}%
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomIn}
+            disabled={zoom >= 3}
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          
+          <div className="w-px h-6 bg-gray-300 mx-2" />
+          
+          <Button
+            variant={autoRotate ? "default" : "outline"}
+            size="sm"
+            onClick={toggleAutoRotate}
+          >
+            <RotateCw className={`h-4 w-4 mr-2 ${autoRotate ? 'animate-spin' : ''}`} />
+            Auto Rotate
+          </Button>
+          
+          <div className="w-px h-6 bg-gray-300 mx-2" />
+          
           <Button
             onClick={onClose}
-            className="bg-green-600 hover:bg-green-700 text-white px-8"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
           >
-            <Eye className="h-5 w-5 mr-2" />
-            Close AR Preview
+            <Eye className="h-4 w-4 mr-2" />
+            Close Viewer
           </Button>
         </div>
       </div>

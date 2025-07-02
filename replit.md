@@ -284,7 +284,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Updated AI pricing system to suggest significantly lower prices - items under $1000 now max $25/day (targeting $15-20), items over $1000 use formula (y = 0.003x + 25) for more competitive and affordable pricing
 - July 2, 2025: Comprehensive image update - replaced all placeholder and inappropriate images with high-quality, relevant Unsplash photos that accurately represent each item title across all 122 marketplace listings
 - July 2, 2025: Replaced photo upload functionality in list items page with AR 360° scanner - owners can now use augmented reality to scan items from 8 angles for comprehensive documentation, matching the protection system from action dashboard
-- July 2, 2025: Added AR scan results preview feature - after completing 360° scan, users can preview their scan results with completed progress indicators, captured image thumbnails, and full documentation review
+- July 2, 2025: Implemented interactive 360° model viewer for AR preview - users can rotate, zoom, and inspect their scanned items in 3D space using captured images with drag controls, auto-rotation, and thumbnail navigation
 
 ## User Preferences
 
