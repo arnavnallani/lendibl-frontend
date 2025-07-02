@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, Calendar } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, Camera, RotateCcw } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +23,7 @@ import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
-import { ImageUpload } from "@/components/image-upload";
+import { AR360Scanner } from "@/components/ar-360-scanner";
 import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
@@ -102,6 +102,7 @@ export default function ListItem() {
   const [listedItemTitle, setListedItemTitle] = useState("");
   const [showAIPricing, setShowAIPricing] = useState(false);
   const [showManualPricing, setShowManualPricing] = useState(false);
+  const [showARScanner, setShowARScanner] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -270,9 +271,7 @@ export default function ListItem() {
     createItemMutation.mutate(itemData);
   };
 
-  const handleImagesChange = (newImages: string[]) => {
-    setImages(newImages);
-  };
+
 
   if (!user) {
     return (
@@ -610,16 +609,72 @@ export default function ListItem() {
                   </div>
                 </div>
 
-                {/* Images */}
+                {/* Photos */}
                 <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">Photos</h3>
+                  <h3 className="text-xl font-semibold text-gray-dark">360° Item Documentation</h3>
+                  <p className="text-sm text-gray-600">
+                    Use AR scanning to create a comprehensive 360° record of your item. This helps protect both you and renters by documenting the item's condition.
+                  </p>
                   
-                  <ImageUpload
-                    images={images}
-                    onImagesChange={handleImagesChange}
-                    maxImages={5}
-                    maxSizeInMB={10}
-                  />
+                  {images.length === 0 ? (
+                    <div className="text-center space-y-4">
+                      <Button
+                        type="button"
+                        onClick={() => setShowARScanner(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Camera className="h-5 w-5 mr-2" />
+                        Start 360° AR Scan
+                      </Button>
+                      <p className="text-sm text-gray-500">
+                        Scan your item from 8 different angles for complete documentation
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {images.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image}
+                              alt={`Item photo ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImages = images.filter((_, i) => i !== index);
+                                setImages(newImages);
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          type="button"
+                          onClick={() => setShowARScanner(true)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Camera className="h-4 w-4 mr-2" />
+                          Add More Photos
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => setImages([])}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <RotateCcw className="h-4 w-4 mr-2" />
+                          Restart Scan
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* What's Included */}
@@ -781,6 +836,22 @@ export default function ListItem() {
         }}
         itemTitle={listedItemTitle}
       />
+
+      {showARScanner && (
+        <AR360Scanner
+          bookingId={0} // Not needed for listing items
+          scanType="pre_rental"
+          onComplete={(scanImages) => {
+            setImages(scanImages);
+            setShowARScanner(false);
+            toast({
+              title: "360° Scan Complete!",
+              description: `Captured ${scanImages.length} images for item documentation.`,
+            });
+          }}
+          onCancel={() => setShowARScanner(false)}
+        />
+      )}
     </div>
   );
 }
