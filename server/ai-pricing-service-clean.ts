@@ -103,11 +103,13 @@ IMPORTANT: The current real market price of this item is $${originalPrice}.
 
 PRICING RULES:
 1. Use the provided current price: $${originalPrice}
-2. If current price is under $1000: Maximum daily rate is $35, suggest much lower prices in general to be very competitive and affordable
-3. If current price is over $1000: Use formula y = 0.005x + 30 (with some market flexibility)
+2. If current price is under $1000: Maximum daily rate is $25, aim for $15-20/day to be very competitive and affordable
+3. If current price is over $1000: Use formula y = 0.003x + 20 (much lower than before)
 
 EXAMPLES BASED ON PROVIDED PRICE:
-- Current price $${originalPrice} ${originalPrice < 1000 ? `(under $1000) → suggest competitive rate under $35/day` : `(over $1000) → suggest around $${Math.round((0.005 * originalPrice + 30) * 100) / 100}/day base`}
+- Current price $${originalPrice} ${originalPrice < 1000 ? `(under $1000) → suggest rate between $15-25/day, preferably $15-20/day` : `(over $1000) → suggest around $${Math.round((0.003 * originalPrice + 20) * 100) / 100}/day base`}
+
+IMPORTANT: Always err on the side of LOWER prices to make items more accessible and competitive.
 
 Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
     
@@ -115,7 +117,19 @@ Consider ${season} seasonal demand for ${month} and ${input.location} market con
       const chatGPTResult = await getChatGPTPricing(prompt);
       
       if (chatGPTResult.success && chatGPTResult.suggestedPrice) {
-        const finalPrice = Math.max(5, Math.round(chatGPTResult.suggestedPrice * 100) / 100);
+        // Apply lower pricing constraints
+        let suggestedPrice = chatGPTResult.suggestedPrice;
+        
+        // Enforce maximum limits based on original price
+        if (originalPrice < 1000) {
+          suggestedPrice = Math.min(suggestedPrice, 25); // Max $25 for items under $1000
+        } else {
+          // For items over $1000, use lower formula: 0.003x + 20
+          const formulaMax = (0.003 * originalPrice) + 20;
+          suggestedPrice = Math.min(suggestedPrice, formulaMax);
+        }
+        
+        const finalPrice = Math.max(5, Math.round(suggestedPrice * 100) / 100);
         
         const reasoning = [
           `AI-powered pricing: $${chatGPTResult.suggestedPrice}/day`,

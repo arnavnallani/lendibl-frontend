@@ -281,6 +281,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Added 100 diverse rental items across all categories - tools, electronics, sports gear, outdoor equipment, vehicles, home & garden, and clothing items to create a comprehensive marketplace with 112 total items
 - July 2, 2025: Switched all AI services from Google Gemini 1.5 to ChatGPT 3.5-turbo for pricing, search, and chatbot features per user request
 - July 2, 2025: Fixed recommendation system interaction tracking - now properly tracks when users click on items and automatically updates user preferences for better personalized recommendations
+- July 2, 2025: Updated AI pricing system to suggest significantly lower prices - items under $1000 now max $25/day (targeting $15-20), items over $1000 use lower formula (0.003x + 20) for more competitive and affordable pricing
 
 ## User Preferences
 
