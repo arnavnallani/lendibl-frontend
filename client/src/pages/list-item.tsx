@@ -699,7 +699,7 @@ export default function ListItem() {
                         className="relative"
                       >
                         <Scan className="h-4 w-4 mr-2" />
-                        Camera Capture
+                        Scan Item
                       </Button>
                     </div>
                     <input

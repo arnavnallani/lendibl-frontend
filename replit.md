@@ -292,6 +292,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Implemented ultra-fast background removal - corner sampling technique with minimal processing overhead, instant results without loading delays or performance issues
 - July 2, 2025: Removed AR 360° scanning functionality and restored original image upload system - users can now drag-and-drop or click to upload up to 8 images with visual preview grid and individual image removal
 - July 2, 2025: Implemented mobile photo capture system (camera-style) - full-screen camera interface with rule-of-thirds grid, tap-to-focus functionality, image enhancement for product photography, multi-capture support, flash/camera toggle, and focus point indicators
+- July 2, 2025: Updated camera capture button text from "Camera Capture" to "Scan Item" for better user understanding
 
 ## User Preferences
 
