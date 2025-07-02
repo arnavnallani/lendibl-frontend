@@ -290,6 +290,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Advanced object isolation algorithm - uses Sobel edge detection, center-based flood fill, morphological operations, and largest connected component analysis to precisely identify and preserve main object while removing everything else for pure white studio backgrounds
 - July 2, 2025: Optimized background removal for speed and reliability - simplified to fast border sampling approach that preserves objects completely while processing quickly, preventing page reloads and performance issues
 - July 2, 2025: Implemented ultra-fast background removal - corner sampling technique with minimal processing overhead, instant results without loading delays or performance issues
+- July 2, 2025: Removed AR 360° scanning functionality and restored original image upload system - users can now drag-and-drop or click to upload up to 8 images with visual preview grid and individual image removal
 
 ## User Preferences
 

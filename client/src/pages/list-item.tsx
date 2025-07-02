@@ -23,8 +23,7 @@ import AuthModal from "@/components/auth-modal";
 import OwnerPaymentSetupModal from "@/components/owner-payment-setup-modal";
 import Footer from "@/components/footer";
 import { AIPricingSuggestions } from "@/components/ai-pricing-suggestions";
-import { AR360Scanner } from "@/components/ar-360-scanner";
-import ARPreviewModal from "@/components/ar-preview-modal";
+import { Upload, X } from "lucide-react";
 import { AddressAutofill } from "@/components/AddressAutofill";
 
 const formSchema = insertItemSchema.extend({
@@ -98,13 +97,58 @@ type FormValues = z.infer<typeof formSchema>;
 export default function ListItem() {
   const [, setLocation] = useLocation();
   const [images, setImages] = useState<string[]>([]);
+
+  // Image upload handlers
+  const handleImageUpload = (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const maxFiles = 8;
+    
+    if (images.length + fileArray.length > maxFiles) {
+      toast({
+        title: "Too many images",
+        description: `You can upload up to ${maxFiles} images`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    fileArray.forEach((file) => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          setImages(prev => [...prev, result]);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    handleImageUpload(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isOwnerPaymentSetupOpen, setIsOwnerPaymentSetupOpen] = useState(false);
   const [listedItemTitle, setListedItemTitle] = useState("");
   const [showAIPricing, setShowAIPricing] = useState(false);
   const [showManualPricing, setShowManualPricing] = useState(false);
-  const [showARScanner, setShowARScanner] = useState(false);
-  const [showARPreview, setShowARPreview] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -613,78 +657,72 @@ export default function ListItem() {
 
                 {/* Photos */}
                 <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">360° Item Documentation</h3>
+                  <h3 className="text-xl font-semibold text-gray-dark">Item Photos</h3>
                   <p className="text-sm text-gray-600">
-                    Use AR scanning to create a comprehensive 360° record of your item. This helps protect both you and renters by documenting the item's condition.
+                    Upload high-quality photos of your item. You can add up to 8 images to showcase your item from different angles.
                   </p>
                   
-                  {images.length === 0 ? (
-                    <div className="text-center space-y-4">
-                      <Button
-                        type="button"
-                        onClick={() => setShowARScanner(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Camera className="h-5 w-5 mr-2" />
-                        Start 360° AR Scan
-                      </Button>
-                      <p className="text-sm text-gray-500">
-                        Scan your item from 8 different angles for complete documentation
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {images.map((image, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={image}
-                              alt={`Item photo ${index + 1}`}
-                              className="w-full h-24 object-cover rounded-lg"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newImages = images.filter((_, i) => i !== index);
-                                setImages(newImages);
-                              }}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        <Button
-                          type="button"
-                          onClick={() => setShowARPreview(true)}
-                          variant="outline"
-                          size="sm"
-                          className="border-blue-200 hover:bg-blue-50"
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Preview AR Scan
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => setShowARScanner(true)}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Camera className="h-4 w-4 mr-2" />
-                          Add More Photos
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => setImages([])}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <RotateCcw className="h-4 w-4 mr-2" />
-                          Restart Scan
-                        </Button>
-                      </div>
+                  {/* Image Upload Area */}
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                      isDragOver
+                        ? 'border-blue-400 bg-blue-50'
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <p className="text-lg font-medium text-gray-900 mb-2">
+                      Drop images here or click to upload
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      PNG, JPG, GIF up to 10MB each (max 8 images)
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="relative"
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                    >
+                      Choose Files
+                    </Button>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          handleImageUpload(e.target.files);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Image Preview Grid */}
+                  {images.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Item photo ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -849,29 +887,7 @@ export default function ListItem() {
         itemTitle={listedItemTitle}
       />
 
-      {showARScanner && (
-        <AR360Scanner
-          bookingId={0} // Not needed for listing items
-          scanType="pre_rental"
-          onComplete={(scanImages) => {
-            setImages(scanImages);
-            setShowARScanner(false);
-            toast({
-              title: "360° Scan Complete!",
-              description: `Captured ${scanImages.length} images for item documentation.`,
-            });
-          }}
-          onCancel={() => setShowARScanner(false)}
-        />
-      )}
 
-      {/* AR Preview Modal with Live Camera */}
-      {showARPreview && (
-        <ARPreviewModal 
-          onClose={() => setShowARPreview(false)}
-          capturedImages={images}
-        />
-      )}
     </div>
   );
 }
