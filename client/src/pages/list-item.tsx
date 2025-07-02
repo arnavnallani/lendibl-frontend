@@ -619,27 +619,16 @@ export default function ListItem() {
                   
                   {images.length === 0 ? (
                     <div className="text-center space-y-4">
-                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Button
-                          type="button"
-                          onClick={() => setShowARPreview(true)}
-                          variant="outline"
-                          className="border-blue-200 hover:bg-blue-50"
-                        >
-                          <Eye className="h-5 w-5 mr-2" />
-                          Preview AR Mode
-                        </Button>
-                        <Button
-                          type="button"
-                          onClick={() => setShowARScanner(true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <Camera className="h-5 w-5 mr-2" />
-                          Start 360° AR Scan
-                        </Button>
-                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => setShowARScanner(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Camera className="h-5 w-5 mr-2" />
+                        Start 360° AR Scan
+                      </Button>
                       <p className="text-sm text-gray-500">
-                        Preview the AR scanning interface or start scanning your item from 8 different angles
+                        Scan your item from 8 different angles for complete documentation
                       </p>
                     </div>
                   ) : (
@@ -665,7 +654,17 @@ export default function ListItem() {
                           </div>
                         ))}
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button
+                          type="button"
+                          onClick={() => setShowARPreview(true)}
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-200 hover:bg-blue-50"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Preview AR Scan
+                        </Button>
                         <Button
                           type="button"
                           onClick={() => setShowARScanner(true)}
@@ -873,7 +872,7 @@ export default function ListItem() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <Eye className="h-5 w-5" />
-                  AR Scanning Preview
+                  Your AR Scan Results
                 </h3>
                 <Button
                   variant="ghost"
@@ -886,7 +885,7 @@ export default function ListItem() {
               
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  Here's what the 360° AR scanning interface looks like. You'll capture 8 photos by rotating around your item.
+                  Review your completed 360° AR scan. This shows how your item was documented during the scanning process.
                 </p>
                 
                 {/* Mock AR Interface Preview */}
@@ -905,11 +904,11 @@ export default function ListItem() {
                     <div className="flex items-center space-x-2 text-white">
                       <div className="flex-1 bg-white/20 rounded-full h-2">
                         <div 
-                          className="bg-blue-500 h-2 rounded-full transition-all duration-1000"
-                          style={{ width: "37.5%" }}
+                          className="bg-green-500 h-2 rounded-full transition-all duration-1000"
+                          style={{ width: "100%" }}
                         />
                       </div>
-                      <span className="text-sm font-medium">3/8</span>
+                      <span className="text-sm font-medium">8/8 ✓</span>
                     </div>
                   </div>
                   
@@ -922,10 +921,12 @@ export default function ListItem() {
                     </div>
                   </div>
                   
-                  {/* Corner thumbnails */}
+                  {/* Corner thumbnails - show completed captures */}
                   <div className="absolute top-4 right-4 space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="w-12 h-8 bg-white/20 rounded border border-white/40"></div>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].slice(0, 4).map((i) => (
+                      <div key={i} className="w-12 h-8 bg-green-500/30 rounded border border-green-400/60 flex items-center justify-center">
+                        <span className="text-green-300 text-xs font-bold">✓</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -954,14 +955,11 @@ export default function ListItem() {
                 
                 <div className="flex justify-center pt-4">
                   <Button
-                    onClick={() => {
-                      setShowARPreview(false);
-                      setShowARScanner(true);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => setShowARPreview(false)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start AR Scanning Now
+                    <Eye className="h-4 w-4 mr-2" />
+                    Close Preview
                   </Button>
                 </div>
               </div>
