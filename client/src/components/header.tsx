@@ -131,7 +131,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-5 -ml-1">
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-5 -ml-4">
             {/* Mode Toggle */}
             <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm gap-1">
               <Button
