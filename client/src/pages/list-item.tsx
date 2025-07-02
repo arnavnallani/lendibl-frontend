@@ -356,7 +356,6 @@ export default function ListItem() {
           </Link>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
           <CardHeader>
@@ -676,9 +675,7 @@ export default function ListItem() {
                     onDragLeave={handleDragLeave}
                   >
                     <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-lg font-medium text-gray-900 mb-2">
-                      Drop images here or click to upload
-                    </p>
+                    <p className="text-lg font-medium text-gray-900 mb-2">Drop images here, click to upload, or click to scan the item right here</p>
                     <p className="text-sm text-gray-500 mb-4">
                       PNG, JPG, GIF up to 10MB each (max 8 images)
                     </p>
@@ -875,15 +872,12 @@ export default function ListItem() {
           </CardContent>
         </Card>
       </div>
-      
       <Footer />
-
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         defaultTab="register"
       />
-
       <OwnerPaymentSetupModal
         isOpen={isOwnerPaymentSetupOpen}
         onClose={() => {
@@ -900,7 +894,6 @@ export default function ListItem() {
         }}
         itemTitle={listedItemTitle}
       />
-
       {/* Mobile Image Scanner */}
       {showScanner && (
         <MobileImageScanner
@@ -916,7 +909,6 @@ export default function ListItem() {
           maxImages={8 - images.length}
         />
       )}
-
     </div>
   );
 }
