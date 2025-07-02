@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Eye, X, RotateCw, ZoomIn, ZoomOut, Download, Share2, Maximize, RotateCcw, Move, MousePointer } from "lucide-react";
+import { Eye, X, RotateCw, ZoomIn, ZoomOut, Download, RotateCcw, Move, MousePointer } from "lucide-react";
 
 interface ARPreviewModalProps {
   onClose: () => void;
@@ -15,8 +15,6 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
   const [autoRotate, setAutoRotate] = useState(true);
   const [velocity, setVelocity] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDraggingPosition, setIsDraggingPosition] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [dragMode, setDragMode] = useState<'rotate' | 'move'>('rotate');
   const [processedImages, setProcessedImages] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -184,7 +182,6 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     link.click();
   };
 
-  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
   const handleZoomIn = () => setZoom(prev => Math.min(5, prev * 1.2));
   const handleZoomOut = () => setZoom(prev => Math.max(0.3, prev / 1.2));
   
@@ -211,7 +208,6 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    setIsDraggingPosition(dragMode === 'move');
     setAutoRotate(false);
     setVelocity(0);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -251,19 +247,18 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
 
   const handlePointerUp = () => {
     setIsDragging(false);
-    setIsDraggingPosition(false);
   };
 
   const currentImage = getCurrentImage();
 
   return (
-    <div className={`fixed inset-0 bg-gradient-to-br from-gray-50 to-white z-50 flex flex-col ${isFullscreen ? 'p-0' : ''}`}>
-      {/* Enhanced Header */}
+    <div className="fixed inset-0 bg-gradient-to-br from-gray-50 to-white z-50 flex flex-col">
+      {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg">
         <div className="flex items-center gap-4">
-          <h3 className="text-xl font-bold flex items-center gap-2 text-gray-900">
-            <Eye className="h-6 w-6 text-blue-600" />
-            AI Background Removed 360° Viewer
+          <h3 className="text-lg md:text-xl font-bold flex items-center gap-2 text-gray-900">
+            <Eye className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
+            AI 360° Viewer
           </h3>
           <div className="flex items-center gap-2">
             {processedImages.length > 0 && (
@@ -281,14 +276,6 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
           <Button
             variant="outline"
             size="sm"
-            onClick={toggleFullscreen}
-            className="text-gray-600 hover:bg-gray-100"
-          >
-            <Maximize className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
             onClick={downloadCurrentImage}
             className="text-gray-600 hover:bg-gray-100"
           >
@@ -300,151 +287,125 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
             onClick={onClose}
             className="text-gray-600 hover:bg-gray-100"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 md:h-6 md:w-6" />
           </Button>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Controls */}
-        <div className="w-72 lg:w-80 bg-white/95 backdrop-blur-sm border-r border-gray-200 p-4 space-y-4 overflow-y-auto shrink-0">
-          {/* Current View Info */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-            <h4 className="font-semibold text-gray-900 mb-3">Current View</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Angle:</span>
-                <span className="font-medium">{Math.round(currentAngle)}°</span>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Controls - Horizontal on mobile, sidebar on desktop */}
+        <div className="w-full lg:w-64 bg-white/95 backdrop-blur-sm border-b lg:border-r lg:border-b-0 border-gray-200 p-3 flex-shrink-0">
+          <div className="flex lg:flex-col gap-3 lg:space-y-3 overflow-x-auto lg:overflow-x-visible">
+            
+            {/* Current View Info */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-200 min-w-[200px] lg:min-w-0">
+              <h4 className="font-semibold text-gray-900 mb-2 text-sm">Current View</h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Angle:</span>
+                  <span className="font-medium">{Math.round(currentAngle)}°</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Zoom:</span>
+                  <span className="font-medium">{Math.round(zoom * 100)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Mode:</span>
+                  <span className="font-medium capitalize">{dragMode}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Zoom:</span>
-                <span className="font-medium">{Math.round(zoom * 100)}%</span>
+            </div>
+
+            {/* Zoom Controls */}
+            <div className="space-y-2 min-w-[200px] lg:min-w-0">
+              <h4 className="font-semibold text-gray-900 text-sm">Zoom</h4>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleZoomOut}
+                  disabled={zoom <= 0.3}
+                  className="flex-1 text-xs"
+                >
+                  <ZoomOut className="h-3 w-3 mr-1" />
+                  Out
+                </Button>
+                <div className="text-xs font-medium text-center min-w-[50px] bg-gray-100 rounded px-2 py-1">
+                  {Math.round(zoom * 100)}%
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleZoomIn}
+                  disabled={zoom >= 5}
+                  className="flex-1 text-xs"
+                >
+                  <ZoomIn className="h-3 w-3 mr-1" />
+                  In
+                </Button>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Mode:</span>
-                <span className="font-medium capitalize">{dragMode}</span>
+            </div>
+
+            {/* Mode & Auto-Rotate */}
+            <div className="space-y-2 min-w-[200px] lg:min-w-0">
+              <h4 className="font-semibold text-gray-900 text-sm">Interaction</h4>
+              <div className="grid grid-cols-2 gap-1">
+                <Button
+                  variant={dragMode === 'rotate' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDragMode('rotate')}
+                  className="flex items-center justify-center gap-1 text-xs"
+                >
+                  <RotateCw className="h-3 w-3" />
+                  Rotate
+                </Button>
+                <Button
+                  variant={dragMode === 'move' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDragMode('move')}
+                  className="flex items-center justify-center gap-1 text-xs"
+                >
+                  <Move className="h-3 w-3" />
+                  Move
+                </Button>
+              </div>
+              <Button
+                variant={autoRotate ? 'default' : 'outline'}
+                size="sm"
+                onClick={toggleAutoRotate}
+                className="w-full text-xs"
+              >
+                <RotateCw className={`h-3 w-3 mr-1 ${autoRotate ? 'animate-spin' : ''}`} />
+                {autoRotate ? 'Stop Auto' : 'Start Auto'}
+              </Button>
+            </div>
+
+            {/* Reset Controls */}
+            <div className="space-y-2 min-w-[150px] lg:min-w-0">
+              <h4 className="font-semibold text-gray-900 text-sm">Reset</h4>
+              <div className="grid grid-cols-2 gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentAngle(0)}
+                  className="flex items-center justify-center gap-1 text-xs"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  Angle
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetPosition}
+                  className="flex items-center justify-center gap-1 text-xs"
+                >
+                  <MousePointer className="h-3 w-3" />
+                  All
+                </Button>
               </div>
             </div>
-          </div>
 
-          {/* Zoom Controls */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Zoom Controls</h4>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleZoomOut}
-                disabled={zoom <= 0.3}
-                className="flex-1"
-              >
-                <ZoomOut className="h-4 w-4 mr-1" />
-                Out
-              </Button>
-              <div className="text-sm font-medium text-center min-w-[60px] bg-gray-100 rounded-lg px-3 py-2">
-                {Math.round(zoom * 100)}%
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleZoomIn}
-                disabled={zoom >= 5}
-                className="flex-1"
-              >
-                <ZoomIn className="h-4 w-4 mr-1" />
-                In
-              </Button>
-            </div>
-          </div>
-
-          {/* Interaction Mode */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Interaction Mode</h4>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant={dragMode === 'rotate' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setDragMode('rotate')}
-                className="flex items-center justify-center gap-2"
-              >
-                <RotateCw className="h-4 w-4" />
-                Rotate
-              </Button>
-              <Button
-                variant={dragMode === 'move' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setDragMode('move')}
-                className="flex items-center justify-center gap-2"
-              >
-                <Move className="h-4 w-4" />
-                Move
-              </Button>
-            </div>
-          </div>
-
-          {/* Auto-Rotate */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Auto Rotation</h4>
-            <Button
-              variant={autoRotate ? 'default' : 'outline'}
-              size="sm"
-              onClick={toggleAutoRotate}
-              className="w-full"
-            >
-              <RotateCw className={`h-4 w-4 mr-2 ${autoRotate ? 'animate-spin' : ''}`} />
-              {autoRotate ? 'Stop Auto Rotate' : 'Start Auto Rotate'}
-            </Button>
-          </div>
-
-          {/* Reset Controls */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Reset View</h4>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentAngle(0)}
-                className="flex items-center justify-center gap-1"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Angle
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={resetPosition}
-                className="flex items-center justify-center gap-1"
-              >
-                <MousePointer className="h-4 w-4" />
-                All
-              </Button>
-            </div>
-          </div>
-
-          {/* Export Options */}
-          <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Export</h4>
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={downloadCurrentImage}
-                className="w-full"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download Current View
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {/* Add share functionality */}}
-                className="w-full"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share View
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -452,7 +413,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         <div className="flex-1 relative bg-white overflow-hidden">
           <div 
             ref={containerRef}
-            className="w-full h-full flex items-center justify-center select-none touch-none p-8"
+            className="w-full h-full flex items-center justify-center select-none touch-none p-4"
             style={{
               cursor: isDragging ? 'grabbing' : dragMode === 'move' ? 'move' : 'grab',
               background: 'radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%)'
@@ -469,14 +430,14 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
                 <img
                   src={currentImage}
                   alt="360° Item View"
-                  className="max-w-[60vh] max-h-[60vh] w-auto h-auto object-contain rounded-xl shadow-2xl"
+                  className="max-w-[calc(100vw-2rem)] max-h-[calc(100vh-10rem)] lg:max-w-[calc(100vw-18rem)] lg:max-h-[calc(100vh-8rem)] w-auto h-auto object-contain rounded-xl shadow-2xl"
                   draggable={false}
                   style={{
                     transform: `translate(${position.x}px, ${position.y}px) scale(${zoom}) perspective(1200px) rotateY(${currentAngle}deg)`,
                     transformStyle: 'preserve-3d',
                     backfaceVisibility: 'hidden',
                     filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.1))',
-                    transition: 'transform 0.1s ease-out'
+                    transition: isDragging ? 'none' : 'transform 0.1s ease-out'
                   }}
                 />
                 
@@ -503,42 +464,42 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
             )}
           </div>
         </div>
+      </div>
 
-        {/* Bottom Thumbnail Strip */}
-        <div className="h-24 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4">
-          <div className="flex items-center gap-3 h-full overflow-x-auto">
-            <span className="text-xs text-gray-500 whitespace-nowrap">Navigate:</span>
-            {(processedImages.length > 0 ? processedImages : capturedImages).map((image, index) => {
-              const angle = index * 45;
-              const isActive = Math.abs(((currentAngle % 360) - angle + 180) % 360 - 180) < 22.5;
-              
-              return (
-                <button
-                  key={index}
-                  className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                    isActive 
-                      ? 'border-blue-500 ring-2 ring-blue-200 scale-110' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                  onClick={() => setCurrentAngle(angle)}
-                >
-                  <img
-                    src={image}
-                    alt={`View ${angle}°`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-xs py-1 text-center font-medium">
-                    {angle}°
+      {/* Bottom Thumbnail Strip */}
+      <div className="h-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-3">
+        <div className="flex items-center gap-3 h-full overflow-x-auto">
+          <span className="text-xs text-gray-500 whitespace-nowrap">Navigate:</span>
+          {(processedImages.length > 0 ? processedImages : capturedImages).map((image, index) => {
+            const angle = index * 45;
+            const isActive = Math.abs(((currentAngle % 360) - angle + 180) % 360 - 180) < 22.5;
+            
+            return (
+              <button
+                key={index}
+                className={`relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                  isActive 
+                    ? 'border-blue-500 ring-2 ring-blue-200 scale-110' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onClick={() => setCurrentAngle(angle)}
+              >
+                <img
+                  src={image}
+                  alt={`View ${angle}°`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white text-xs py-1 text-center font-medium">
+                  {angle}°
+                </div>
+                {isActive && (
+                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   </div>
-                  {isActive && (
-                    <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
