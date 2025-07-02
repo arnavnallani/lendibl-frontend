@@ -78,8 +78,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section when typing
-                      if (value.trim()) {
+                      // Auto-scroll to items section when first typing
+                      if (value.trim() && value.length === 1) {
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -110,8 +110,8 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     onChange={(value) => {
                       setSearchQuery(value);
                       onSearch(value);
-                      // Auto-scroll to items section when typing
-                      if (value.trim()) {
+                      // Auto-scroll to items section when first typing
+                      if (value.trim() && value.length === 1) {
                         setTimeout(() => {
                           const itemsSection = document.getElementById('items-section');
                           if (itemsSection) {
@@ -283,20 +283,21 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 onChange={(value) => {
                   setSearchQuery(value);
                   onSearch(value);
-                  // Auto-scroll to items section when typing on mobile
-                  if (value.trim()) {
+                  // Auto-scroll to items section when typing on mobile - only once
+                  if (value.trim() && value.length === 1) {
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
-                      if (itemsSection) {
-                        // Scroll down to show items section with more space for items
-                        const scrollPosition = itemsSection.offsetTop + 100;
+                      if (itemsSection && window.innerWidth < 768) {
+                        // On mobile, scroll to position that keeps search bar visible
+                        const headerHeight = 80; // Mobile header height
+                        const scrollPosition = itemsSection.offsetTop - headerHeight - 20;
                         
                         window.scrollTo({
-                          top: scrollPosition,
+                          top: Math.max(0, scrollPosition),
                           behavior: 'smooth'
                         });
                       }
-                    }, 50);
+                    }, 100);
                   }
                 }}
                 placeholder="Search for anything..."
