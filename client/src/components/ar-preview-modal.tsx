@@ -55,7 +55,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     return () => clearInterval(interval);
   }, [autoRotate, velocity]);
 
-  // Advanced object isolation and background removal function
+  // Fast and effective background removal function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -77,155 +77,59 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         const width = canvas.width;
         const height = canvas.height;
 
-        // Create object mask using advanced segmentation
-        const objectMask = new Uint8Array(width * height);
+        // Sample background colors from image borders (likely background)
+        const borderColors: number[][] = [];
+        const borderWidth = Math.min(10, Math.floor(Math.min(width, height) * 0.05));
         
-        // Step 1: Edge detection to find object boundaries
-        const edges = new Uint8Array(width * height);
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            const idx = (y * width + x) * 4;
+        // Sample from borders only
+        for (let i = 0; i < borderWidth; i++) {
+          for (let x = 0; x < width; x += 3) {
+            // Top border
+            const topIdx = (i * width + x) * 4;
+            if (topIdx < data.length) borderColors.push([data[topIdx], data[topIdx + 1], data[topIdx + 2]]);
             
-            // Sobel edge detection
-            const gx = -data[((y-1)*width + x-1)*4] + data[((y-1)*width + x+1)*4] +
-                      -2*data[(y*width + x-1)*4] + 2*data[(y*width + x+1)*4] +
-                      -data[((y+1)*width + x-1)*4] + data[((y+1)*width + x+1)*4];
+            // Bottom border
+            const bottomIdx = ((height - 1 - i) * width + x) * 4;
+            if (bottomIdx < data.length) borderColors.push([data[bottomIdx], data[bottomIdx + 1], data[bottomIdx + 2]]);
+          }
+          for (let y = 0; y < height; y += 3) {
+            // Left border
+            const leftIdx = (y * width + i) * 4;
+            if (leftIdx < data.length) borderColors.push([data[leftIdx], data[leftIdx + 1], data[leftIdx + 2]]);
             
-            const gy = -data[((y-1)*width + x-1)*4] - 2*data[((y-1)*width + x)*4] - data[((y-1)*width + x+1)*4] +
-                       data[((y+1)*width + x-1)*4] + 2*data[((y+1)*width + x)*4] + data[((y+1)*width + x+1)*4];
-            
-            const edgeStrength = Math.sqrt(gx*gx + gy*gy);
-            edges[y * width + x] = edgeStrength > 50 ? 255 : 0;
+            // Right border
+            const rightIdx = (y * width + (width - 1 - i)) * 4;
+            if (rightIdx < data.length) borderColors.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
           }
         }
 
-        // Step 2: Find connected components starting from multiple points
-        const centerX = Math.floor(width / 2);
-        const centerY = Math.floor(height / 2);
-        const visited = new Uint8Array(width * height);
-        
-        // Start from multiple points to capture entire object
-        const startPoints = [
-          [centerX, centerY],
-          [centerX - Math.floor(width * 0.1), centerY],
-          [centerX + Math.floor(width * 0.1), centerY],
-          [centerX, centerY - Math.floor(height * 0.1)],
-          [centerX, centerY + Math.floor(height * 0.1)]
-        ];
-        
-        const queue: [number, number][] = [];
-        const referenceColors: number[][] = [];
-        
-        // Collect reference colors from multiple starting points
-        startPoints.forEach(([x, y]) => {
-          if (x >= 0 && x < width && y >= 0 && y < height) {
-            const idx = (y * width + x) * 4;
-            referenceColors.push([data[idx], data[idx + 1], data[idx + 2]]);
-            queue.push([x, y]);
-          }
-        });
-        
-        // Flood fill from center to identify main object
-        while (queue.length > 0) {
-          const [x, y] = queue.shift()!;
-          
-          if (x < 0 || x >= width || y < 0 || y >= height || visited[y * width + x]) continue;
-          
-          const idx = (y * width + x) * 4;
-          const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
-          
-          // Calculate color similarity to any reference color
-          let minColorDiff = Infinity;
-          referenceColors.forEach(([refR, refG, refB]) => {
-            const colorDiff = Math.abs(currentColor[0] - refR) + 
-                            Math.abs(currentColor[1] - refG) + 
-                            Math.abs(currentColor[2] - refB);
-            minColorDiff = Math.min(minColorDiff, colorDiff);
-          });
-          
-          // Much more liberal criteria - include pixels that are reasonably similar OR not at a strong edge
-          if (minColorDiff < 150 || edges[y * width + x] < 200) {
-            visited[y * width + x] = 1;
-            objectMask[y * width + x] = 255;
-            
-            // Add neighbors to queue
-            queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
-          }
-        }
-
-        // Step 3: Morphological operations to clean up the mask
-        const cleanMask = new Uint8Array(width * height);
-        
-        // More aggressive dilation to include more of the object
-        for (let y = 2; y < height - 2; y++) {
-          for (let x = 2; x < width - 2; x++) {
-            let objectNeighbors = 0;
-            // Check larger neighborhood
-            for (let dy = -2; dy <= 2; dy++) {
-              for (let dx = -2; dx <= 2; dx++) {
-                if (objectMask[(y + dy) * width + (x + dx)] === 255) {
-                  objectNeighbors++;
-                }
-              }
-            }
-            // If we have several object neighbors or we're already marked as object
-            cleanMask[y * width + x] = (objectNeighbors >= 3 || objectMask[y * width + x] === 255) ? 255 : 0;
-          }
-        }
-
-        // Step 4: Find largest connected component (main object)
-        const finalMask = new Uint8Array(width * height);
-        const componentVisited = new Uint8Array(width * height);
-        let largestComponentSize = 0;
-        let largestComponent: [number, number][] = [];
-
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            if (cleanMask[y * width + x] === 255 && !componentVisited[y * width + x]) {
-              const component: [number, number][] = [];
-              const componentQueue: [number, number][] = [[x, y]];
-              
-              while (componentQueue.length > 0) {
-                const [cx, cy] = componentQueue.shift()!;
-                if (cx < 0 || cx >= width || cy < 0 || cy >= height || 
-                    componentVisited[cy * width + cx] || cleanMask[cy * width + cx] === 0) continue;
-                
-                componentVisited[cy * width + cx] = 1;
-                component.push([cx, cy]);
-                
-                componentQueue.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
-              }
-              
-              if (component.length > largestComponentSize) {
-                largestComponentSize = component.length;
-                largestComponent = component;
-              }
-            }
-          }
-        }
-
-        // Mark largest component as the main object
-        largestComponent.forEach(([x, y]) => {
-          finalMask[y * width + x] = 255;
-        });
-
-        // Step 5: Apply background removal with anti-aliasing
+        // Process each pixel - simple and fast approach
         for (let i = 0; i < data.length; i += 4) {
-          const pixelIdx = Math.floor(i / 4);
-          const isObject = finalMask[pixelIdx] === 255;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
           
-          if (isObject) {
-            // Keep object pixels as-is but enhance slightly
-            data[i] = Math.min(255, data[i] * 1.1);     // R
-            data[i + 1] = Math.min(255, data[i + 1] * 1.1); // G
-            data[i + 2] = Math.min(255, data[i + 2] * 1.1); // B
-            data[i + 3] = 255; // Full opacity
-          } else {
-            // Replace background with pure white
+          // Check if pixel is similar to any border color
+          let isBackground = false;
+          for (const [br, bg, bb] of borderColors) {
+            const colorDiff = Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb);
+            if (colorDiff < 60) { // Conservative similarity threshold
+              isBackground = true;
+              break;
+            }
+          }
+          
+          if (isBackground) {
+            // Replace with white
             data[i] = 255;     // R
             data[i + 1] = 255; // G
             data[i + 2] = 255; // B
             data[i + 3] = 255; // A
+          } else {
+            // Keep object pixel with slight enhancement
+            data[i] = Math.min(255, r * 1.05);
+            data[i + 1] = Math.min(255, g * 1.05);
+            data[i + 2] = Math.min(255, b * 1.05);
           }
         }
 
