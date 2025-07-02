@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 
 export interface PricingSuggestion {
   dailyRate: number;
@@ -20,11 +20,10 @@ export interface PricingAnalysisInput {
   currentPrice?: number; // Current market value provided by user
 }
 
-// Google Gemini AI pricing analysis
-async function getGeminiPricing(prompt: string): Promise<any> {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  
+// OpenAI ChatGPT 3.5 pricing analysis
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+async function getChatGPTPricing(prompt: string): Promise<any> {
   const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
 
 ${prompt}
@@ -40,9 +39,23 @@ Respond in this JSON format only:
   "competitivePosition": "below-market|market-rate|above-market"
 }`;
 
-  const result = await model.generateContent(enhancedPrompt);
-  const response = await result.response;
-  const text = response.text();
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "system",
+        content: "You are a rental pricing expert. Always respond with valid JSON only."
+      },
+      {
+        role: "user",
+        content: enhancedPrompt
+      }
+    ],
+    response_format: { type: "json_object" },
+    temperature: 0.3
+  });
+
+  const text = response.choices[0].message.content || "";
   
   // Try to parse JSON from response
   try {
@@ -99,14 +112,14 @@ EXAMPLES BASED ON PROVIDED PRICE:
 Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
     
     try {
-      const geminiResult = await getGeminiPricing(prompt);
+      const chatGPTResult = await getChatGPTPricing(prompt);
       
-      if (geminiResult.success && geminiResult.suggestedPrice) {
-        const finalPrice = Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100);
+      if (chatGPTResult.success && chatGPTResult.suggestedPrice) {
+        const finalPrice = Math.max(5, Math.round(chatGPTResult.suggestedPrice * 100) / 100);
         
         const reasoning = [
-          `AI-powered pricing: $${geminiResult.suggestedPrice}/day`,
-          geminiResult.reasoning || `Optimized for ${input.location} market`,
+          `AI-powered pricing: $${chatGPTResult.suggestedPrice}/day`,
+          chatGPTResult.reasoning || `Optimized for ${input.location} market`,
           `${season} seasonal pricing for ${month}`,
           input.currentPrice ? `Based on provided real price: $${originalPrice}` : "AI estimated item value"
         ];
@@ -116,16 +129,16 @@ Consider ${season} seasonal demand for ${month} and ${input.location} market con
           confidence: 0.95,
           reasoning,
           marketInsights: {
-            demandLevel: geminiResult.demandLevel || 'medium',
-            seasonalTrend: geminiResult.seasonalTrend || 'stable',
-            competitivePosition: geminiResult.competitivePosition || 'market-rate'
+            demandLevel: chatGPTResult.demandLevel || 'medium',
+            seasonalTrend: chatGPTResult.seasonalTrend || 'stable',
+            competitivePosition: chatGPTResult.competitivePosition || 'market-rate'
           }
         };
       }
       
-      throw new Error('Google Gemini AI did not provide valid pricing');
+      throw new Error('ChatGPT AI did not provide valid pricing');
     } catch (error) {
-      console.error('Google Gemini AI Error:', error);
+      console.error('ChatGPT AI Error:', error);
       throw new Error('AI pricing service is currently unavailable. Please try again in a moment.');
     }
   }

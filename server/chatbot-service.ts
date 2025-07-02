@@ -1,6 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function getChatbotResponse(userMessage: string): Promise<string> {
   try {
@@ -22,12 +22,23 @@ User question: ${userMessage}
 
 Provide a helpful, friendly response about Lendibl. Keep it concise but informative. If asked about technical details you're unsure about, suggest contacting support.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: prompt,
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are Lendibot, Lendibl's helpful AI assistant for a peer-to-peer rental marketplace."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 300
     });
 
-    return response.text || "I'm here to help with any questions about Lendibl! Feel free to ask about renting items, listing your belongings, payments, or anything else.";
+    return response.choices[0].message.content || "I'm here to help with any questions about Lendibl! Feel free to ask about renting items, listing your belongings, payments, or anything else.";
   } catch (error) {
     console.error('Chatbot error:', error);
     return "I'm having trouble connecting right now. Please try again in a moment, or feel free to contact our support team if you need immediate assistance!";

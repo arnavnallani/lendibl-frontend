@@ -1,11 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-// DON'T DELETE THIS COMMENT
-// Follow these instructions when using this blueprint:
-// - Note that the newest Gemini model series is "gemini-2.5-flash" or gemini-2.5-pro"
-//   - do not change this unless explicitly requested by the user
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+// ChatGPT 3.5 for AI-powered search analysis
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface SearchAnalysis {
   intent: string;
@@ -91,26 +87,23 @@ Examples:
 - "computer" → intent: "computing devices including laptops and desktops", keywords: ["computer", "laptop", "macbook", "pc"], categories: ["Electronics"], synonyms: ["laptop", "macbook", "desktop", "notebook", "gaming pc"], relatedTerms: ["macbook pro", "gaming laptop", "workstation", "tablet"]
 - "cool stuff" → intent: "trendy and interesting rental items", keywords: ["cool", "awesome", "trendy"], categories: ["Electronics", "Photography", "Gaming"], synonyms: ["awesome", "amazing", "popular", "trendy"], relatedTerms: ["camera", "drone", "gaming gear", "macbook", "gadgets"]`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              intent: { type: "string" },
-              keywords: { type: "array", items: { type: "string" } },
-              categories: { type: "array", items: { type: "string" } },
-              synonyms: { type: "array", items: { type: "string" } },
-              relatedTerms: { type: "array", items: { type: "string" } }
-            },
-            required: ["intent", "keywords", "categories", "synonyms", "relatedTerms"]
+      const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are a search analysis expert for a rental marketplace. Always respond with valid JSON only."
+          },
+          {
+            role: "user",
+            content: prompt
           }
-        },
-        contents: prompt,
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.3
       });
 
-      const rawJson = response.text;
+      const rawJson = response.choices[0].message.content;
       if (rawJson) {
         return JSON.parse(rawJson);
       } else {
