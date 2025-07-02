@@ -283,22 +283,20 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 onChange={(value) => {
                   setSearchQuery(value);
                   onSearch(value);
-                  // Auto-scroll to items section when typing on mobile only
-                  if (value.trim() && window.innerWidth < 768) {
+                  // Auto-scroll to items section when typing on mobile
+                  if (value.trim()) {
                     setTimeout(() => {
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection) {
-                        // Scroll to items section but keep search bar visible
-                        const headerHeight = 80; // Header height
-                        const searchBarHeight = 60; // Mobile search bar height
-                        const scrollPosition = itemsSection.offsetTop - headerHeight - searchBarHeight;
+                        // Scroll down to show items section with more space for items
+                        const scrollPosition = itemsSection.offsetTop + 100;
                         
                         window.scrollTo({
-                          top: Math.max(0, scrollPosition),
+                          top: scrollPosition,
                           behavior: 'smooth'
                         });
                       }
-                    }, 100);
+                    }, 50);
                   }
                 }}
                 placeholder="Search for anything..."
