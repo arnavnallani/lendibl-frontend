@@ -277,6 +277,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Updated item pricing - pressure washer to $7, camping tent to $3.50, drill set to $10
 - July 2, 2025: Removed specific items - lawn tractor and AirPods Pro with camera image from marketplace inventory
 - July 2, 2025: Updated Professional DSLR Camera Kit price to $22.00
+- July 2, 2025: Updated Professional DSLR Camera Kit image to show actual camera equipment and removed AirPods Pro from marketplace
 
 ## User Preferences
 
