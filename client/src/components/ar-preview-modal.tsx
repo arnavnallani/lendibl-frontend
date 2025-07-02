@@ -13,62 +13,111 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [autoRotate, setAutoRotate] = useState(true);
+  const [velocity, setVelocity] = useState(0);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingPosition, setIsDraggingPosition] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTouchRef = useRef({ x: 0, y: 0, time: 0 });
 
-  // Auto-rotate effect
+  // Enhanced auto-rotate with momentum
   useEffect(() => {
-    if (!autoRotate) return;
+    if (!autoRotate && Math.abs(velocity) < 0.1) return;
     
     const interval = setInterval(() => {
-      setCurrentAngle(prev => (prev + 1) % 360);
-    }, 50);
+      if (autoRotate) {
+        setCurrentAngle(prev => (prev + 0.8) % 360);
+      } else if (Math.abs(velocity) > 0.1) {
+        setCurrentAngle(prev => {
+          const newAngle = (prev + velocity) % 360;
+          return newAngle < 0 ? newAngle + 360 : newAngle;
+        });
+        setVelocity(prev => prev * 0.95); // Friction
+      }
+    }, 16); // 60fps
 
     return () => clearInterval(interval);
-  }, [autoRotate]);
+  }, [autoRotate, velocity]);
 
-  // Get the image for current angle (8 images = 45° each)
+  // Smooth image interpolation for better 360° effect
   const getCurrentImage = () => {
     if (capturedImages.length === 0) return null;
-    const imageIndex = Math.floor(currentAngle / 45) % capturedImages.length;
+    const normalizedAngle = ((currentAngle % 360) + 360) % 360;
+    const imageIndex = Math.floor(normalizedAngle / 45) % capturedImages.length;
     return capturedImages[imageIndex] || capturedImages[0];
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  // Enhanced mouse/touch handlers
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
     setIsDragging(true);
+    setIsDraggingPosition(e.shiftKey || e.ctrlKey);
     setAutoRotate(false);
+    setVelocity(0);
     setDragStart({ x: e.clientX, y: e.clientY });
+    lastTouchRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     
     const deltaX = e.clientX - dragStart.x;
-    const sensitivity = 0.5;
-    const newAngle = (currentAngle + deltaX * sensitivity) % 360;
-    setCurrentAngle(newAngle < 0 ? newAngle + 360 : newAngle);
+    const deltaY = e.clientY - dragStart.y;
+    const currentTime = Date.now();
+    const timeDelta = currentTime - lastTouchRef.current.time;
+    
+    if (isDraggingPosition) {
+      // Move item position
+      setPosition(prev => ({
+        x: prev.x + deltaX * 0.5,
+        y: prev.y + deltaY * 0.5
+      }));
+    } else {
+      // Rotate item with enhanced sensitivity
+      const sensitivity = 0.8;
+      const newAngle = (currentAngle + deltaX * sensitivity) % 360;
+      setCurrentAngle(newAngle < 0 ? newAngle + 360 : newAngle);
+      
+      // Calculate velocity for momentum
+      if (timeDelta > 0) {
+        setVelocity(deltaX * sensitivity / timeDelta * 16);
+      }
+    }
+    
     setDragStart({ x: e.clientX, y: e.clientY });
+    lastTouchRef.current = { x: e.clientX, y: e.clientY, time: currentTime };
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     setIsDragging(false);
+    setIsDraggingPosition(false);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    const delta = e.deltaY * -0.001;
-    setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
+    const delta = e.deltaY * -0.002;
+    setZoom(prev => Math.max(0.3, Math.min(5, prev + delta)));
   };
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.5));
-  const toggleAutoRotate = () => setAutoRotate(prev => !prev);
+  const resetPosition = () => {
+    setPosition({ x: 0, y: 0 });
+    setZoom(1);
+    setCurrentAngle(0);
+  };
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.3, 5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.3, 0.3));
+  const toggleAutoRotate = () => {
+    setAutoRotate(prev => !prev);
+    setVelocity(0);
+  };
 
   const currentImage = getCurrentImage();
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-gray-100 to-gray-200 z-50 flex flex-col">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b">
+      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200 shadow-sm">
         <h3 className="text-xl font-semibold flex items-center gap-2 text-gray-800">
           <Eye className="h-6 w-6" />
           360° Item Viewer
@@ -77,52 +126,84 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="text-gray-600 hover:bg-gray-200"
+          className="text-gray-600 hover:bg-gray-100"
         >
           <X className="h-6 w-6" />
         </Button>
       </div>
 
       {/* 3D Model Viewer */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden bg-white">
         <div 
           ref={containerRef}
-          className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          className="w-full h-full flex items-center justify-center select-none touch-none"
+          style={{
+            cursor: isDragging ? (isDraggingPosition ? 'grabbing' : 'grabbing') : 'grab'
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
           onWheel={handleWheel}
         >
           {currentImage ? (
-            <div className="relative">
-              {/* Main 3D Object */}
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Enhanced 3D Object with smooth transitions */}
               <div 
-                className="transition-transform duration-100 ease-out"
+                className="relative transition-all duration-75 ease-out will-change-transform"
                 style={{
-                  transform: `scale(${zoom}) perspective(1000px) rotateY(${currentAngle}deg)`,
-                  transformStyle: 'preserve-3d'
+                  transform: `
+                    translate(${position.x}px, ${position.y}px) 
+                    scale(${zoom}) 
+                    perspective(1200px) 
+                    rotateY(${currentAngle}deg)
+                  `,
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.15))'
                 }}
               >
                 <img
                   src={currentImage}
                   alt="360° Item View"
-                  className="max-w-none max-h-none w-auto h-auto max-w-[80vh] max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                  className="max-w-[70vh] max-h-[70vh] w-auto h-auto object-contain rounded-2xl"
                   draggable={false}
+                  style={{
+                    backfaceVisibility: 'hidden'
+                  }}
+                />
+                
+                {/* Subtle reflection effect */}
+                <div 
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
+                    pointerEvents: 'none'
+                  }}
                 />
               </div>
 
-              {/* Floating angle indicator */}
-              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white">
-                <div className="text-sm font-medium">
-                  {Math.round(currentAngle)}°
+              {/* Enhanced floating controls */}
+              <div className="absolute top-6 left-6">
+                <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl px-4 py-3 text-white shadow-xl">
+                  <div className="text-sm font-semibold">
+                    {Math.round(currentAngle)}°
+                  </div>
+                  <div className="text-xs text-gray-300 mt-1">
+                    {Math.round(zoom * 100)}% zoom
+                  </div>
                 </div>
               </div>
 
-              {/* 360° rotation guide */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                <div className="bg-black/70 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm">
-                  Drag to rotate • Scroll to zoom
+              {/* Interactive instructions */}
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl px-6 py-3 text-white text-sm shadow-xl">
+                  <div className="flex items-center space-x-4">
+                    <span>👆 Drag to rotate</span>
+                    <span>•</span>
+                    <span>🔍 Scroll to zoom</span>
+                    <span>•</span>
+                    <span>✋ Hold Shift to move</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -136,83 +217,124 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
           )}
         </div>
 
-        {/* Image thumbnails strip */}
+        {/* Enhanced thumbnail strip */}
         {capturedImages.length > 0 && (
-          <div className="absolute bottom-4 right-4 space-y-1">
-            {capturedImages.map((image, index) => {
-              const angle = index * 45;
-              const isActive = Math.abs(currentAngle - angle) < 22.5 || 
-                             Math.abs(currentAngle - angle - 360) < 22.5 ||
-                             Math.abs(currentAngle - angle + 360) < 22.5;
-              
-              return (
-                <div
-                  key={index}
-                  className={`w-12 h-8 rounded border-2 overflow-hidden cursor-pointer transition-all ${
-                    isActive ? 'border-blue-400 scale-110' : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                  onClick={() => {
-                    setCurrentAngle(angle);
-                    setAutoRotate(false);
-                  }}
-                >
-                  <img 
-                    src={image} 
-                    alt={`Angle ${angle}°`}
-                    className="w-full h-full object-cover"
-                  />
+          <div className="absolute bottom-6 right-6">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 shadow-2xl border border-gray-200">
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-gray-600 text-center mb-3">
+                  360° Views
                 </div>
-              );
-            })}
+                {capturedImages.map((image, index) => {
+                  const angle = index * 45;
+                  const angleDiff = Math.min(
+                    Math.abs(currentAngle - angle),
+                    Math.abs(currentAngle - angle - 360),
+                    Math.abs(currentAngle - angle + 360)
+                  );
+                  const isActive = angleDiff < 22.5;
+                  
+                  return (
+                    <div
+                      key={index}
+                      className={`relative w-14 h-10 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 ${
+                        isActive 
+                          ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-white scale-110 shadow-lg' 
+                          : 'hover:scale-105 shadow-md hover:shadow-lg border border-gray-200'
+                      }`}
+                      onClick={() => {
+                        setCurrentAngle(angle);
+                        setAutoRotate(false);
+                        setVelocity(0);
+                      }}
+                    >
+                      <img 
+                        src={image} 
+                        alt={`${angle}°`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent">
+                        <div className="text-[10px] text-white font-medium text-center p-1">
+                          {angle}°
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Controls */}
-      <div className="bg-white/80 backdrop-blur-sm border-t p-4">
-        <div className="flex items-center justify-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleZoomOut}
-            disabled={zoom <= 0.5}
-          >
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          
-          <div className="text-sm text-gray-600 min-w-[60px] text-center">
-            {Math.round(zoom * 100)}%
+      {/* Enhanced Controls */}
+      <div className="bg-white border-t border-gray-200 p-6">
+        <div className="flex items-center justify-center space-x-6">
+          {/* Zoom Controls */}
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleZoomOut}
+              disabled={zoom <= 0.3}
+              className="h-10 w-10 p-0"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </Button>
+            
+            <div className="text-sm text-gray-700 font-medium min-w-[80px] text-center bg-gray-50 rounded-lg px-3 py-2">
+              {Math.round(zoom * 100)}%
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleZoomIn}
+              disabled={zoom >= 5}
+              className="h-10 w-10 p-0"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
           </div>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleZoomIn}
-            disabled={zoom >= 3}
-          >
-            <ZoomIn className="h-4 w-4" />
-          </Button>
+          <div className="w-px h-8 bg-gray-300" />
           
-          <div className="w-px h-6 bg-gray-300 mx-2" />
-          
+          {/* Auto-rotate Toggle */}
           <Button
             variant={autoRotate ? "default" : "outline"}
             size="sm"
             onClick={toggleAutoRotate}
+            className="h-10"
           >
             <RotateCw className={`h-4 w-4 mr-2 ${autoRotate ? 'animate-spin' : ''}`} />
             Auto Rotate
           </Button>
           
-          <div className="w-px h-6 bg-gray-300 mx-2" />
+          {/* Reset Position */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetPosition}
+            className="h-10"
+          >
+            Reset View
+          </Button>
           
+          <div className="w-px h-8 bg-gray-300" />
+          
+          {/* Close Button */}
           <Button
             onClick={onClose}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+            className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-8"
           >
             <Eye className="h-4 w-4 mr-2" />
             Close Viewer
           </Button>
+        </div>
+        
+        {/* Performance indicator */}
+        <div className="text-center mt-4 text-xs text-gray-500">
+          High-performance 360° viewer • Touch and drag supported
         </div>
       </div>
     </div>
