@@ -55,7 +55,7 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
     return () => clearInterval(interval);
   }, [autoRotate, velocity]);
 
-  // Advanced AI-powered background removal function
+  // Conservative AI background enhancement function
   const createCleanBackground = async (imageUrl: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -74,83 +74,95 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         // Get image data for processing
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-
-        // Edge detection and object isolation algorithm
         const width = canvas.width;
         const height = canvas.height;
+
+        // Conservative background detection - only target obvious background areas
+        const backgroundMask = new Uint8Array(width * height);
         
-        // Create edge map
-        const edges = new Uint8Array(width * height);
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            const idx = (y * width + x) * 4;
-            const current = data[idx] + data[idx + 1] + data[idx + 2];
-            const right = data[idx + 4] + data[idx + 5] + data[idx + 6];
-            const bottom = data[((y + 1) * width + x) * 4] + data[((y + 1) * width + x) * 4 + 1] + data[((y + 1) * width + x) * 4 + 2];
-            
-            const edgeStrength = Math.abs(current - right) + Math.abs(current - bottom);
-            edges[y * width + x] = edgeStrength > 100 ? 255 : 0;
+        // Sample colors from image edges (likely background)
+        const edgeColors: number[][] = [];
+        const edgeThickness = Math.min(20, Math.floor(Math.min(width, height) * 0.05));
+        
+        // Sample from all four edges
+        for (let i = 0; i < edgeThickness; i++) {
+          // Top and bottom edges
+          for (let x = 0; x < width; x += 5) {
+            const topIdx = (i * width + x) * 4;
+            const bottomIdx = ((height - 1 - i) * width + x) * 4;
+            if (topIdx < data.length) edgeColors.push([data[topIdx], data[topIdx + 1], data[topIdx + 2]]);
+            if (bottomIdx < data.length) edgeColors.push([data[bottomIdx], data[bottomIdx + 1], data[bottomIdx + 2]]);
+          }
+          // Left and right edges
+          for (let y = 0; y < height; y += 5) {
+            const leftIdx = (y * width + i) * 4;
+            const rightIdx = (y * width + (width - 1 - i)) * 4;
+            if (leftIdx < data.length) edgeColors.push([data[leftIdx], data[leftIdx + 1], data[leftIdx + 2]]);
+            if (rightIdx < data.length) edgeColors.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
           }
         }
 
-        // Flood fill from corners to detect background
-        const backgroundMask = new Uint8Array(width * height);
-        const queue: [number, number][] = [];
-        
-        // Start flood fill from corners
-        const corners = [[0, 0], [width - 1, 0], [0, height - 1], [width - 1, height - 1]];
-        corners.forEach(([x, y]) => {
-          if (backgroundMask[y * width + x] === 0) {
-            queue.push([x, y]);
-            backgroundMask[y * width + x] = 255;
-          }
+        // Calculate average background color
+        let avgR = 0, avgG = 0, avgB = 0;
+        edgeColors.forEach(([r, g, b]) => {
+          avgR += r;
+          avgG += g;
+          avgB += b;
         });
+        avgR /= edgeColors.length;
+        avgG /= edgeColors.length;
+        avgB /= edgeColors.length;
 
-        // Flood fill algorithm
-        while (queue.length > 0) {
-          const [x, y] = queue.shift()!;
-          const idx = (y * width + x) * 4;
-          const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
+        // Only process pixels that are very similar to edge colors AND have low contrast
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
           
-          // Check 4-connected neighbors
-          const neighbors = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]];
-          neighbors.forEach(([nx, ny]) => {
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-              const nIdx = (ny * width + nx) * 4;
-              if (backgroundMask[ny * width + nx] === 0 && edges[ny * width + nx] === 0) {
-                const neighborColor = [data[nIdx], data[nIdx + 1], data[nIdx + 2]];
-                
-                // Check color similarity
-                const colorDiff = Math.abs(currentColor[0] - neighborColor[0]) + 
-                                Math.abs(currentColor[1] - neighborColor[1]) + 
-                                Math.abs(currentColor[2] - neighborColor[2]);
-                
-                if (colorDiff < 80) {
-                  backgroundMask[ny * width + nx] = 255;
-                  queue.push([nx, ny]);
-                }
+          // Calculate similarity to average background color
+          const colorDiff = Math.abs(r - avgR) + Math.abs(g - avgG) + Math.abs(b - avgB);
+          
+          // Calculate local contrast (how different this pixel is from neighbors)
+          const pixelIdx = Math.floor(i / 4);
+          const x = pixelIdx % width;
+          const y = Math.floor(pixelIdx / width);
+          
+          let localContrast = 0;
+          let neighborCount = 0;
+          
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              if (dx === 0 && dy === 0) continue;
+              const nx = x + dx;
+              const ny = y + dy;
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                const nIdx = (ny * width + nx) * 4;
+                const nR = data[nIdx];
+                const nG = data[nIdx + 1];
+                const nB = data[nIdx + 2];
+                localContrast += Math.abs(r - nR) + Math.abs(g - nG) + Math.abs(b - nB);
+                neighborCount++;
               }
             }
-          });
-        }
+          }
+          localContrast /= neighborCount;
 
-        // Apply background removal with antialiasing
-        for (let i = 0; i < data.length; i += 4) {
-          const pixelIdx = Math.floor(i / 4);
-          const isBackground = backgroundMask[pixelIdx] === 255;
+          // Only mark as background if BOTH conditions are met:
+          // 1. Very similar to edge colors (within 40 units)
+          // 2. Low local contrast (smooth area, not detailed object)
+          const isBackground = colorDiff < 40 && localContrast < 30;
           
           if (isBackground) {
-            // Pure white background
-            data[i] = 255;     // R
-            data[i + 1] = 255; // G
-            data[i + 2] = 255; // B
-            data[i + 3] = 255; // A
+            // Gradually blend to white for smoother transition
+            const blendFactor = Math.max(0, (40 - colorDiff) / 40) * 0.7; // Conservative blending
+            data[i] = Math.round(r + (255 - r) * blendFactor);     // R
+            data[i + 1] = Math.round(g + (255 - g) * blendFactor); // G
+            data[i + 2] = Math.round(b + (255 - b) * blendFactor); // B
           } else {
-            // Enhance object colors and contrast
-            data[i] = Math.min(255, Math.max(0, data[i] * 1.15));
-            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * 1.15));
-            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * 1.15));
-            data[i + 3] = 255; // Full opacity for objects
+            // Slightly enhance object contrast
+            data[i] = Math.min(255, Math.max(0, r * 1.05));
+            data[i + 1] = Math.min(255, Math.max(0, g * 1.05));
+            data[i + 2] = Math.min(255, Math.max(0, b * 1.05));
           }
         }
 
