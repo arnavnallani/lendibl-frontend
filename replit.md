@@ -274,6 +274,8 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Fixed mobile search scroll bounce-back issue with multiple scroll attempts and instant positioning to prevent interference from other scroll behaviors
 - July 2, 2025: Increased mobile search scroll offset to +250px to position view lower and show more actual item cards while maintaining search bar visibility
 - July 2, 2025: Updated MacBook Pro 16-inch price to $35.00 and removed all test items from database for clean marketplace data
+- July 2, 2025: Updated item pricing - pressure washer to $7, camping tent to $3.50, drill set to $10
+- July 2, 2025: Removed specific items - lawn tractor and AirPods Pro with camera image from marketplace inventory
 
 ## User Preferences
 
