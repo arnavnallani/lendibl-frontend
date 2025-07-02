@@ -291,7 +291,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       const itemsSection = document.getElementById('items-section');
                       if (itemsSection) {
                         const headerHeight = 60;
-                        const scrollPosition = itemsSection.offsetTop - headerHeight + 150;
+                        const scrollPosition = itemsSection.offsetTop - headerHeight + 250; // Increased offset to show item cards
                         window.scrollTo(0, Math.max(0, scrollPosition));
                       }
                     };

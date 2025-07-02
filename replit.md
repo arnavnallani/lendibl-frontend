@@ -272,6 +272,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Implemented mobile-specific search scroll behavior that only triggers once on first character typed, keeps search bar visible, and prevents bouncing scroll on mobile devices
 - July 2, 2025: Optimized mobile search scroll position to show actual items while maintaining search bar visibility - scrolls down further to focus on item cards with +150px offset
 - July 2, 2025: Fixed mobile search scroll bounce-back issue with multiple scroll attempts and instant positioning to prevent interference from other scroll behaviors
+- July 2, 2025: Increased mobile search scroll offset to +250px to position view lower and show more actual item cards while maintaining search bar visibility
 
 ## User Preferences
 
