@@ -158,28 +158,63 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
                     perspective(1200px) 
                     rotateY(${currentAngle}deg)
                   `,
-                  transformStyle: 'preserve-3d',
-                  filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.15))'
+                  transformStyle: 'preserve-3d'
                 }}
               >
-                <img
-                  src={currentImage}
-                  alt="360° Item View"
-                  className="max-w-[70vh] max-h-[70vh] w-auto h-auto object-contain rounded-2xl"
-                  draggable={false}
-                  style={{
-                    backfaceVisibility: 'hidden'
-                  }}
-                />
-                
-                {/* Subtle reflection effect */}
+                {/* White background container for clean isolation */}
                 <div 
-                  className="absolute inset-0 rounded-2xl"
+                  className="relative bg-white rounded-3xl shadow-2xl border border-gray-100"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(0,0,0,0.05) 100%)',
-                    pointerEvents: 'none'
+                    padding: '40px',
+                    filter: 'drop-shadow(0 25px 80px rgba(0,0,0,0.12))'
                   }}
-                />
+                >
+                  {/* Background isolation technique */}
+                  <div className="relative">
+                    <img
+                      src={currentImage}
+                      alt="360° Item View"
+                      className="max-w-[60vh] max-h-[60vh] w-auto h-auto object-contain relative z-10"
+                      draggable={false}
+                      style={{
+                        backfaceVisibility: 'hidden',
+                        filter: 'contrast(1.15) saturate(1.1) brightness(1.05)'
+                      }}
+                    />
+                    
+                    {/* White background force isolation */}
+                    <div 
+                      className="absolute inset-0 rounded-2xl"
+                      style={{
+                        background: `
+                          radial-gradient(ellipse 60% 60% at center, transparent 25%, white 65%),
+                          linear-gradient(45deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.9) 100%)
+                        `,
+                        mixBlendMode: 'screen',
+                        zIndex: 5
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Subtle grid pattern for professional look */}
+                  <div 
+                    className="absolute inset-0 rounded-3xl pointer-events-none opacity-30"
+                    style={{
+                      backgroundImage: `
+                        radial-gradient(circle at 1px 1px, rgba(0,0,0,0.02) 1px, transparent 0)
+                      `,
+                      backgroundSize: '20px 20px'
+                    }}
+                  />
+                  
+                  {/* Professional lighting effect */}
+                  <div 
+                    className="absolute inset-0 rounded-3xl pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.6) 0%, transparent 40%, rgba(240,240,240,0.3) 100%)'
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Enhanced floating controls */}
