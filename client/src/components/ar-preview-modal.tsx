@@ -95,19 +95,35 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
                        data[((y+1)*width + x-1)*4] + 2*data[((y+1)*width + x)*4] + data[((y+1)*width + x+1)*4];
             
             const edgeStrength = Math.sqrt(gx*gx + gy*gy);
-            edges[y * width + x] = edgeStrength > 30 ? 255 : 0;
+            edges[y * width + x] = edgeStrength > 50 ? 255 : 0;
           }
         }
 
-        // Step 2: Find connected components starting from image center
+        // Step 2: Find connected components starting from multiple points
         const centerX = Math.floor(width / 2);
         const centerY = Math.floor(height / 2);
         const visited = new Uint8Array(width * height);
-        const queue: [number, number][] = [[centerX, centerY]];
         
-        // Get center color as reference for main object
-        const centerIdx = (centerY * width + centerX) * 4;
-        const centerColor = [data[centerIdx], data[centerIdx + 1], data[centerIdx + 2]];
+        // Start from multiple points to capture entire object
+        const startPoints = [
+          [centerX, centerY],
+          [centerX - Math.floor(width * 0.1), centerY],
+          [centerX + Math.floor(width * 0.1), centerY],
+          [centerX, centerY - Math.floor(height * 0.1)],
+          [centerX, centerY + Math.floor(height * 0.1)]
+        ];
+        
+        const queue: [number, number][] = [];
+        const referenceColors: number[][] = [];
+        
+        // Collect reference colors from multiple starting points
+        startPoints.forEach(([x, y]) => {
+          if (x >= 0 && x < width && y >= 0 && y < height) {
+            const idx = (y * width + x) * 4;
+            referenceColors.push([data[idx], data[idx + 1], data[idx + 2]]);
+            queue.push([x, y]);
+          }
+        });
         
         // Flood fill from center to identify main object
         while (queue.length > 0) {
@@ -118,13 +134,17 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
           const idx = (y * width + x) * 4;
           const currentColor = [data[idx], data[idx + 1], data[idx + 2]];
           
-          // Calculate color similarity to center
-          const colorDiff = Math.abs(currentColor[0] - centerColor[0]) + 
-                          Math.abs(currentColor[1] - centerColor[1]) + 
-                          Math.abs(currentColor[2] - centerColor[2]);
+          // Calculate color similarity to any reference color
+          let minColorDiff = Infinity;
+          referenceColors.forEach(([refR, refG, refB]) => {
+            const colorDiff = Math.abs(currentColor[0] - refR) + 
+                            Math.abs(currentColor[1] - refG) + 
+                            Math.abs(currentColor[2] - refB);
+            minColorDiff = Math.min(minColorDiff, colorDiff);
+          });
           
-          // If pixel is similar to center color or we haven't hit a strong edge
-          if (colorDiff < 100 && edges[y * width + x] < 255) {
+          // Much more liberal criteria - include pixels that are reasonably similar OR not at a strong edge
+          if (minColorDiff < 150 || edges[y * width + x] < 200) {
             visited[y * width + x] = 1;
             objectMask[y * width + x] = 255;
             
@@ -136,20 +156,20 @@ export default function ARPreviewModal({ onClose, capturedImages }: ARPreviewMod
         // Step 3: Morphological operations to clean up the mask
         const cleanMask = new Uint8Array(width * height);
         
-        // Dilate to fill small gaps
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            let hasObjectNeighbor = false;
-            for (let dy = -1; dy <= 1; dy++) {
-              for (let dx = -1; dx <= 1; dx++) {
+        // More aggressive dilation to include more of the object
+        for (let y = 2; y < height - 2; y++) {
+          for (let x = 2; x < width - 2; x++) {
+            let objectNeighbors = 0;
+            // Check larger neighborhood
+            for (let dy = -2; dy <= 2; dy++) {
+              for (let dx = -2; dx <= 2; dx++) {
                 if (objectMask[(y + dy) * width + (x + dx)] === 255) {
-                  hasObjectNeighbor = true;
-                  break;
+                  objectNeighbors++;
                 }
               }
-              if (hasObjectNeighbor) break;
             }
-            cleanMask[y * width + x] = hasObjectNeighbor ? 255 : 0;
+            // If we have several object neighbors or we're already marked as object
+            cleanMask[y * width + x] = (objectNeighbors >= 3 || objectMask[y * width + x] === 255) ? 255 : 0;
           }
         }
 
