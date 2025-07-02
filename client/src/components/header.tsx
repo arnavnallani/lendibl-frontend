@@ -47,7 +47,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
@@ -131,14 +131,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center space-x-1 sm:space-x-3 lg:space-x-5">
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-5">
             {/* Mode Toggle */}
-            <div className="flex bg-gray-light/50 rounded-2xl p-0.5 sm:p-1 backdrop-blur-sm">
+            <div className="flex bg-gray-light/50 rounded-2xl p-1 backdrop-blur-sm gap-1">
               <Button
                 variant={currentMode === "renter" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("renter")}
-                className={`px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
+                className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "renter" 
                     ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
@@ -151,7 +151,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 variant={currentMode === "lister" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => onModeChange("lister")}
-                className={`px-2 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
+                className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
                   currentMode === "lister" 
                     ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
                     : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
@@ -167,7 +167,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
             {user ? (
               <>
                 {/* Action Icons */}
-                <div className="flex items-center gap-0.5 sm:gap-1 lg:gap-2">
+                <div className="flex items-center gap-1 sm:gap-1 lg:gap-2">
                   {/* Action Dashboard */}
                   <Link href="/action-dashboard">
                     <Button variant="ghost" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 p-0 glass hover:bg-primary-blue/20 hover:text-primary-blue rounded-2xl transition-all duration-500 hover:scale-110 hover:shadow-lg group">
@@ -191,7 +191,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex items-center space-x-2 sm:space-x-3 p-1.5 sm:p-2 border-2 border-gray-light hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:rounded-2xl rounded-full"
+                      className="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-2 border-2 border-gray-light hover:shadow-lg hover:border-primary-blue transition-all duration-300 hover-lift relative sm:rounded-2xl rounded-full"
                     >
                       <Menu className="h-3 w-3 sm:h-4 sm:w-4 text-gray-medium sm:block hidden" />
                       <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center shadow-md relative">
@@ -242,7 +242,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 </DropdownMenu>
 
                 {/* Greeting Message - Rightmost Element */}
-                <div className="text-gray-700 font-medium ml-1 sm:ml-2 lg:ml-3 text-sm sm:text-base">
+                <div className="text-gray-700 font-medium ml-2 sm:ml-2 lg:ml-3 text-sm sm:text-base">
                   Hey {user.firstName}!
                 </div>
               </>
