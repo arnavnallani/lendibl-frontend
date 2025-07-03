@@ -347,9 +347,9 @@ export default function ListItem() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 -right-20 w-80 h-80 bg-gradient-to-r from-indigo-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/5 to-blue-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-blue-500/8 to-blue-600/8 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 -right-20 w-80 h-80 bg-gradient-to-r from-blue-400/6 to-blue-700/6 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-300/4 to-blue-500/4 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
       {/* Navigation Header */}
       <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
@@ -465,8 +465,17 @@ export default function ListItem() {
 
 
 
-                  {/* Address Fields */}
-                <div className="space-y-4">
+                  {/* Location Section */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+                      <MapPin className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Location</h3>
+                      <p className="text-gray-600">Where is your item located?</p>
+                    </div>
+                  </div>
                   <FormField
                     control={form.control}
                     name="address"
@@ -592,9 +601,17 @@ export default function ListItem() {
                 </div>
                 </div>
 
-                {/* Availability Dates */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">Availability</h3>
+                {/* Availability Section */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Availability</h3>
+                      <p className="text-gray-600">When is your item available for rent?</p>
+                    </div>
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -690,7 +707,7 @@ export default function ListItem() {
                 {/* Photos Section */}
                 <div className="space-y-8">
                   <div className="flex items-center gap-3 mb-8">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-lg">
+                    <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
                       <ImageIcon className="h-5 w-5 text-white" />
                     </div>
                     <div>
@@ -774,9 +791,17 @@ export default function ListItem() {
                   )}
                 </div>
 
-                {/* What's Included */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">What's Included</h3>
+                {/* What's Included Section */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+                      <Tag className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">What's Included</h3>
+                      <p className="text-gray-600">Additional items that come with your rental</p>
+                    </div>
+                  </div>
                   
                   <FormField
                     control={form.control}
@@ -801,7 +826,7 @@ export default function ListItem() {
                 {!showAIPricing && !showManualPricing && (
                   <div className="space-y-8">
                     <div className="flex items-center gap-3 mb-8">
-                      <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg">
+                      <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
                         <DollarSign className="h-5 w-5 text-white" />
                       </div>
                       <div>
@@ -855,10 +880,10 @@ export default function ListItem() {
 
                       {/* Manual Pricing Card */}
                       <div className="group relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-gray-200 transition-all duration-300 h-full">
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-800 to-black rounded-2xl blur opacity-15 group-hover:opacity-25 transition-opacity duration-300"></div>
+                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-gray-300 transition-all duration-300 h-full">
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl">
+                            <div className="p-2 bg-gradient-to-r from-gray-800 to-black rounded-xl">
                               <DollarSign className="h-5 w-5 text-white" />
                             </div>
                             <div>
@@ -871,15 +896,15 @@ export default function ListItem() {
                           </p>
                           <ul className="space-y-2 mb-6 text-sm text-gray-600">
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-gray-700 rounded-full"></div>
                               Full control
                             </li>
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-gray-700 rounded-full"></div>
                               Your expertise
                             </li>
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-gray-700 rounded-full"></div>
                               Instant setup
                             </li>
                           </ul>
@@ -887,7 +912,7 @@ export default function ListItem() {
                             type="button"
                             onClick={() => setShowManualPricing(true)}
                             variant="outline"
-                            className="w-full border-2 border-gray-300 hover:border-gray-400 rounded-xl py-3 font-medium transition-all duration-300"
+                            className="w-full border-2 border-gray-800 hover:border-black rounded-xl py-3 font-medium transition-all duration-300 hover:bg-gray-50"
                           >
                             Set Price Manually
                           </Button>
@@ -896,13 +921,13 @@ export default function ListItem() {
                     </div>
                     
                     {(!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")) && (
-                      <div className="flex items-start space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                        <div className="w-5 h-5 bg-amber-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                      <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
                           <span className="text-white text-xs font-bold">!</span>
                         </div>
-                        <div className="text-sm text-amber-700">
+                        <div className="text-sm text-blue-700">
                           <p className="font-medium">Complete item details first</p>
-                          <p className="text-amber-600">Fill out all basic information and location details above to enable AI pricing suggestions.</p>
+                          <p className="text-blue-600">Fill out all basic information and location details above to enable AI pricing suggestions.</p>
                         </div>
                       </div>
                     )}
