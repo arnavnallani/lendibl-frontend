@@ -344,24 +344,24 @@ export default function ListItem() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-cyan-50/15 to-blue-50/25 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/15 to-slate-50/25 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-3/4 -right-20 w-80 h-80 bg-gradient-to-r from-blue-500/10 to-slate-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/5 to-slate-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-slate-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 -right-20 w-80 h-80 bg-gradient-to-r from-slate-500/10 to-gray-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-blue-400/5 to-slate-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
       {/* Navigation Header */}
       <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="group flex items-center gap-3 hover:scale-105 transition-all duration-300">
-              <div className="p-2 bg-gradient-to-r from-cyan-500 to-gray-700 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-gray-700 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
                 <ArrowLeft className="h-4 w-4 text-white" />
               </div>
-              <span className="font-semibold text-gray-800 group-hover:text-cyan-500 transition-colors duration-300">Back to Home</span>
+              <span className="font-semibold text-gray-800 group-hover:text-blue-500 transition-colors duration-300">Back to Home</span>
             </Link>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-gray-700 rounded-full shadow-lg">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-gray-700 rounded-full shadow-lg">
               <Sparkles className="h-4 w-4 text-white animate-pulse" />
               <span className="text-white font-medium text-sm">Create Listing</span>
             </div>
@@ -372,9 +372,9 @@ export default function ListItem() {
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-100 to-blue-200 rounded-full mb-6">
-            <Sparkles className="h-4 w-4 text-cyan-600" />
-            <span className="text-cyan-700 font-medium text-sm">Turn Your Items Into Income</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-slate-200 rounded-full mb-6">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            <span className="text-blue-700 font-medium text-sm">Turn Your Items Into Income</span>
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-4 leading-tight">
             List Your Item
@@ -384,14 +384,14 @@ export default function ListItem() {
 
         {/* Form Container */}
         <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="bg-gradient-to-r from-cyan-600 via-blue-700 to-slate-900 p-1">
+          <div className="bg-gradient-to-r from-blue-900 via-slate-800 to-gray-900 p-1">
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
                   {/* Basic Information Section */}
                   <div className="space-y-8">
                     <div className="flex items-center gap-3 mb-8">
-                      <div className="p-3 bg-gradient-to-br from-cyan-500 to-gray-700 rounded-2xl shadow-lg">
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-gray-700 rounded-2xl shadow-lg">
                         <span className="text-white font-bold text-lg">1</span>
                       </div>
                       <div>
@@ -580,13 +580,13 @@ export default function ListItem() {
                     )}
                   />
                   
-                  <div className="flex items-start space-x-2 mt-2 p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
-                    <div className="w-4 h-4 bg-cyan-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                  <div className="flex items-start space-x-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
                       <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                     </div>
-                    <div className="text-sm text-cyan-700">
+                    <div className="text-sm text-blue-700">
                       <p className="font-medium">Privacy Protected</p>
-                      <p className="text-cyan-600">Your address will only be shared with renters after you approve their booking request. It remains private until then.</p>
+                      <p className="text-blue-600">Your address will only be shared with renters after you approve their booking request. It remains private until then.</p>
                     </div>
                   </div>
                 </div>
@@ -813,15 +813,15 @@ export default function ListItem() {
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* AI Pricing Card */}
                       <div className="group relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-gray-700 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
-                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-cyan-200 transition-all duration-300 h-full">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-gray-700 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
+                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-blue-200 transition-all duration-300 h-full">
                           <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-gradient-to-r from-cyan-500 to-gray-700 rounded-xl">
+                            <div className="p-2 bg-gradient-to-r from-blue-500 to-gray-700 rounded-xl">
                               <Sparkles className="h-5 w-5 text-white" />
                             </div>
                             <div>
                               <h4 className="font-bold text-lg text-gray-900">AI Smart Pricing</h4>
-                              <p className="text-sm text-cyan-600 font-medium">Recommended</p>
+                              <p className="text-sm text-blue-600 font-medium">Recommended</p>
                             </div>
                           </div>
                           <p className="text-gray-600 mb-6">
@@ -829,22 +829,22 @@ export default function ListItem() {
                           </p>
                           <ul className="space-y-2 mb-6 text-sm text-gray-600">
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                               Market analysis
                             </li>
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                               Demand forecasting
                             </li>
                             <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></div>
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                               Seasonal adjustments
                             </li>
                           </ul>
                           <Button 
                             type="button"
                             onClick={() => setShowAIPricing(true)}
-                            className="w-full bg-gradient-to-r from-cyan-500 to-gray-700 hover:from-cyan-600 hover:to-gray-800 text-white rounded-xl py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                            className="w-full bg-gradient-to-r from-blue-500 to-gray-700 hover:from-blue-600 hover:to-gray-800 text-white rounded-xl py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
                             disabled={!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")}
                           >
                             <Sparkles className="h-4 w-4 mr-2" />
