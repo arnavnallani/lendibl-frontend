@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, Calendar, Camera, RotateCcw, Eye, Play } from "lucide-react";
+import { ArrowLeft, Sparkles, Calendar, Camera, RotateCcw, Eye, Play, ImageIcon, MapPin, DollarSign, Tag } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -344,30 +344,65 @@ export default function ListItem() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-bg">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-light">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/">
-            <Button variant="ghost">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to home
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-3/4 -right-20 w-80 h-80 bg-gradient-to-r from-indigo-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400/5 to-blue-400/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      {/* Navigation Header */}
+      <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="group flex items-center gap-3 hover:scale-105 transition-all duration-300">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <ArrowLeft className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">Back to Home</span>
+            </Link>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow-lg">
+              <Sparkles className="h-4 w-4 text-white animate-pulse" />
+              <span className="text-white font-medium text-sm">Create Listing</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-gray-dark">List Your Item</CardTitle>
-            <p className="text-gray-medium">Share the details about what you'd like to rent out</p>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                {/* Basic Information */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">Basic Information</h3>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full mb-6">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            <span className="text-blue-700 font-medium text-sm">Turn Your Items Into Income</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-4 leading-tight">
+            List Your Item
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Share the details about what you'd like to rent out and start earning today
+          </p>
+        </div>
+
+        {/* Form Container */}
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
+            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+                  {/* Basic Information Section */}
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl shadow-lg">
+                        <span className="text-white font-bold text-lg">1</span>
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900">Basic Information</h3>
+                        <p className="text-gray-600">Tell us about your item</p>
+                      </div>
+                    </div>
                   
                   <FormField
                     control={form.control}
@@ -656,12 +691,17 @@ export default function ListItem() {
                   </div>
                 </div>
 
-                {/* Photos */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-dark">Item Photos</h3>
-                  <p className="text-sm text-gray-600">
-                    Upload high-quality photos of your item. You can add up to 8 images to showcase your item from different angles.
-                  </p>
+                {/* Photos Section */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-lg">
+                      <ImageIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Item Photos</h3>
+                      <p className="text-gray-600">Show off your item with stunning visuals</p>
+                    </div>
+                  </div>
                   
                   {/* Image Upload Area */}
                   <div
@@ -761,33 +801,115 @@ export default function ListItem() {
                   />
                 </div>
 
-                {/* Pricing Choice */}
+                {/* Pricing Section */}
                 {!showAIPricing && !showManualPricing && (
-                  <div className="space-y-6">
-                    <h3 className="text-xl font-semibold text-gray-dark text-center">Choose Your Pricing Method</h3>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button 
-                        type="button"
-                        onClick={() => setShowAIPricing(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white flex-1 py-6"
-                        disabled={!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")}
-                      >
-                        <Sparkles className="h-5 w-5 mr-2" />
-                        <span className="sm:hidden">Submit Info for AI Pricing Suggestions</span>
-                        <span className="hidden sm:inline">Submit Information for Instant AI Pricing Suggestions</span>
-                      </Button>
-                      <Button 
-                        type="button"
-                        onClick={() => setShowManualPricing(true)}
-                        variant="outline"
-                        className="flex-1 py-6"
-                      >
-                        Enter Price Individually
-                      </Button>
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-3 mb-8">
+                      <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg">
+                        <DollarSign className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900">Set Your Price</h3>
+                        <p className="text-gray-600">Choose how to price your item</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-500 text-center">
-                      Fill out all item details above to enable AI pricing suggestions
-                    </p>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* AI Pricing Card */}
+                      <div className="group relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
+                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-blue-200 transition-all duration-300 h-full">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+                              <Sparkles className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-lg text-gray-900">AI Smart Pricing</h4>
+                              <p className="text-sm text-blue-600 font-medium">Recommended</p>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 mb-6">
+                            Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends
+                          </p>
+                          <ul className="space-y-2 mb-6 text-sm text-gray-600">
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                              Market analysis
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                              Demand forecasting
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                              Seasonal adjustments
+                            </li>
+                          </ul>
+                          <Button 
+                            type="button"
+                            onClick={() => setShowAIPricing(true)}
+                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                            disabled={!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")}
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Get AI Suggestions
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Manual Pricing Card */}
+                      <div className="group relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-gray-200 transition-all duration-300 h-full">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl">
+                              <DollarSign className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-lg text-gray-900">Manual Pricing</h4>
+                              <p className="text-sm text-gray-600 font-medium">Traditional</p>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 mb-6">
+                            Set your own price based on your knowledge and research of the market
+                          </p>
+                          <ul className="space-y-2 mb-6 text-sm text-gray-600">
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              Full control
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              Your expertise
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                              Instant setup
+                            </li>
+                          </ul>
+                          <Button 
+                            type="button"
+                            onClick={() => setShowManualPricing(true)}
+                            variant="outline"
+                            className="w-full border-2 border-gray-300 hover:border-gray-400 rounded-xl py-3 font-medium transition-all duration-300"
+                          >
+                            Set Price Manually
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {(!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")) && (
+                      <div className="flex items-start space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div className="w-5 h-5 bg-amber-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">!</span>
+                        </div>
+                        <div className="text-sm text-amber-700">
+                          <p className="font-medium">Complete item details first</p>
+                          <p className="text-amber-600">Fill out all basic information and location details above to enable AI pricing suggestions.</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -867,10 +989,11 @@ export default function ListItem() {
                     </Button>
                   </Link>
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                </form>
+              </Form>
+            </div>
+          </div>
+        </div>
       </div>
       <Footer />
       <AuthModal
