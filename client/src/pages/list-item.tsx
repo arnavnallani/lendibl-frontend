@@ -384,7 +384,7 @@ export default function ListItem() {
 
         {/* Form Container */}
         <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-1">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
