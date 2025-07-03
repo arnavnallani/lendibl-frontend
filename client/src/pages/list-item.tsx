@@ -379,7 +379,7 @@ export default function ListItem() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-4 leading-tight">
             List Your Item
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Make money off your items... and get them back in no time</p>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Make money off your items... and then get them back in no time</p>
         </div>
 
         {/* Form Container */}
