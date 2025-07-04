@@ -49,11 +49,13 @@ export async function authenticateToken(req: AuthRequest, res: Response, next: N
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
+    console.log('No token provided in request to:', req.path);
     return res.status(401).json({ message: 'Access token required' });
   }
 
   const decoded = verifyToken(token);
   if (!decoded) {
+    console.log('Invalid token for request to:', req.path, 'Token length:', token.length);
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 
