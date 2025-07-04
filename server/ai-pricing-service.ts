@@ -131,8 +131,7 @@ Item Details:
 - Current Real Price: $${input.currentPrice}
 
 INSTRUCTIONS:
-1. Items that are $50 should have a rental price around 10% of that ($5/day). As you go higher than that, the percent should slowly get lower and lower.
-2. Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula. DO THIS NO MATTER WHAT.
+1. Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula. DO THIS NO MATTER WHAT.
 
 Provide your pricing suggestion based on these instructions.`;
       
