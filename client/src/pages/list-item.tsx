@@ -534,12 +534,18 @@ export default function ListItem() {
                                   const streetAddress = `${streetNumber} ${streetName}`.trim();
                                   
                                   const city = data.address.city || data.address.town || data.address.village || '';
-                                  const state = data.address.state || '';
+                                  const stateName = data.address.state || '';
                                   const zipCode = data.address.postcode || '';
+                                  
+                                  // Map state name to abbreviation
+                                  const stateAbbr = US_STATES.find(state => 
+                                    state.label.toLowerCase() === stateName.toLowerCase() ||
+                                    state.value.toLowerCase() === stateName.toLowerCase()
+                                  )?.value || '';
                                   
                                   form.setValue("address", streetAddress);
                                   form.setValue("city", city);
-                                  form.setValue("state", state);
+                                  form.setValue("state", stateAbbr);
                                   form.setValue("zipCode", zipCode);
                                   
                                   form.trigger(["address", "city", "state", "zipCode"]);
