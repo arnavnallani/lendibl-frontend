@@ -142,7 +142,7 @@ CRITICAL PRICING PRINCIPLES - FOLLOW THESE EXACTLY:
    - $500 item = ~7% = $35/day
    - $1000 item = ~6% = $60/day
    - $2000 item = ~5% = $100/day
-4. FOR ITEMS $1000 AND ABOVE: Use the formula 0.003(current real price) + 25 as your baseline, but use your own judgment and revolve around this formula. Example: $1000 item = 0.003(1000) + 25 = $28/day
+4. FOR ITEMS $1000 AND ABOVE: "Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula"
 5. ${formulaGuidance}
 6. Use your market expertise to adjust within these progressive percentages based on demand, seasonality, and competition
 7. Remember: Rental pricing should make renting significantly cheaper than buying
