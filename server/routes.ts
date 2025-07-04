@@ -700,15 +700,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Confirm payment and create booking
   app.post("/api/confirm-payment", authenticateToken, async (req: AuthRequest, res) => {
-    console.log('Confirm payment endpoint called by user:', req.user?.id);
-    
     if (!stripe) {
       return res.status(503).json({ message: "Payment processing not available" });
     }
 
     try {
       const { paymentIntentId, bookingData } = req.body;
-      console.log('Payment confirmation data:', { paymentIntentId, bookingData });
       
       // Verify payment was successful
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);

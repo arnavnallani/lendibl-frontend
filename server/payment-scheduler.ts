@@ -97,7 +97,11 @@ export class PaymentScheduler {
           
           // Add to pending earnings and send reminder
           await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
-          // Payment setup reminder handled by service internally
+          await paymentReminderService.createPaymentSetupReminder(
+            owner.id, 
+            'payout_blocked', 
+            ownerPayout.toString()
+          );
           
           return false;
         }
@@ -139,7 +143,7 @@ export class PaymentScheduler {
           
           try {
             const payoutResult = await paypalService.sendPayout(
-              owner.paypalEmail || "",
+              owner.paypalEmail,
               ownerPayout,
               `Booking #${bookingId} - ${booking.item.title}`,
               { bookingId: bookingId, ownerId: owner.id }
@@ -158,13 +162,13 @@ export class PaymentScheduler {
               throw new Error(payoutResult.error || 'PayPal payout failed');
             }
             
-          } catch (error: any) {
+          } catch (error) {
             console.log(`❌ PAYPAL ERROR: ${error.message}`);
             
             await storage.updateBooking(bookingId, {
               payoutCompleted: new Date(),
               stripeTransferId: `pending_paypal_funding_${Date.now()}`,
-              payoutNote: `PayPal funding needed: ${(error as any).message}. Booking #${bookingId}`,
+              payoutNote: `PayPal funding needed: ${error.message}. Booking #${bookingId}`,
               updatedAt: new Date()
             });
           }
@@ -174,8 +178,13 @@ export class PaymentScheduler {
           if (!accountStatus || !accountStatus.payoutsEnabled) {
             console.log(`⚠️  Owner ${owner.id} Stripe account not ready for payouts`);
             
-            // Add to pending earnings
+            // Add to pending earnings and send reminder
             await paymentReminderService.updatePendingEarnings(owner.id, ownerPayout.toString());
+            await paymentReminderService.createPaymentSetupReminder(
+              owner.id, 
+              'payout_blocked', 
+              ownerPayout.toString()
+            );
             
             return false;
           }
@@ -263,14 +272,11 @@ export class PaymentScheduler {
         updatedAt: new Date()
       });
 
-      // Get booking details for pending earnings update
-      const failedBooking = await storage.getBooking(bookingId);
-      if (failedBooking) {
-        await paymentReminderService.updatePendingEarnings(
-          failedBooking.item.ownerId, 
-          failedBooking.ownerPayout || "0"
-        );
-      }
+      // Add to pending earnings since payout failed
+      await paymentReminderService.updatePendingEarnings(
+        booking.item.ownerId, 
+        booking.ownerPayout
+      );
       
       return false;
     }
@@ -286,60 +292,28 @@ export class PaymentScheduler {
     try {
       const booking = await storage.getBooking(bookingId);
       if (!booking || !booking.paymentIntentId || booking.refundIssued) {
-        console.log(`Refund skipped for booking ${bookingId}: ${!booking ? 'no booking' : !booking.paymentIntentId ? 'no payment intent' : 'already refunded'}`);
         return false;
       }
 
-      const refundAmount = parseFloat(booking.totalPrice);
-      console.log(`Processing full refund for booking ${bookingId}: $${refundAmount} (reason: ${reason})`);
-
-      // Always process full refund for cancelled/declined bookings
-      // Payment is captured automatically when booking is created, so we need to refund
-      const refund = await stripe.refunds.create({
-        payment_intent: booking.paymentIntentId,
-        amount: Math.round(refundAmount * 100), // Convert to cents
-        reason: reason === 'cancelled' ? 'requested_by_customer' : 'duplicate',
-        metadata: {
-          bookingId: bookingId.toString(),
-          originalAmount: booking.totalPrice,
-          refundReason: reason
-        }
-      });
+      // Cancel the payment intent if not captured, or refund if captured
+      if (!booking.paymentCaptured) {
+        await stripe.paymentIntents.cancel(booking.paymentIntentId);
+      } else {
+        await stripe.refunds.create({
+          payment_intent: booking.paymentIntentId,
+        });
+      }
 
       await storage.updateBooking(bookingId, {
         refundIssued: true,
-        stripeRefundId: refund.id,
-        refundAmount: refundAmount.toString(),
         status: 'cancelled',
         updatedAt: new Date()
       });
 
-      console.log(`✅ Full refund completed for booking ${bookingId}:`);
-      console.log(`  • Refund ID: ${refund.id}`);
-      console.log(`  • Amount refunded: $${refundAmount}`);
-      console.log(`  • Reason: ${reason}`);
-      console.log(`  • Status: ${refund.status}`);
-      
-      // Send refund notification to renter
-      const { notificationService } = await import('./notification-service');
-      await notificationService.notifyRefundProcessed(
-        booking.renterId,
-        refundAmount.toString(),
-        booking.item.title,
-        bookingId,
-        reason
-      );
-      
+      console.log(`Refund processed for booking ${bookingId}, reason: ${reason}`);
       return true;
-    } catch (error: any) {
-      console.error(`❌ Failed to process refund for booking ${bookingId}:`, error);
-      
-      // Log the error details for debugging
-      await storage.updateBooking(bookingId, {
-        payoutNote: `Refund failed: ${error.message}`,
-        updatedAt: new Date()
-      });
-      
+    } catch (error) {
+      console.error('Failed to process refund:', error);
       return false;
     }
   }
@@ -352,22 +326,11 @@ export class PaymentScheduler {
 
       for (const booking of allBookings) {
         // Check for automatic refunds (24 hours without approval)
-        if (booking.status === 'pending' && !booking.refundIssued && booking.createdAt) {
+        if (booking.status === 'pending' && !booking.refundIssued) {
           const hoursElapsed = (now.getTime() - booking.createdAt.getTime()) / (1000 * 60 * 60);
           
-          console.log(`Checking booking ${booking.id}: ${hoursElapsed.toFixed(1)} hours elapsed (pending since ${booking.createdAt})`);
-          
-          // Use 24 hours for production, 0.1 hours (6 minutes) for testing
-          const timeoutHours = process.env.NODE_ENV === 'development' ? 0.1 : 24;
-          
-          if (hoursElapsed >= timeoutHours) {
-            console.log(`⏰ ${timeoutHours}-hour timeout reached for booking ${booking.id} - processing automatic refund`);
-            const refundResult = await this.processRefund(booking.id, 'not_approved');
-            if (refundResult) {
-              console.log(`✅ Automatic refund completed for booking ${booking.id} after ${timeoutHours}-hour timeout`);
-            } else {
-              console.log(`❌ Automatic refund failed for booking ${booking.id}`);
-            }
+          if (hoursElapsed >= 24) {
+            await this.processRefund(booking.id, 'not_approved');
           }
         }
         
