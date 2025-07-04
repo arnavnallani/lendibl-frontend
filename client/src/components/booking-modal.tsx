@@ -134,8 +134,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     
     const bookingData = {
       itemId: item.id,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: startDate,
+      endDate: endDate,
       totalPrice: total.toFixed(2),
       serviceFee: serviceFee.toFixed(2),
       ownerPayout: ownerPayout.toFixed(2),

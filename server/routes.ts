@@ -733,6 +733,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create booking with payment confirmation
       const validatedData = insertBookingSchema.parse({
         ...bookingData,
+        startDate: new Date(bookingData.startDate),
+        endDate: new Date(bookingData.endDate),
         renterId: req.user!.id,
         paymentConfirmed: true,
         paymentIntentId: paymentIntentId,
