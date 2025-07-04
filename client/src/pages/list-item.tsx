@@ -867,20 +867,6 @@ export default function ListItem() {
                           <p className="text-gray-600 mb-6">
                             Set your own price based on your knowledge and research of the market
                           </p>
-                          <ul className="space-y-2 mb-6 text-sm text-gray-600">
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Full control
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Your expertise
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Instant setup
-                            </li>
-                          </ul>
                           <Button 
                             type="button"
                             onClick={() => setShowManualPricing(true)}
