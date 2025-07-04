@@ -132,12 +132,13 @@ ${currentPriceInfo}
 - Current Month: ${month}
 - Current Season: ${season}
 
-CRITICAL PRICING PRINCIPLES:
-1. RENTAL PRICES MUST NEVER EXCEED 15% OF ITEM VALUE - For a $49 item, maximum daily rate is $7.35
-2. Always ensure your suggested price is significantly lower than the item's current real price
-3. ${formulaGuidance}
-4. Use your market expertise to adjust from baseline based on demand, seasonality, and competition
-5. Remember: People rent to save money, not pay more than buying
+CRITICAL PRICING PRINCIPLES - FOLLOW THESE EXACTLY:
+1. RENTAL PRICES MUST BE 5-15% OF ITEM VALUE: For a $${input.currentPrice || 100} item, suggest between $${input.currentPrice ? (input.currentPrice * 0.05).toFixed(2) : '5.00'} - $${input.currentPrice ? (input.currentPrice * 0.15).toFixed(2) : '15.00'} per day
+2. NEVER suggest a daily rate higher than 15% of the item's real price - this would be unreasonable
+3. Aim for 8-12% of item value for optimal rental pricing in most cases
+4. ${formulaGuidance}
+5. Use your market expertise to adjust within the 5-15% range based on demand, seasonality, and competition
+6. Remember: Rental pricing should make renting significantly cheaper than buying
 
 Use your complete autonomous judgment to determine optimal pricing while respecting these principles. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
       
@@ -151,9 +152,10 @@ Use your complete autonomous judgment to determine optimal pricing while respect
         // Validate against item value if provided
         if (input.currentPrice) {
           const maxReasonableRate = input.currentPrice * 0.15; // 15% of item value max
+          console.log(`DEBUG: Item value: $${input.currentPrice}, AI suggested: $${finalPrice}, Max allowed: $${maxReasonableRate}`);
           if (finalPrice > maxReasonableRate) {
             finalPrice = Math.max(1, Math.round(maxReasonableRate * 100) / 100);
-            console.log(`AI suggested $${chatgptResult.suggestedPrice} but capped at $${finalPrice} (15% of $${input.currentPrice} item value)`);
+            console.log(`VALIDATION: AI suggested $${chatgptResult.suggestedPrice} but capped at $${finalPrice} (15% of $${input.currentPrice} item value)`);
           }
         }
         
