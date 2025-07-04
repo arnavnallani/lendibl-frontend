@@ -120,7 +120,7 @@ export class AIPricingService {
         ? `For reference, items over $1000 often use the formula: 0.003 × current price + $25 = $${(0.003 * input.currentPrice + 25).toFixed(2)}/day as a baseline.`
         : '';
 
-      const prompt = `Analyze rental pricing for this item with your expert market knowledge:
+      const prompt = `Analyze rental pricing for this item:
 
 Item Details:
 - Title: ${input.itemTitle}
@@ -128,26 +128,13 @@ Item Details:
 - Description: ${input.description}
 - Location: ${input.location}
 - Condition: ${input.condition}
-${currentPriceInfo}
-- Current Month: ${month}
-- Current Season: ${season}
+- Current Real Price: $${input.currentPrice}
 
-CRITICAL PRICING PRINCIPLES - FOLLOW THESE EXACTLY:
-1. PROGRESSIVE PERCENTAGE SCALING: Items that are $50 should have a rental price around 10% of that ($5/day). As you go higher than that, the percent should slowly get lower and lower.
-2. RENTAL PRICES MUST BE 5-15% OF ITEM VALUE: For a $${input.currentPrice || 100} item, suggest between $${input.currentPrice ? (input.currentPrice * 0.05).toFixed(2) : '5.00'} - $${input.currentPrice ? (input.currentPrice * 0.15).toFixed(2) : '15.00'} per day
-3. PERCENTAGE SCALING EXAMPLES:
-   - $50 item = ~10% = $5/day
-   - $100 item = ~9% = $9/day
-   - $200 item = ~8% = $16/day
-   - $500 item = ~7% = $35/day
-   - $1000 item = ~6% = $60/day
-   - $2000 item = ~5% = $100/day
-4. FOR ITEMS $1000 AND ABOVE: "Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula. DO THIS NO MATTER WHAT"
-5. ${formulaGuidance}
-6. Use your market expertise to adjust within these progressive percentages based on demand, seasonality, and competition
-7. Remember: Rental pricing should make renting significantly cheaper than buying
+INSTRUCTIONS:
+1. Items that are $50 should have a rental price around 10% of that ($5/day). As you go higher than that, the percent should slowly get lower and lower.
+2. Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula. DO THIS NO MATTER WHAT.
 
-Use your complete autonomous judgment to determine optimal pricing while respecting these principles. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
+Provide your pricing suggestion based on these instructions.`;
       
       console.log('=== AI PRICING: Using ChatGPT 3.5-turbo ===');
       const chatgptResult = await getChatGPTPricing(prompt);
@@ -173,7 +160,7 @@ Use your complete autonomous judgment to determine optimal pricing while respect
       throw new Error('ChatGPT did not provide valid pricing');
     } catch (error) {
       console.error('AI Pricing Service Error:', error);
-      throw new Error('ChatGPT pricing service is currently unavailable. Please try again in a moment or set manual pricing.');
+      throw error;
     }
   }
 
