@@ -133,11 +133,17 @@ ${currentPriceInfo}
 - Current Season: ${season}
 
 CRITICAL PRICING PRINCIPLES - FOLLOW THESE EXACTLY:
-1. RENTAL PRICES MUST BE 5-15% OF ITEM VALUE: For a $${input.currentPrice || 100} item, suggest between $${input.currentPrice ? (input.currentPrice * 0.05).toFixed(2) : '5.00'} - $${input.currentPrice ? (input.currentPrice * 0.15).toFixed(2) : '15.00'} per day
-2. NEVER suggest a daily rate higher than 15% of the item's real price - this would be unreasonable
-3. Aim for 8-12% of item value for optimal rental pricing in most cases
+1. PROGRESSIVE PERCENTAGE SCALING: Items that are $50 should have a rental price around 10% of that ($5/day). As you go higher than that, the percent should slowly get lower and lower.
+2. RENTAL PRICES MUST BE 5-15% OF ITEM VALUE: For a $${input.currentPrice || 100} item, suggest between $${input.currentPrice ? (input.currentPrice * 0.05).toFixed(2) : '5.00'} - $${input.currentPrice ? (input.currentPrice * 0.15).toFixed(2) : '15.00'} per day
+3. PERCENTAGE SCALING EXAMPLES:
+   - $50 item = ~10% = $5/day
+   - $100 item = ~9% = $9/day
+   - $200 item = ~8% = $16/day
+   - $500 item = ~7% = $35/day
+   - $1000 item = ~6% = $60/day
+   - $2000 item = ~5% = $100/day
 4. ${formulaGuidance}
-5. Use your market expertise to adjust within the 5-15% range based on demand, seasonality, and competition
+5. Use your market expertise to adjust within these progressive percentages based on demand, seasonality, and competition
 6. Remember: Rental pricing should make renting significantly cheaper than buying
 
 Use your complete autonomous judgment to determine optimal pricing while respecting these principles. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
