@@ -863,26 +863,12 @@ export default function ListItem() {
                             </div>
                             <div>
                               <h4 className="font-bold text-lg text-gray-900">Manual Pricing</h4>
-                              <p className="text-sm text-gray-600 font-medium">Traditional</p>
+                              <p className="text-sm text-gray-600 font-medium">We suggest manual pricing only after you have had experience with listing items</p>
                             </div>
                           </div>
                           <p className="text-gray-600 mb-6">
                             Set your own price based on your knowledge and research of the market
                           </p>
-                          <ul className="space-y-2 mb-6 text-sm text-gray-600">
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Full control
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Your expertise
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                              Instant setup
-                            </li>
-                          </ul>
                           <Button 
                             type="button"
                             onClick={() => setShowManualPricing(true)}
