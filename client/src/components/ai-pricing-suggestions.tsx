@@ -64,6 +64,9 @@ export function AIPricingSuggestions({
       const data = await response.json();
       setSuggestions(data);
       setShowSuggestions(true);
+      
+      // Auto-fill the AI suggested price into the main form
+      onPriceSelect(data.dailyRate);
     } catch (error) {
       toast({
         title: "AI Pricing Unavailable",
@@ -185,7 +188,7 @@ export function AIPricingSuggestions({
           <input
             type="number"
             step="0.01"
-            placeholder={suggestions.dailyRate.toString()}
+            value={suggestions.dailyRate}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => {
               const value = parseFloat(e.target.value);
@@ -195,7 +198,7 @@ export function AIPricingSuggestions({
             }}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Modify the AI suggestion or use your own price
+            AI price auto-filled. Modify if needed or use as-is
           </p>
         </div>
 
