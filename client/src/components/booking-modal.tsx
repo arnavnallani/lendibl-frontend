@@ -82,26 +82,68 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     },
   });
 
-  const handlePaymentSuccess = () => {
-    console.log('Payment confirmed, creating booking');
+  const confirmPaymentMutation = useMutation({
+    mutationFn: async ({ paymentIntentId, bookingData }: { paymentIntentId: string; bookingData: any }) => {
+      const response = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ paymentIntentId, bookingData }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Payment confirmation failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Reservation Confirmed!",
+        description: "Your payment has been processed and the owner will be notified.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      onClose();
+      setStartDate("");
+      setEndDate("");
+      setMessage("");
+      setShowPayment(false);
+      setClientSecret("");
+    },
+    onError: (error) => {
+      console.error('Payment confirmation failed:', error);
+      toast({
+        title: "Payment Error",
+        description: "Payment was processed but booking creation failed. Contact support.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    console.log('Payment confirmed with intent ID:', paymentIntentId);
     setShowPayment(false);
     setClientSecret("");
+    
+    if (!item) return;
     
     const serviceFee = subtotal * 0.06; // 6% service fee
     const ownerPayout = subtotal; // Owner gets the base price
     
-    const booking = {
+    const bookingData = {
       itemId: item.id,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: new Date(startDate).toISOString(),
+      endDate: new Date(endDate).toISOString(),
       totalPrice: total.toFixed(2),
       serviceFee: serviceFee.toFixed(2),
       ownerPayout: ownerPayout.toFixed(2),
       message: message || "",
-      paymentConfirmed: true,
     };
     
-    createBookingMutation.mutate(booking);
+    // Use confirm-payment endpoint instead of direct booking creation
+    confirmPaymentMutation.mutate({ paymentIntentId, bookingData });
   };
 
   const handlePaymentCancel = () => {
@@ -151,17 +193,13 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
     console.log('Initiating payment intent creation for total:', total);
 
-    // Check if Stripe is configured
+    // Stripe is required for bookings
     if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-      // Fallback to old booking system without payment
-      const booking = {
-        itemId: item.id,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        totalPrice: total.toFixed(2),
-        message: message || "",
-      };
-      createBookingMutation.mutate(booking);
+      toast({
+        title: "Payment Error",
+        description: "Payment system is not configured. Please contact support.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -171,6 +209,8 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     createPaymentIntentMutation.mutate(amountInCents);
   };
 
+  if (!item) return null;
+  
   const defaultImage = "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
   const imageUrl = item.images && item.images.length > 0 ? item.images[0] : defaultImage;
 
@@ -325,10 +365,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               {/* Submit Button */}
               <Button 
                 type="submit"
-                disabled={createBookingMutation.isPending || createPaymentIntentMutation.isPending}
+                disabled={confirmPaymentMutation.isPending || createPaymentIntentMutation.isPending}
                 className="w-full bg-primary-blue text-white font-semibold py-4 rounded-lg hover:bg-primary-blue/90 transition-colors"
               >
-                {(createBookingMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? "Reserve" : "Login to Book"}
+                {(confirmPaymentMutation.isPending || createPaymentIntentMutation.isPending) ? "Processing..." : user ? "Reserve" : "Login to Book"}
               </Button>
 
               <p className="text-sm text-gray-medium text-center">

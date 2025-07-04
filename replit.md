@@ -309,6 +309,7 @@ The application uses PostgreSQL with the following main entities:
 - July 4, 2025: Fixed critical publish button validation bug - AI pricing component now properly clears main form price field when autofilled amount is deleted, ensuring publish button correctly disables until valid price is set, preventing unwanted default price listings
 - July 4, 2025: Implemented comprehensive full refund system for rental cancellations - renters who cancel requests before owner approval receive complete automated refunds via Stripe, includes refund notifications, detailed logging, and integration with existing payment flow
 - July 4, 2025: Enhanced automatic refund system with 24-hour timeout - renters automatically receive full refunds if owners don't approve rental requests within 24 hours, includes real-time checking every minute, detailed logging, and notification system for timeout refunds
+- July 4, 2025: Fixed critical payment-first workflow - corrected booking flow to require payment before booking creation, preventing no-payment bookings that can't be refunded, ensuring all bookings use confirm-payment endpoint with Stripe integration
 
 ## User Preferences
 

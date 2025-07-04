@@ -12,7 +12,7 @@ interface PaymentModalProps {
   amount: number;
   itemTitle: string;
   clientSecret: string;
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId: string) => void;
 }
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
@@ -22,7 +22,7 @@ const isTestMode = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_test_'
 
 function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
   amount: number;
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId: string) => void;
   onCancel: () => void;
   clientSecret: string;
 }) {
@@ -71,7 +71,7 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
         setIsLoading(false);
       } else if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'requires_capture')) {
         console.log('Payment confirmed!', paymentIntent.id, 'Status:', paymentIntent.status);
-        onSuccess();
+        onSuccess(paymentIntent.id);
       } else {
         console.log('Payment intent status:', paymentIntent?.status);
         setError("Payment was not completed successfully");
