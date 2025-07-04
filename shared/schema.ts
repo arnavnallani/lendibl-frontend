@@ -102,6 +102,10 @@ export const bookings = pgTable("bookings", {
   stripeTransferId: text("stripe_transfer_id"),
   payoutNote: text("payout_note"),
   refundIssued: boolean("refund_issued").default(false),
+  refundId: text("refund_id"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
+  refundReason: text("refund_reason"), // 'cancelled', 'not_approved', 'timeout'
+  paymentMethodId: text("payment_method_id"), // Store the payment method used for refund
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -243,7 +247,25 @@ export const damageReports = pgTable("damage_reports", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Payment methods table for storing credit card information
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  stripePaymentMethodId: text("stripe_payment_method_id").notNull(),
+  last4: text("last_4").notNull(),
+  brand: text("brand").notNull(),
+  expMonth: integer("exp_month").notNull(),
+  expYear: integer("exp_year").notNull(),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertDamageReportSchema = createInsertSchema(damageReports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).omit({
   id: true,
   createdAt: true,
 });
@@ -287,6 +309,9 @@ export type InsertItemScan = z.infer<typeof insertItemScanSchema>;
 
 export type DamageReport = typeof damageReports.$inferSelect;
 export type InsertDamageReport = z.infer<typeof insertDamageReportSchema>;
+
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

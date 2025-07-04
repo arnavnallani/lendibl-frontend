@@ -84,6 +84,11 @@ app.use((req, res, next) => {
       }
     }, 60000); // Check every minute for completed rentals
     console.log('Automatic payout checker started');
+    
+    // Start automatic refund checker for pending bookings
+    const { refundService } = await import("./refund-service");
+    refundService.startTimeoutChecker();
+    console.log('Automatic refund timeout checker started');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

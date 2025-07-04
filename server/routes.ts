@@ -15,6 +15,7 @@ import { reviewPromptService } from "./review-prompt-service";
 import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
 import { users } from "@shared/schema";
+import { refundService } from "./refund-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -617,8 +618,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await paymentScheduler.scheduleOwnerPayout(id);
       } else if (updatedBooking && (status === 'declined' || status === 'cancelled')) {
         // Process refund for declined or cancelled bookings
-        const reason = status === 'cancelled' ? 'cancelled' : 'cancelled';
-        await paymentScheduler.processRefund(id, reason);
+        if (status === 'cancelled') {
+          await refundService.processRefundForCancellation(id);
+        } else {
+          await refundService.processRefundForTimeout(id);
+        }
       } else if (updatedBooking && status === 'completed') {
         // Process owner payout when rental is completed
         await paymentScheduler.processOwnerPayout(id);
@@ -713,6 +717,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (paymentIntent.status !== 'succeeded') {
         return res.status(400).json({ message: "Payment not completed" });
       }
+
+      // Store payment method information for refund processing
+      if (paymentIntent.payment_method) {
+        await refundService.storePaymentMethod(req.user!.id, paymentIntent.payment_method.toString());
+      }
       
       // Create booking with payment confirmation
       const validatedData = insertBookingSchema.parse({
@@ -721,6 +730,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentConfirmed: true,
         paymentIntentId: paymentIntentId,
         paymentCaptured: true, // Payment is automatically captured to Lendibl's account
+        paymentMethodId: paymentIntent.payment_method?.toString(),
       });
       
       const booking = await storage.createBooking(validatedData);
