@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { 
@@ -46,25 +46,27 @@ export default function Messages() {
     refetchInterval: 30000,
   });
 
-  // Group conversations by person
-  const groupedConversations: GroupedConversations[] = conversations.reduce((groups, conversation) => {
-    const isOwner = conversation.item.ownerId === user?.id;
-    const otherPerson = isOwner ? conversation.renter : conversation.item.owner;
-    
-    let group = groups.find(g => g.personId === otherPerson.id);
-    if (!group) {
-      group = {
-        personId: otherPerson.id,
-        personName: `${otherPerson.firstName} ${otherPerson.lastName}`,
-        personAvatar: otherPerson.avatar,
-        conversations: []
-      };
-      groups.push(group);
-    }
-    
-    group.conversations.push(conversation);
-    return groups;
-  }, [] as GroupedConversations[]);
+  // Group conversations by person - memoized to prevent infinite re-renders
+  const groupedConversations: GroupedConversations[] = useMemo(() => {
+    return conversations.reduce((groups, conversation) => {
+      const isOwner = conversation.item.ownerId === user?.id;
+      const otherPerson = isOwner ? conversation.renter : conversation.item.owner;
+      
+      let group = groups.find(g => g.personId === otherPerson.id);
+      if (!group) {
+        group = {
+          personId: otherPerson.id,
+          personName: `${otherPerson.firstName} ${otherPerson.lastName}`,
+          personAvatar: otherPerson.avatar,
+          conversations: []
+        };
+        groups.push(group);
+      }
+      
+      group.conversations.push(conversation);
+      return groups;
+    }, [] as GroupedConversations[]);
+  }, [conversations, user?.id]);
 
   const togglePersonExpanded = (personId: number) => {
     setExpandedPersons(prev => {
@@ -78,15 +80,22 @@ export default function Messages() {
     });
   };
 
-  // Auto-expand single-conversation groups and remember expanded state
+  // Auto-expand single-conversation groups but preserve user choices
   useEffect(() => {
-    const autoExpanded = new Set<number>();
-    groupedConversations.forEach(group => {
-      if (group.conversations.length === 1) {
-        autoExpanded.add(group.personId);
-      }
+    setExpandedPersons(prev => {
+      const newExpanded = new Set(prev);
+      let hasChanges = false;
+      
+      groupedConversations.forEach(group => {
+        if (group.conversations.length === 1 && !prev.has(group.personId)) {
+          newExpanded.add(group.personId);
+          hasChanges = true;
+        }
+      });
+      
+      // Only update state if there are actual changes
+      return hasChanges ? newExpanded : prev;
     });
-    setExpandedPersons(autoExpanded);
   }, [groupedConversations]);
 
   const { data: messages = [] } = useQuery({
