@@ -30,8 +30,20 @@ export class RefundService {
         return;
       }
 
-      if (!booking.paymentIntentId) {
-        throw new Error(`No payment intent found for booking ${bookingId}`);
+      // Check if this booking actually has a payment to refund
+      if (!booking.paymentIntentId || !booking.paymentConfirmed) {
+        console.log(`Booking ${bookingId} has no payment to refund - cancelling without refund`);
+        
+        // Update booking status to cancelled without refund
+        await db
+          .update(bookings)
+          .set({
+            status: 'cancelled',
+            updatedAt: new Date()
+          })
+          .where(eq(bookings.id, bookingId));
+
+        return { message: 'Booking cancelled - no payment to refund' };
       }
 
       // Create refund using Stripe
@@ -92,8 +104,20 @@ export class RefundService {
         return;
       }
 
-      if (!booking.paymentIntentId) {
-        throw new Error(`No payment intent found for booking ${bookingId}`);
+      // Check if this booking actually has a payment to refund
+      if (!booking.paymentIntentId || !booking.paymentConfirmed) {
+        console.log(`Booking ${bookingId} has no payment to refund - marking as declined due to timeout`);
+        
+        // Update booking status to declined without refund
+        await db
+          .update(bookings)
+          .set({
+            status: 'declined',
+            updatedAt: new Date()
+          })
+          .where(eq(bookings.id, bookingId));
+
+        return { message: 'Booking declined due to timeout - no payment to refund' };
       }
 
       // Create refund using Stripe

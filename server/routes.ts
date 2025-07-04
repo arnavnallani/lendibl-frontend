@@ -618,10 +618,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await paymentScheduler.scheduleOwnerPayout(id);
       } else if (updatedBooking && (status === 'declined' || status === 'cancelled')) {
         // Process refund for declined or cancelled bookings
-        if (status === 'cancelled') {
-          await refundService.processRefundForCancellation(id);
-        } else {
-          await refundService.processRefundForTimeout(id);
+        try {
+          if (status === 'cancelled') {
+            const result = await refundService.processRefundForCancellation(id);
+            console.log('Cancellation result:', result);
+          } else {
+            const result = await refundService.processRefundForTimeout(id);
+            console.log('Timeout result:', result);
+          }
+        } catch (error) {
+          console.error('Refund processing error:', error);
+          // Don't fail the booking status update if refund fails
         }
       } else if (updatedBooking && status === 'completed') {
         // Process owner payout when rental is completed
