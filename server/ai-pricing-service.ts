@@ -78,7 +78,7 @@ Respond in this exact JSON format:
     
     return { success: false };
   } catch (error) {
-    console.error('Gemini AI service error:', error);
+    console.error('ChatGPT AI service error:', error);
     throw error;
   }
 }
@@ -104,6 +104,7 @@ export interface PricingAnalysisInput {
 
 export class AIPricingService {
   async analyzePricing(input: PricingAnalysisInput): Promise<PricingSuggestion> {
+    console.log('🤖 AI PRICING SERVICE: Starting analysis with ChatGPT 3.5-turbo');
     try {
       // Use ChatGPT 3.5-turbo for intelligent market analysis
       const currentDate = new Date();
