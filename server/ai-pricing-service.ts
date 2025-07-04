@@ -132,10 +132,12 @@ ${currentPriceInfo}
 - Current Month: ${month}
 - Current Season: ${season}
 
-IMPORTANT PRICING PRINCIPLES:
-1. Rental prices should ALWAYS be significantly lower than the current real price (never more than 10-15% of item value)
-2. ${formulaGuidance}
-3. Use your market expertise to adjust from baseline based on demand, seasonality, and competition
+CRITICAL PRICING PRINCIPLES:
+1. RENTAL PRICES MUST NEVER EXCEED 15% OF ITEM VALUE - For a $49 item, maximum daily rate is $7.35
+2. Always ensure your suggested price is significantly lower than the item's current real price
+3. ${formulaGuidance}
+4. Use your market expertise to adjust from baseline based on demand, seasonality, and competition
+5. Remember: People rent to save money, not pay more than buying
 
 Use your complete autonomous judgment to determine optimal pricing while respecting these principles. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
       
@@ -144,14 +146,27 @@ Use your complete autonomous judgment to determine optimal pricing while respect
       console.log('=== ChatGPT response received ===', { success: chatgptResult.success, price: chatgptResult.suggestedPrice });
       
       if (chatgptResult.success && chatgptResult.suggestedPrice) {
+        let finalPrice = chatgptResult.suggestedPrice;
+        
+        // Validate against item value if provided
+        if (input.currentPrice) {
+          const maxReasonableRate = input.currentPrice * 0.15; // 15% of item value max
+          if (finalPrice > maxReasonableRate) {
+            finalPrice = Math.max(1, Math.round(maxReasonableRate * 100) / 100);
+            console.log(`AI suggested $${chatgptResult.suggestedPrice} but capped at $${finalPrice} (15% of $${input.currentPrice} item value)`);
+          }
+        }
+        
         return {
-          dailyRate: Math.max(1, Math.round(chatgptResult.suggestedPrice * 100) / 100),
+          dailyRate: Math.max(1, Math.round(finalPrice * 100) / 100),
           confidence: chatgptResult.confidence || 0.85,
           reasoning: chatgptResult.reasoning || [
             `ChatGPT analysis suggests $${chatgptResult.suggestedPrice}/day`,
+            input.currentPrice && finalPrice !== chatgptResult.suggestedPrice ? 
+              `Adjusted to stay within 15% of item value ($${input.currentPrice})` : '',
             `Market analysis for ${input.location}`,
             `${season} seasonal factors considered`
-          ],
+          ].filter(Boolean),
           marketInsights: chatgptResult.marketInsights || {
             demandLevel: 'medium' as const,
             seasonalTrend: 'stable' as const,
