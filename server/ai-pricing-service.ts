@@ -131,7 +131,7 @@ Item Details:
 - Current Real Price: $${input.currentPrice}
 
 INSTRUCTIONS:
-1. Items with a current real price of 1000 dollars and above should have a rental price of around the formula 0.003(current real price) + 25, but use your own judgement, just revolve around the formula. DO THIS NO MATTER WHAT.
+1. Use the formula: 0.003 * current real price + 25, but use your judgement to be slightly flexible around that formula.
 
 Provide your pricing suggestion based on these instructions.`;
       
