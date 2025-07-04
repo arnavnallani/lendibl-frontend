@@ -102,6 +102,8 @@ export const bookings = pgTable("bookings", {
   stripeTransferId: text("stripe_transfer_id"),
   payoutNote: text("payout_note"),
   refundIssued: boolean("refund_issued").default(false),
+  stripeRefundId: text("stripe_refund_id"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

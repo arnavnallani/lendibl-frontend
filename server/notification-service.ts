@@ -242,6 +242,18 @@ export class NotificationService {
       relatedId: bookingId,
     });
   }
+
+  async notifyRefundProcessed(renterId: number, amount: string, itemTitle: string, bookingId: number, reason: 'cancelled' | 'not_approved') {
+    const reasonText = reason === 'cancelled' ? 'cancelled your request' : 'was not approved in time';
+    return this.createNotification({
+      userId: renterId,
+      type: 'payment_received',
+      title: 'Full Refund Processed',
+      message: `$${amount} refunded for ${itemTitle} since booking ${reasonText}`,
+      actionUrl: '/action-dashboard',
+      relatedId: bookingId,
+    });
+  }
 }
 
 export const notificationService = new NotificationService();
