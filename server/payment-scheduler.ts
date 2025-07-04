@@ -355,8 +355,19 @@ export class PaymentScheduler {
         if (booking.status === 'pending' && !booking.refundIssued && booking.createdAt) {
           const hoursElapsed = (now.getTime() - booking.createdAt.getTime()) / (1000 * 60 * 60);
           
-          if (hoursElapsed >= 24) {
-            await this.processRefund(booking.id, 'not_approved');
+          console.log(`Checking booking ${booking.id}: ${hoursElapsed.toFixed(1)} hours elapsed (pending since ${booking.createdAt})`);
+          
+          // Use 24 hours for production, 0.1 hours (6 minutes) for testing
+          const timeoutHours = process.env.NODE_ENV === 'development' ? 0.1 : 24;
+          
+          if (hoursElapsed >= timeoutHours) {
+            console.log(`⏰ ${timeoutHours}-hour timeout reached for booking ${booking.id} - processing automatic refund`);
+            const refundResult = await this.processRefund(booking.id, 'not_approved');
+            if (refundResult) {
+              console.log(`✅ Automatic refund completed for booking ${booking.id} after ${timeoutHours}-hour timeout`);
+            } else {
+              console.log(`❌ Automatic refund failed for booking ${booking.id}`);
+            }
           }
         }
         
