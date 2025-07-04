@@ -176,7 +176,7 @@ export default function ListItem() {
     defaultValues: {
       title: "",
       description: "",
-      price: 1,
+      price: 0,
       currentPrice: "",
       categoryId: 0,
       ownerId: 1, // Mock owner ID
