@@ -310,6 +310,8 @@ The application uses PostgreSQL with the following main entities:
 - July 4, 2025: Fixed critical publish button validation bug - AI pricing component now properly clears main form price field when autofilled amount is deleted, ensuring publish button correctly disables until valid price is set, preventing unwanted default price listings
 - July 4, 2025: CRITICAL FIX: Fixed payment flow architecture bug - paid bookings now use correct /api/confirm-payment route instead of /api/bookings, payment intent IDs properly stored in database for refund processing, frontend authentication token corrected from 'token' to 'auth_token', automatic refund system now functional for paid reservations
 - July 4, 2025: Enhanced messaging board UI with grouped conversations - multiple chats with same person now grouped under collapsible person headings with individual item subchats, auto-expansion for single conversations, improved navigation and organization
+- July 4, 2025: Fixed infinite re-render loop in messaging board by implementing proper memoization with useMemo for grouped conversations and change detection in useEffect to prevent unnecessary state updates
+- July 4, 2025: Updated privacy policy with comprehensive legal content - changed entity to "lendibl LLC", updated contact email to arnav.nallani@gmail.com, added complete 12-section privacy policy including GDPR compliance, California privacy rights, legal bases for processing, and enhanced data handling policies
 
 ## User Preferences
 
