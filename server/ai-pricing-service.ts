@@ -131,7 +131,7 @@ Item Details:
 - Current Real Price: $${input.currentPrice}
 
 INSTRUCTIONS:
-1. Use the formula: 0.003 * current real price + 25, but use your judgement to be slightly flexible around that formula.
+1. Use the formula: 0.003 * current real price + 25, but use your judgement to be slightly flexible around that formula. You can only be flexible to make the rental price less than what the formula outputs, NEVER MORE THAN WHAT THE FORMULA OUTPUTS.
 
 Provide your pricing suggestion based on these instructions.`;
       
