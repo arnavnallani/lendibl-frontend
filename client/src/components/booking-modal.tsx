@@ -171,12 +171,44 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const serviceFee = subtotal * 0.06; // 6% service fee
   const total = subtotal + serviceFee;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Booking form submitted');
     
     if (!user) {
       console.log('User not authenticated, showing auth modal');
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    // Verify token is still valid before processing payment
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      toast({
+        title: "Session Expired",
+        description: "Please log in again to continue.",
+        variant: "destructive",
+      });
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Token invalid');
+      }
+    } catch (error) {
+      console.log('Token validation failed, clearing auth state');
+      localStorage.removeItem('auth_token');
+      toast({
+        title: "Session Expired",
+        description: "Please log in again to continue.",
+        variant: "destructive",
+      });
       setIsAuthModalOpen(true);
       return;
     }
