@@ -282,10 +282,10 @@ export default function ListItem() {
       return;
     }
 
-    if (!values.price) {
+    if (!values.price || values.price <= 0) {
       toast({
         title: "Price Required",
-        description: "Please set a price for your item.",
+        description: "Please set a rental price per day using AI suggestions or manual pricing before publishing your listing.",
         variant: "destructive",
       });
       return;
@@ -1031,8 +1031,9 @@ export default function ListItem() {
                       </Button>
                       <Button 
                         type="submit"
-                        disabled={createItemMutation.isPending || !form.watch("price")}
+                        disabled={createItemMutation.isPending || !form.watch("price") || form.watch("price") <= 0}
                         className="bg-primary-blue text-white hover:bg-primary-blue/90 px-8 py-3"
+                        title={!form.watch("price") || form.watch("price") <= 0 ? "Please set a rental price first" : ""}
                       >
                         {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
                       </Button>
