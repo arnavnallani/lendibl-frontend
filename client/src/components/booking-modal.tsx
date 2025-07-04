@@ -84,17 +84,20 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
 
   const confirmPaymentMutation = useMutation({
     mutationFn: async ({ paymentIntentId, bookingData }: { paymentIntentId: string, bookingData: any }) => {
+      const token = localStorage.getItem('auth_token');
       const response = await fetch('/api/confirm-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
+        credentials: 'include',
         body: JSON.stringify({ paymentIntentId, bookingData })
       });
       
       if (!response.ok) {
-        throw new Error('Failed to confirm payment');
+        const error = await response.text();
+        throw new Error(`Payment confirmation failed: ${error}`);
       }
       
       return response.json();
