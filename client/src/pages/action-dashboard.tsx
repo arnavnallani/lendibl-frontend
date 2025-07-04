@@ -162,9 +162,16 @@ export default function ActionDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-sky-400/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-blue-500/10 to-cyan-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/5 to-sky-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       {/* Navigation Header */}
-      <div className="bg-white border-b border-gray-light">
+      <div className="relative bg-white/80 backdrop-blur-sm border-b border-sky-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
@@ -175,19 +182,24 @@ export default function ActionDashboard() {
               />
             </Link>
             <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-gray-medium" />
-              <span className="text-sm text-gray-medium">/</span>
-              <span className="text-sm font-medium text-gray-dark">Action Dashboard</span>
+              <Home className="h-4 w-4 text-sky-600" />
+              <span className="text-sm text-sky-500">/</span>
+              <span className="text-sm font-medium text-blue-900">Action Dashboard</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-dark mb-2">Action Dashboard</h1>
-          <p className="text-gray-medium">Track your active rentals and communicate during the process</p>
+          <div className="group relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-r from-sky-600 via-blue-700 to-cyan-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-sky-600 via-blue-700 to-cyan-600 bg-clip-text text-transparent mb-2">Action Dashboard</h1>
+              <p className="text-blue-600">Track your active rentals and communicate during the process</p>
+            </div>
+          </div>
         </div>
 
         {/* Active Rentals */}
@@ -206,12 +218,13 @@ export default function ActionDashboard() {
               const isRenter = rental.renterId === user?.id;
               
               return (
-                <Card key={rental.id} className="overflow-hidden">
-                  <CardHeader className="bg-gray-50">
+                <Card key={rental.id} className="overflow-hidden group relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-blue-600/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <CardHeader className="relative bg-gradient-to-r from-sky-50 to-blue-50 border-b border-sky-100">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">{rental.item.title}</CardTitle>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-medium">
+                        <CardTitle className="text-xl text-blue-900">{rental.item.title}</CardTitle>
+                        <div className="flex items-center gap-4 mt-2 text-sm text-sky-600">
                           <div className="flex items-center gap-1">
                             <User className="h-4 w-4" />
                             {isOwner ? `Renter: ${rental.renter.firstName} ${rental.renter.lastName}` : 
@@ -229,15 +242,15 @@ export default function ActionDashboard() {
                         
                         {/* Show full address to renter for approved bookings */}
                         {!isOwner && rental.status === 'approved' && rental.item.location && (
-                          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="mt-3 p-3 bg-sky-50 border border-sky-200 rounded-lg">
                             <div className="flex items-start space-x-2">
-                              <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
+                              <div className="w-4 h-4 bg-sky-500 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center">
                                 <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                               </div>
                               <div className="text-sm">
-                                <p className="font-medium text-blue-700">Pickup Location</p>
-                                <p className="text-blue-600">{rental.item.location}</p>
-                                <p className="text-blue-500 text-xs mt-1">Contact the owner to coordinate pickup time</p>
+                                <p className="font-medium text-sky-700">Pickup Location</p>
+                                <p className="text-sky-600">{rental.item.location}</p>
+                                <p className="text-sky-500 text-xs mt-1">Contact the owner to coordinate pickup time</p>
                               </div>
                             </div>
                           </div>
@@ -264,11 +277,11 @@ export default function ActionDashboard() {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            status === 'pre-rental' ? 'bg-blue-500 text-white' : 'bg-green-500 text-white'
+                            status === 'pre-rental' ? 'bg-sky-500 text-white' : 'bg-emerald-500 text-white'
                           }`}>
                             <Clock className="h-4 w-4" />
                           </div>
-                          <span className={`font-medium ${status === 'pre-rental' ? 'text-blue-600' : 'text-green-600'}`}>
+                          <span className={`font-medium ${status === 'pre-rental' ? 'text-sky-600' : 'text-emerald-600'}`}>
                             Pre-Rental Period
                           </span>
                         </div>
@@ -276,23 +289,23 @@ export default function ActionDashboard() {
                         <div className="flex items-center gap-2">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                             status === 'active' ? 'bg-blue-500 text-white' : 
-                            status === 'pre-rental' ? 'bg-gray-300 text-gray-600' : 'bg-green-500 text-white'
+                            status === 'pre-rental' ? 'bg-sky-200 text-sky-600' : 'bg-emerald-500 text-white'
                           }`}>
                             <PlayCircle className="h-4 w-4" />
                           </div>
                           <span className={`font-medium ${status === 'active' ? 'text-blue-600' : 
-                            status === 'completed' ? 'text-green-600' : 'text-gray-500'}`}>
+                            status === 'completed' ? 'text-emerald-600' : 'text-sky-500'}`}>
                             Rental Period
                           </span>
                         </div>
                         
                         <div className="flex items-center gap-2">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            status === 'completed' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                            status === 'completed' ? 'bg-emerald-500 text-white' : 'bg-sky-200 text-sky-600'
                           }`}>
                             <CheckCircle className="h-4 w-4" />
                           </div>
-                          <span className={`font-medium ${status === 'completed' ? 'text-green-600' : 'text-gray-500'}`}>
+                          <span className={`font-medium ${status === 'completed' ? 'text-emerald-600' : 'text-sky-500'}`}>
                             Rental Complete
                           </span>
                         </div>

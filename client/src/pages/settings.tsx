@@ -193,9 +193,16 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-sky-400/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-blue-500/10 to-cyan-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/5 to-sky-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
       {/* Navigation Header */}
-      <div className="bg-white border-b border-gray-light">
+      <div className="relative bg-white/80 backdrop-blur-sm border-b border-sky-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
@@ -206,46 +213,52 @@ export default function Settings() {
               />
             </Link>
             <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-gray-medium" />
-              <span className="text-sm text-gray-medium">/</span>
-              <span className="text-sm font-medium text-gray-dark">Settings</span>
+              <Home className="h-4 w-4 text-sky-600" />
+              <span className="text-sm text-sky-500">/</span>
+              <span className="text-sm font-medium text-blue-900">Settings</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <SettingsIcon className="h-8 w-8 text-primary-blue" />
-            <h1 className="text-3xl font-bold text-gray-dark">Settings</h1>
+          <div className="group relative inline-block">
+            <div className="absolute inset-0 bg-gradient-to-r from-sky-600 via-blue-700 to-cyan-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+            <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-4 border border-white/20">
+              <div className="flex items-center gap-3 mb-2">
+                <SettingsIcon className="h-8 w-8 text-sky-600" />
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-sky-600 via-blue-700 to-cyan-600 bg-clip-text text-transparent">Settings</h1>
+              </div>
+              <p className="text-blue-600">Manage your account settings and personal information</p>
+            </div>
           </div>
-          <p className="text-gray-medium">Manage your account settings and personal information</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Overview */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-blue-600/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardHeader className="relative bg-gradient-to-r from-sky-50 to-blue-50 border-b border-sky-100">
+                <CardTitle className="flex items-center gap-2 text-blue-900">
+                  <User className="h-5 w-5 text-sky-600" />
                   Profile Overview
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="relative space-y-4">
                 <div className="flex flex-col items-center text-center">
                   <Avatar className="h-24 w-24 mb-4">
                     <AvatarImage src={user.avatar} />
-                    <AvatarFallback className="text-lg bg-primary-blue text-white">
+                    <AvatarFallback className="text-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white">
                       {user.firstName[0]}{user.lastName[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <h3 className="font-semibold text-lg text-gray-dark">
+                  <h3 className="font-semibold text-lg text-blue-900">
                     {user.firstName} {user.lastName}
                   </h3>
-                  <p className="text-gray-medium text-sm">{user.email}</p>
+                  <p className="text-sky-600 text-sm">{user.email}</p>
                 </div>
                 
                 <Separator />
