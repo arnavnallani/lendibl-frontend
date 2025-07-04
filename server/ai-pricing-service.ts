@@ -147,28 +147,14 @@ Use your complete autonomous judgment to determine optimal pricing while respect
       console.log('=== ChatGPT response received ===', { success: chatgptResult.success, price: chatgptResult.suggestedPrice });
       
       if (chatgptResult.success && chatgptResult.suggestedPrice) {
-        let finalPrice = chatgptResult.suggestedPrice;
-        
-        // Validate against item value if provided
-        if (input.currentPrice) {
-          const maxReasonableRate = input.currentPrice * 0.15; // 15% of item value max
-          console.log(`DEBUG: Item value: $${input.currentPrice}, AI suggested: $${finalPrice}, Max allowed: $${maxReasonableRate}`);
-          if (finalPrice > maxReasonableRate) {
-            finalPrice = Math.max(1, Math.round(maxReasonableRate * 100) / 100);
-            console.log(`VALIDATION: AI suggested $${chatgptResult.suggestedPrice} but capped at $${finalPrice} (15% of $${input.currentPrice} item value)`);
-          }
-        }
-        
         return {
-          dailyRate: Math.max(1, Math.round(finalPrice * 100) / 100),
+          dailyRate: Math.max(1, Math.round(chatgptResult.suggestedPrice * 100) / 100),
           confidence: chatgptResult.confidence || 0.85,
           reasoning: chatgptResult.reasoning || [
             `ChatGPT analysis suggests $${chatgptResult.suggestedPrice}/day`,
-            input.currentPrice && finalPrice !== chatgptResult.suggestedPrice ? 
-              `Adjusted to stay within 15% of item value ($${input.currentPrice})` : '',
             `Market analysis for ${input.location}`,
             `${season} seasonal factors considered`
-          ].filter(Boolean),
+          ],
           marketInsights: chatgptResult.marketInsights || {
             demandLevel: 'medium' as const,
             seasonalTrend: 'stable' as const,
