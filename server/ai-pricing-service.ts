@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+// Using ChatGPT 3.5-turbo for pricing analysis per user request
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Free Google Gemini AI (15 requests per minute, no API key required for basic usage)
@@ -71,6 +71,7 @@ export interface PricingAnalysisInput {
   description: string;
   location: string;
   condition: string;
+  currentPrice?: number; // Current market value provided by user
 }
 
 export class AIPricingService {
