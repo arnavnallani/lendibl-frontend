@@ -199,6 +199,9 @@ export function AIPricingSuggestions({
               const value = parseFloat(inputValue);
               if (!isNaN(value) && value > 0) {
                 onPriceSelect(value);
+              } else {
+                // Clear the main form price when input is empty or invalid
+                onPriceSelect(0);
               }
             }}
           />
