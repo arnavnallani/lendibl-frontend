@@ -22,7 +22,7 @@ Your expertise includes:
 - Assessing item depreciation and condition impact on rental value
 - Identifying optimal price points for maximum revenue and booking rates
 
-Use your analytical judgment to provide intelligent, market-driven pricing recommendations that balance profitability with competitive appeal.`
+Use your complete autonomous judgment to determine optimal pricing. Consider the full spectrum of market factors and price accordingly - there are no artificial constraints on your pricing decisions. Recommend whatever daily rate maximizes owner revenue while maintaining market competitiveness.`
         },
         {
           role: "user",
@@ -100,6 +100,7 @@ export interface PricingAnalysisInput {
   description: string;
   location: string;
   condition: string;
+  currentPrice?: number;
 }
 
 export class AIPricingService {

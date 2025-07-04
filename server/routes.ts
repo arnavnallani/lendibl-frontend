@@ -8,7 +8,7 @@ import { hashPassword, comparePassword, generateToken, authenticateToken, option
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
 import { paymentReminderService } from "./payment-reminder-service";
-import { aiPricingService } from "./ai-pricing-service-clean";
+import { aiPricingService } from "./ai-pricing-service";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
