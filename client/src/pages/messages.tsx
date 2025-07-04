@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { 
@@ -7,7 +7,9 @@ import {
   Calendar,
   User,
   Send,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,10 +20,18 @@ import { useAuth } from "@/hooks/use-auth";
 import type { BookingWithDetails, RentalMessage } from "@shared/schema";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 
+interface GroupedConversations {
+  personId: number;
+  personName: string;
+  personAvatar: string | null;
+  conversations: BookingWithDetails[];
+}
+
 export default function Messages() {
   const { user } = useAuth();
   const [selectedConversation, setSelectedConversation] = useState<BookingWithDetails | null>(null);
   const [messageText, setMessageText] = useState("");
+  const [expandedPersons, setExpandedPersons] = useState<Set<number>>(new Set());
 
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['/api/bookings', 'conversations'],
@@ -35,6 +45,49 @@ export default function Messages() {
     enabled: !!user,
     refetchInterval: 30000,
   });
+
+  // Group conversations by person
+  const groupedConversations: GroupedConversations[] = conversations.reduce((groups, conversation) => {
+    const isOwner = conversation.item.ownerId === user?.id;
+    const otherPerson = isOwner ? conversation.renter : conversation.item.owner;
+    
+    let group = groups.find(g => g.personId === otherPerson.id);
+    if (!group) {
+      group = {
+        personId: otherPerson.id,
+        personName: `${otherPerson.firstName} ${otherPerson.lastName}`,
+        personAvatar: otherPerson.avatar,
+        conversations: []
+      };
+      groups.push(group);
+    }
+    
+    group.conversations.push(conversation);
+    return groups;
+  }, [] as GroupedConversations[]);
+
+  const togglePersonExpanded = (personId: number) => {
+    setExpandedPersons(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(personId)) {
+        newSet.delete(personId);
+      } else {
+        newSet.add(personId);
+      }
+      return newSet;
+    });
+  };
+
+  // Auto-expand single-conversation groups and remember expanded state
+  useEffect(() => {
+    const autoExpanded = new Set<number>();
+    groupedConversations.forEach(group => {
+      if (group.conversations.length === 1) {
+        autoExpanded.add(group.personId);
+      }
+    });
+    setExpandedPersons(autoExpanded);
+  }, [groupedConversations]);
 
   const { data: messages = [] } = useQuery({
     queryKey: ['/api/rental-messages', selectedConversation?.id],
@@ -111,49 +164,75 @@ export default function Messages() {
                       <div key={i} className="h-16 bg-muted rounded-lg animate-pulse mb-2" />
                     ))}
                   </div>
-                ) : conversations.length > 0 ? (
+                ) : groupedConversations.length > 0 ? (
                   <div className="space-y-0">
-                    {conversations.map((conversation) => {
-                      const isOwner = conversation.item.ownerId === user?.id;
-                      const otherPerson = isOwner ? conversation.renter : conversation.item.owner;
-                      
-                      return (
+                    {groupedConversations.map((group) => (
+                      <div key={group.personId}>
+                        {/* Person Header */}
                         <div
-                          key={conversation.id}
-                          onClick={() => setSelectedConversation(conversation)}
-                          className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
-                            selectedConversation?.id === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                          }`}
+                          onClick={() => togglePersonExpanded(group.personId)}
+                          className="p-3 bg-gray-50 border-b cursor-pointer hover:bg-gray-100 transition-colors"
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-semibold text-sm">
-                                {otherPerson.firstName[0]}{otherPerson.lastName[0]}
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-primary-blue to-blue-600 rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold text-xs">
+                                {group.personName.split(' ')[0][0]}{group.personName.split(' ')[1]?.[0] || ''}
                               </span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium text-sm truncate">
-                                  {otherPerson.firstName} {otherPerson.lastName}
-                                </p>
-                                <span className="text-xs text-gray-medium">
-                                  {isOwner ? 'Renter' : 'Owner'}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-medium truncate">
-                                {conversation.item.title}
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{group.personName}</p>
+                              <p className="text-xs text-gray-medium">
+                                {group.conversations.length} conversation{group.conversations.length > 1 ? 's' : ''}
                               </p>
-                              <div className="flex items-center gap-1 mt-1">
-                                <Calendar className="h-3 w-3 text-gray-400" />
-                                <span className="text-xs text-gray-400">
-                                  {new Date(conversation.startDate).toLocaleDateString()}
-                                </span>
-                              </div>
                             </div>
+                            {expandedPersons.has(group.personId) ? (
+                              <ChevronDown className="h-4 w-4 text-gray-medium" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-gray-medium" />
+                            )}
                           </div>
                         </div>
-                      );
-                    })}
+
+                        {/* Item Conversations */}
+                        {expandedPersons.has(group.personId) && (
+                          <div className="bg-white">
+                            {group.conversations.map((conversation) => {
+                              const isOwner = conversation.item.ownerId === user?.id;
+                              
+                              return (
+                                <div
+                                  key={conversation.id}
+                                  onClick={() => setSelectedConversation(conversation)}
+                                  className={`p-3 pl-8 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+                                    selectedConversation?.id === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                                  }`}
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-2 h-2 bg-primary-blue rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-sm truncate text-gray-dark">
+                                        {conversation.item.title}
+                                      </p>
+                                      <div className="flex items-center gap-4 mt-1">
+                                        <span className="text-xs text-gray-medium">
+                                          {isOwner ? 'You are owner' : 'You are renter'}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="h-3 w-3 text-gray-400" />
+                                          <span className="text-xs text-gray-400">
+                                            {new Date(conversation.startDate).toLocaleDateString()}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="p-8 text-center">

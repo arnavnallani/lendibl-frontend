@@ -309,6 +309,7 @@ The application uses PostgreSQL with the following main entities:
 - July 2, 2025: Redesigned list item page with innovative modern UI - added animated background elements, glass morphism effects, gradient containers, numbered section headers with icons, enhanced pricing cards with visual hierarchy, and improved visual design throughout
 - July 4, 2025: Fixed critical publish button validation bug - AI pricing component now properly clears main form price field when autofilled amount is deleted, ensuring publish button correctly disables until valid price is set, preventing unwanted default price listings
 - July 4, 2025: CRITICAL FIX: Fixed payment flow architecture bug - paid bookings now use correct /api/confirm-payment route instead of /api/bookings, payment intent IDs properly stored in database for refund processing, frontend authentication token corrected from 'token' to 'auth_token', automatic refund system now functional for paid reservations
+- July 4, 2025: Enhanced messaging board UI with grouped conversations - multiple chats with same person now grouped under collapsible person headings with individual item subchats, auto-expansion for single conversations, improved navigation and organization
 
 ## User Preferences
 
