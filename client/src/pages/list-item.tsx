@@ -155,6 +155,11 @@ export default function ListItem() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  const isPriceValid = () => {
+    const price = form.watch("price");
+    return price && Number(price) > 0;
+  };
+
   useEffect(() => {
     if (!user) {
       setIsAuthModalOpen(true);
@@ -1031,9 +1036,9 @@ export default function ListItem() {
                       </Button>
                       <Button 
                         type="submit"
-                        disabled={createItemMutation.isPending || !form.watch("price") || form.watch("price") <= 0}
+                        disabled={createItemMutation.isPending || !isPriceValid()}
                         className="bg-primary-blue text-white hover:bg-primary-blue/90 px-8 py-3"
-                        title={!form.watch("price") || form.watch("price") <= 0 ? "Please set a rental price first" : ""}
+                        title={!isPriceValid() ? "Please set a rental price first" : ""}
                       >
                         {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
                       </Button>
