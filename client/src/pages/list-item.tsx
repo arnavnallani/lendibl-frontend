@@ -1024,7 +1024,7 @@ export default function ListItem() {
                         onClick={() => {
                           setShowAIPricing(false);
                           setShowManualPricing(false);
-                          form.setValue("price", 1);
+                          form.setValue("price", 0);
                         }}
                       >
                         Back to Pricing Options
