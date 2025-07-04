@@ -39,6 +39,7 @@ export function AIPricingSuggestions({
   const [suggestions, setSuggestions] = useState<PricingSuggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [priceInput, setPriceInput] = useState<string>("");
   const { toast } = useToast();
 
   const fetchPricingSuggestions = async () => {
@@ -65,7 +66,8 @@ export function AIPricingSuggestions({
       setSuggestions(data);
       setShowSuggestions(true);
       
-      // Auto-fill the AI suggested price into the main form
+      // Auto-fill the AI suggested price into both local state and main form
+      setPriceInput(data.dailyRate.toString());
       onPriceSelect(data.dailyRate);
     } catch (error) {
       toast({
@@ -188,10 +190,13 @@ export function AIPricingSuggestions({
           <input
             type="number"
             step="0.01"
-            value={suggestions.dailyRate}
+            value={priceInput}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => {
-              const value = parseFloat(e.target.value);
+              const inputValue = e.target.value;
+              setPriceInput(inputValue);
+              
+              const value = parseFloat(inputValue);
               if (!isNaN(value) && value > 0) {
                 onPriceSelect(value);
               }
