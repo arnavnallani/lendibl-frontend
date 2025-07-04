@@ -246,7 +246,7 @@ export default function PrivacyPolicy() {
                 <div className="mt-4 ml-4">
                   <p>lendibl LLC</p>
                   <p>7800 Kennard Lane</p>
-                  <p>__________</p>
+                  <p>San Ramon, CA 94582</p>
                   <p>United States</p>
                 </div>
               </section>
