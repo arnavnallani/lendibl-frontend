@@ -473,23 +473,98 @@ export default function ListItem() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Street Address</FormLabel>
-                        <FormControl>
-                          <AddressAutofill
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Start typing your address..."
-                            onAddressSelect={(addressData) => {
-                              console.log('Setting form values:', addressData);
-                              form.setValue("address", addressData.streetAddress);
-                              form.setValue("city", addressData.city);
-                              form.setValue("state", addressData.state);
-                              form.setValue("zipCode", addressData.zipCode);
-                              
-                              // Trigger form validation/updates
-                              form.trigger(["city", "state", "zipCode"]);
+                        <div className="flex gap-2">
+                          <FormControl className="flex-1">
+                            <AddressAutofill
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Start typing your address..."
+                              onAddressSelect={(addressData) => {
+                                console.log('Setting form values:', addressData);
+                                form.setValue("address", addressData.streetAddress);
+                                form.setValue("city", addressData.city);
+                                form.setValue("state", addressData.state);
+                                form.setValue("zipCode", addressData.zipCode);
+                                
+                                // Trigger form validation/updates
+                                form.trigger(["city", "state", "zipCode"]);
+                              }}
+                            />
+                          </FormControl>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="px-3 py-2 whitespace-nowrap"
+                            onClick={async () => {
+                              if (!navigator.geolocation) {
+                                toast({
+                                  title: "Location not supported",
+                                  description: "Your browser doesn't support location services.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+
+                              try {
+                                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                                  navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                    enableHighAccuracy: true,
+                                    timeout: 10000,
+                                    maximumAge: 300000
+                                  });
+                                });
+
+                                const { latitude, longitude } = position.coords;
+                                
+                                // Use reverse geocoding to get address
+                                const response = await fetch(
+                                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+                                );
+                                
+                                if (!response.ok) {
+                                  throw new Error('Failed to get address');
+                                }
+                                
+                                const data = await response.json();
+                                
+                                if (data.address) {
+                                  const streetNumber = data.address.house_number || '';
+                                  const streetName = data.address.road || '';
+                                  const streetAddress = `${streetNumber} ${streetName}`.trim();
+                                  
+                                  const city = data.address.city || data.address.town || data.address.village || '';
+                                  const state = data.address.state || '';
+                                  const zipCode = data.address.postcode || '';
+                                  
+                                  form.setValue("address", streetAddress);
+                                  form.setValue("city", city);
+                                  form.setValue("state", state);
+                                  form.setValue("zipCode", zipCode);
+                                  
+                                  form.trigger(["address", "city", "state", "zipCode"]);
+                                  
+                                  toast({
+                                    title: "Location found",
+                                    description: "Your current address has been filled in.",
+                                  });
+                                } else {
+                                  throw new Error('Address not found');
+                                }
+                              } catch (error) {
+                                console.error('Geolocation error:', error);
+                                toast({
+                                  title: "Location unavailable",
+                                  description: "Could not determine your current location. Please enter your address manually.",
+                                  variant: "destructive",
+                                });
+                              }
                             }}
-                          />
-                        </FormControl>
+                          >
+                            <MapPin className="h-4 w-4 mr-1" />
+                            Use Current Location
+                          </Button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
