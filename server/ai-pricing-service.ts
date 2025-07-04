@@ -112,6 +112,10 @@ export class AIPricingService {
       const month = currentDate.toLocaleString('default', { month: 'long' });
       const season = this.getCurrentSeason();
       
+      const currentPriceInfo = input.currentPrice 
+        ? `- Current Market Price: $${input.currentPrice} (provided by owner)`
+        : `- Current Market Price: Not provided - use your expertise to estimate value`;
+
       const prompt = `Analyze rental pricing for this item with your expert market knowledge:
 
 Item Details:
@@ -120,10 +124,11 @@ Item Details:
 - Description: ${input.description}
 - Location: ${input.location}
 - Condition: ${input.condition}
+${currentPriceInfo}
 - Current Month: ${month}
 - Current Season: ${season}
 
-Use your analytical judgment to evaluate market dynamics, competitive landscape, and revenue optimization opportunities.`;
+Use your complete autonomous judgment to determine optimal pricing. There are no artificial constraints - recommend whatever daily rate maximizes owner revenue while maintaining market competitiveness. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
       
       console.log('=== AI PRICING: Using ChatGPT 3.5-turbo ===');
       const chatgptResult = await getChatGPTPricing(prompt);
@@ -149,37 +154,7 @@ Use your analytical judgment to evaluate market dynamics, competitive landscape,
       throw new Error('ChatGPT did not provide valid pricing');
     } catch (error) {
       console.error('AI Pricing Service Error:', error);
-      
-      // Advanced fallback pricing using intelligent analysis
-      let estimatedCurrentValue = this.estimateItemValue(input.itemTitle, input.description, input.category);
-      
-      // Apply location-based adjustments
-      const locationMultiplier = this.getLocationPriceMultiplier(input.location);
-      estimatedCurrentValue *= locationMultiplier;
-      
-      // Apply seasonal adjustments
-      const seasonalMultiplier = this.getSeasonalMultiplier(input.category);
-      estimatedCurrentValue *= seasonalMultiplier;
-      
-      // Calculate optimal daily rate (2-4% of estimated value)
-      const baseRate = estimatedCurrentValue * 0.03;
-      const dailyRate = Math.round(baseRate * 100) / 100;
-      
-      return {
-        dailyRate,
-        confidence: 0.8,
-        reasoning: [
-          `Estimated item value: $${Math.round(estimatedCurrentValue)}`,
-          `Location adjustment: ${Math.round((locationMultiplier - 1) * 100)}%`,
-          `Seasonal demand factor applied`,
-          "Smart market analysis without AI"
-        ],
-        marketInsights: {
-          demandLevel: this.getDemandLevel(input.category, input.location),
-          seasonalTrend: this.getSeasonalTrend(input.category),
-          competitivePosition: 'market-rate' as const
-        }
-      };
+      throw new Error('ChatGPT pricing service is currently unavailable. Please try again in a moment or set manual pricing.');
     }
   }
 
