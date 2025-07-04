@@ -4,47 +4,75 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Free Google Gemini AI (15 requests per minute, no API key required for basic usage)
-async function getFreeGeminiPricing(prompt: string): Promise<any> {
+// ChatGPT 3.5-turbo for intelligent pricing analysis
+async function getChatGPTPricing(prompt: string): Promise<any> {
   try {
-    // Using Gemini 1.5 Flash which is free and fast
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system", 
+          content: `You are an expert rental marketplace pricing analyst with deep knowledge of consumer behavior, market dynamics, and rental economics. 
 
-${prompt}
+Your expertise includes:
+- Analyzing market demand patterns across different item categories
+- Understanding seasonal trends and local market variations  
+- Evaluating competitive positioning and pricing strategies
+- Assessing item depreciation and condition impact on rental value
+- Identifying optimal price points for maximum revenue and booking rates
 
-Respond in this JSON format only:
+Use your analytical judgment to provide intelligent, market-driven pricing recommendations that balance profitability with competitive appeal.`
+        },
+        {
+          role: "user",
+          content: `${prompt}
+
+Perform a comprehensive market analysis and provide your expert pricing recommendation. Consider:
+
+1. Market Analysis: What's the current demand level for this type of item?
+2. Competitive Landscape: How should this be priced relative to alternatives?
+3. Seasonal Factors: Are there timing considerations affecting price?
+4. Revenue Optimization: What price maximizes both booking rate and total revenue?
+5. Risk Assessment: What pricing risks should be considered?
+
+Respond in this exact JSON format:
 {
-  "dailyRate": <number>,
-  "reasoning": "<brief explanation>"
-}`;
+  "dailyRate": <your recommended price as number>,
+  "confidence": <0.0 to 1.0 confidence in this recommendation>,
+  "reasoning": [
+    "<key market insight 1>",
+    "<key market insight 2>", 
+    "<key market insight 3>"
+  ],
+  "marketInsights": {
+    "demandLevel": "<low|medium|high>",
+    "seasonalTrend": "<increasing|stable|decreasing>",
+    "competitivePosition": "<below-market|market-rate|above-market>"
+  }
+}`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 800
+    });
 
-    const result = await model.generateContent(enhancedPrompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = response.choices[0].message.content;
     
-    // Try to parse JSON from response
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      // Extract JSON from response
+      const jsonMatch = text?.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return {
           suggestedPrice: parsed.dailyRate,
+          confidence: parsed.confidence,
           reasoning: parsed.reasoning,
+          marketInsights: parsed.marketInsights,
           success: !!(parsed.dailyRate && parsed.dailyRate > 0)
         };
       }
     } catch (parseError) {
-      // Fallback: extract price from text
-      const priceMatch = text.match(/\$?(\d+(?:\.\d{2})?)/);
-      const suggestedPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
-      return {
-        suggestedPrice,
-        reasoning: text,
-        success: !!suggestedPrice
-      };
+      console.error('Failed to parse ChatGPT pricing response:', parseError);
     }
     
     return { success: false };
@@ -76,37 +104,12 @@ export interface PricingAnalysisInput {
 export class AIPricingService {
   async analyzePricing(input: PricingAnalysisInput): Promise<PricingSuggestion> {
     try {
-      // First try free AI service
+      // Use ChatGPT 3.5-turbo for intelligent market analysis
       const currentDate = new Date();
       const month = currentDate.toLocaleString('default', { month: 'long' });
       const season = this.getCurrentSeason();
       
-      const simplePrompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. What daily rental rate would you suggest? Consider market value, location, and ${season} seasonal demand.`;
-      
-      const geminiResult = await getFreeGeminiPricing(simplePrompt);
-      
-      if (geminiResult.success && geminiResult.suggestedPrice) {
-        return {
-          dailyRate: Math.max(5, Math.round(geminiResult.suggestedPrice * 100) / 100),
-          confidence: 0.95,
-          reasoning: [
-            `Google Gemini AI: $${geminiResult.suggestedPrice}/day`,
-            geminiResult.reasoning || `Optimized for ${input.location} market`,
-            `${season} seasonal pricing considered`,
-            "Pure AI-powered pricing analysis"
-          ],
-          marketInsights: {
-            demandLevel: 'medium' as const,
-            seasonalTrend: 'stable' as const,
-            competitivePosition: 'market-rate' as const
-          }
-        };
-      }
-      
-      throw new Error('Google Gemini AI did not provide valid pricing');
-      
-      // Fallback to OpenAI if available
-      const prompt = `You are an expert rental pricing analyst with deep knowledge of market values and rental economics. Analyze this item and provide optimal rental pricing to maximize owner earnings.
+      const prompt = `Analyze rental pricing for this item with your expert market knowledge:
 
 Item Details:
 - Title: ${input.itemTitle}
@@ -117,61 +120,28 @@ Item Details:
 - Current Month: ${month}
 - Current Season: ${season}
 
-Analysis Process:
-1. First, estimate the current market value of this specific item based on the title, description, and condition
-2. Consider item depreciation from original retail price
-3. Analyze seasonal demand patterns for this category
-4. Evaluate local market conditions in ${input.location}
-5. Factor in typical rental utilization rates for similar items
-6. Consider competition and market positioning
-7. Account for risk factors and insurance considerations
-
-Your goal is to suggest pricing that maximizes owner earnings while remaining competitive. Consider that owners want to earn back their investment over time through rentals.
-
-Respond with JSON in this exact format:
-{
-  "dailyRate": number (recommended daily rental price),
-  "confidence": number (0.0-1.0, how confident you are in this pricing),
-  "reasoning": ["reason1", "reason2", "reason3"] (3-5 key factors that influenced pricing),
-  "marketInsights": {
-    "demandLevel": "low|medium|high",
-    "seasonalTrend": "increasing|stable|decreasing", 
-    "competitivePosition": "below-market|market-rate|above-market"
-  }
-}`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are a rental pricing expert with deep knowledge of market trends, seasonal patterns, and local economics. Provide data-driven pricing recommendations that maximize owner earnings while ensuring competitive market positioning."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3, // Lower temperature for more consistent pricing
-      });
-
-      const result = JSON.parse(response.choices[0].message.content || '{}');
+Use your analytical judgment to evaluate market dynamics, competitive landscape, and revenue optimization opportunities.`;
       
-      // Validate and sanitize the response
-      return {
-        dailyRate: Math.max(1, Math.round(result.dailyRate * 100) / 100),
-        confidence: Math.max(0, Math.min(1, result.confidence || 0.5)),
-        reasoning: Array.isArray(result.reasoning) ? result.reasoning.slice(0, 5) : [],
-        marketInsights: {
-          demandLevel: ['low', 'medium', 'high'].includes(result.marketInsights?.demandLevel) 
-            ? result.marketInsights.demandLevel : 'medium',
-          seasonalTrend: ['increasing', 'stable', 'decreasing'].includes(result.marketInsights?.seasonalTrend)
-            ? result.marketInsights.seasonalTrend : 'stable',
-          competitivePosition: ['below-market', 'market-rate', 'above-market'].includes(result.marketInsights?.competitivePosition)
-            ? result.marketInsights.competitivePosition : 'market-rate'
-        }
-      };
+      const chatgptResult = await getChatGPTPricing(prompt);
+      
+      if (chatgptResult.success && chatgptResult.suggestedPrice) {
+        return {
+          dailyRate: Math.max(1, Math.round(chatgptResult.suggestedPrice * 100) / 100),
+          confidence: chatgptResult.confidence || 0.85,
+          reasoning: chatgptResult.reasoning || [
+            `ChatGPT analysis suggests $${chatgptResult.suggestedPrice}/day`,
+            `Market analysis for ${input.location}`,
+            `${season} seasonal factors considered`
+          ],
+          marketInsights: chatgptResult.marketInsights || {
+            demandLevel: 'medium' as const,
+            seasonalTrend: 'stable' as const,
+            competitivePosition: 'market-rate' as const
+          }
+        };
+      }
+      
+      throw new Error('ChatGPT did not provide valid pricing');
     } catch (error) {
       console.error('AI Pricing Service Error:', error);
       
