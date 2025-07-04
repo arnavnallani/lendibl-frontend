@@ -864,9 +864,7 @@ export default function ListItem() {
                               <p className="text-sm text-gray-600 font-medium">Traditional</p>
                             </div>
                           </div>
-                          <p className="text-gray-600 mb-6">
-                            Set your own price based on your knowledge and research of the market
-                          </p>
+                          <p className="text-gray-600 mb-6">Set your price based on your own knowledge and research of the market</p>
                           <Button 
                             type="button"
                             onClick={() => setShowManualPricing(true)}
