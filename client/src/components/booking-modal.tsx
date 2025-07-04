@@ -82,15 +82,54 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
     },
   });
 
-  const handlePaymentSuccess = () => {
-    console.log('Payment confirmed, creating booking');
+  const confirmPaymentMutation = useMutation({
+    mutationFn: async ({ paymentIntentId, bookingData }: { paymentIntentId: string, bookingData: any }) => {
+      const response = await fetch('/api/confirm-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ paymentIntentId, bookingData })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to confirm payment');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Payment Confirmed!",
+        description: "Your payment has been processed and the owner will be notified.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      onClose();
+      setStartDate("");
+      setEndDate("");
+      setMessage("");
+      setShowPayment(false);
+      setClientSecret("");
+    },
+    onError: () => {
+      toast({
+        title: "Payment Error",
+        description: "Failed to confirm payment. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    console.log('Payment confirmed, creating paid booking with intent:', paymentIntentId);
     setShowPayment(false);
     setClientSecret("");
     
     const serviceFee = subtotal * 0.06; // 6% service fee
     const ownerPayout = subtotal; // Owner gets the base price
     
-    const booking = {
+    const bookingData = {
       itemId: item.id,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
@@ -98,10 +137,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       serviceFee: serviceFee.toFixed(2),
       ownerPayout: ownerPayout.toFixed(2),
       message: message || "",
-      paymentConfirmed: true,
     };
     
-    createBookingMutation.mutate(booking);
+    // Use confirm-payment endpoint for paid bookings
+    confirmPaymentMutation.mutate({ paymentIntentId, bookingData });
   };
 
   const handlePaymentCancel = () => {
