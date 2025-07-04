@@ -155,13 +155,13 @@ export function AIPricingSuggestions({
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Brain className="h-5 w-5 text-blue-600" />
-          <span>Google Gemini AI Pricing</span>
+          <span>ChatGPT AI Pricing</span>
           <Badge variant="secondary" className="bg-green-100 text-green-700">
             {Math.round(suggestions.confidence * 100)}% confidence
           </Badge>
         </CardTitle>
         <CardDescription>
-          Pure AI-powered pricing analysis using Google's Gemini AI for optimal rental rates
+          Intelligent market analysis using ChatGPT 3.5-turbo for optimal rental pricing
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
