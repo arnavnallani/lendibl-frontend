@@ -116,6 +116,10 @@ export class AIPricingService {
         ? `- Current Market Price: $${input.currentPrice} (provided by owner)`
         : `- Current Market Price: Not provided - use your expertise to estimate value`;
 
+      const formulaGuidance = input.currentPrice && input.currentPrice >= 1000
+        ? `For reference, items over $1000 often use the formula: 0.003 × current price + $25 = $${(0.003 * input.currentPrice + 25).toFixed(2)}/day as a baseline.`
+        : '';
+
       const prompt = `Analyze rental pricing for this item with your expert market knowledge:
 
 Item Details:
@@ -128,7 +132,12 @@ ${currentPriceInfo}
 - Current Month: ${month}
 - Current Season: ${season}
 
-Use your complete autonomous judgment to determine optimal pricing. There are no artificial constraints - recommend whatever daily rate maximizes owner revenue while maintaining market competitiveness. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
+IMPORTANT PRICING PRINCIPLES:
+1. Rental prices should ALWAYS be significantly lower than the current real price (never more than 10-15% of item value)
+2. ${formulaGuidance}
+3. Use your market expertise to adjust from baseline based on demand, seasonality, and competition
+
+Use your complete autonomous judgment to determine optimal pricing while respecting these principles. Consider the full spectrum of market factors and price accordingly based on your expertise.`;
       
       console.log('=== AI PRICING: Using ChatGPT 3.5-turbo ===');
       const chatgptResult = await getChatGPTPricing(prompt);
