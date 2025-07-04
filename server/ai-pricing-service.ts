@@ -7,6 +7,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // ChatGPT 3.5-turbo for intelligent pricing analysis
 async function getChatGPTPricing(prompt: string): Promise<any> {
   try {
+    console.log('=== Calling OpenAI ChatGPT 3.5-turbo API ===');
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -122,7 +123,9 @@ Item Details:
 
 Use your analytical judgment to evaluate market dynamics, competitive landscape, and revenue optimization opportunities.`;
       
+      console.log('=== AI PRICING: Using ChatGPT 3.5-turbo ===');
       const chatgptResult = await getChatGPTPricing(prompt);
+      console.log('=== ChatGPT response received ===', { success: chatgptResult.success, price: chatgptResult.suggestedPrice });
       
       if (chatgptResult.success && chatgptResult.suggestedPrice) {
         return {
