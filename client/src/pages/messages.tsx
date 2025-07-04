@@ -73,16 +73,9 @@ export default function Messages() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-sky-400/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-blue-500/10 to-cyan-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/5 to-sky-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
-
+    <div className="min-h-screen bg-white">
       {/* Navigation Header */}
-      <div className="relative bg-white/80 backdrop-blur-sm border-b border-sky-100">
+      <div className="bg-white border-b border-gray-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/">
@@ -93,22 +86,21 @@ export default function Messages() {
               />
             </Link>
             <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-sky-600" />
-              <span className="text-sm text-sky-500">/</span>
-              <span className="text-sm font-medium text-blue-900">Messages</span>
+              <Home className="h-4 w-4 text-gray-medium" />
+              <span className="text-sm text-gray-medium">/</span>
+              <span className="text-sm font-medium text-gray-dark">Messages</span>
             </div>
           </div>
         </div>
       </div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
           {/* Conversations List */}
           <div className="lg:col-span-1">
-            <Card className="h-full group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 to-blue-600/10 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <CardHeader className="relative bg-gradient-to-r from-sky-50 to-blue-50 border-b border-sky-100">
-                <CardTitle className="flex items-center gap-2 text-blue-900">
-                  <MessageSquare className="h-5 w-5 text-sky-600" />
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
                   Conversations
                 </CardTitle>
               </CardHeader>
