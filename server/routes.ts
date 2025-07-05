@@ -216,6 +216,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/auth/update-avatar", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { avatar } = req.body;
+      
+      if (!avatar || typeof avatar !== 'string') {
+        return res.status(400).json({ message: "Avatar data is required" });
+      }
+
+      // Basic validation for base64 image data
+      if (!avatar.startsWith('data:image/')) {
+        return res.status(400).json({ message: "Invalid image format" });
+      }
+
+      const updatedUser = await storage.updateUser(req.user!.id, {
+        avatar,
+      });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ user: updatedUser, message: "Avatar updated successfully" });
+    } catch (error) {
+      console.error("Error updating avatar:", error);
+      res.status(500).json({ message: "Failed to update avatar" });
+    }
+  });
+
   app.get("/api/auth/me", authenticateToken, async (req: AuthRequest, res) => {
     try {
       // Fetch fresh user data from database to get current rating

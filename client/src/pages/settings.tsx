@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2 } from 'lucide-react';
+import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2, Camera } from 'lucide-react';
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +31,7 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<any>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const form = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
@@ -91,6 +92,84 @@ export default function Settings() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    
+    try {
+      // Convert to base64 for simple upload
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Data = e.target?.result as string;
+        
+        try {
+          const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+          const response = await fetch('/api/auth/update-avatar', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ avatar: base64Data }),
+          });
+
+          if (response.ok) {
+            // Refresh user data
+            window.location.reload();
+            toast({
+              title: "Avatar updated",
+              description: "Your profile picture has been updated successfully.",
+            });
+          } else {
+            throw new Error('Failed to update avatar');
+          }
+        } catch (error) {
+          toast({
+            title: "Upload failed",
+            description: "Failed to update profile picture. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsUploadingAvatar(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "Failed to process image. Please try again.",
+        variant: "destructive",
+      });
+      setIsUploadingAvatar(false);
+    }
+    
+    // Clear the input
+    event.target.value = '';
   };
 
 
@@ -236,12 +315,30 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col items-center text-center">
-                  <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={user.avatar} />
-                    <AvatarFallback className="text-lg bg-primary-blue text-white">
-                      {user.firstName[0]}{user.lastName[0]}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative group">
+                    <Avatar className="h-24 w-24 mb-4 cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                      <AvatarImage src={user.avatar || undefined} />
+                      <AvatarFallback className="text-lg bg-primary-blue text-white">
+                        {user.firstName[0]}{user.lastName[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer mb-4" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                      {isUploadingAvatar ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                      ) : (
+                        <Camera className="h-6 w-6 text-white" />
+                      )}
+                    </div>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      disabled={isUploadingAvatar}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">Click to change profile picture</p>
                   <h3 className="font-semibold text-lg text-gray-dark">
                     {user.firstName} {user.lastName}
                   </h3>
