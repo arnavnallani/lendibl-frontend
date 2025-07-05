@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2, Camera } from 'lucide-react';
+import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2, Camera, Loader2 } from 'lucide-react';
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -250,6 +250,33 @@ export default function Settings() {
       });
     } finally {
       setIsCreatingAccount(false);
+    }
+  };
+
+  const handleContinueOnboarding = (onboardingUrl: string) => {
+    if (!onboardingUrl) return;
+    
+    // Open in new window with specific dimensions
+    const popup = window.open(
+      onboardingUrl, 
+      'stripe-connect', 
+      'width=800,height=700,scrollbars=yes,resizable=yes,status=yes'
+    );
+    
+    if (!popup) {
+      // Fallback if popup blocked
+      toast({
+        title: "Popup Blocked",
+        description: "Please allow popups and try again",
+        variant: "destructive"
+      });
+      window.location.href = onboardingUrl;
+    } else {
+      popup.focus();
+      toast({
+        title: "Continuing Setup",
+        description: "Complete your bank account verification in the new window",
+      });
     }
   };
 
@@ -557,6 +584,22 @@ export default function Settings() {
                                           Account ID: {paymentStatus.stripeAccountStatus.accountId}
                                         </div>
                                       </div>
+                                      
+                                      {!paymentStatus.stripeAccountStatus.payoutsEnabled && paymentStatus.onboardingUrl && (
+                                        <div className="mt-3">
+                                          <Button 
+                                            onClick={() => handleContinueOnboarding(paymentStatus.onboardingUrl)}
+                                            size="sm"
+                                            className="w-full bg-orange-600 hover:bg-orange-700"
+                                          >
+                                            <ExternalLink className="w-4 h-4 mr-2" />
+                                            Continue Setup
+                                          </Button>
+                                          <p className="text-xs text-gray-500 mt-2">
+                                            Complete your bank account verification to receive payments
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
