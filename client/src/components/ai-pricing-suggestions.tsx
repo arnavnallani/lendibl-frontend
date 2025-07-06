@@ -191,8 +191,8 @@ export function AIPricingSuggestions({
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-black">
-                We strongly suggest to list your item 5 dollars above or below the suggestion to have the highest likelihood of it getting rented.
+              <p className="text-sm text-black">
+                We strongly suggest to list your item <span className="font-semibold">5 dollars above or below</span> the suggestion to have the highest likelihood of it getting rented.
               </p>
             </div>
           </div>
