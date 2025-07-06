@@ -471,19 +471,20 @@ export default function ListItem() {
 
 
                   {/* Address Fields */}
-                <div className="space-y-4">
+                <div className="space-y-4 w-full">
                   <FormField
                     control={form.control}
                     name="address"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-full">
                         <FormLabel>Street Address</FormLabel>
-                        <div className="flex gap-2">
-                          <FormControl className="flex-1">
+                        <div className="flex gap-2 w-full">
+                          <FormControl className="flex-1 min-w-0">
                             <AddressAutofill
                               value={field.value}
                               onChange={field.onChange}
                               placeholder="Start typing your address..."
+                              className="w-full min-w-[500px]"
                               onAddressSelect={(addressData) => {
                                 console.log('Setting form values:', addressData);
                                 form.setValue("address", addressData.streetAddress);
@@ -581,12 +582,12 @@ export default function ListItem() {
                     )}
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="city"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-6">
+                        <FormItem>
                           <FormLabel>City</FormLabel>
                           <FormControl>
                             <Input 
@@ -603,7 +604,7 @@ export default function ListItem() {
                       control={form.control}
                       name="state"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-4">
+                        <FormItem>
                           <FormLabel>State</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
@@ -628,7 +629,7 @@ export default function ListItem() {
                       control={form.control}
                       name="zipCode"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem>
                           <FormLabel>Zip Code</FormLabel>
                           <FormControl>
                             <Input 
