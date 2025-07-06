@@ -826,8 +826,8 @@ export default function Settings() {
                               ) : (
                                 <div className="space-y-3">
                                   <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-5 h-5 text-green-500" />
-                                    <span className="text-sm font-medium text-green-700">Bank Account Connected</span>
+                                    <CheckCircle className="w-5 h-5 text-blue-500" />
+                                    <span className="text-sm font-medium text-blue-700">Bank Account Setup Started</span>
                                   </div>
                                   {paymentStatus.stripeAccountStatus && (
                                     <div className="bg-white rounded p-3 border">
