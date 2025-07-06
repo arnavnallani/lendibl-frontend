@@ -69,6 +69,11 @@ Respond in this JSON format only:
 
   const text = response.choices[0].message.content || "";
   
+  // Log the raw ChatGPT response
+  console.log('🤖 === RAW CHATGPT RESPONSE ===');
+  console.log(text);
+  console.log('🤖 === END RAW RESPONSE ===');
+  
   // Try to parse JSON from response
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -113,20 +118,42 @@ export class AIPricingService {
 
 IMPORTANT: The current real market price of this item is $${originalPrice}.
 
-PRICING RULES:
-1. Use the provided current price: $${originalPrice}
-2. If current price is under $1000: Maximum daily rate is $25, aim for $15-20/day to be very competitive and affordable
-3. If current price is over $1000: Use formula y = 0.003x + 25
+PRICING GUIDELINES:
+Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
 
-EXAMPLES BASED ON PROVIDED PRICE:
-- Current price $${originalPrice} ${originalPrice < 1000 ? `(under $1000) → suggest rate between $15-25/day, preferably $15-20/day` : `(over $1000) → suggest around $${Math.round((0.003 * originalPrice + 25) * 100) / 100}/day base`}
+For items under $1000:
+$50 items - $3 above or below $5
+$100 items - $3 above or below $8
+$200 items - $3 above or below $10
+$300 items - $3 above or below $12
+$400 items - $3 above or below $14
+$500 items - $3 above or below $16
+$600 items - $3 above or below $19
+$700 items - $3 above or below $22
+$800 items - $3 above or below $24
+$900 items - $3 above or below $26
 
-IMPORTANT: Always err on the side of LOWER prices to make items more accessible and competitive.
+Current item price: $${originalPrice}
+${originalPrice >= 1000 ? `Formula: 0.003(${originalPrice}) + 25 = $${Math.round((0.003 * originalPrice + 25) * 100) / 100} (±$3)` : ''}
 
-Consider ${season} seasonal demand for ${month} and ${input.location} market conditions, but respect the pricing rules above.`;
+Consider ${season} seasonal demand for ${month} and ${input.location} market conditions.`;
+    
+    // Log the exact prompt being sent to AI
+    console.log('🤖 === AI PRICING PROMPT ===');
+    console.log(prompt);
+    console.log('🤖 === END PROMPT ===');
     
     try {
       const chatGPTResult = await getChatGPTPricing(prompt);
+      
+      // Log the AI's full response
+      console.log('🤖 === AI RESPONSE ===');
+      console.log('Suggested Price:', chatGPTResult.suggestedPrice);
+      console.log('AI Reasoning:', chatGPTResult.reasoning);
+      console.log('Demand Level:', chatGPTResult.demandLevel);
+      console.log('Seasonal Trend:', chatGPTResult.seasonalTrend);
+      console.log('Competitive Position:', chatGPTResult.competitivePosition);
+      console.log('🤖 === END RESPONSE ===');
       
       if (chatGPTResult.success && chatGPTResult.suggestedPrice) {
         // Apply lower pricing constraints
