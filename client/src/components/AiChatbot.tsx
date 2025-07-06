@@ -175,7 +175,7 @@ export default function AiChatbot() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about Lendibl..."
+              placeholder="Ask me anything about lendibl..."
               className="flex-1"
               disabled={isLoading}
             />
