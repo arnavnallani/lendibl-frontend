@@ -193,7 +193,7 @@ export function AIPricingSuggestions({
             <div>
               <p className="text-sm font-medium text-yellow-800 mb-1">Rental Optimization Tip</p>
               <p className="text-sm text-yellow-700">
-                We strongly suggest to list your item $5 above or below the suggestion to have the highest likelihood of your item getting rented.
+                We strongly suggest to list your item 5 dollars above or below the suggestion to have the highest likelihood of it getting rented.
               </p>
             </div>
           </div>
