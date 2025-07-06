@@ -49,6 +49,11 @@ export const users = pgTable("users", {
   lastPaymentReminder: timestamp("last_payment_reminder"),
   paypalEmail: text("paypal_email"),
   paypalAccountId: text("paypal_account_id"),
+  debitCardLast4: text("debit_card_last4"),
+  debitCardBrand: text("debit_card_brand"),
+  debitCardExpMonth: integer("debit_card_exp_month"),
+  debitCardExpYear: integer("debit_card_exp_year"),
+  debitCardPaymentMethodId: text("debit_card_payment_method_id"),
 });
 
 export const categories = pgTable("categories", {

@@ -10,6 +10,116 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export class StripeService {
+
+  // Add debit card for payouts
+  async addDebitCard(userId: number, cardData: { number: string; exp_month: number; exp_year: number; cvc: string }): Promise<{ success: boolean; error?: string }> {
+    try {
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return { success: false, error: "User not found" };
+      }
+
+      // Create or get customer
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+        });
+        customerId = customer.id;
+        await storage.updateUser(userId, { stripeCustomerId: customerId });
+      }
+
+      // Create payment method from card data
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: cardData,
+      });
+
+      // Attach to customer
+      await stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: customerId,
+      });
+
+      // Verify it's a debit card
+      if (paymentMethod.card?.funding !== 'debit') {
+        // Clean up the payment method
+        await stripe.paymentMethods.detach(paymentMethod.id);
+        return { success: false, error: "Only debit cards are supported for payouts. Please use a debit card instead of a credit card." };
+      }
+
+      // Store debit card info
+      await storage.updateUser(userId, {
+        debitCardLast4: paymentMethod.card.last4,
+        debitCardBrand: paymentMethod.card.brand,
+        debitCardExpMonth: paymentMethod.card.exp_month,
+        debitCardExpYear: paymentMethod.card.exp_year,
+        debitCardPaymentMethodId: paymentMethod.id,
+        paymentSetupComplete: true,
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error adding debit card:', error);
+      return { success: false, error: error.message || 'Failed to add debit card' };
+    }
+  }
+
+  // Send payout to debit card
+  async sendDebitCardPayout(userId: number, amount: number, description: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const user = await storage.getUser(userId);
+      if (!user || !user.debitCardPaymentMethodId) {
+        return { success: false, error: "No debit card on file" };
+      }
+
+      // Create instant payout to debit card using payment method
+      const payout = await stripe.payouts.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: 'usd',
+        method: 'instant',
+        destination: user.debitCardPaymentMethodId,
+        description: description,
+        metadata: {
+          userId: userId.toString(),
+          type: 'rental_payout'
+        }
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error sending debit card payout:', error);
+      return { success: false, error: error.message || 'Failed to send payout' };
+    }
+  }
+
+  // Remove debit card
+  async removeDebitCard(userId: number): Promise<{ success: boolean; error?: string }> {
+    try {
+      const user = await storage.getUser(userId);
+      if (!user || !user.debitCardPaymentMethodId) {
+        return { success: false, error: "No debit card found" };
+      }
+
+      // Detach payment method
+      await stripe.paymentMethods.detach(user.debitCardPaymentMethodId);
+
+      // Clear debit card info
+      await storage.updateUser(userId, {
+        debitCardLast4: null,
+        debitCardBrand: null,
+        debitCardExpMonth: null,
+        debitCardExpYear: null,
+        debitCardPaymentMethodId: null,
+        paymentSetupComplete: user.stripeAccountId ? true : false, // Keep true if they have bank account
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error removing debit card:', error);
+      return { success: false, error: error.message || 'Failed to remove debit card' };
+    }
+  }
   
   // Validate payment method without storing
   async validatePaymentMethod(cardNumber: string, expiryDate: string, cvv: string) {

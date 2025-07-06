@@ -32,6 +32,15 @@ export default function Settings() {
   const [paymentStatus, setPaymentStatus] = useState<any>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [showDebitCardForm, setShowDebitCardForm] = useState(false);
+  const [isAddingCard, setIsAddingCard] = useState(false);
+  const [isRemovingCard, setIsRemovingCard] = useState(false);
+  const [debitCardForm, setDebitCardForm] = useState({
+    cardNumber: '',
+    expiryMonth: '',
+    expiryYear: '',
+    cvv: ''
+  });
 
   const form = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
@@ -277,6 +286,97 @@ export default function Settings() {
         title: "Continuing Setup",
         description: "Complete your bank account verification in the new window",
       });
+    }
+  };
+
+  const handleAddDebitCard = async () => {
+    setIsAddingCard(true);
+    
+    try {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      const response = await fetch('/api/add-debit-card', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cardNumber: debitCardForm.cardNumber,
+          expiryMonth: debitCardForm.expiryMonth,
+          expiryYear: debitCardForm.expiryYear,
+          cvv: debitCardForm.cvv,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Debit Card Added",
+          description: "Your debit card has been added successfully for instant payouts.",
+        });
+        
+        // Reset form and refresh status
+        setDebitCardForm({ cardNumber: '', expiryMonth: '', expiryYear: '', cvv: '' });
+        setShowDebitCardForm(false);
+        fetchPaymentStatus();
+      } else {
+        toast({
+          title: "Failed to Add Card",
+          description: data.message || "Unable to add debit card. Please check your details and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Add debit card error:', error);
+      toast({
+        title: "Network Error",
+        description: "Connection failed. Please check your network and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingCard(false);
+    }
+  };
+
+  const handleRemoveDebitCard = async () => {
+    setIsRemovingCard(true);
+    
+    try {
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+      const response = await fetch('/api/remove-debit-card', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: "Debit Card Removed",
+          description: "Your debit card has been removed successfully.",
+        });
+        
+        fetchPaymentStatus();
+      } else {
+        toast({
+          title: "Failed to Remove Card",
+          description: data.message || "Unable to remove debit card. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Remove debit card error:', error);
+      toast({
+        title: "Network Error",
+        description: "Connection failed. Please check your network and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRemovingCard(false);
     }
   };
 
@@ -541,6 +641,7 @@ export default function Settings() {
                           </div>
                         ) : (
                           <div className="space-y-4">
+                            {/* Bank Account Option */}
                             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                               <h4 className="font-medium text-blue-900 mb-2">Bank Account Connection</h4>
                               <p className="text-sm text-blue-700 mb-4">
@@ -600,6 +701,163 @@ export default function Settings() {
                                           </p>
                                         </div>
                                       )}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* OR Divider */}
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300" />
+                              </div>
+                              <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-gray-50 text-gray-500">OR</span>
+                              </div>
+                            </div>
+
+                            {/* Debit Card Option */}
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                              <h4 className="font-medium text-green-900 mb-2">Debit Card (Instant Payouts)</h4>
+                              <p className="text-sm text-green-700 mb-4">
+                                Add your debit card for instant payouts within minutes of rental completion.
+                              </p>
+                              
+                              {paymentStatus.hasDebitCard ? (
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                    <span className="text-sm font-medium text-green-700">Debit Card Connected</span>
+                                  </div>
+                                  <div className="bg-white rounded p-3 border">
+                                    <div className="text-sm">
+                                      <div className="mb-1">
+                                        <span className="font-medium">Card: </span>
+                                        <span className="text-gray-600">
+                                          {paymentStatus.debitCard?.brand?.toUpperCase()} •••• {paymentStatus.debitCard?.last4}
+                                        </span>
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        Expires: {String(paymentStatus.debitCard?.expMonth).padStart(2, '0')}/{paymentStatus.debitCard?.expYear}
+                                      </div>
+                                    </div>
+                                    <Button 
+                                      onClick={handleRemoveDebitCard}
+                                      variant="outline"
+                                      size="sm"
+                                      className="mt-3 text-red-600 border-red-200 hover:bg-red-50"
+                                      disabled={isRemovingCard}
+                                    >
+                                      {isRemovingCard ? 'Removing...' : 'Remove Card'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="space-y-3">
+                                  {!showDebitCardForm ? (
+                                    <Button 
+                                      onClick={() => setShowDebitCardForm(true)}
+                                      className="w-full bg-green-600 hover:bg-green-700"
+                                    >
+                                      <CreditCard className="w-4 h-4 mr-2" />
+                                      Add Debit Card
+                                    </Button>
+                                  ) : (
+                                    <div className="space-y-3">
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Card Number
+                                          </label>
+                                          <Input
+                                            value={debitCardForm.cardNumber}
+                                            onChange={(e) => {
+                                              const value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+                                              if (value.length <= 19) {
+                                                setDebitCardForm(prev => ({ ...prev, cardNumber: value }));
+                                              }
+                                            }}
+                                            placeholder="1234 5678 9012 3456"
+                                            maxLength={19}
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Expiry Date
+                                          </label>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <Input
+                                              value={debitCardForm.expiryMonth}
+                                              onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 2 && parseInt(value) <= 12) {
+                                                  setDebitCardForm(prev => ({ ...prev, expiryMonth: value }));
+                                                }
+                                              }}
+                                              placeholder="MM"
+                                              maxLength={2}
+                                            />
+                                            <Input
+                                              value={debitCardForm.expiryYear}
+                                              onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                if (value.length <= 2) {
+                                                  setDebitCardForm(prev => ({ ...prev, expiryYear: value }));
+                                                }
+                                              }}
+                                              placeholder="YY"
+                                              maxLength={2}
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="w-1/2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                          CVV
+                                        </label>
+                                        <Input
+                                          value={debitCardForm.cvv}
+                                          onChange={(e) => {
+                                            const value = e.target.value.replace(/\D/g, '');
+                                            if (value.length <= 3) {
+                                              setDebitCardForm(prev => ({ ...prev, cvv: value }));
+                                            }
+                                          }}
+                                          placeholder="123"
+                                          maxLength={3}
+                                          type="password"
+                                        />
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button 
+                                          onClick={handleAddDebitCard}
+                                          disabled={isAddingCard || !debitCardForm.cardNumber || !debitCardForm.expiryMonth || !debitCardForm.expiryYear || !debitCardForm.cvv}
+                                          className="flex-1 bg-green-600 hover:bg-green-700"
+                                        >
+                                          {isAddingCard ? (
+                                            <>
+                                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                              Adding...
+                                            </>
+                                          ) : (
+                                            'Add Card'
+                                          )}
+                                        </Button>
+                                        <Button 
+                                          onClick={() => {
+                                            setShowDebitCardForm(false);
+                                            setDebitCardForm({ cardNumber: '', expiryMonth: '', expiryYear: '', cvv: '' });
+                                          }}
+                                          variant="outline"
+                                          className="flex-1"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </div>
+                                      <p className="text-xs text-gray-500">
+                                        Only debit cards are supported. Your card information is securely processed by Stripe.
+                                      </p>
                                     </div>
                                   )}
                                 </div>

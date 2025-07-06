@@ -82,11 +82,12 @@ export class PaymentScheduler {
 
       // Process payout using Stripe Connect
       try {
-        // Check payment method preference: PayPal or Stripe Connect
+        // Check payment method preference: Debit Card (fastest), Stripe Connect, or PayPal
+        const hasDebitCard = owner.debitCardPaymentMethodId;
         const hasPayPal = owner.paypalEmail && paypalService.isConfigured();
         const hasStripeConnect = owner.stripeAccountId;
 
-        if (!hasPayPal && !hasStripeConnect) {
+        if (!hasDebitCard && !hasPayPal && !hasStripeConnect) {
           console.log(`⚠️  Owner ${owner.id} has no payment method setup - cannot process payout`);
           
           // Mark booking as blocked to prevent repeated processing attempts
@@ -106,8 +107,45 @@ export class PaymentScheduler {
           return false;
         }
 
-        // Process Stripe Connect payout to owner's bank account (preferred method)
-        if (hasStripeConnect) {
+        // Process Debit Card payout first (instant, preferred method)
+        if (hasDebitCard) {
+          console.log(`PROCESSING INSTANT DEBIT CARD PAYOUT:`);
+          console.log(`- From: Lendibl's Stripe account balance`);
+          console.log(`- To: ${owner.email} (Debit Card ending in ${owner.debitCardLast4})`);
+          console.log(`- Amount: $${ownerPayout} (exact list price)`);
+          console.log(`- Commission kept: $${platformCommission}`);
+          
+          const result = await stripeService.sendDebitCardPayout(
+            owner.id,
+            ownerPayout,
+            `Rental payout for ${booking.item.title}`
+          );
+          
+          if (result.success) {
+            console.log(`✓ INSTANT DEBIT CARD PAYOUT COMPLETED for booking ${bookingId}:`);
+            console.log(`  • Amount sent to owner: $${ownerPayout}`);
+            console.log(`  • Debit Card: ${owner.debitCardBrand} •••• ${owner.debitCardLast4}`);
+            console.log(`  • Owner: ${owner.email}`);
+            console.log(`  • Lendibl commission: $${platformCommission}`);
+            
+            await storage.updateBooking(bookingId, {
+              payoutCompleted: new Date(),
+              payoutNote: `Instant debit card payout: $${ownerPayout}`,
+              updatedAt: new Date()
+            });
+          } else {
+            console.error(`Failed debit card payout for booking ${bookingId}:`, result.error);
+            // Fall back to other payment methods if debit card fails
+            if (hasStripeConnect) {
+              console.log('Falling back to Stripe Connect...');
+            } else if (hasPayPal) {
+              console.log('Falling back to PayPal...');
+            } else {
+              throw new Error(`Debit card payout failed: ${result.error}`);
+            }
+          }
+
+        } else if (hasStripeConnect) {
           // Process via Stripe Connect
           console.log(`PROCESSING REAL MONEY TRANSFER via Stripe Connect:`);
           console.log(`- From: Lendibl's Stripe account balance`);

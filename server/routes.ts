@@ -1158,8 +1158,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Check debit card status
+      const hasDebitCard = user?.debitCardPaymentMethodId ? true : false;
+      const hasAnyPaymentMethod = hasValidSetup || hasDebitCard;
+
       res.json({
-        hasPaymentMethod: hasValidSetup,
+        hasPaymentMethod: hasAnyPaymentMethod,
         hasItems: userItems.length > 0,
         paymentSetupComplete: user?.paymentSetupComplete || false,
         pendingEarnings: user?.pendingEarnings || "0",
@@ -1167,7 +1171,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stripeAccountStatus: stripeStatus,
         onboardingUrl: user?.stripeAccountId && stripeStatus && !stripeStatus.payoutsEnabled ? 
           await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null,
-        needsPaymentMethod: userItems.length > 0 && !hasValidSetup
+        needsPaymentMethod: userItems.length > 0 && !hasAnyPaymentMethod,
+        debitCard: hasDebitCard ? {
+          last4: user?.debitCardLast4,
+          brand: user?.debitCardBrand,
+          expMonth: user?.debitCardExpMonth,
+          expYear: user?.debitCardExpYear,
+        } : null,
+        hasBankAccount: hasValidSetup,
+        hasDebitCard: hasDebitCard,
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to check payment setup status" });
@@ -1435,6 +1447,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to create Connect account", 
         error: error.message 
       });
+    }
+  });
+
+  // Debit card management for payouts
+  app.post("/api/add-debit-card", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { cardNumber, expiryMonth, expiryYear, cvv } = req.body;
+      const userId = req.user!.id;
+
+      if (!cardNumber || !expiryMonth || !expiryYear || !cvv) {
+        return res.status(400).json({ message: "All card details are required" });
+      }
+
+      // Create a payment method directly (simplified approach)
+      const result = await stripeService.addDebitCard(userId, {
+        number: cardNumber.replace(/\s/g, ''),
+        exp_month: parseInt(expiryMonth),
+        exp_year: parseInt(expiryYear),
+        cvc: cvv,
+      });
+
+      if (result.success) {
+        res.json({ success: true, message: "Debit card added successfully" });
+      } else {
+        res.status(400).json({ success: false, message: result.error });
+      }
+    } catch (error: any) {
+      console.error('Add debit card error:', error);
+      res.status(500).json({ success: false, message: "Failed to add debit card" });
+    }
+  });
+
+  app.delete("/api/remove-debit-card", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const result = await stripeService.removeDebitCard(userId);
+
+      if (result.success) {
+        res.json({ success: true, message: "Debit card removed successfully" });
+      } else {
+        res.status(400).json({ success: false, message: result.error });
+      }
+    } catch (error: any) {
+      console.error('Remove debit card error:', error);
+      res.status(500).json({ success: false, message: "Failed to remove debit card" });
     }
   });
 
