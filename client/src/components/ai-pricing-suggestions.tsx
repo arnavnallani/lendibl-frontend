@@ -183,7 +183,7 @@ export function AIPricingSuggestions({
         </div>
 
         {/* Pricing Tip */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <div className="text-blue-600 mt-1">
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -191,7 +191,7 @@ export function AIPricingSuggestions({
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-blue-700">
+              <p className="text-sm font-semibold text-black">
                 We strongly suggest to list your item 5 dollars above or below the suggestion to have the highest likelihood of it getting rented.
               </p>
             </div>
