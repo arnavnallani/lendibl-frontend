@@ -23,10 +23,8 @@ export interface PricingAnalysisInput {
 // OpenAI ChatGPT 3.5 pricing analysis
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function getChatGPTPricing(prompt: string): Promise<any> {
-  const enhancedPrompt = `${prompt}
-
-Use these pricing guidelines:
+async function getChatGPTPricing(currentPrice: number): Promise<any> {
+  const enhancedPrompt = `Use these pricing guidelines ONLY:
 
 Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
 
@@ -41,6 +39,8 @@ $600 items - $3 above or below $19
 $700 items - $3 above or below $22
 $800 items - $3 above or below $24
 $900 items - $3 above or below $26
+
+Current item price: $${currentPrice}
 
 Respond in this JSON format only:
 {
@@ -114,37 +114,16 @@ export class AIPricingService {
     // Use provided current price or estimate if not provided
     const originalPrice = input.currentPrice || this.estimateItemValue(input.itemTitle, input.description, input.category);
     
-    const prompt = `Analyze rental pricing for: ${input.itemTitle} in ${input.category} category, located in ${input.location}. Description: ${input.description}. Condition: ${input.condition}.
-
-IMPORTANT: The current real market price of this item is $${originalPrice}.
-
-PRICING GUIDELINES:
-Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
-
-For items under $1000:
-$50 items - $3 above or below $5
-$100 items - $3 above or below $8
-$200 items - $3 above or below $10
-$300 items - $3 above or below $12
-$400 items - $3 above or below $14
-$500 items - $3 above or below $16
-$600 items - $3 above or below $19
-$700 items - $3 above or below $22
-$800 items - $3 above or below $24
-$900 items - $3 above or below $26
-
-Current item price: $${originalPrice}
-${originalPrice >= 1000 ? `Formula: 0.003(${originalPrice}) + 25 = $${Math.round((0.003 * originalPrice + 25) * 100) / 100} (±$3)` : ''}
-
-Consider ${season} seasonal demand for ${month} and ${input.location} market conditions.`;
-    
-    // Log the exact prompt being sent to AI
-    console.log('🤖 === AI PRICING PROMPT ===');
-    console.log(prompt);
-    console.log('🤖 === END PROMPT ===');
+    // Log what price we're analyzing
+    console.log('🤖 === AI PRICING ANALYSIS ===');
+    console.log('Item Price:', originalPrice);
+    console.log('Expected Range:', originalPrice >= 1000 ? 
+      `Formula: 0.003(${originalPrice}) + 25 = $${Math.round((0.003 * originalPrice + 25) * 100) / 100} (±$3)` :
+      `Tiered pricing for $${originalPrice} item`);
+    console.log('🤖 === END ANALYSIS ===');
     
     try {
-      const chatGPTResult = await getChatGPTPricing(prompt);
+      const chatGPTResult = await getChatGPTPricing(originalPrice);
       
       // Log the AI's full response
       console.log('🤖 === AI RESPONSE ===');
