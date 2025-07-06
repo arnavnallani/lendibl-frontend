@@ -581,12 +581,12 @@ export default function ListItem() {
                     )}
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <FormField
                       control={form.control}
                       name="city"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="md:col-span-2">
                           <FormLabel>City</FormLabel>
                           <FormControl>
                             <Input 
@@ -603,7 +603,7 @@ export default function ListItem() {
                       control={form.control}
                       name="state"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="md:col-span-2">
                           <FormLabel>State</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
@@ -628,7 +628,7 @@ export default function ListItem() {
                       control={form.control}
                       name="zipCode"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="md:col-span-1">
                           <FormLabel>Zip Code</FormLabel>
                           <FormControl>
                             <Input 
