@@ -907,7 +907,6 @@ export default function ListItem() {
                             </div>
                             <div>
                               <h4 className="font-bold text-lg text-blue-900">AI Smart Pricing</h4>
-                              <p className="text-sm text-sky-600 font-medium">Recommended</p>
                             </div>
                           </div>
                           <p className="text-gray-600 mb-6">Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends (but you can make your own decision ultimately).</p>
