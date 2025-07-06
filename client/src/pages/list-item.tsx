@@ -896,7 +896,7 @@ export default function ListItem() {
                       </div>
                     </div>
                     
-                    <div className="max-w-md mx-auto">
+                    <div className="w-full">
                       {/* AI Pricing Card */}
                       <div className="group relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
