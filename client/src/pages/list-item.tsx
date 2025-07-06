@@ -478,13 +478,13 @@ export default function ListItem() {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel>Street Address</FormLabel>
-                        <div className="flex gap-2 w-full">
-                          <FormControl className="flex-1 min-w-0">
+                        <div className="flex flex-col md:flex-row gap-2 w-full">
+                          <FormControl className="flex-1 min-w-0 order-1">
                             <AddressAutofill
                               value={field.value}
                               onChange={field.onChange}
                               placeholder="Start typing your address..."
-                              className="w-full min-w-[500px]"
+                              className="w-full min-w-[350px]"
                               onAddressSelect={(addressData) => {
                                 console.log('Setting form values:', addressData);
                                 form.setValue("address", addressData.streetAddress);
@@ -501,7 +501,7 @@ export default function ListItem() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            className="px-3 py-2 whitespace-nowrap"
+                            className="px-3 py-2 whitespace-nowrap order-2 w-full md:w-auto"
                             onClick={async () => {
                               if (!navigator.geolocation) {
                                 toast({
