@@ -56,7 +56,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up text-shadow">
           Rent Anything<br />
-          <span className="font-black tracking-wider bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent animate-pulse" style={{textShadow: '0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(34, 197, 94, 0.4)'}}>Anytime</span>
+          <span className="font-black tracking-wider bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent animate-pulse" style={{textShadow: '0 0 20px rgba(37, 99, 235, 0.8), 0 0 40px rgba(29, 78, 216, 0.5)'}}>Anytime</span>
         </h2>
         <p className="text-2xl md:text-3xl mb-12 opacity-95 animate-fade-in max-w-4xl mx-auto font-light leading-relaxed" style={{animationDelay: '0.3s'}}>
           It's that simple.
