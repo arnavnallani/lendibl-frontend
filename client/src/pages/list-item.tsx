@@ -374,7 +374,7 @@ export default function ListItem() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-sky-100 to-cyan-200 rounded-full mb-6">
@@ -581,12 +581,12 @@ export default function ListItem() {
                     )}
                   />
                   
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <FormField
                       control={form.control}
                       name="city"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem className="md:col-span-6">
                           <FormLabel>City</FormLabel>
                           <FormControl>
                             <Input 
@@ -603,7 +603,7 @@ export default function ListItem() {
                       control={form.control}
                       name="state"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-2">
+                        <FormItem className="md:col-span-4">
                           <FormLabel>State</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
@@ -628,7 +628,7 @@ export default function ListItem() {
                       control={form.control}
                       name="zipCode"
                       render={({ field }) => (
-                        <FormItem className="md:col-span-1">
+                        <FormItem className="md:col-span-2">
                           <FormLabel>Zip Code</FormLabel>
                           <FormControl>
                             <Input 
