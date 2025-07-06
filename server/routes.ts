@@ -1453,20 +1453,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Debit card management for payouts
   app.post("/api/add-debit-card", authenticateToken, async (req: AuthRequest, res) => {
     try {
-      const { cardNumber, expiryMonth, expiryYear, cvv } = req.body;
+      const { paymentMethodId } = req.body;
       const userId = req.user!.id;
 
-      if (!cardNumber || !expiryMonth || !expiryYear || !cvv) {
-        return res.status(400).json({ message: "All card details are required" });
+      if (!paymentMethodId) {
+        return res.status(400).json({ message: "Payment method ID is required" });
       }
 
-      // Create a payment method directly (simplified approach)
-      const result = await stripeService.addDebitCard(userId, {
-        number: cardNumber.replace(/\s/g, ''),
-        exp_month: parseInt(expiryMonth),
-        exp_year: parseInt(expiryYear),
-        cvc: cvv,
-      });
+      const result = await stripeService.addDebitCardFromPaymentMethod(userId, paymentMethodId);
 
       if (result.success) {
         res.json({ success: true, message: "Debit card added successfully" });

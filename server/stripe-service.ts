@@ -68,6 +68,54 @@ export class StripeService {
     }
   }
 
+  // Add debit card from payment method (created securely with Stripe Elements)
+  async addDebitCardFromPaymentMethod(userId: number, paymentMethodId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return { success: false, error: "User not found" };
+      }
+
+      // Retrieve the payment method from Stripe
+      const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+
+      // Verify it's a debit card
+      if (paymentMethod.card?.funding !== 'debit') {
+        return { success: false, error: "Only debit cards are supported for payouts. Please use a debit card instead of a credit card." };
+      }
+
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email || undefined,
+          name: user.username || undefined,
+        });
+        customerId = customer.id;
+        await storage.updateUser(userId, { stripeCustomerId: customerId });
+      }
+
+      // Attach payment method to customer
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customerId,
+      });
+
+      // Store debit card info
+      await storage.updateUser(userId, {
+        debitCardLast4: paymentMethod.card.last4,
+        debitCardBrand: paymentMethod.card.brand,
+        debitCardExpMonth: paymentMethod.card.exp_month,
+        debitCardExpYear: paymentMethod.card.exp_year,
+        debitCardPaymentMethodId: paymentMethodId,
+        paymentSetupComplete: true,
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error adding debit card from payment method:', error);
+      return { success: false, error: error.message || 'Failed to add debit card' };
+    }
+  }
+
   // Send payout to debit card
   async sendDebitCardPayout(userId: number, amount: number, description: string): Promise<{ success: boolean; error?: string }> {
     try {
