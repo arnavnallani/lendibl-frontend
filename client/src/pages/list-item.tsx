@@ -910,7 +910,7 @@ export default function ListItem() {
                               <p className="text-sm text-sky-600 font-medium">Recommended</p>
                             </div>
                           </div>
-                          <p className="text-gray-600 mb-6">Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends (you can still make your own decision, just with AI research at your disposal).</p>
+                          <p className="text-gray-600 mb-6">Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends (but you can make your own decision ultimately).</p>
                           <ul className="space-y-2 mb-6 text-sm text-blue-600">
                             <li className="flex items-center gap-2">
                               <div className="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
