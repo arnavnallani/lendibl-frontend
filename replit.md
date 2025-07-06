@@ -313,6 +313,8 @@ The application uses PostgreSQL with the following main entities:
 - July 4, 2025: Fixed infinite re-render loop in messaging board by implementing proper memoization with useMemo for grouped conversations and change detection in useEffect to prevent unnecessary state updates
 - July 4, 2025: Updated privacy policy with comprehensive legal content - changed entity to "lendibl LLC", updated contact email to arnav.nallani@gmail.com, added complete 12-section privacy policy including GDPR compliance, California privacy rights, legal bases for processing, and enhanced data handling policies
 - July 6, 2025: Implemented specific AI pricing formula constraints - items $1000-$5000 use formula 0.003(real price) + 25 ±$3, items under $1000 follow tiered pricing guide ($50 items = $5±$3, $100 items = $8±$3, etc.) for consistent and predictable pricing suggestions
+- July 6, 2025: Fixed AI pricing system to use correct service file (ai-pricing-service-clean.ts) - removed all conflicting prompts to ensure only user's formula is used as the exclusive prompt for ChatGPT 3.5-turbo
+- July 6, 2025: Enhanced AI pricing with autonomous judgment capability - ChatGPT can now use market analysis to adjust pricing within ±$3 of formula output, maintaining formula constraints while allowing intelligent market-based adjustments
 
 ## User Preferences
 
