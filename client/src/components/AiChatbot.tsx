@@ -18,7 +18,7 @@ export default function AiChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Lendibot, your helpful AI assistant. I can help you with questions about renting items, listing your belongings, payments, or anything else about our platform. How can I help you today?",
+      text: "Hi! I'm the lendibot, your AI assistant. I can help you with questions about renting items, listing your belongings, payments, or anything else about our platform. How can I help you today?",
       isUser: false,
       timestamp: new Date()
     }
