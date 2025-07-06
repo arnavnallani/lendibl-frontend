@@ -117,42 +117,27 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <div className="animate-slide-up">
-            <h2 className="text-5xl font-bold text-gray-dark mb-8 text-gradient">List Your Items</h2>
-            <p className="text-xl text-gray-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-              Transform your unused items into a source of income. Join thousands of users earning by sharing what they own.
-            </p>
-            <Link href="/list-item">
-              <Button className="btn-primary text-white font-bold px-12 py-5 rounded-2xl text-lg hover-lift shadow-2xl">
-                Start Earning Today
-              </Button>
-            </Link>
-          </div>
+        <div className="space-y-8">
+          <HeroSection onCategorySelect={handleCategorySelect} />
           
-          {/* Feature highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 animate-fade-in">
-            <div className="text-center group hover-float">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-blue/20 to-blue-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-primary-blue/20">
-                <span className="text-3xl animate-pulse-glow">💰</span>
-              </div>
-              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-primary-blue transition-colors duration-300">Earn Money</h3>
-              <p className="text-gray-medium text-base leading-relaxed">Make money from items sitting unused</p>
+          {user && showRecommendations && Object.keys(filters).length === 0 && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <RecommendationsSection onItemClick={handleItemClick} />
             </div>
-            <div className="text-center group hover-float">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400/20 to-emerald-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-green-400/20">
-                <span className="text-3xl animate-pulse-glow">🤝</span>
-              </div>
-              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-green-600 transition-colors duration-300">Help Community</h3>
-              <p className="text-gray-medium text-base leading-relaxed">Support your neighbors and reduce waste</p>
-            </div>
-            <div className="text-center group hover-float">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-400/20 to-violet-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg backdrop-blur-sm border border-purple-400/20">
-                <span className="text-3xl animate-pulse-glow">📱</span>
-              </div>
-              <h3 className="font-bold text-xl text-gray-dark mb-3 group-hover:text-purple-600 transition-colors duration-300">Easy Setup</h3>
-              <p className="text-gray-medium text-base leading-relaxed">List items in minutes with our simple flow</p>
-            </div>
+          )}
+          
+          <div id="items-section">
+            <FilterBar 
+              onFiltersChange={handleFiltersChange} 
+              selectedCategoryId={filters.categoryId}
+            />
+            <ItemGrid 
+              filters={filters} 
+              aiResults={aiSearchResults}
+              useAIResults={useAIResults}
+              aiLoading={aiLoading}
+              onItemClick={handleItemClick} 
+            />
           </div>
         </div>
       )}
