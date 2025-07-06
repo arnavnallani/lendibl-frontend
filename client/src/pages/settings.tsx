@@ -641,82 +641,6 @@ export default function Settings() {
                           </div>
                         ) : (
                           <div className="space-y-4">
-                            {/* Bank Account Option */}
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                              <h4 className="font-medium text-blue-900 mb-2">Bank Account Connection</h4>
-                              <p className="text-sm text-blue-700 mb-4">
-                                Connect your bank account to receive payments when rentals complete.
-                              </p>
-                              
-                              {!paymentStatus.stripeAccountStatus ? (
-                                <Button 
-                                  onClick={handleSetupStripe}
-                                  disabled={isCreatingAccount}
-                                  className="w-full bg-blue-600 hover:bg-blue-700"
-                                >
-                                  {isCreatingAccount ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      Creating Account...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Building2 className="w-4 h-4 mr-2" />
-                                      Connect Bank Account
-                                    </>
-                                  )}
-                                </Button>
-                              ) : (
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    <CheckCircle className="w-5 h-5 text-green-500" />
-                                    <span className="text-sm font-medium text-green-700">Bank Account Connected</span>
-                                  </div>
-                                  {paymentStatus.stripeAccountStatus && (
-                                    <div className="bg-white rounded p-3 border">
-                                      <div className="text-sm">
-                                        <div className="mb-1">
-                                          <span className="font-medium">Status: </span>
-                                          <span className={paymentStatus.stripeAccountStatus.payoutsEnabled ? 'text-green-600' : 'text-orange-600'}>
-                                            {paymentStatus.stripeAccountStatus.payoutsEnabled ? 'Ready for Payouts' : 'Verification Required'}
-                                          </span>
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                          Account ID: {paymentStatus.stripeAccountStatus.accountId}
-                                        </div>
-                                      </div>
-                                      
-                                      {!paymentStatus.stripeAccountStatus.payoutsEnabled && paymentStatus.onboardingUrl && (
-                                        <div className="mt-3">
-                                          <Button 
-                                            onClick={() => handleContinueOnboarding(paymentStatus.onboardingUrl)}
-                                            size="sm"
-                                            className="w-full bg-orange-600 hover:bg-orange-700"
-                                          >
-                                            <ExternalLink className="w-4 h-4 mr-2" />
-                                            Continue Setup
-                                          </Button>
-                                          <p className="text-xs text-gray-500 mt-2">
-                                            Complete your bank account verification to receive payments
-                                          </p>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* OR Divider */}
-                            <div className="relative">
-                              <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
-                              </div>
-                              <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-gray-50 text-gray-500">OR</span>
-                              </div>
-                            </div>
-
                             {/* Debit Card Option */}
                             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                               <h4 className="font-medium text-green-900 mb-2">Debit Card (Instant Payouts)</h4>
@@ -858,6 +782,82 @@ export default function Settings() {
                                       <p className="text-xs text-gray-500">
                                         Only debit cards are supported. Your card information is securely processed by Stripe.
                                       </p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* OR Divider */}
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-300" />
+                              </div>
+                              <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-gray-50 text-gray-500">OR</span>
+                              </div>
+                            </div>
+
+                            {/* Bank Account Option */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <h4 className="font-medium text-blue-900 mb-2">Bank Account Connection</h4>
+                              <p className="text-sm text-blue-700 mb-4">
+                                Connect your bank account to receive payments when rentals complete.
+                              </p>
+                              
+                              {!paymentStatus.stripeAccountStatus ? (
+                                <Button 
+                                  onClick={handleSetupStripe}
+                                  disabled={isCreatingAccount}
+                                  className="w-full bg-blue-600 hover:bg-blue-700"
+                                >
+                                  {isCreatingAccount ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Creating Account...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Building2 className="w-4 h-4 mr-2" />
+                                      Connect Bank Account
+                                    </>
+                                  )}
+                                </Button>
+                              ) : (
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                    <span className="text-sm font-medium text-green-700">Bank Account Connected</span>
+                                  </div>
+                                  {paymentStatus.stripeAccountStatus && (
+                                    <div className="bg-white rounded p-3 border">
+                                      <div className="text-sm">
+                                        <div className="mb-1">
+                                          <span className="font-medium">Status: </span>
+                                          <span className={paymentStatus.stripeAccountStatus.payoutsEnabled ? 'text-green-600' : 'text-orange-600'}>
+                                            {paymentStatus.stripeAccountStatus.payoutsEnabled ? 'Ready for Payouts' : 'Verification Required'}
+                                          </span>
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                          Account ID: {paymentStatus.stripeAccountStatus.accountId}
+                                        </div>
+                                      </div>
+                                      
+                                      {!paymentStatus.stripeAccountStatus.payoutsEnabled && paymentStatus.onboardingUrl && (
+                                        <div className="mt-3">
+                                          <Button 
+                                            onClick={() => handleContinueOnboarding(paymentStatus.onboardingUrl)}
+                                            size="sm"
+                                            className="w-full bg-orange-600 hover:bg-orange-700"
+                                          >
+                                            <ExternalLink className="w-4 h-4 mr-2" />
+                                            Continue Setup
+                                          </Button>
+                                          <p className="text-xs text-gray-500 mt-2">
+                                            Complete your bank account verification to receive payments
+                                          </p>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
