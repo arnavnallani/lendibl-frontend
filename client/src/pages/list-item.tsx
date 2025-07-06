@@ -148,7 +148,6 @@ export default function ListItem() {
   const [isOwnerPaymentSetupOpen, setIsOwnerPaymentSetupOpen] = useState(false);
   const [listedItemTitle, setListedItemTitle] = useState("");
   const [showAIPricing, setShowAIPricing] = useState(false);
-  const [showManualPricing, setShowManualPricing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const { toast } = useToast();
@@ -885,7 +884,7 @@ export default function ListItem() {
                 </div>
 
                 {/* Pricing Section */}
-                {!showAIPricing && !showManualPricing && (
+                {!showAIPricing && (
                   <div className="space-y-8">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-lg">
@@ -897,7 +896,7 @@ export default function ListItem() {
                       </div>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="max-w-md mx-auto">
                       {/* AI Pricing Card */}
                       <div className="group relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-sky-500 to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
@@ -937,31 +936,6 @@ export default function ListItem() {
                           </Button>
                         </div>
                       </div>
-
-                      {/* Manual Pricing Card */}
-                      <div className="group relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-                        <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-gray-200 transition-all duration-300 h-full">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl">
-                              <DollarSign className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-lg text-gray-900">Manual Pricing</h4>
-                              <p className="text-sm text-gray-600 font-medium">Traditional</p>
-                            </div>
-                          </div>
-                          <p className="text-gray-600 mb-6">Set your price based on your own knowledge and research of the market</p>
-                          <Button 
-                            type="button"
-                            onClick={() => setShowManualPricing(true)}
-                            variant="outline"
-                            className="w-full border-2 border-gray-300 hover:border-gray-400 rounded-xl py-3 font-medium transition-all duration-300"
-                          >
-                            Set Price Manually
-                          </Button>
-                        </div>
-                      </div>
                     </div>
                     
                     {(!form.watch("title") || !form.watch("description") || !form.watch("address") || !form.watch("city") || !form.watch("state") || !form.watch("zipCode") || !form.watch("categoryId")) && (
@@ -996,32 +970,10 @@ export default function ListItem() {
                   />
                 )}
 
-                {/* Manual Pricing */}
-                {showManualPricing && (
-                  <div className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Rental Price per day ($)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number"
-                              step="0.01"
-                              placeholder="25.00"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
 
-                {/* Publish Button - appears after either pricing method is selected */}
-                {(showAIPricing || showManualPricing) && (
+
+                {/* Publish Button - appears after AI pricing is selected */}
+                {showAIPricing && (
                   <div className="space-y-4">
                     <div className="flex justify-center space-x-4">
                       <Button 
@@ -1029,11 +981,10 @@ export default function ListItem() {
                         variant="outline"
                         onClick={() => {
                           setShowAIPricing(false);
-                          setShowManualPricing(false);
                           form.setValue("price", 0);
                         }}
                       >
-                        Back to Pricing Options
+                        Back to AI Pricing
                       </Button>
                       <Button 
                         type="submit"
