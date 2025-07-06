@@ -484,7 +484,7 @@ export default function ListItem() {
                               value={field.value}
                               onChange={field.onChange}
                               placeholder="Start typing your address..."
-                              className="w-full min-w-[350px]"
+                              className="w-full md:min-w-[350px]"
                               onAddressSelect={(addressData) => {
                                 console.log('Setting form values:', addressData);
                                 form.setValue("address", addressData.streetAddress);
