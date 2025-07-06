@@ -24,15 +24,27 @@ export interface PricingAnalysisInput {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function getChatGPTPricing(prompt: string): Promise<any> {
-  const enhancedPrompt = `You are a rental pricing expert. Analyze this item and suggest a competitive daily rental rate.
+  const enhancedPrompt = `${prompt}
 
-${prompt}
+Use these pricing guidelines:
 
-IMPORTANT: Pay close attention to any maximum price limits mentioned in the prompt above. If a maximum daily rate is specified, your suggested dailyRate MUST NOT exceed that amount under any circumstances.
+Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
+
+For items under $1000:
+$50 items - $3 above or below $5
+$100 items - $3 above or below $8
+$200 items - $3 above or below $10
+$300 items - $3 above or below $12
+$400 items - $3 above or below $14
+$500 items - $3 above or below $16
+$600 items - $3 above or below $19
+$700 items - $3 above or below $22
+$800 items - $3 above or below $24
+$900 items - $3 above or below $26
 
 Respond in this JSON format only:
 {
-  "dailyRate": <number - MUST respect any maximum limit mentioned above>,
+  "dailyRate": <number>,
   "reasoning": "<brief explanation>",
   "demandLevel": "low|medium|high",
   "seasonalTrend": "increasing|stable|decreasing",
