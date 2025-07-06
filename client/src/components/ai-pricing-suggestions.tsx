@@ -198,33 +198,7 @@ export function AIPricingSuggestions({
           </div>
         </div>
 
-        {/* Manual Price Override */}
-        <div className="pt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Enter rental price per day ($)
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            value={priceInput}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            onChange={(e) => {
-              const inputValue = e.target.value;
-              setPriceInput(inputValue);
-              
-              const value = parseFloat(inputValue);
-              if (!isNaN(value) && value > 0) {
-                onPriceSelect(value);
-              } else {
-                // Clear the main form price when input is empty or invalid
-                onPriceSelect(0);
-              }
-            }}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            AI price auto-filled. Modify if needed or use as-is
-          </p>
-        </div>
+
 
         {/* Market Insights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
