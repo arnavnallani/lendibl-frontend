@@ -106,7 +106,7 @@ export default function AiChatbot() {
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
-            <span className="font-semibold">Lendibot</span>
+            <span className="font-semibold">lendibot</span>
           </div>
           <div className="flex gap-1">
             <Button
