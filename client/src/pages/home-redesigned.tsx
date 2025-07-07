@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { 
   Search, Sparkles, TrendingUp, Users, Shield, Zap, 
   ArrowRight, Star, MapPin, Calendar, Heart, Eye, 
-  Grid, List, Filter, ChevronDown, Globe, Award, Plus 
+  Grid, List, Filter, ChevronDown, Globe, Award 
 } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -22,7 +22,7 @@ interface Category {
   icon: string;
 }
 
-export default function Home() {
+export default function HomeRedesigned() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,18 +60,6 @@ export default function Home() {
     },
   });
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      const itemsSection = document.querySelector('#items-section');
-      if (itemsSection) {
-        itemsSection.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-white">
       <Header />
@@ -81,7 +69,7 @@ export default function Home() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl animate-pulse-slow delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl animate-float"></div>
         </div>
 
@@ -114,13 +102,9 @@ export default function Home() {
                       placeholder="Search for anything you need..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                       className="flex-1 border-0 text-lg placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
-                    <Button 
-                      onClick={handleSearch}
-                      className="gradient-primary text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition-transform"
-                    >
+                    <Button className="gradient-primary text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition-transform">
                       <Sparkles className="w-5 h-5 mr-2" />
                       Search
                     </Button>
@@ -183,7 +167,7 @@ export default function Home() {
       </section>
 
       {/* Items Section - Redesigned */}
-      <section id="items-section" className="py-20">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header with View Controls */}
           <div className="flex justify-between items-center mb-12">
@@ -416,18 +400,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* List Item FAB for Lister Mode */}
-      {user && (
-        <Link to="/list-item">
-          <Button 
-            size="lg" 
-            className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-lg hover:shadow-xl transition-all duration-300 bg-blue-600 hover:bg-blue-700 z-50 group"
-          >
-            <Plus className="h-8 w-8 group-hover:rotate-90 transition-transform duration-300" />
-          </Button>
-        </Link>
-      )}
 
       <Footer />
     </div>

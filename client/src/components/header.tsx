@@ -47,7 +47,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   };
 
   return (
-    <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-light sticky top-0 z-50 animate-fade-in">
+    <header className="bg-white/95 backdrop-blur-lg shadow-xl border-b border-blue-100 sticky top-0 z-50 animate-fade-in">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-4">
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
