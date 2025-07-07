@@ -321,6 +321,7 @@ The application uses PostgreSQL with the following main entities:
 - July 7, 2025: Created comprehensive professional Terms of Service page with detailed legal content from business legal document, prominently featuring the new cancellation policy with visual emphasis, includes all standard legal sections required for rental marketplace
 - July 7, 2025: Fixed authentication flow to preserve user location - after login/register/logout, users remain exactly where they were on the page instead of being redirected to home, enhanced messaging board UI with auto-scroll functionality and AI chatbot overlap fixes
 - July 7, 2025: Fixed automatic scrolling issue after login - prevented unwanted scroll-to-bottom behavior by implementing conditional scroll restoration that only triggers when returning from item details, not on authentication state changes
+- July 7, 2025: Implemented comprehensive scroll position preservation for all authentication actions - login, register, and logout now capture and restore exact scroll position to prevent unwanted page movement during authentication
 
 ## User Preferences
 

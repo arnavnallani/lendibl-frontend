@@ -128,9 +128,17 @@ export function useAuthProvider(): AuthContextType {
   };
 
   const logout = () => {
+    // Capture current scroll position before logout
+    const currentScrollPosition = window.scrollY;
+    
     localStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
+    
+    // Restore scroll position after logout
+    setTimeout(() => {
+      window.scrollTo(0, currentScrollPosition);
+    }, 50);
   };
 
   return {
