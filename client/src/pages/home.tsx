@@ -36,6 +36,12 @@ export default function Home() {
   useEffect(() => {
     const savedScrollPosition = localStorage.getItem('homeScrollPosition');
     const isFromItemDetails = sessionStorage.getItem('fromItemDetails');
+    const authScrollPosition = localStorage.getItem('authScrollPosition');
+    
+    // Don't restore home scroll if auth scroll restoration is pending
+    if (authScrollPosition) {
+      return;
+    }
     
     if (savedScrollPosition && isFromItemDetails) {
       setTimeout(() => {

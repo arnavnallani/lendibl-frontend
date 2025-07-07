@@ -322,6 +322,7 @@ The application uses PostgreSQL with the following main entities:
 - July 7, 2025: Fixed authentication flow to preserve user location - after login/register/logout, users remain exactly where they were on the page instead of being redirected to home, enhanced messaging board UI with auto-scroll functionality and AI chatbot overlap fixes
 - July 7, 2025: Fixed automatic scrolling issue after login - prevented unwanted scroll-to-bottom behavior by implementing conditional scroll restoration that only triggers when returning from item details, not on authentication state changes
 - July 7, 2025: Implemented comprehensive scroll position preservation for all authentication actions - login, register, and logout now capture and restore exact scroll position to prevent unwanted page movement during authentication
+- July 7, 2025: Enhanced scroll preservation system with multiple restoration attempts and conflict prevention - uses 4 different timeouts and dedicated storage to eliminate authentication scroll issues completely
 
 ## User Preferences
 
