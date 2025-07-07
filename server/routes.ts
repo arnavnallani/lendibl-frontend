@@ -658,9 +658,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status transition for owner" });
       }
       
-      // Don't allow changes to already processed bookings (except for owner workflow)
-      if (isRenter && booking.status !== 'pending') {
-        return res.status(400).json({ message: "Cannot modify booking that is no longer pending" });
+      // Allow renters to cancel approved bookings but not other statuses
+      if (isRenter && !['pending', 'approved'].includes(booking.status)) {
+        return res.status(400).json({ message: "Cannot modify booking in current status" });
       }
       
       if (isOwner && !['pending', 'approved', 'in_progress'].includes(booking.status)) {
@@ -689,14 +689,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Payment already captured, just schedule payout
         await paymentScheduler.scheduleOwnerPayout(id);
       } else if (updatedBooking && (status === 'declined' || status === 'cancelled')) {
-        // Process refund for declined or cancelled bookings
+        // Process refund for declined bookings or pre-approval cancellations only
         try {
           if (status === 'cancelled') {
-            const result = await refundService.processRefundForCancellation(id);
-            console.log('Cancellation result:', result);
+            // Only refund if the booking was cancelled before approval
+            if (booking.status === 'pending') {
+              const result = await refundService.processRefundForCancellation(id);
+              console.log('Pre-approval cancellation result:', result);
+            } else {
+              console.log('Post-approval cancellation - no refund issued');
+              // Notify user that no refund will be issued for post-approval cancellation
+              await notificationService.createNotification({
+                userId: booking.renterId,
+                type: 'booking_request',
+                title: 'Booking Cancelled',
+                message: `Your booking for "${booking.item.title}" has been cancelled. Since this booking was already approved, no refund will be issued.`,
+                relatedId: id
+              });
+            }
           } else {
             const result = await refundService.processRefundForTimeout(id);
-            console.log('Timeout result:', result);
+            console.log('Decline result:', result);
           }
         } catch (error) {
           console.error('Refund processing error:', error);

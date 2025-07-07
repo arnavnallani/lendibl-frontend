@@ -196,8 +196,13 @@ export default function MyProfile() {
     }
   };
 
-  const handleCancelBooking = async (bookingId: number) => {
-    if (!confirm('Are you sure you want to cancel this booking? You will receive a full refund.')) {
+  const handleCancelBooking = async (bookingId: number, bookingStatus: string) => {
+    const isApproved = bookingStatus === 'approved';
+    const warningMessage = isApproved 
+      ? 'Are you sure you want to cancel this approved booking? This booking was already approved, so NO REFUND will be issued.'
+      : 'Are you sure you want to cancel this booking? You will receive a full refund.';
+      
+    if (!confirm(warningMessage)) {
       return;
     }
     
@@ -492,12 +497,15 @@ export default function MyProfile() {
                             }>
                               {booking.status}
                             </Badge>
-                            {booking.status === 'pending' && (
+                            {(booking.status === 'pending' || booking.status === 'approved') && (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleCancelBooking(booking.id)}
-                                className="text-red-600 border-red-300 hover:bg-red-50"
+                                onClick={() => handleCancelBooking(booking.id, booking.status)}
+                                className={booking.status === 'pending' 
+                                  ? "text-red-600 border-red-300 hover:bg-red-50"
+                                  : "text-orange-600 border-orange-300 hover:bg-orange-50"
+                                }
                               >
                                 Cancel
                               </Button>
