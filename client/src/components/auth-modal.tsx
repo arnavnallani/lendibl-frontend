@@ -75,8 +75,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       });
       onClose();
       loginForm.reset();
-      // Scroll to top of the page after successful login
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       toast({
         title: 'Login failed',
@@ -104,8 +102,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       });
       onClose();
       registerForm.reset();
-      // Scroll to top of the page after successful registration
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       toast({
         title: 'Registration failed',
