@@ -1,9 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-center text-gray-dark">
