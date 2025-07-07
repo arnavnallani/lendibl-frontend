@@ -318,7 +318,7 @@ export default function Messages() {
                   </CardContent>
 
                   {/* Message Input */}
-                  <div className="p-4 border-t">
+                  <div className="p-4 border-t mb-20">
                     <div className="flex gap-2">
                       <Textarea
                         value={messageText}
