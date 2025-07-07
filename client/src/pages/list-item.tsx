@@ -890,7 +890,7 @@ export default function ListItem() {
                       </div>
                       <div>
                         <h3 className="text-2xl font-bold text-gray-900">Set Your Price</h3>
-                        <p className="text-gray-600">Price your item with AI</p>
+                        <p className="text-gray-600">Price your item with the help of AI</p>
                       </div>
                     </div>
                     
