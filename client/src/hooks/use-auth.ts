@@ -14,15 +14,15 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, preserveLocation?: boolean) => Promise<void>;
   register: (userData: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
     username: string;
-  }) => Promise<void>;
-  logout: () => void;
+  }, preserveLocation?: boolean) => Promise<void>;
+  logout: (preserveLocation?: boolean) => void;
   isLoading: boolean;
 }
 
@@ -81,7 +81,12 @@ export function useAuthProvider(): AuthContextType {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, preserveLocation = true) => {
+    // Store current location before login
+    if (preserveLocation) {
+      localStorage.setItem('auth_return_path', window.location.pathname + window.location.search);
+    }
+
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -99,6 +104,20 @@ export function useAuthProvider(): AuthContextType {
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
     setUser(data.user);
+
+    // Restore location after successful login
+    if (preserveLocation) {
+      const returnPath = localStorage.getItem('auth_return_path');
+      if (returnPath && returnPath !== '/login') {
+        localStorage.removeItem('auth_return_path');
+        // Use pushState to navigate without reload
+        setTimeout(() => {
+          window.history.pushState({}, '', returnPath);
+          // Trigger a custom event to notify components of the location change
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, 50);
+      }
+    }
   };
 
   const register = async (userData: {
@@ -107,7 +126,12 @@ export function useAuthProvider(): AuthContextType {
     firstName: string;
     lastName: string;
     username: string;
-  }) => {
+  }, preserveLocation = true) => {
+    // Store current location before registration
+    if (preserveLocation) {
+      localStorage.setItem('auth_return_path', window.location.pathname + window.location.search);
+    }
+
     const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
@@ -125,12 +149,45 @@ export function useAuthProvider(): AuthContextType {
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
     setUser(data.user);
+
+    // Restore location after successful registration
+    if (preserveLocation) {
+      const returnPath = localStorage.getItem('auth_return_path');
+      if (returnPath && returnPath !== '/register') {
+        localStorage.removeItem('auth_return_path');
+        // Use pushState to navigate without reload
+        setTimeout(() => {
+          window.history.pushState({}, '', returnPath);
+          // Trigger a custom event to notify components of the location change
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, 50);
+      }
+    }
   };
 
-  const logout = () => {
+  const logout = (preserveLocation = true) => {
+    // Store current location before logout
+    if (preserveLocation) {
+      localStorage.setItem('auth_return_path', window.location.pathname + window.location.search);
+    }
+
     localStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
+
+    // Restore location after logout
+    if (preserveLocation) {
+      const returnPath = localStorage.getItem('auth_return_path');
+      if (returnPath) {
+        localStorage.removeItem('auth_return_path');
+        // Use pushState to navigate without reload
+        setTimeout(() => {
+          window.history.pushState({}, '', returnPath);
+          // Trigger a custom event to notify components of the location change
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, 50);
+      }
+    }
   };
 
   return {
