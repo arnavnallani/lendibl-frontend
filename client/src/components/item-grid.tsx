@@ -32,6 +32,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const [allLoadedItems, setAllLoadedItems] = useState<ItemWithDetails[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [preserveScrollPosition, setPreserveScrollPosition] = useState<number | null>(null);
   
   const queryFilters = filters ? {
     categoryId: filters.categoryId,
@@ -76,15 +77,31 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     }
   }, [paginatedData, currentPage]);
 
+  // Restore scroll position after loading more items
+  useEffect(() => {
+    if (preserveScrollPosition !== null && !isLoadingMore && !regularLoading) {
+      window.scrollTo(0, preserveScrollPosition);
+      setPreserveScrollPosition(null);
+    }
+  }, [preserveScrollPosition, isLoadingMore, regularLoading]);
+
   // Use AI results or regular items based on flag
   const items: EnhancedItem[] = useAIResults ? (aiResults || []) : allLoadedItems;
   const isLoading = useAIResults ? aiLoading : regularLoading;
+
+  // Get total count for display
+  const { data: totalCountData } = useQuery({
+    queryKey: ["/api/items", { ...queryFilters, limit: 1000 }],
+    queryFn: () => api.getItems({ ...queryFilters, limit: 1000 }),
+    enabled: !useAIResults,
+  });
+  const totalItemCount = totalCountData?.pagination?.total || totalCountData?.items?.length || 0;
 
   // Always call hooks - use enabled to control when they run
   const { data: allItemsData } = useQuery({
     queryKey: ["/api/items", { limit: 1000 }],
     queryFn: () => api.getItems({ limit: 1000 }),
-    enabled: !useAIResults && !regularLoading, // Only fetch for alternative suggestions
+    enabled: !useAIResults && !regularLoading && items.length === 0, // Only fetch for alternative suggestions
   });
   const allItems = allItemsData?.items || [];
 
@@ -253,7 +270,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
             <p className="text-gray-medium">
               {useAIResults ? 
                 `Found ${items.length} items matching your search with AI analysis` :
-                `Over ${items.length} items available for rent`
+                `Over ${totalItemCount} items available for rent`
               }
             </p>
             {useAIResults && items.length > 0 && (
@@ -282,6 +299,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
           <Button 
             variant="outline"
             onClick={() => {
+              setPreserveScrollPosition(window.scrollY);
               setIsLoadingMore(true);
               setCurrentPage(prev => prev + 1);
             }}
