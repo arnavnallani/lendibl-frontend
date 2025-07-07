@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
@@ -31,6 +31,17 @@ export default function Home() {
   
   // Get AI search results
   const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
+
+  // Restore scroll position when returning from item details
+  useEffect(() => {
+    const savedScrollPosition = localStorage.getItem('homeScrollPosition');
+    if (savedScrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition));
+        localStorage.removeItem('homeScrollPosition'); // Clean up
+      }, 100);
+    }
+  }, []);
 
   const handleSearch = (query: string) => {
     setFilters(prev => ({ ...prev, search: query }));

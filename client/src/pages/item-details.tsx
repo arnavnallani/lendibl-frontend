@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, MapPin, User, Edit } from "lucide-react";
@@ -80,17 +80,27 @@ export default function ItemDetails() {
     setIsEditModalOpen(true);
   };
 
+  const handleBackToListings = () => {
+    const savedScrollPosition = localStorage.getItem('homeScrollPosition');
+    setLocation('/');
+    
+    // Restore scroll position after navigation
+    if (savedScrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition));
+      }, 100);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white border-b border-gray-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/">
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to listings
-            </Button>
-          </Link>
+          <Button variant="ghost" className="mb-4" onClick={handleBackToListings}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to listings
+          </Button>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

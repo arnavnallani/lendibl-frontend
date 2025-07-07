@@ -14,6 +14,9 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
   const isOwner = user && item.ownerId === user.id;
 
   const handleClick = async () => {
+    // Save current scroll position before navigating
+    localStorage.setItem('homeScrollPosition', window.scrollY.toString());
+    
     // Track interaction for recommendation system
     if (user) {
       try {
