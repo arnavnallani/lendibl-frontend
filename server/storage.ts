@@ -596,7 +596,7 @@ export class DatabaseStorage implements IStorage {
     return booking || undefined;
   }
 
-  async getReviews(itemId?: number, userId?: number): Promise<Review[]> {
+  async getReviews(itemId?: number, userId?: number): Promise<any[]> {
     if (itemId) {
       const itemBookings = await db
         .select({ id: bookings.id })
@@ -606,14 +606,61 @@ export class DatabaseStorage implements IStorage {
       const bookingIds = itemBookings.map(b => b.id);
       if (bookingIds.length === 0) return [];
       
-      return await db.select().from(reviews).where(eq(reviews.bookingId, bookingIds[0]));
+      const reviewsWithReviewers = await db
+        .select({
+          review: reviews,
+          reviewer: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+          }
+        })
+        .from(reviews)
+        .leftJoin(users, eq(reviews.reviewerId, users.id))
+        .where(eq(reviews.bookingId, bookingIds[0]));
+
+      return reviewsWithReviewers.map(r => ({
+        ...r.review,
+        reviewer: r.reviewer
+      }));
     }
     
     if (userId) {
-      return await db.select().from(reviews).where(eq(reviews.revieweeId, userId));
+      const reviewsWithReviewers = await db
+        .select({
+          review: reviews,
+          reviewer: {
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+          }
+        })
+        .from(reviews)
+        .leftJoin(users, eq(reviews.reviewerId, users.id))
+        .where(eq(reviews.revieweeId, userId));
+
+      return reviewsWithReviewers.map(r => ({
+        ...r.review,
+        reviewer: r.reviewer
+      }));
     }
 
-    return await db.select().from(reviews);
+    const reviewsWithReviewers = await db
+      .select({
+        review: reviews,
+        reviewer: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+        }
+      })
+      .from(reviews)
+      .leftJoin(users, eq(reviews.reviewerId, users.id));
+
+    return reviewsWithReviewers.map(r => ({
+      ...r.review,
+      reviewer: r.reviewer
+    }));
   }
 
   async createReview(insertReview: InsertReview): Promise<Review> {

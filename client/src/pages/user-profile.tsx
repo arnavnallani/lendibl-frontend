@@ -24,6 +24,12 @@ export default function UserProfile() {
     enabled: !!id,
   });
 
+  const { data: userReviews = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ["/api/reviews", { userId: parseInt(id!) }],
+    queryFn: () => api.getReviews({ userId: parseInt(id!) }),
+    enabled: !!id,
+  });
+
   const handleBackClick = () => {
     window.history.back();
   };
@@ -32,7 +38,7 @@ export default function UserProfile() {
     setLocation(`/item/${item.id}`);
   };
 
-  if (userLoading || itemsLoading) {
+  if (userLoading || itemsLoading || reviewsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-blue"></div>
@@ -112,6 +118,68 @@ export default function UserProfile() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Reviews Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-dark mb-6">
+            Reviews ({userReviews.length})
+          </h2>
+          
+          {userReviews.length > 0 ? (
+            <div className="space-y-4">
+              {userReviews.map((review: any) => (
+                <Card key={review.id} className="border border-gray-100">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${
+                                    star <= review.rating
+                                      ? "text-yellow-400 fill-current"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-medium">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {review.reviewer && (
+                            <div className="flex items-center space-x-2">
+                              <div className="w-8 h-8 bg-primary-blue rounded-full flex items-center justify-center">
+                                <User className="h-4 w-4 text-white" />
+                              </div>
+                              <span className="text-sm font-medium text-gray-dark">
+                                {review.reviewer.firstName} {review.reviewer.lastName}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {review.comment && (
+                          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-gray-medium">
+                  {userInfo.firstName} hasn't received any reviews yet.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* User's Listings */}
         <div className="mb-8">

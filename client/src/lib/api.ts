@@ -155,4 +155,20 @@ export const api = {
     const res = await apiRequest("GET", `/api/rental-messages/${bookingId}`);
     return res.json();
   },
+
+  // Reviews
+  getReviews: async (filters?: { itemId?: number; userId?: number }): Promise<any[]> => {
+    const params = new URLSearchParams();
+    if (filters?.itemId) params.set("itemId", filters.itemId.toString());
+    if (filters?.userId) params.set("userId", filters.userId.toString());
+    
+    const url = `/api/reviews${params.toString() ? `?${params.toString()}` : ""}`;
+    const res = await apiRequest("GET", url);
+    return res.json();
+  },
+
+  getUser: async (id: number): Promise<any> => {
+    const res = await apiRequest("GET", `/api/users/${id}`);
+    return res.json();
+  },
 };
