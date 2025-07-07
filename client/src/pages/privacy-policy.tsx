@@ -5,13 +5,13 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-16">
       <div className="max-w-4xl mx-auto px-6">
+        <div className="mb-6">
+          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+        </div>
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8">
-          <div className="mb-8">
-            <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Link>
-          </div>
           
           <div className="prose prose-blue max-w-none">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">PRIVACY POLICY</h1>
