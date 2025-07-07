@@ -15,6 +15,39 @@ export const api = {
     minPrice?: number;
     maxPrice?: number;
     location?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    items: ItemWithDetails[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }> => {
+    const params = new URLSearchParams();
+    if (filters?.categoryId) params.set("categoryId", filters.categoryId.toString());
+    if (filters?.search) params.set("search", filters.search);
+    if (filters?.minPrice) params.set("minPrice", filters.minPrice.toString());
+    if (filters?.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
+    if (filters?.location) params.set("location", filters.location);
+    if (filters?.page) params.set("page", filters.page.toString());
+    if (filters?.limit) params.set("limit", filters.limit.toString());
+
+    const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
+    const res = await apiRequest("GET", url);
+    return res.json();
+  },
+
+  // Get items without pagination (for backward compatibility)
+  getItemsSimple: async (filters?: {
+    categoryId?: number;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    location?: string;
   }): Promise<ItemWithDetails[]> => {
     const params = new URLSearchParams();
     if (filters?.categoryId) params.set("categoryId", filters.categoryId.toString());
@@ -22,10 +55,12 @@ export const api = {
     if (filters?.minPrice) params.set("minPrice", filters.minPrice.toString());
     if (filters?.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
     if (filters?.location) params.set("location", filters.location);
+    params.set("limit", "1000"); // Get all items
 
     const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
     const res = await apiRequest("GET", url);
-    return res.json();
+    const data = await res.json();
+    return data.items || data; // Handle both old and new response formats
   },
 
   getItem: async (id: number): Promise<ItemWithDetails> => {

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ItemCard from "./item-card";
@@ -27,10 +28,16 @@ interface ItemGridProps {
 }
 
 export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, onItemClick }: ItemGridProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [allLoadedItems, setAllLoadedItems] = useState<ItemWithDetails[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  
   const queryFilters = filters ? {
     categoryId: filters.categoryId,
     search: filters.search,
     location: filters.location,
+    page: currentPage,
+    limit: 12,
     ...(filters.priceRange && filters.priceRange !== "all" ? {
       minPrice: filters.priceRange === "0-25" ? 0 : 
                 filters.priceRange === "25-50" ? 25 :
@@ -40,24 +47,44 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
                 filters.priceRange === "25-50" ? 50 :
                 filters.priceRange === "50-100" ? 100 : undefined,
     } : {}),
-  } : undefined;
+  } : { page: currentPage, limit: 12 };
 
-  const { data: regularItems = [], isLoading: regularLoading, error } = useQuery({
+  const { data: paginatedData, isLoading: regularLoading, error } = useQuery({
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
     enabled: !useAIResults, // Only fetch regular items when not using AI
   });
 
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+    setAllLoadedItems([]);
+    setHasMore(true);
+  }, [filters?.categoryId, filters?.search, filters?.priceRange, filters?.location]);
+
+  // Update items when new data is received
+  useEffect(() => {
+    if (paginatedData) {
+      if (currentPage === 1) {
+        setAllLoadedItems(paginatedData.items);
+      } else {
+        setAllLoadedItems(prev => [...prev, ...paginatedData.items]);
+      }
+      setHasMore(paginatedData.pagination.hasMore);
+    }
+  }, [paginatedData, currentPage]);
+
   // Use AI results or regular items based on flag
-  const items: EnhancedItem[] = useAIResults ? (aiResults || []) : regularItems;
+  const items: EnhancedItem[] = useAIResults ? (aiResults || []) : allLoadedItems;
   const isLoading = useAIResults ? aiLoading : regularLoading;
 
   // Always call hooks - use enabled to control when they run
-  const { data: allItems = [] } = useQuery({
-    queryKey: ["/api/items"],
-    queryFn: () => api.getItems(),
+  const { data: allItemsData } = useQuery({
+    queryKey: ["/api/items", { limit: 1000 }],
+    queryFn: () => api.getItems({ limit: 1000 }),
     enabled: !useAIResults && !regularLoading, // Only fetch for alternative suggestions
   });
+  const allItems = allItemsData?.items || [];
 
   const { data: categories = [] } = useQuery({
     queryKey: ["/api/categories"],
@@ -248,14 +275,25 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
       </div>
 
       {/* Load More Button */}
-      <div className="text-center mt-12">
-        <Button 
-          variant="outline"
-          className="px-8 py-3 bg-white border-2 border-gray-dark text-gray-dark font-medium rounded-full hover:bg-gray-dark hover:text-white transition-colors"
-        >
-          Load More Items
-        </Button>
-      </div>
+      {!useAIResults && hasMore && (
+        <div className="text-center mt-12">
+          <Button 
+            variant="outline"
+            onClick={() => setCurrentPage(prev => prev + 1)}
+            disabled={regularLoading}
+            className="px-8 py-3 bg-white border-2 border-gray-dark text-gray-dark font-medium rounded-full hover:bg-gray-dark hover:text-white transition-colors disabled:opacity-50"
+          >
+            {regularLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Loading...
+              </>
+            ) : (
+              "Load More Items"
+            )}
+          </Button>
+        </div>
+      )}
     </main>
   );
 }

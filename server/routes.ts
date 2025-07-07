@@ -386,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Items
   app.get("/api/items", async (req, res) => {
     try {
-      const { categoryId, search, minPrice, maxPrice, location } = req.query;
+      const { categoryId, search, minPrice, maxPrice, location, page, limit } = req.query;
       
       const filters: any = {};
       if (categoryId) filters.categoryId = parseInt(categoryId as string);
@@ -395,8 +395,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
       if (location) filters.location = location as string;
 
-      const items = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
-      res.json(items);
+      // Pagination parameters
+      const pageNumber = page ? parseInt(page as string) : 1;
+      const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
+      const offset = (pageNumber - 1) * pageSize;
+
+      const allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
+      
+      // Apply pagination
+      const paginatedItems = allItems.slice(offset, offset + pageSize);
+      const totalItems = allItems.length;
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const hasMore = pageNumber < totalPages;
+
+      res.json({
+        items: paginatedItems,
+        pagination: {
+          page: pageNumber,
+          limit: pageSize,
+          total: totalItems,
+          totalPages,
+          hasMore
+        }
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch items" });
     }
