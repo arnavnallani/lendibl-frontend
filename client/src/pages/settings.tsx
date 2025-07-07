@@ -8,9 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2, Camera, Loader2, Palette, Upload } from 'lucide-react';
+import { User, Save, ArrowLeft, Home, Settings as SettingsIcon, CreditCard, ExternalLink, CheckCircle, AlertCircle, DollarSign, Package, Building2, Camera, Loader2 } from 'lucide-react';
 import { Link } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,50 +26,6 @@ const settingsSchema = z.object({
 
 type SettingsFormData = z.infer<typeof settingsSchema>;
 
-// Predefined unique avatar options
-const UNIQUE_AVATARS = [
-  {
-    id: 'avatar_1',
-    name: 'Blue Circle',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%234A90E2"/><circle cx="50" cy="40" r="15" fill="white"/><ellipse cx="50" cy="70" rx="20" ry="15" fill="white"/></svg>'
-  },
-  {
-    id: 'avatar_2', 
-    name: 'Green Square',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="15" fill="%2350C878"/><circle cx="50" cy="40" r="12" fill="white"/><path d="M 35 65 Q 50 75 65 65" stroke="white" stroke-width="3" fill="none"/></svg>'
-  },
-  {
-    id: 'avatar_3',
-    name: 'Purple Diamond',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50" fill="%239B59B6"/><circle cx="50" cy="45" r="10" fill="white"/><ellipse cx="50" cy="65" rx="15" ry="8" fill="white"/></svg>'
-  },
-  {
-    id: 'avatar_4',
-    name: 'Orange Triangle',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,15 85,75 15,75" fill="%23F39C12"/><circle cx="50" cy="45" r="8" fill="white"/><path d="M 40 60 Q 50 65 60 60" stroke="white" stroke-width="2" fill="none"/></svg>'
-  },
-  {
-    id: 'avatar_5',
-    name: 'Red Hexagon',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,10 80,30 80,70 50,90 20,70 20,30" fill="%23E74C3C"/><circle cx="50" cy="42" r="9" fill="white"/><ellipse cx="50" cy="65" rx="12" ry="6" fill="white"/></svg>'
-  },
-  {
-    id: 'avatar_6',
-    name: 'Teal Star',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35" fill="%231ABC9C"/><circle cx="50" cy="40" r="7" fill="white"/><ellipse cx="50" cy="60" rx="10" ry="5" fill="white"/></svg>'
-  },
-  {
-    id: 'avatar_7',
-    name: 'Pink Heart',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50,85 C50,85 15,50 15,35 C15,25 25,15 35,15 C40,15 45,17 50,22 C55,17 60,15 65,15 C75,15 85,25 85,35 C85,50 50,85 50,85 Z" fill="%23E91E63"/><circle cx="50" cy="40" r="6" fill="white"/><ellipse cx="50" cy="55" rx="8" ry="4" fill="white"/></svg>'
-  },
-  {
-    id: 'avatar_8',
-    name: 'Navy Oval',
-    url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="40" ry="30" fill="%232C3E50"/><circle cx="50" cy="42" r="8" fill="white"/><ellipse cx="50" cy="62" rx="12" ry="6" fill="white"/></svg>'
-  }
-];
-
 export default function Settings() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -82,7 +36,6 @@ export default function Settings() {
   const [showDebitCardForm, setShowDebitCardForm] = useState(false);
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [isRemovingCard, setIsRemovingCard] = useState(false);
-  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [debitCardForm, setDebitCardForm] = useState({
     cardNumber: '',
     expiryMonth: '',
@@ -227,43 +180,7 @@ export default function Settings() {
     
     // Clear the input
     event.target.value = '';
-  }
-
-  const handleUniqueAvatarSelect = async (avatarUrl: string) => {
-    setIsUploadingAvatar(true);
-    
-    try {
-      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      const response = await fetch('/api/auth/update-avatar', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ avatar: avatarUrl }),
-      });
-
-      if (response.ok) {
-        setShowAvatarModal(false);
-        // Refresh user data
-        window.location.reload();
-        toast({
-          title: "Avatar updated",
-          description: "Your unique avatar has been set successfully.",
-        });
-      } else {
-        throw new Error('Failed to update avatar');
-      }
-    } catch (error) {
-      toast({
-        title: "Update failed",
-        description: "Failed to set unique avatar. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploadingAvatar(false);
-    }
-  };;
+  };
 
 
 
@@ -479,30 +396,29 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative group">
-                    <Avatar className="h-24 w-24 mb-4">
+                    <Avatar className="h-24 w-24 mb-4 cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
                       <AvatarImage src={user.avatar || undefined} />
                       <AvatarFallback className="text-lg bg-primary-blue text-white">
                         {user.firstName[0]}{user.lastName[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer mb-4" onClick={() => setShowAvatarModal(true)}>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer mb-4" onClick={() => document.getElementById('avatar-upload')?.click()}>
                       {isUploadingAvatar ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                       ) : (
                         <Camera className="h-6 w-6 text-white" />
                       )}
                     </div>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      disabled={isUploadingAvatar}
+                    />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowAvatarModal(true)}
-                    className="text-xs"
-                    disabled={isUploadingAvatar}
-                  >
-                    <Palette className="h-3 w-3 mr-1" />
-                    Change Avatar
-                  </Button>
+                  <p className="text-xs text-gray-500 mb-2">Click to change profile picture</p>
                   <h3 className="font-semibold text-lg text-gray-dark">
                     {user.firstName} {user.lastName}
                   </h3>
@@ -887,98 +803,6 @@ export default function Settings() {
           </div>
         </div>
       </div>
-
-      {/* Avatar Selection Modal */}
-      <Dialog open={showAvatarModal} onOpenChange={setShowAvatarModal}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Choose Your Avatar
-            </DialogTitle>
-          </DialogHeader>
-          
-          <Tabs defaultValue="unique" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="unique" className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
-                Unique Avatars
-              </TabsTrigger>
-              <TabsTrigger value="upload" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload Photo
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="unique" className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Choose from our collection of unique, colorful avatar designs
-              </p>
-              <div className="grid grid-cols-4 gap-4">
-                {UNIQUE_AVATARS.map((avatar) => (
-                  <div key={avatar.id} className="flex flex-col items-center space-y-2">
-                    <button
-                      onClick={() => handleUniqueAvatarSelect(avatar.url)}
-                      disabled={isUploadingAvatar}
-                      className="relative group p-2 rounded-lg border-2 border-gray-200 hover:border-primary-blue hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
-                    >
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage src={avatar.url} alt={avatar.name} />
-                        <AvatarFallback>?</AvatarFallback>
-                      </Avatar>
-                      {user.avatar === avatar.url && (
-                        <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full p-1">
-                          <CheckCircle className="h-3 w-3" />
-                        </div>
-                      )}
-                    </button>
-                    <span className="text-xs text-center text-gray-500 leading-tight">
-                      {avatar.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="upload" className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Upload your own photo to use as your profile picture
-              </p>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <input
-                  id="modal-avatar-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                  disabled={isUploadingAvatar}
-                />
-                <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <Button 
-                  onClick={() => document.getElementById('modal-avatar-upload')?.click()}
-                  disabled={isUploadingAvatar}
-                  className="mb-2"
-                >
-                  {isUploadingAvatar ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Choose Photo
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG up to 5MB
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
