@@ -67,10 +67,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
-    // Capture current scroll position before login
-    const currentScrollPosition = window.scrollY;
-    localStorage.setItem('authScrollPosition', currentScrollPosition.toString());
-    
     try {
       await login(data.email, data.password);
       toast({
@@ -79,20 +75,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       });
       onClose();
       loginForm.reset();
-      
-      // Restore scroll position after successful login with multiple attempts
-      const restoreScroll = () => {
-        const savedPosition = localStorage.getItem('authScrollPosition');
-        if (savedPosition) {
-          window.scrollTo(0, parseInt(savedPosition));
-          localStorage.removeItem('authScrollPosition');
-        }
-      };
-      
-      setTimeout(restoreScroll, 0);
-      setTimeout(restoreScroll, 50);
-      setTimeout(restoreScroll, 100);
-      setTimeout(restoreScroll, 200);
     } catch (error) {
       toast({
         title: 'Login failed',
@@ -106,10 +88,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
-    // Capture current scroll position before registration
-    const currentScrollPosition = window.scrollY;
-    localStorage.setItem('authScrollPosition', currentScrollPosition.toString());
-    
     try {
       await register({
         email: data.email,
@@ -124,20 +102,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       });
       onClose();
       registerForm.reset();
-      
-      // Restore scroll position after successful registration with multiple attempts
-      const restoreScroll = () => {
-        const savedPosition = localStorage.getItem('authScrollPosition');
-        if (savedPosition) {
-          window.scrollTo(0, parseInt(savedPosition));
-          localStorage.removeItem('authScrollPosition');
-        }
-      };
-      
-      setTimeout(restoreScroll, 0);
-      setTimeout(restoreScroll, 50);
-      setTimeout(restoreScroll, 100);
-      setTimeout(restoreScroll, 200);
     } catch (error) {
       toast({
         title: 'Registration failed',

@@ -128,27 +128,9 @@ export function useAuthProvider(): AuthContextType {
   };
 
   const logout = () => {
-    // Capture current scroll position before logout
-    const currentScrollPosition = window.scrollY;
-    localStorage.setItem('authScrollPosition', currentScrollPosition.toString());
-    
     localStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
-    
-    // Restore scroll position after logout with multiple attempts
-    const restoreScroll = () => {
-      const savedPosition = localStorage.getItem('authScrollPosition');
-      if (savedPosition) {
-        window.scrollTo(0, parseInt(savedPosition));
-        localStorage.removeItem('authScrollPosition');
-      }
-    };
-    
-    setTimeout(restoreScroll, 0);
-    setTimeout(restoreScroll, 50);
-    setTimeout(restoreScroll, 100);
-    setTimeout(restoreScroll, 200);
   };
 
   return {

@@ -32,22 +32,13 @@ export default function Home() {
   // Get AI search results
   const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
 
-  // Restore scroll position when returning from item details (not on auth changes)
+  // Restore scroll position when returning from item details
   useEffect(() => {
     const savedScrollPosition = localStorage.getItem('homeScrollPosition');
-    const isFromItemDetails = sessionStorage.getItem('fromItemDetails');
-    const authScrollPosition = localStorage.getItem('authScrollPosition');
-    
-    // Don't restore home scroll if auth scroll restoration is pending
-    if (authScrollPosition) {
-      return;
-    }
-    
-    if (savedScrollPosition && isFromItemDetails) {
+    if (savedScrollPosition) {
       setTimeout(() => {
         window.scrollTo(0, parseInt(savedScrollPosition));
         localStorage.removeItem('homeScrollPosition'); // Clean up
-        sessionStorage.removeItem('fromItemDetails'); // Clean up
       }, 100);
     }
   }, []);

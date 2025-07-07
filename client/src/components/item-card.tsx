@@ -16,8 +16,6 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
   const handleClick = async () => {
     // Save current scroll position before navigating
     localStorage.setItem('homeScrollPosition', window.scrollY.toString());
-    // Set flag to indicate we're coming from item details
-    sessionStorage.setItem('fromItemDetails', 'true');
     
     // Track interaction for recommendation system
     if (user) {
