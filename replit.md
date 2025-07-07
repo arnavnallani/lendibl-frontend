@@ -315,6 +315,7 @@ The application uses PostgreSQL with the following main entities:
 - July 6, 2025: Implemented specific AI pricing formula constraints - items $1000-$5000 use formula 0.003(real price) + 25 ±$3, items under $1000 follow tiered pricing guide ($50 items = $5±$3, $100 items = $8±$3, etc.) for consistent and predictable pricing suggestions
 - July 6, 2025: Fixed AI pricing system to use correct service file (ai-pricing-service-clean.ts) - removed all conflicting prompts to ensure only user's formula is used as the exclusive prompt for ChatGPT 3.5-turbo
 - July 6, 2025: Enhanced AI pricing with autonomous judgment capability - ChatGPT can now use market analysis to adjust pricing within ±$3 of formula output, maintaining formula constraints while allowing intelligent market-based adjustments
+- July 7, 2025: Implemented comprehensive response rate and response time tracking system - accurately tracks when owners receive requests and when they respond with approval/decline decisions, calculates real response rates and average response times, automatically updates user profiles with authentic metrics instead of placeholder data
 
 ## User Preferences
 

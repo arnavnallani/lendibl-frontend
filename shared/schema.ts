@@ -111,6 +111,8 @@ export const bookings = pgTable("bookings", {
   refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
   refundReason: text("refund_reason"), // 'cancelled', 'not_approved', 'timeout'
   paymentMethodId: text("payment_method_id"), // Store the payment method used for refund
+  requestSentAt: timestamp("request_sent_at").defaultNow(), // When request was sent to owner
+  ownerRespondedAt: timestamp("owner_responded_at"), // When owner first responded (approve/decline)
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

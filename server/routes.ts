@@ -16,6 +16,7 @@ import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
 import { users } from "@shared/schema";
 import { refundService } from "./refund-service";
+import { responseTrackingService } from "./response-tracking-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -667,6 +668,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const updatedBooking = await storage.updateBooking(id, { status });
+      
+      // Track owner response for approved/declined bookings
+      if (updatedBooking && isOwner && (status === 'approved' || status === 'declined')) {
+        await responseTrackingService.markOwnerResponse(id);
+      }
       
       // Handle payment based on status
       if (updatedBooking && status === 'approved') {
@@ -2013,6 +2019,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Failed to get Stripe balance:", error);
       res.status(500).json({ error: "Failed to get balance" });
+    }
+  });
+
+  // Response tracking endpoint to recalculate metrics
+  app.post("/api/recalculate-response-metrics", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { userId } = req.body;
+      
+      // Only allow users to recalculate their own metrics or admin functionality
+      if (userId && userId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to recalculate other user's metrics" });
+      }
+
+      const targetUserId = userId || req.user!.id;
+      await responseTrackingService.updateUserResponseMetrics(targetUserId);
+      
+      // Return updated user data
+      const updatedUser = await storage.getUser(targetUserId);
+      const { password, stripeCustomerId, stripeConnectAccountId, paypalEmail, ...publicUser } = updatedUser!;
+      
+      res.json({ 
+        message: "Response metrics updated", 
+        user: publicUser
+      });
+    } catch (error) {
+      console.error("Recalculate response metrics error:", error);
+      res.status(500).json({ message: "Failed to recalculate response metrics" });
+    }
+  });
+
+  // Admin endpoint to recalculate all user metrics
+  app.post("/api/recalculate-all-response-metrics", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      await responseTrackingService.recalculateAllUserMetrics();
+      res.json({ message: "All user response metrics recalculated" });
+    } catch (error) {
+      console.error("Recalculate all response metrics error:", error);
+      res.status(500).json({ message: "Failed to recalculate all response metrics" });
     }
   });
 
