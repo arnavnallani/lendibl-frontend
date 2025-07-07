@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { ArrowLeft } from "lucide-react";
 
 export default function PrivacyPolicy() {
   return (
@@ -6,8 +7,9 @@ export default function PrivacyPolicy() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100 p-8">
           <div className="mb-8">
-            <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors">
-              ← Back to Home
+            <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Link>
           </div>
           
