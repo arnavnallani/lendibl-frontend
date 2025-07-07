@@ -909,7 +909,7 @@ export default function ListItem() {
                               <p className="text-sm text-sky-600 font-medium">Algorithms + Market Analysis</p>
                             </div>
                           </div>
-                          <p className="text-gray-600 mb-6">Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends that work around our algorithms (but ultimately, it's your decision).</p>
+                          <p className="text-gray-600 mb-6">Get intelligent pricing suggestions based on market data, demand patterns, and seasonal trends that work around our algorithms (but ultimately, you can make your own decision).</p>
                           <ul className="space-y-2 mb-6 text-sm text-blue-600">
                             <li className="flex items-center gap-2">
                               <div className="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
