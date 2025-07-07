@@ -39,7 +39,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     search: filters.search,
     location: filters.location,
     page: currentPage,
-    limit: 12,
+    limit: 30,
     ...(filters.priceRange && filters.priceRange !== "all" ? {
       minPrice: filters.priceRange === "0-25" ? 0 : 
                 filters.priceRange === "25-50" ? 25 :
@@ -49,7 +49,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
                 filters.priceRange === "25-50" ? 50 :
                 filters.priceRange === "50-100" ? 100 : undefined,
     } : {}),
-  } : { page: currentPage, limit: 12 };
+  } : { page: currentPage, limit: 30 };
 
   const { data: paginatedData, isLoading: regularLoading, error } = useQuery({
     queryKey: ["/api/items", queryFilters],
