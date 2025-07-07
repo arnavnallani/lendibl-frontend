@@ -1,7 +1,11 @@
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 
 export default function PrivacyPolicy() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-8">
       <div className="max-w-4xl mx-auto px-6">
