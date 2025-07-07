@@ -658,9 +658,7 @@ export default function ListItem() {
                             value={field.value || ""}
                           />
                         </FormControl>
-                        <p className="text-sm text-gray-500">
-                          What would this item cost to buy new today? This helps AI give more accurate pricing suggestions.
-                        </p>
+                        <p className="text-sm text-gray-500">What would this item cost to buy today? This helps AI give more accurate pricing suggestions.</p>
                         <FormMessage />
                       </FormItem>
                     )}
