@@ -341,7 +341,7 @@ export default function ListItem() {
         </Card>
         <AuthModal 
           isOpen={isAuthModalOpen} 
-          onClose={() => setLocation("/")} 
+          onClose={() => setIsAuthModalOpen(false)} 
           message="You must have an account to list items."
         />
       </div>
