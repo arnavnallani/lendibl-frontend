@@ -7,39 +7,148 @@ export default function TermsOfService() {
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-center text-gray-dark">
-              Terms of Service
+              TERMS OF SERVICE
             </CardTitle>
             <p className="text-center text-gray-medium mt-2">
-              Last updated: July 7, 2025
+              <strong>Last updated: July 06, 2025</strong>
             </p>
           </CardHeader>
           <CardContent className="prose prose-gray max-w-none">
             
-            <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">AGREEMENT TO OUR LEGAL TERMS</h2>
+            
             <p>
-              By accessing and using Lendibl ("we," "our," or "us"), you accept and agree to be bound by the terms and provision of this agreement. 
-              If you do not agree to abide by the above, please do not use this service.
+              We are <strong>lendibl LLC</strong>, doing business as <strong>lendibl</strong> ("Company," "we," "us," "our"), 
+              a company registered in California, United States at 7800 Kennard Lane, San Ramon, CA 94582.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">2. Service Description</h2>
             <p>
-              Lendibl is a peer-to-peer rental marketplace that connects item owners ("Lenders") with renters ("Borrowers"). 
-              We facilitate transactions but are not party to the rental agreements between users.
+              We operate the website <a href="https://lendibl.com" className="text-blue-600 hover:underline">https://lendibl.com</a> (the "Site"), 
+              as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") 
+              (collectively, the "Services").
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">3. User Accounts</h2>
             <p>
-              You must create an account to use our services. You are responsible for maintaining the confidentiality of your account 
-              information and for all activities that occur under your account.
+              <strong>We provide a platform that allows anyone to rent anything from anyone else close-by.</strong>
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">4. Payment Terms</h2>
+            <p>
+              You can contact us by phone at <strong>925-336-5339</strong>, email at <strong>arnav.nallani@gmail.com</strong>, 
+              or by mail to 7800 Kennard Lane, San Ramon, CA 94582, United States.
+            </p>
+
+            <p>
+              These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), 
+              and lendibl LLC, concerning your access to and use of the Services. You agree that by accessing the Services, 
+              you have read, understood, and agreed to be bound by all of these Legal Terms. 
+              <strong>IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES 
+              AND YOU MUST DISCONTINUE USE IMMEDIATELY.</strong>
+            </p>
+
+            <p>
+              We will provide you with prior notice of any scheduled changes to the Services you are using. The modified Legal Terms 
+              will become effective upon posting or notifying you by arnav.nallani@gmail.com, as stated in the email message. 
+              By continuing to use the Services after the effective date of any changes, you agree to be bound by the modified terms.
+            </p>
+
+            <p>
+              <strong>The Services are intended for users who are at least 18 years old. Persons under the age of 18 are not permitted 
+              to use or register for the Services.</strong>
+            </p>
+
+            <p>We recommend that you print a copy of these Legal Terms for your records.</p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">1. OUR SERVICES</h2>
+            <p>
+              The information provided when using the Services is not intended for distribution to or use by any person or entity 
+              in any jurisdiction or country where such distribution or use would be contrary to law or regulation or which would 
+              subject us to any registration requirement within such jurisdiction or country. Accordingly, those persons who choose 
+              to access the Services from other locations do so on their own initiative and are solely responsible for compliance 
+              with local laws, if and to the extent local laws are applicable.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">2. INTELLECTUAL PROPERTY RIGHTS</h2>
+            
+            <h3 className="text-lg font-semibold mt-6 mb-3">Our intellectual property</h3>
+            <p>
+              We are the owner or the licensee of all intellectual property rights in our Services, including all source code, 
+              databases, functionality, software, website designs, audio, video, text, photographs, and graphics in the Services 
+              (collectively, the "Content"), as well as the trademarks, service marks, and logos contained therein (the "Marks").
+            </p>
+            
+            <p>
+              Our Content and Marks are protected by copyright and trademark laws (and various other intellectual property rights 
+              and unfair competition laws) and treaties in the United States and around the world.
+            </p>
+            
+            <p>
+              The Content and Marks are provided in or through the Services "AS IS" for your personal, non-commercial use or 
+              internal business purpose only.
+            </p>
+
+            <h3 className="text-lg font-semibold mt-6 mb-3">Your use of our Services</h3>
+            <p>
+              Subject to your compliance with these Legal Terms, including the "PROHIBITED ACTIVITIES" section below, we grant you 
+              a non-exclusive, non-transferable, revocable license to: access the Services; and download or print a copy of any 
+              portion of the Content to which you have properly gained access solely for your personal, non-commercial use or 
+              internal business purpose.
+            </p>
+            
+            <p>
+              Except as set out in this section or elsewhere in our Legal Terms, no part of the Services and no Content or Marks 
+              may be copied, reproduced, aggregated, republished, uploaded, posted, publicly displayed, encoded, translated, 
+              transmitted, distributed, sold, licensed, or otherwise exploited for any commercial purpose whatsoever, without our 
+              express prior written permission.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">3. USER REPRESENTATIONS</h2>
+            <p>By using the Services, you represent and warrant that:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>All registration information you submit will be true, accurate, current, and complete</li>
+              <li>You will maintain the accuracy of such information and promptly update such registration information as necessary</li>
+              <li>You have the legal capacity and you agree to comply with these Legal Terms</li>
+              <li>You are not a minor in the jurisdiction in which you reside</li>
+              <li>You will not access the Services through automated or non-human means</li>
+              <li>You will not use the Services for any illegal or unauthorized purpose</li>
+              <li>Your use of the Services will not violate any applicable law or regulation</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">4. PROHIBITED ACTIVITIES</h2>
+            <p>
+              You may not access or use the Services for any purpose other than that for which we make the Services available. 
+              The Services may not be used in connection with any commercial endeavors except those that are specifically endorsed or approved by us.
+            </p>
+            <p>As a user of the Services, you agree not to:</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Systematically retrieve data or other content from the Services to create or compile a collection, database, or directory</li>
+              <li>Trick, defraud, or mislead us and other users, especially in any attempt to learn sensitive account information</li>
+              <li>Circumvent, disable, or otherwise interfere with security-related features of the Services</li>
+              <li>Disparage, tarnish, or otherwise harm, in our opinion, us and/or the Services</li>
+              <li>Use any information obtained from the Services in order to harass, abuse, or harm another person</li>
+              <li>Make improper use of our support services or submit false reports of abuse or misconduct</li>
+              <li>Use the Services in a manner inconsistent with any applicable laws or regulations</li>
+              <li>Engage in unauthorized framing of or linking to the Services</li>
+              <li>Upload or transmit viruses, Trojan horses, or other material that interferes with any party's uninterrupted use of the Services</li>
+              <li>Engage in any automated use of the system, such as using scripts to send comments or messages</li>
+              <li>Delete the copyright or other proprietary rights notice from any Content</li>
+              <li>Attempt to impersonate another user or person or use the username of another user</li>
+              <li>Upload or transmit any material that acts as a passive or active information collection or transmission mechanism</li>
+              <li>Interfere with, disrupt, or create an undue burden on the Services or the networks or services connected to the Services</li>
+              <li>Harass, annoy, intimidate, or threaten any of our employees or agents engaged in providing any portion of the Services to you</li>
+              <li>Attempt to bypass any measures of the Services designed to prevent or restrict access to the Services</li>
+              <li>Copy or adapt the Services' software, including but not limited to Flash, PHP, HTML, JavaScript, or other code</li>
+              <li>Except as permitted by applicable law, decipher, decompile, disassemble, or reverse engineer any of the software comprising or in any way making up a part of the Services</li>
+              <li>Except as may be the result of standard search engine or Internet browser usage, use, launch, develop, or distribute any automated system</li>
+              <li>Use a buying agent or purchasing agent to make purchases on the Services</li>
+              <li>Make any unauthorized use of the Services, including collecting usernames and/or email addresses of users by electronic or other means</li>
+              <li>Use the Services as part of any effort to compete with us or otherwise use the Services and/or the Content for any revenue-generating endeavor or commercial enterprise</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">5. PAYMENT TERMS AND CANCELLATION POLICY</h2>
             <p>
               All payments are processed through Stripe. By making a booking, you authorize Lendibl to charge your payment method 
-              for the total rental cost including applicable fees.
+              for the total rental cost including applicable fees. Lendibl charges a 6% service fee on all successful rentals.
             </p>
-
-            <h2 className="text-2xl font-semibold mt-8 mb-4">5. Cancellation and Refund Policy</h2>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-6">
               <h3 className="text-lg font-semibold text-blue-800 mb-3">Important Cancellation Terms:</h3>
               
@@ -62,84 +171,161 @@ export default function TermsOfService() {
               </p>
             </div>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">6. User Responsibilities</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">6. USER REGISTRATION</h2>
+            <p>
+              You may be required to register to use the Services. You agree to keep your password confidential and will be responsible 
+              for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we 
+              determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">7. SERVICES MANAGEMENT</h2>
+            <p>
+              We reserve the right, but not the obligation, to: (1) monitor the Services for violations of these Legal Terms; 
+              (2) take appropriate legal action against anyone who, in our sole discretion, violates the law or these Legal Terms, 
+              including without limitation, reporting such user to law enforcement authorities; (3) in our sole discretion and without 
+              limitation, refuse, restrict access to, limit the availability of, or disable (to the extent technologically feasible) 
+              any of your Contributions or any portion thereof; (4) in our sole discretion and without limitation, notice, or liability, 
+              to remove from the Services or otherwise disable all files and content that are excessive in size or are in any way 
+              burdensome to our systems; and (5) otherwise manage the Services in a manner designed to protect our rights and property 
+              and to facilitate the proper functioning of the Services.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">8. PRIVACY POLICY</h2>
+            <p>
+              We care about data privacy and security. Please review our Privacy Policy: <a href="/privacy-policy" className="text-blue-600 hover:underline">https://lendibl.com/privacy-policy</a>. 
+              By using the Services, you agree to be bound by our Privacy Policy, which is incorporated into these Legal Terms. 
+              Please be advised the Services are hosted in the United States. If you access the Services from any other region of the world 
+              with laws or other requirements governing personal data collection, use, or disclosure that differ from applicable laws in 
+              the United States, then through your continued use of the Services, you are transferring your data to the United States, 
+              and you expressly consent to have your data transferred to and processed in the United States.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">9. TERM AND TERMINATION</h2>
+            <p>
+              These Legal Terms shall remain in full force and effect while you use the Services. WITHOUT LIMITING ANY OTHER PROVISION 
+              OF THESE LEGAL TERMS, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT NOTICE OR LIABILITY, DENY ACCESS TO 
+              AND USE OF THE SERVICES (INCLUDING BLOCKING CERTAIN IP ADDRESSES), TO ANY PERSON FOR ANY REASON OR FOR NO REASON, 
+              INCLUDING WITHOUT LIMITATION FOR BREACH OF ANY REPRESENTATION, WARRANTY, OR COVENANT CONTAINED IN THESE LEGAL TERMS 
+              OR OF ANY APPLICABLE LAW OR REGULATION. WE MAY TERMINATE YOUR USE OR PARTICIPATION IN THE SERVICES OR DELETE YOUR ACCOUNT 
+              AND ANY CONTENT OR INFORMATION THAT YOU POSTED AT ANY TIME, WITHOUT WARNING, IN OUR SOLE DISCRETION.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">10. MODIFICATIONS AND INTERRUPTIONS</h2>
+            <p>
+              We reserve the right to change, modify, or remove the contents of the Services at any time or for any reason 
+              at our sole discretion without notice. However, we have no obligation to update any information on our Services. 
+              We will not be liable to you or any third party for any modification, price change, suspension, or discontinuance 
+              of the Services.
+            </p>
             
-            <h3 className="text-lg font-semibold mt-6 mb-3">As a Borrower (Renter):</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Use items responsibly and as intended</li>
-              <li>Return items in the same condition as received</li>
-              <li>Pay for any damage or loss that occurs during your rental period</li>
-              <li>Coordinate pickup and return with the item owner</li>
-              <li>Understand that cancelling after approval results in no refund</li>
-            </ul>
-
-            <h3 className="text-lg font-semibold mt-6 mb-3">As a Lender (Owner):</h3>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Provide accurate descriptions and photos of your items</li>
-              <li>Ensure items are in safe, working condition</li>
-              <li>Respond to booking requests within 24 hours</li>
-              <li>Be available for item pickup and return coordination</li>
-              <li>Set up payment method to receive rental earnings</li>
-            </ul>
-
-            <h2 className="text-2xl font-semibold mt-8 mb-4">7. Prohibited Activities</h2>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Listing illegal items or items that violate intellectual property rights</li>
-              <li>Using the platform for any illegal purposes</li>
-              <li>Manipulating reviews or ratings</li>
-              <li>Harassing or threatening other users</li>
-              <li>Circumventing platform fees or payment processing</li>
-            </ul>
-
-            <h2 className="text-2xl font-semibold mt-8 mb-4">8. Fees</h2>
             <p>
-              Lendibl charges a 6% service fee on all successful rentals. This fee covers payment processing, 
-              platform maintenance, and customer support. Fees are non-refundable except in cases of platform error.
+              We cannot guarantee the Services will be available at all times. We may experience hardware, software, or other 
+              problems or need to perform maintenance related to the Services, resulting in interruptions, delays, or errors. 
+              We reserve the right to change, revise, update, suspend, discontinue, or otherwise modify the Services at any time 
+              or for any reason without notice to you.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">9. Liability and Insurance</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">11. GOVERNING LAW</h2>
             <p>
-              Lendibl is not responsible for damage, loss, or injury related to rental items. Users are encouraged 
-              to verify insurance coverage for rental activities. We provide a platform but do not guarantee the 
-              condition, safety, or legality of listed items.
+              These Legal Terms shall be governed by and defined following the laws of California, United States. 
+              lendibl LLC and yourself irrevocably consent that the courts of California, United States shall have 
+              exclusive jurisdiction to resolve any dispute which may arise in connection with these Legal Terms.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">10. Dispute Resolution</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">12. DISPUTE RESOLUTION</h2>
+            
+            <h3 className="text-lg font-semibold mt-6 mb-3">Informal Negotiations</h3>
             <p>
-              In case of disputes between users, Lendibl may provide mediation services but is not obligated to resolve conflicts. 
-              Users agree to attempt good faith resolution before pursuing legal action.
+              To expedite resolution and control the cost of any dispute, controversy, or claim related to these Legal Terms 
+              (each a "Dispute" and collectively, the "Disputes") brought by either you or us (individually, a "Party" and 
+              collectively, the "Parties"), the Parties agree to first attempt to negotiate any Dispute (except those Disputes 
+              expressly provided below) informally for at least thirty (30) days before initiating arbitration. Such informal 
+              negotiations commence upon written notice from one Party to the other Party.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">11. Platform Changes</h2>
+            <h3 className="text-lg font-semibold mt-6 mb-3">Binding Arbitration</h3>
             <p>
-              We reserve the right to modify or discontinue the service at any time. We will provide reasonable notice 
-              of significant changes to these terms or the platform functionality.
+              Any dispute arising out of or in connection with these Legal Terms, including any question regarding its existence, 
+              validity, or termination, shall be referred to and finally resolved by the International Commercial Arbitration Court 
+              under the European Arbitration Chamber (Belgium, Brussels, Avenue Louise, 146) according to the Rules of this ICAC, 
+              which, as a result of referring to it, is considered as the part of this clause. The number of arbitrators shall be three (3). 
+              The seat, or legal place, or arbitration shall be San Ramon, California, United States. The language of the proceedings 
+              shall be English. The governing law of these Legal Terms shall be substantive law of California, United States.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">12. Termination</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">13. CORRECTIONS</h2>
             <p>
-              We may terminate or suspend your account for violations of these terms. Upon termination, 
-              your right to use the service ceases immediately.
+              There may be information on the Services that contains typographical errors, inaccuracies, or omissions, including 
+              descriptions, pricing, availability, and various other information. We reserve the right to correct any errors, 
+              inaccuracies, or omissions and to change or update the information on the Services at any time, without prior notice.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">13. Governing Law</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">14. DISCLAIMER</h2>
             <p>
-              These terms are governed by the laws of the United States. Any disputes will be resolved in 
-              the appropriate courts of jurisdiction.
+              THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR 
+              SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH 
+              THE SERVICES AND YOUR USE THEREOF, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS 
+              FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE MAKE NO WARRANTIES OR REPRESENTATIONS ABOUT THE ACCURACY OR 
+              COMPLETENESS OF THE SERVICES' CONTENT OR THE CONTENT OF ANY WEBSITES OR MOBILE APPLICATIONS LINKED TO THE SERVICES 
+              AND WE WILL ASSUME NO LIABILITY OR RESPONSIBILITY FOR ANY (1) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT AND MATERIALS, 
+              (2) PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS TO AND USE OF THE SERVICES, 
+              (3) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS AND/OR ANY AND ALL PERSONAL INFORMATION AND/OR FINANCIAL 
+              INFORMATION STORED THEREIN, (4) ANY INTERRUPTION OR CESSATION OF TRANSMISSION TO OR FROM THE SERVICES, (5) ANY BUGS, 
+              VIRUSES, TROJAN HORSES, OR THE LIKE WHICH MAY BE TRANSMITTED TO OR THROUGH THE SERVICES BY ANY THIRD PARTY, AND/OR 
+              (6) ANY ERRORS OR OMISSIONS IN ANY CONTENT AND MATERIALS OR FOR ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT 
+              OF THE USE OF ANY CONTENT POSTED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">14. Contact Information</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">15. LIMITATIONS OF LIABILITY</h2>
             <p>
-              For questions about these Terms of Service, please contact us at:
+              IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, 
+              CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, 
+              OR OTHER DAMAGES ARISING FROM YOUR USE OF THE SERVICES, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+              NOTWITHSTANDING ANYTHING TO THE CONTRARY CONTAINED HEREIN, OUR LIABILITY TO YOU FOR ANY CAUSE WHATSOEVER AND REGARDLESS 
+              OF THE FORM OF THE ACTION, WILL AT ALL TIMES BE LIMITED TO THE AMOUNT PAID, IF ANY, BY YOU TO US DURING THE SIX (6) MONTH 
+              PERIOD PRIOR TO ANY CAUSE OF ACTION ARISING.
             </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">16. INDEMNIFICATION</h2>
+            <p>
+              You agree to defend, indemnify, and hold us harmless, including our subsidiaries, affiliates, and all of our respective 
+              officers, agents, partners, and employees, from and against any loss, damage, liability, claim, or demand, including 
+              reasonable attorneys' fees and expenses, made by any third party due to or arising out of: (1) your Contributions; 
+              (2) use of the Services; (3) breach of these Legal Terms; (4) any breach of your representations and warranties set 
+              forth in these Legal Terms; (5) your violation of the rights of a third party, including but not limited to intellectual 
+              property rights; or (6) any overt harmful act toward any other user of the Services with whom you connected via the Services.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">17. USER DATA</h2>
+            <p>
+              We will maintain certain data that you transmit to the Services for the purpose of managing the performance of the Services, 
+              as well as data relating to your use of the Services. Although we perform regular routine backups of data, you are solely 
+              responsible for all data that you transmit or that relates to any activity you have undertaken using the Services. You agree 
+              that we shall have no liability to you for any loss or corruption of any such data, and you hereby waive any right of action 
+              against us arising from any such loss or corruption of such data.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">18. CONTACT US</h2>
+            <p>
+              In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, 
+              please contact us at:
+            </p>
+            
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
+              <p><strong>lendibl LLC</strong></p>
+              <p>7800 Kennard Lane</p>
+              <p>San Ramon, CA 94582</p>
+              <p>United States</p>
+              <p><strong>Phone:</strong> 925-336-5339</p>
               <p><strong>Email:</strong> arnav.nallani@gmail.com</p>
-              <p><strong>Company:</strong> lendibl LLC</p>
             </div>
 
             <div className="border-t border-gray-200 pt-6 mt-8">
               <p className="text-sm text-gray-500 text-center">
-                By using Lendibl, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                By using Lendibl, you acknowledge that you have read, understood, and agree to be bound by these Legal Terms. 
+                These Legal Terms constitute the sole and entire agreement between you and lendibl LLC regarding the Services 
+                and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, 
+                both written and oral, regarding the Services.
               </p>
             </div>
 
