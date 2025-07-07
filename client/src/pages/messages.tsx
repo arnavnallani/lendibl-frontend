@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { 
@@ -32,6 +32,7 @@ export default function Messages() {
   const [selectedConversation, setSelectedConversation] = useState<BookingWithDetails | null>(null);
   const [messageText, setMessageText] = useState("");
   const [expandedPersons, setExpandedPersons] = useState<Set<number>>(new Set());
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['/api/bookings', 'conversations'],
@@ -104,6 +105,13 @@ export default function Messages() {
     enabled: !!selectedConversation,
     refetchInterval: 5000,
   });
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messages && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!selectedConversation || !messageText.trim()) return;
@@ -281,7 +289,7 @@ export default function Messages() {
                   </CardHeader>
 
                   {/* Messages */}
-                  <CardContent className="flex-1 p-4 overflow-y-auto">
+                  <CardContent className="flex-1 p-4 overflow-y-auto max-h-[calc(100vh-350px)]">
                     <div className="space-y-4">
                       {messages.length > 0 ? (
                         messages.map((message: any) => {
@@ -314,6 +322,7 @@ export default function Messages() {
                           <p className="text-gray-medium text-center">Talk about stuff</p>
                         </div>
                       )}
+                      <div ref={messagesEndRef} />
                     </div>
                   </CardContent>
 
