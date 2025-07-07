@@ -32,13 +32,16 @@ export default function Home() {
   // Get AI search results
   const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
 
-  // Restore scroll position when returning from item details
+  // Restore scroll position when returning from item details (not on auth changes)
   useEffect(() => {
     const savedScrollPosition = localStorage.getItem('homeScrollPosition');
-    if (savedScrollPosition) {
+    const isFromItemDetails = sessionStorage.getItem('fromItemDetails');
+    
+    if (savedScrollPosition && isFromItemDetails) {
       setTimeout(() => {
         window.scrollTo(0, parseInt(savedScrollPosition));
         localStorage.removeItem('homeScrollPosition'); // Clean up
+        sessionStorage.removeItem('fromItemDetails'); // Clean up
       }, 100);
     }
   }, []);
