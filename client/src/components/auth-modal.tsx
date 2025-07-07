@@ -67,9 +67,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
-    // Capture current scroll position before login
+    // Capture current scroll position and freeze scrolling
     const currentScrollPosition = window.scrollY;
-    localStorage.setItem('authScrollPosition', currentScrollPosition.toString());
+    
+    // Override scroll behavior to maintain exact position
+    const originalScrollTo = window.scrollTo;
+    const originalScrollBy = window.scrollBy;
+    
+    // Block all scroll attempts during login
+    window.scrollTo = () => {};
+    window.scrollBy = () => {};
     
     try {
       await login(data.email, data.password);
@@ -80,20 +87,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       onClose();
       loginForm.reset();
       
-      // Restore scroll position after successful login with multiple attempts
-      const restoreScroll = () => {
-        const savedPosition = localStorage.getItem('authScrollPosition');
-        if (savedPosition) {
-          window.scrollTo(0, parseInt(savedPosition));
-          localStorage.removeItem('authScrollPosition');
-        }
-      };
-      
-      setTimeout(restoreScroll, 0);
-      setTimeout(restoreScroll, 50);
-      setTimeout(restoreScroll, 100);
-      setTimeout(restoreScroll, 200);
+      // Restore scroll position and re-enable scrolling
+      setTimeout(() => {
+        window.scrollTo = originalScrollTo;
+        window.scrollBy = originalScrollBy;
+        window.scrollTo(0, currentScrollPosition);
+      }, 0);
     } catch (error) {
+      // Re-enable scrolling on error
+      window.scrollTo = originalScrollTo;
+      window.scrollBy = originalScrollBy;
       toast({
         title: 'Login failed',
         description: error instanceof Error ? error.message : 'An error occurred',
@@ -106,9 +109,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
-    // Capture current scroll position before registration
+    // Capture current scroll position and freeze scrolling
     const currentScrollPosition = window.scrollY;
-    localStorage.setItem('authScrollPosition', currentScrollPosition.toString());
+    
+    // Override scroll behavior to maintain exact position
+    const originalScrollTo = window.scrollTo;
+    const originalScrollBy = window.scrollBy;
+    
+    // Block all scroll attempts during registration
+    window.scrollTo = () => {};
+    window.scrollBy = () => {};
     
     try {
       await register({
@@ -125,20 +135,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       onClose();
       registerForm.reset();
       
-      // Restore scroll position after successful registration with multiple attempts
-      const restoreScroll = () => {
-        const savedPosition = localStorage.getItem('authScrollPosition');
-        if (savedPosition) {
-          window.scrollTo(0, parseInt(savedPosition));
-          localStorage.removeItem('authScrollPosition');
-        }
-      };
-      
-      setTimeout(restoreScroll, 0);
-      setTimeout(restoreScroll, 50);
-      setTimeout(restoreScroll, 100);
-      setTimeout(restoreScroll, 200);
+      // Restore scroll position and re-enable scrolling
+      setTimeout(() => {
+        window.scrollTo = originalScrollTo;
+        window.scrollBy = originalScrollBy;
+        window.scrollTo(0, currentScrollPosition);
+      }, 0);
     } catch (error) {
+      // Re-enable scrolling on error
+      window.scrollTo = originalScrollTo;
+      window.scrollBy = originalScrollBy;
       toast({
         title: 'Registration failed',
         description: error instanceof Error ? error.message : 'An error occurred',

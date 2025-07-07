@@ -323,6 +323,7 @@ The application uses PostgreSQL with the following main entities:
 - July 7, 2025: Fixed automatic scrolling issue after login - prevented unwanted scroll-to-bottom behavior by implementing conditional scroll restoration that only triggers when returning from item details, not on authentication state changes
 - July 7, 2025: Implemented comprehensive scroll position preservation for all authentication actions - login, register, and logout now capture and restore exact scroll position to prevent unwanted page movement during authentication
 - July 7, 2025: Enhanced scroll preservation system with multiple restoration attempts and conflict prevention - uses 4 different timeouts and dedicated storage to eliminate authentication scroll issues completely
+- July 7, 2025: Implemented scroll-freezing system for perfect position preservation - temporarily blocks all scroll functions during authentication to maintain EXACT page position for login, register, and logout
 
 ## User Preferences
 
