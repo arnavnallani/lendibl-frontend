@@ -31,6 +31,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const [currentPage, setCurrentPage] = useState(1);
   const [allLoadedItems, setAllLoadedItems] = useState<ItemWithDetails[]>([]);
   const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   const queryFilters = filters ? {
     categoryId: filters.categoryId,
@@ -71,6 +72,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
         setAllLoadedItems(prev => [...prev, ...paginatedData.items]);
       }
       setHasMore(paginatedData.pagination.hasMore);
+      setIsLoadingMore(false);
     }
   }, [paginatedData, currentPage]);
 
@@ -279,11 +281,14 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
         <div className="text-center mt-12">
           <Button 
             variant="outline"
-            onClick={() => setCurrentPage(prev => prev + 1)}
-            disabled={regularLoading}
+            onClick={() => {
+              setIsLoadingMore(true);
+              setCurrentPage(prev => prev + 1);
+            }}
+            disabled={regularLoading || isLoadingMore}
             className="px-8 py-3 bg-white border-2 border-gray-dark text-gray-dark font-medium rounded-full hover:bg-gray-dark hover:text-white transition-colors disabled:opacity-50"
           >
-            {regularLoading ? (
+            {(regularLoading || isLoadingMore) ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 Loading...
