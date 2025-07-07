@@ -460,6 +460,7 @@ export class DatabaseStorage implements IStorage {
         if (filters.minPrice && parseFloat(item.price) < filters.minPrice) return false;
         if (filters.maxPrice && parseFloat(item.price) > filters.maxPrice) return false;
         if (filters.location && !item.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+        if (filters.ownerId && item.ownerId !== filters.ownerId) return false;
 
         return true;
       });

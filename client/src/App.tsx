@@ -12,6 +12,7 @@ import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
 import MyProfile from "@/pages/my-profile";
+import UserProfile from "@/pages/user-profile";
 import Settings from "@/pages/settings";
 import ActionDashboard from "@/pages/action-dashboard";
 import Messages from "@/pages/messages";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/item/:id" component={ItemDetails} />
       <Route path="/list-item" component={ListItem} />
       <Route path="/my-profile" component={MyProfile} />
+      <Route path="/user/:id" component={UserProfile} />
       <Route path="/settings" component={Settings} />
       <Route path="/action-dashboard" component={ActionDashboard} />
       <Route path="/messages" component={Messages} />

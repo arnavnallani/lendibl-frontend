@@ -17,6 +17,7 @@ export const api = {
     location?: string;
     page?: number;
     limit?: number;
+    ownerId?: number;
   }): Promise<{
     items: ItemWithDetails[];
     pagination: {
@@ -35,6 +36,7 @@ export const api = {
     if (filters?.location) params.set("location", filters.location);
     if (filters?.page) params.set("page", filters.page.toString());
     if (filters?.limit) params.set("limit", filters.limit.toString());
+    if (filters?.ownerId) params.set("ownerId", filters.ownerId.toString());
 
     const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
     const res = await apiRequest("GET", url);
@@ -65,6 +67,11 @@ export const api = {
 
   getItem: async (id: number): Promise<ItemWithDetails> => {
     const res = await apiRequest("GET", `/api/items/${id}`);
+    return res.json();
+  },
+
+  getUser: async (id: number) => {
+    const res = await apiRequest("GET", `/api/users/${id}`);
     return res.json();
   },
 

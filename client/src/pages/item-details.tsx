@@ -171,7 +171,10 @@ export default function ItemDetails() {
                     )}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-dark">
+                    <h4 
+                      className="font-semibold text-primary-blue hover:text-primary-blue/80 cursor-pointer transition-colors"
+                      onClick={() => setLocation(`/user/${item.owner.id}`)}
+                    >
                       {item.owner.firstName} {item.owner.lastName}
                     </h4>
                     <div className="flex items-center space-x-4 text-sm text-gray-medium">

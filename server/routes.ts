@@ -386,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Items
   app.get("/api/items", async (req, res) => {
     try {
-      const { categoryId, search, minPrice, maxPrice, location, page, limit } = req.query;
+      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId } = req.query;
       
       const filters: any = {};
       if (categoryId) filters.categoryId = parseInt(categoryId as string);
@@ -394,6 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (minPrice) filters.minPrice = parseFloat(minPrice as string);
       if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
       if (location) filters.location = location as string;
+      if (ownerId) filters.ownerId = parseInt(ownerId as string);
 
       // Pagination parameters
       const pageNumber = page ? parseInt(page as string) : 1;
@@ -440,6 +441,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(item);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch item" });
+    }
+  });
+
+  app.get("/api/users/:id", async (req: AuthRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Remove sensitive information
+      const { password, stripeCustomerId, stripeConnectAccountId, paypalEmail, ...publicUser } = user;
+      res.json(publicUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
