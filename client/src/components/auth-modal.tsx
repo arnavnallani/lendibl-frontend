@@ -35,9 +35,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultTab?: 'login' | 'register';
+  message?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultTab = 'login', message }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +119,12 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login' }: Aut
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center text-gray-dark">Welcome to lendibl</DialogTitle>
         </DialogHeader>
+
+        {message && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-blue-800 text-sm font-medium text-center">{message}</p>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
