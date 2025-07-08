@@ -42,6 +42,8 @@ $700 items - $3 above or below $22
 $800 items - $3 above or below $24
 $900 items - $3 above or below $26
 
+Scale the price linearly for items between these ranges.
+
 Real Price of Item: $${currentPrice}
 
 IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
