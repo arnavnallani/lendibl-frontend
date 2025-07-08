@@ -71,6 +71,8 @@ Provide comprehensive market analysis in your reasoning. Include multiple detail
 5. Consumer behavior patterns
 6. Risk/reward assessment
 
+REMEMBER, THE PRICE SUGGESTION YOU GIVE CAN ONLY BE 3 DOLLARS ABOVE OR BELOW THE GUIDELINES THAT I PROVIDED ABOVE. DO NOT GO ABOVE OR BELOW THESE GUIDELINES.
+
 Respond in this JSON format only:
 {
   "dailyRate": <number>,
