@@ -23,7 +23,7 @@ export interface PricingAnalysisInput {
 // OpenAI ChatGPT 3.5 pricing analysis
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function getChatGPTPricing(currentPrice: number): Promise<any> {
+async function getChatGPTPricingWithContext(currentPrice: number, input: PricingAnalysisInput): Promise<any> {
   const enhancedPrompt = `You are an expert rental marketplace pricing analyst with deep knowledge of consumer behavior, market dynamics, and rental economics. 
 
 Your expertise includes:
@@ -51,14 +51,37 @@ $700 items - $3 above or below $22
 $800 items - $3 above or below $24
 $900 items - $3 above or below $26
 
-Current item price: $${currentPrice}
+ITEM DETAILS FOR ANALYSIS:
+- Title: ${input.itemTitle}
+- Category: ${input.category}
+- Description: ${input.description}
+- Location: ${input.location}
+- Condition: ${input.condition}
+- Current market price: $${currentPrice}
 
 IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
+
+Use the item details above to provide comprehensive market analysis. Consider the specific item type, local market conditions in ${input.location}, category-specific demand patterns, and seasonal factors relevant to ${input.category} items.
+
+Provide comprehensive market analysis in your reasoning. Include multiple detailed points covering:
+1. Market demand analysis for this item category
+2. Seasonal factors affecting rental rates
+3. Competitive positioning strategy
+4. Revenue optimization insights
+5. Consumer behavior patterns
+6. Risk/reward assessment
 
 Respond in this JSON format only:
 {
   "dailyRate": <number>,
-  "reasoning": "<brief explanation>",
+  "reasoning": [
+    "Market demand analysis: [detailed analysis of current demand patterns for this item category]",
+    "Seasonal factors: [detailed explanation of seasonal trends affecting pricing]", 
+    "Competitive positioning: [detailed strategy for positioning against competitors]",
+    "Revenue optimization: [detailed insights on maximizing owner revenue]",
+    "Consumer behavior: [detailed analysis of renter behavior patterns for this item type]",
+    "Risk assessment: [detailed evaluation of pricing risks and market dynamics]"
+  ],
   "demandLevel": "low|medium|high",
   "seasonalTrend": "increasing|stable|decreasing",
   "competitivePosition": "below-market|market-rate|above-market"
@@ -94,7 +117,7 @@ Respond in this JSON format only:
       const parsed = JSON.parse(jsonMatch[0]);
       return {
         suggestedPrice: parsed.dailyRate,
-        reasoning: parsed.reasoning,
+        reasoning: Array.isArray(parsed.reasoning) ? parsed.reasoning : [parsed.reasoning],
         demandLevel: parsed.demandLevel,
         seasonalTrend: parsed.seasonalTrend,
         competitivePosition: parsed.competitivePosition,
@@ -136,7 +159,7 @@ export class AIPricingService {
     console.log('🤖 === END ANALYSIS ===');
     
     try {
-      const chatGPTResult = await getChatGPTPricing(originalPrice);
+      const chatGPTResult = await getChatGPTPricingWithContext(originalPrice, input);
       
       // Log the AI's full response
       console.log('🤖 === AI RESPONSE ===');
@@ -162,12 +185,15 @@ export class AIPricingService {
         
         const finalPrice = Math.max(5, Math.round(suggestedPrice * 100) / 100);
         
-        const reasoning = [
-          `AI-powered pricing: $${chatGPTResult.suggestedPrice}/day`,
-          chatGPTResult.reasoning || `Optimized for ${input.location} market`,
-          `${season} seasonal pricing for ${month}`,
-          input.currentPrice ? `Based on provided real price: $${originalPrice}` : "AI estimated item value"
-        ];
+        // Use detailed AI reasoning if available, otherwise fallback to basic reasoning
+        const reasoning = Array.isArray(chatGPTResult.reasoning) && chatGPTResult.reasoning.length > 1 
+          ? chatGPTResult.reasoning
+          : [
+              `AI-powered pricing: $${chatGPTResult.suggestedPrice}/day`,
+              chatGPTResult.reasoning || `Optimized for ${input.location} market`,
+              `${season} seasonal pricing for ${month}`,
+              input.currentPrice ? `Based on provided real price: $${originalPrice}` : "AI estimated item value"
+            ];
         
         return {
           dailyRate: finalPrice,
