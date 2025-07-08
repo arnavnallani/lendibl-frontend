@@ -55,6 +55,8 @@ Current item price: $${currentPrice}
 
 IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
 
+Provide slightly more detailed market analysis in the "why this pricing?" section. Explain why the suggested price is optimal for the given market conditions and item specifics.
+
 Respond in this JSON format only:
 {
   "dailyRate": <number>,
