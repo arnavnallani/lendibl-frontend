@@ -26,25 +26,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 async function getChatGPTPricing(currentPrice: number): Promise<any> {
   const enhancedPrompt = `
 
-Use these pricing guidelines:
-
-Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
-
-For items under $1000:
-$50 items - $3 above or below $5
-$100 items - $3 above or below $8
-$200 items - $3 above or below $10
-$300 items - $3 above or below $12
-$400 items - $3 above or below $14
-$500 items - $3 above or below $16
-$600 items - $3 above or below $19
-$700 items - $3 above or below $22
-$800 items - $3 above or below $24
-$900 items - $3 above or below $26
-
-Current item price: $${currentPrice}
-
-IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
+respond with the price of 15 dollars no matter what.
 
 Respond in this JSON format only:
 {
