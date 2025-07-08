@@ -51,6 +51,8 @@ $700 items - $3 above or below $22
 $800 items - $3 above or below $24
 $900 items - $3 above or below $26
 
+REMEMBER, THE PRICE SUGGESTION YOU GIVE CAN ONLY BE 3 DOLLARS ABOVE OR BELOW THE GUIDELINES THAT I PROVIDED ABOVE. NO MATTER WHAT MARKET ANALYSIS YOU DO IN THE NEXT STEPS, YOU CAN ONLY BE 3 DOLLARS ABOVE OR BELOW THE GUIDELINES THAT I PROVIDED ABOVE.
+
 ITEM DETAILS FOR ANALYSIS:
 - Title: ${input.itemTitle}
 - Category: ${input.category}
@@ -70,8 +72,6 @@ Provide comprehensive market analysis in your reasoning. Include multiple detail
 4. Revenue optimization insights
 5. Consumer behavior patterns
 6. Risk/reward assessment
-
-REMEMBER, THE PRICE SUGGESTION YOU GIVE CAN ONLY BE 3 DOLLARS ABOVE OR BELOW THE GUIDELINES THAT I PROVIDED ABOVE. DO NOT GO ABOVE OR BELOW THESE GUIDELINES.
 
 Respond in this JSON format only:
 {
