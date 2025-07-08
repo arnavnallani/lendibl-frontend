@@ -28,21 +28,19 @@ async function getChatGPTPricing(currentPrice: number): Promise<any> {
 
 Use these pricing guidelines:
 
-Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
+Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(Real Price of Item) + 25
 
 For items under $1000:
-$50 items - $3 above or below $5
-$100 items - $3 above or below $8
-$200 items - $3 above or below $10
-$300 items - $3 above or below $12
-$400 items - $3 above or below $14
-$500 items - $3 above or below $16
-$600 items - $3 above or below $19
-$700 items - $3 above or below $22
-$800 items - $3 above or below $24
-$900 items - $3 above or below $26
-
-Scale the price linearly for items between these ranges. For example, a $150 item would be $3 above or below $9.
+$50 real price items - $3 above or below $5
+$100 real price items - $3 above or below $8
+$200 real price items - $3 above or below $10
+$300 real price items - $3 above or below $12
+$400 real price items - $3 above or below $14
+$500 real price items - $3 above or below $16
+$600 real price items - $3 above or below $19
+$700 real price items - $3 above or below $22
+$800 real price items - $3 above or below $24
+$900 real price items - $3 above or below $26
 
 Real Price of Item: $${currentPrice}
 
