@@ -198,14 +198,11 @@ export class AIPricingService {
         // Apply lower pricing constraints
         let suggestedPrice = chatGPTResult.suggestedPrice;
 
-        // Enforce maximum limits based on original price
+        // Enforce maximum limits only for items under $1000
         if (originalPrice < 1000) {
           suggestedPrice = Math.min(suggestedPrice, 25); // Max $25 for items under $1000
-        } else {
-          // For items over $1000, use formula: 0.003x + 25
-          const formulaMax = 0.003 * originalPrice + 25;
-          suggestedPrice = Math.min(suggestedPrice, formulaMax);
         }
+        // Items over $1000 have no formula-based limits - AI has complete autonomy
 
         const finalPrice = Math.max(5, Math.round(suggestedPrice * 100) / 100);
 
