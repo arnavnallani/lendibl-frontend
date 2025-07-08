@@ -42,7 +42,7 @@ $700 items - $3 above or below $22
 $800 items - $3 above or below $24
 $900 items - $3 above or below $26
 
-Scale the price linearly for items between these ranges.
+Scale the price linearly for items between these ranges. For example, a $150 item would be $3 above or below $9.
 
 Real Price of Item: $${currentPrice}
 
