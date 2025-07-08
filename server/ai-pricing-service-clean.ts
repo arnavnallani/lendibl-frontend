@@ -24,7 +24,18 @@ export interface PricingAnalysisInput {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function getChatGPTPricing(currentPrice: number): Promise<any> {
-  const enhancedPrompt = `Use these pricing guidelines ONLY:
+  const enhancedPrompt = `You are an expert rental marketplace pricing analyst with deep knowledge of consumer behavior, market dynamics, and rental economics. 
+
+Your expertise includes:
+- Analyzing market demand patterns across different item categories
+- Understanding seasonal trends and local market variations  
+- Evaluating competitive positioning and pricing strategies
+- Assessing item depreciation and condition impact on rental value
+- Identifying optimal price points for maximum revenue and booking rates
+
+Consider the full spectrum of market factors and price accordingly - there are no artificial constraints on your pricing decisions, other than the pricing guidelines outlined below. Recommend whatever daily rate maximizes owner revenue while maintaining market competitiveness.
+
+Use these pricing guidelines:
 
 Items $1000 to $5000 should be either $3 above or below the formula output: 0.003(real price of item) + 25
 
@@ -42,7 +53,7 @@ $900 items - $3 above or below $26
 
 Current item price: $${currentPrice}
 
-IMPORTANT: You can use your own judgment to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
+IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the formula output by up to $3 above or below. The ±$3 range is your maximum adjustment limit.
 
 Respond in this JSON format only:
 {
