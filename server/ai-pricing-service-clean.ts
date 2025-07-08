@@ -24,16 +24,7 @@ export interface PricingAnalysisInput {
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function getChatGPTPricing(currentPrice: number): Promise<any> {
-  const enhancedPrompt = `You are an expert rental marketplace pricing analyst with deep knowledge of consumer behavior, market dynamics, and rental economics. 
-
-Your expertise includes:
-- Analyzing market demand patterns across different item categories
-- Understanding seasonal trends and local market variations  
-- Evaluating competitive positioning and pricing strategies
-- Assessing item depreciation and condition impact on rental value
-- Identifying optimal price points for maximum revenue and booking rates
-
-Consider the full spectrum of market factors and price accordingly - there are no artificial constraints on your pricing decisions, other than the pricing guidelines outlined below. Recommend whatever daily rate maximizes owner revenue while maintaining market competitiveness.
+  const enhancedPrompt = `
 
 Use these pricing guidelines:
 
