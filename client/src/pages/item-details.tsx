@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import BookingModal from "@/components/booking-modal";
@@ -15,6 +16,7 @@ import type { ItemWithDetails } from "@shared/schema";
 export default function ItemDetails() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -70,7 +72,11 @@ export default function ItemDetails() {
 
   const handleBookNow = () => {
     if (!user) {
-      // Redirect to login or show login modal
+      toast({
+        title: "Login Required",
+        description: "You must be logged in to reserve items",
+        variant: "destructive",
+      });
       return;
     }
     setIsBookingModalOpen(true);
