@@ -51,6 +51,8 @@ $900 real price items -> $26
 
 Real Price of Item: $${currentPrice}
 
+Make the "why this pricing" section slightly more detailed.
+
 IMPORTANT: You can use your own judgment as prompted above to adjust pricing based on market conditions, but you can ONLY influence the guidelines/formula output by up to $3 above or below the guidelines. The ±$3 range is your maximum adjustment limit. REMEMBER THIS NO MATTER WHAT.
 
 Respond in this JSON format only:
