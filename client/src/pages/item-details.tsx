@@ -11,6 +11,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import BookingModal from "@/components/booking-modal";
 import EditItemModal from "@/components/edit-item-modal";
+import AuthModal from "@/components/auth-modal";
 import type { ItemWithDetails } from "@shared/schema";
 
 export default function ItemDetails() {
@@ -20,6 +21,7 @@ export default function ItemDetails() {
   const [, setLocation] = useLocation();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   // Extract city and state from location for privacy
   const getDisplayLocation = (location: string) => {
@@ -72,11 +74,7 @@ export default function ItemDetails() {
 
   const handleBookNow = () => {
     if (!user) {
-      toast({
-        title: "Login Required",
-        description: "You must be logged in to reserve items",
-        variant: "destructive",
-      });
+      setIsAuthModalOpen(true);
       return;
     }
     setIsBookingModalOpen(true);
@@ -230,6 +228,11 @@ export default function ItemDetails() {
           // Refresh item data
           window.location.reload();
         }}
+      />
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        message="You must have an account to reserve items"
       />
     </div>
   );
