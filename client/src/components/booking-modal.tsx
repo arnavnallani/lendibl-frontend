@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import { api } from "@/lib/api";
 import { format } from "date-fns";
 import type { ItemWithDetails, InsertBooking } from "@shared/schema";
@@ -34,6 +35,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
 
   const createPaymentIntentMutation = useMutation({
     mutationFn: async (amount: number) => {
@@ -114,6 +116,10 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       setMessage("");
       setShowPayment(false);
       setClientSecret("");
+      
+      // Redirect to home page and scroll to top
+      setLocation("/");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onError: () => {
       toast({

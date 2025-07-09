@@ -319,6 +319,7 @@ The application uses PostgreSQL with the following main entities:
 - July 7, 2025: Added comprehensive reviews section to user profile pages - displays all reviews received by the host with star ratings, comments, reviewer information, and review dates, enhances user trust and transparency in the marketplace
 - July 7, 2025: Implemented post-approval cancellation policy - renters can now cancel approved bookings but receive NO REFUND, while pre-approval cancellations still receive full refunds, updated UI warnings and notifications to inform users of the new policy
 - July 7, 2025: Created comprehensive professional Terms of Service page with detailed legal content from business legal document, prominently featuring the new cancellation policy with visual emphasis, includes all standard legal sections required for rental marketplace
+- July 8, 2025: Enhanced booking flow UX - after successful reservation and payment, users are now automatically redirected to the top of the home page for seamless browsing experience
 
 ## User Preferences
 
