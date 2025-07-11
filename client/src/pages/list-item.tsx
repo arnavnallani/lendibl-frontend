@@ -993,11 +993,7 @@ export default function ListItem() {
                     <Button 
                       type="submit"
                       disabled={createItemMutation.isPending || !isPriceValid() || !showAIPricing}
-                      className={`px-8 py-3 ${
-                        !showAIPricing || !isPriceValid() 
-                          ? "bg-gray-400 text-gray-600 cursor-not-allowed" 
-                          : "bg-primary-blue text-white hover:bg-primary-blue/90"
-                      }`}
+                      className="bg-primary-blue text-white hover:bg-primary-blue/90 px-8 py-3"
                       title={
                         !showAIPricing 
                           ? "Please use AI Smart Pricing first to set a rental price" 
