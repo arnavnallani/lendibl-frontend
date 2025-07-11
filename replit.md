@@ -248,6 +248,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Modified review prompt system for testing - now shows review modal every time app opens instead of only after completed transactions
 - June 30, 2025: Enhanced AI search system with smart semantic fallback - improved understanding of queries like "computer" (finds MacBooks) and "cool stuff" (finds trendy electronics), added rate limit handling with intelligent mappings
 - June 30, 2025: Updated category structure to: Electronics, Home & Garden, Tools & Equipment, Sports Gear, Outdoor, Clothing, Vehicles - Sports Gear now features basketball icon in hero section
+- July 12, 2025: Removed Vehicles category and all 14 associated vehicle items (electric scooter, motorcycle, boats, trucks, etc.) from marketplace - updated category structure to: Electronics, Home & Garden, Tools & Equipment, Sports Gear, Outdoor, Clothing
 - June 30, 2025: Fixed review modal text from "Item you rented" to "Transaction Item" for clearer terminology
 - June 30, 2025: Added "Current Real Price of Item" field to main listing form before pricing buttons - owners specify actual market value, AI automatically uses this real data for accurate pricing suggestions instead of estimation
 - July 1, 2025: Fixed camera system to use back camera for AR item scanning - resolved loading issues and improved reliability
