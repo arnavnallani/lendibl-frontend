@@ -183,14 +183,43 @@ export default function TermsOfService() {
               </p>
             </div>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">6. USER REGISTRATION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">6. LIABILITY FOR RENTAL ITEMS</h2>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 my-6">
+              <h3 className="text-lg font-semibold text-red-800 mb-3">Owner and Renter Liability:</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-red-700 mb-2">Owner Liability:</h4>
+                  <p className="text-red-700">
+                    <strong>Owners take FULL LIABILITY for giving damaged items or for misleading the renter into thinking they are getting something they're not.</strong> 
+                    This includes but is not limited to providing items that are broken, non-functional, significantly different from the description, 
+                    or in worse condition than represented in the listing.
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-red-700 mb-2">Renter Liability:</h4>
+                  <p className="text-red-700">
+                    <strong>Renters take FULL LIABILITY for damaging items that they rent or misleading the owner into thinking the item they give back is functional when it isn't in reality.</strong> 
+                    This includes but is not limited to causing physical damage, loss, theft, or returning items in worse condition than received 
+                    without proper disclosure.
+                  </p>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 mt-3 italic">
+                Both parties are expected to act in good faith and provide accurate representations of item condition throughout the rental process.
+              </p>
+            </div>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">7. USER REGISTRATION</h2>
             <p>
               You may be required to register to use the Services. You agree to keep your password confidential and will be responsible 
               for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we 
               determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">7. SERVICES MANAGEMENT</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">8. SERVICES MANAGEMENT</h2>
             <p>
               We reserve the right, but not the obligation, to: (1) monitor the Services for violations of these Legal Terms; 
               (2) take appropriate legal action against anyone who, in our sole discretion, violates the law or these Legal Terms, 
@@ -202,7 +231,7 @@ export default function TermsOfService() {
               and to facilitate the proper functioning of the Services.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">8. PRIVACY POLICY</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">9. PRIVACY POLICY</h2>
             <p>
               We care about data privacy and security. Please review our Privacy Policy: <a href="/privacy-policy" className="text-blue-600 hover:underline">https://lendibl.com/privacy-policy</a>. 
               By using the Services, you agree to be bound by our Privacy Policy, which is incorporated into these Legal Terms. 
@@ -212,7 +241,7 @@ export default function TermsOfService() {
               and you expressly consent to have your data transferred to and processed in the United States.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">9. TERM AND TERMINATION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">10. TERM AND TERMINATION</h2>
             <p>
               These Legal Terms shall remain in full force and effect while you use the Services. WITHOUT LIMITING ANY OTHER PROVISION 
               OF THESE LEGAL TERMS, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT NOTICE OR LIABILITY, DENY ACCESS TO 
@@ -222,7 +251,7 @@ export default function TermsOfService() {
               AND ANY CONTENT OR INFORMATION THAT YOU POSTED AT ANY TIME, WITHOUT WARNING, IN OUR SOLE DISCRETION.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">10. MODIFICATIONS AND INTERRUPTIONS</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">11. MODIFICATIONS AND INTERRUPTIONS</h2>
             <p>
               We reserve the right to change, modify, or remove the contents of the Services at any time or for any reason 
               at our sole discretion without notice. However, we have no obligation to update any information on our Services. 
@@ -237,14 +266,14 @@ export default function TermsOfService() {
               or for any reason without notice to you.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">11. GOVERNING LAW</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">12. GOVERNING LAW</h2>
             <p>
               These Legal Terms shall be governed by and defined following the laws of California, United States. 
               lendibl LLC and yourself irrevocably consent that the courts of California, United States shall have 
               exclusive jurisdiction to resolve any dispute which may arise in connection with these Legal Terms.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">12. DISPUTE RESOLUTION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">13. DISPUTE RESOLUTION</h2>
             
             <h3 className="text-lg font-semibold mt-6 mb-3">Informal Negotiations</h3>
             <p>
@@ -265,14 +294,14 @@ export default function TermsOfService() {
               shall be English. The governing law of these Legal Terms shall be substantive law of California, United States.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">13. CORRECTIONS</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">14. CORRECTIONS</h2>
             <p>
               There may be information on the Services that contains typographical errors, inaccuracies, or omissions, including 
               descriptions, pricing, availability, and various other information. We reserve the right to correct any errors, 
               inaccuracies, or omissions and to change or update the information on the Services at any time, without prior notice.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">14. DISCLAIMER</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">15. DISCLAIMER</h2>
             <p>
               THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR 
               SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH 
@@ -288,7 +317,7 @@ export default function TermsOfService() {
               OF THE USE OF ANY CONTENT POSTED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">15. LIMITATIONS OF LIABILITY</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">16. LIMITATIONS OF LIABILITY</h2>
             <p>
               IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, 
               CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, 
@@ -298,7 +327,7 @@ export default function TermsOfService() {
               PERIOD PRIOR TO ANY CAUSE OF ACTION ARISING.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">16. INDEMNIFICATION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">17. INDEMNIFICATION</h2>
             <p>
               You agree to defend, indemnify, and hold us harmless, including our subsidiaries, affiliates, and all of our respective 
               officers, agents, partners, and employees, from and against any loss, damage, liability, claim, or demand, including 
@@ -308,7 +337,7 @@ export default function TermsOfService() {
               property rights; or (6) any overt harmful act toward any other user of the Services with whom you connected via the Services.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">17. USER DATA</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">18. USER DATA</h2>
             <p>
               We will maintain certain data that you transmit to the Services for the purpose of managing the performance of the Services, 
               as well as data relating to your use of the Services. Although we perform regular routine backups of data, you are solely 
@@ -317,7 +346,7 @@ export default function TermsOfService() {
               against us arising from any such loss or corruption of such data.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">18. CONTACT US</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">19. CONTACT US</h2>
             <p>
               In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, 
               please contact us at:
