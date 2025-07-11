@@ -5,38 +5,22 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function ReviewPromptProvider() {
   const { user } = useAuth();
+  const { data: prompts, isLoading } = useReviewPrompts();
   const [showModal, setShowModal] = useState(false);
 
-  // Create a test prompt to show every time app opens
-  const testPrompts = user ? [{
-    id: 1,
-    bookingId: 1,
-    targetUserId: 1,
-    role: 'renter',
-    targetUser: {
-      id: 1,
-      firstName: 'John',
-      lastName: 'Doe',
-    },
-    item: {
-      id: 1,
-      title: 'Transaction Item',
-    },
-  }] : [];
-
   useEffect(() => {
-    if (user) {
+    if (!isLoading && prompts && prompts.length > 0 && user) {
       setShowModal(true);
     }
-  }, [user]);
+  }, [prompts, isLoading, user]);
 
-  if (!showModal || !user) {
+  if (!showModal || !prompts || prompts.length === 0) {
     return null;
   }
 
   return (
     <ReviewPromptModal
-      prompts={testPrompts}
+      prompts={prompts}
       onClose={() => setShowModal(false)}
     />
   );
