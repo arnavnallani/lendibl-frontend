@@ -149,21 +149,21 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                 <span className="sm:hidden">Rent</span>
                 <span className="hidden sm:inline">Rent Items</span>
               </Button>
-              <Button
-                variant={currentMode === "lister" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onModeChange("lister")}
-                className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
-                  currentMode === "lister" 
-                    ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
-                    : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
-                }`}
-              >
-                <Link href="/list-item">
+              <Link href="/list-item">
+                <Button
+                  variant={currentMode === "lister" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => onModeChange("lister")}
+                  className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-2 lg:py-3 text-xs sm:text-sm font-bold rounded-2xl transition-all duration-500 ${
+                    currentMode === "lister" 
+                      ? "bg-gradient-to-r from-primary-blue to-blue-600 text-white shadow-xl hover:shadow-2xl hover:scale-105 animate-pulse-glow" 
+                      : "text-gray-600 hover:text-gray-800 hover:bg-white/70 hover:scale-105"
+                  }`}
+                >
                   <span className="sm:hidden">List</span>
                   <span className="hidden sm:inline">List Items</span>
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
 
             {user ? (
