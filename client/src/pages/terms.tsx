@@ -191,7 +191,7 @@ export default function TermsOfService() {
                 <div>
                   <h4 className="font-semibold text-red-700 mb-2">Owner Liability:</h4>
                   <p className="text-red-700">
-                    <strong>Owners take FULL LIABILITY for giving damaged items or for misleading the renter into thinking they are getting something they're not.</strong> 
+                    <strong>Owners take FULL RESPONSIBILITY for giving damaged items or for misleading the renter into thinking they are getting something they're not.</strong> 
                     This includes but is not limited to providing items that are broken, non-functional, significantly different from the description, 
                     or in worse condition than represented in the listing.
                   </p>
@@ -200,7 +200,7 @@ export default function TermsOfService() {
                 <div>
                   <h4 className="font-semibold text-red-700 mb-2">Renter Liability:</h4>
                   <p className="text-red-700">
-                    <strong>Renters take FULL LIABILITY for damaging items that they rent or misleading the owner into thinking the item they give back is functional when it isn't in reality.</strong> 
+                    <strong>Renters take FULL RESPONSIBILITY for damaging items that they rent or misleading the owner into thinking the item they give back is functional when it isn't in reality.</strong> 
                     This includes but is not limited to causing physical damage, loss, theft, or returning items in worse condition than received 
                     without proper disclosure.
                   </p>
