@@ -971,31 +971,53 @@ export default function ListItem() {
 
 
 
-                {/* Publish Button - appears after AI pricing is selected */}
+                {/* Back to AI Pricing Button - only shows when AI pricing is active */}
                 {showAIPricing && (
-                  <div className="space-y-4">
-                    <div className="flex justify-center space-x-4">
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={() => {
-                          setShowAIPricing(false);
-                          form.setValue("price", 0);
-                        }}
-                      >
-                        Back to AI Pricing
-                      </Button>
-                      <Button 
-                        type="submit"
-                        disabled={createItemMutation.isPending || !isPriceValid()}
-                        className="bg-primary-blue text-white hover:bg-primary-blue/90 px-8 py-3"
-                        title={!isPriceValid() ? "Please set a rental price first" : ""}
-                      >
-                        {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
-                      </Button>
-                    </div>
+                  <div className="flex justify-center mb-6">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => {
+                        setShowAIPricing(false);
+                        form.setValue("price", 0);
+                      }}
+                    >
+                      Back to AI Pricing
+                    </Button>
                   </div>
                 )}
+
+                {/* Publish Button - always visible */}
+                <div className="space-y-4">
+                  <div className="flex justify-center">
+                    <Button 
+                      type="submit"
+                      disabled={createItemMutation.isPending || !isPriceValid() || !showAIPricing}
+                      className={`px-8 py-3 ${
+                        !showAIPricing || !isPriceValid() 
+                          ? "bg-gray-400 text-gray-600 cursor-not-allowed" 
+                          : "bg-primary-blue text-white hover:bg-primary-blue/90"
+                      }`}
+                      title={
+                        !showAIPricing 
+                          ? "Please use AI Smart Pricing first to set a rental price" 
+                          : !isPriceValid() 
+                          ? "Please set a rental price first" 
+                          : ""
+                      }
+                    >
+                      {createItemMutation.isPending ? "Publishing..." : "Publish Listing"}
+                    </Button>
+                  </div>
+                  {!showAIPricing && (
+                    <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                      <div className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">!</span>
+                      </div>
+                      <span>Complete AI pricing to enable publishing</span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Cancel Button (always visible) */}
                 <div className="flex justify-center">
