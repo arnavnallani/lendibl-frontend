@@ -393,10 +393,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
               <div className="flex flex-col items-center justify-center py-12 space-y-6">
                 <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 <div className="text-center space-y-2">
-                  <h3 className="text-xl font-semibold text-gray-900">Verifying with AI</h3>
-                  <p className="text-gray-600">
-                    We're validating your email and phone number using advanced verification technology...
-                  </p>
+                  <h3 className="text-xl font-semibold text-gray-900">Verifying with AI...</h3>
                 </div>
               </div>
             ) : verificationState === 'success' ? (
