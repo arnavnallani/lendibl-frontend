@@ -282,7 +282,13 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
               <div className="flex items-center justify-between mb-4">
                 <button
                   type="button"
-                  onClick={() => setShowForgotPassword(true)}
+                  onClick={() => {
+                    const currentEmail = loginForm.getValues('email');
+                    if (currentEmail) {
+                      forgotPasswordForm.setValue('email', currentEmail);
+                    }
+                    setShowForgotPassword(true);
+                  }}
                   className="text-sm text-blue-600 hover:underline"
                 >
                   Forgot your password?
