@@ -89,19 +89,19 @@ export class EmailVerificationService {
       };
     }
 
-    // Check for common typos in popular domains
+    // Check for common typos in popular domains (but not for valid domains)
     const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
     const domain = cleanEmail.split('@')[1];
     
-    // Suggest corrections for common typos
-    if (domain.includes('gmial') || domain.includes('gmai')) {
+    // Only suggest corrections for actual typos, not for valid domains
+    if (domain !== 'gmail.com' && (domain.includes('gmial') || domain.includes('gmai') || domain === 'gmail.co' || domain === 'gmial.com')) {
       return {
         valid: false,
         message: 'Did you mean gmail.com?'
       };
     }
     
-    if (domain.includes('yahooo') || domain.includes('yaho')) {
+    if (domain !== 'yahoo.com' && (domain.includes('yahooo') || domain.includes('yaho') || domain === 'yahoo.co' || domain === 'yaho.com')) {
       return {
         valid: false,
         message: 'Did you mean yahoo.com?'

@@ -71,22 +71,25 @@ export class PhoneVerificationService {
       // Format phone number
       const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
       
-      // Enhanced phone number validation patterns
-      const usPhonePattern = /^(\+?1)?([2-9]\d{2})([2-9]\d{2})(\d{4})$/;
-      const internationalPattern = /^\+([2-9]\d{0,3})([1-9]\d{1,14})$/;
-      
+      // Simplified phone number validation - accept most reasonable formats
       let isValid = false;
       let country = 'Unknown';
       let phoneType = 'Mobile';
       
-      if (usPhonePattern.test(cleanPhone)) {
+      // US phone numbers: 10 digits, optionally prefixed with +1
+      if (/^(\+?1)?[2-9]\d{9}$/.test(cleanPhone)) {
         isValid = true;
         country = 'US';
-        // US phone number validation passed
-      } else if (internationalPattern.test(cleanPhone)) {
+      }
+      // International phone numbers: + followed by 7-15 digits
+      else if (/^\+\d{7,15}$/.test(cleanPhone)) {
         isValid = true;
         country = 'International';
-        // International phone number validation passed
+      }
+      // Basic 10+ digit phone numbers without country code
+      else if (/^\d{10,11}$/.test(cleanPhone)) {
+        isValid = true;
+        country = 'US';
       }
       
       if (isValid) {
