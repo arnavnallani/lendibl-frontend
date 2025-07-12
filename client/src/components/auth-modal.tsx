@@ -191,6 +191,28 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                   'Login'
                 )}
               </Button>
+              
+              <p className="text-xs text-gray-500 text-center mt-4">
+                By logging in, you agree to lendibl's{' '}
+                <a 
+                  href="/terms" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Terms of Service
+                </a>
+                {' '}and{' '}
+                <a 
+                  href="/privacy-policy" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </p>
             </form>
           </TabsContent>
 
@@ -308,6 +330,28 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                   'Create Account'
                 )}
               </Button>
+              
+              <p className="text-xs text-gray-500 text-center mt-4">
+                By creating an account, you agree to lendibl's{' '}
+                <a 
+                  href="/terms" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Terms of Service
+                </a>
+                {' '}and{' '}
+                <a 
+                  href="/privacy-policy" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Privacy Policy
+                </a>
+                .
+              </p>
             </form>
           </TabsContent>
         </Tabs>
