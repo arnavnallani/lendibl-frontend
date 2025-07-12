@@ -76,8 +76,13 @@ export class PhoneVerificationService {
       let country = 'Unknown';
       let phoneType = 'Mobile';
       
-      // US phone numbers: 10 digits, optionally prefixed with +1
-      if (/^(\+?1)?[2-9]\d{9}$/.test(cleanPhone)) {
+      // Accept 10-digit US phone numbers in format like 1234567890
+      if (/^\d{10}$/.test(cleanPhone)) {
+        isValid = true;
+        country = 'US';
+      }
+      // US phone numbers with +1 prefix
+      else if (/^(\+?1)\d{10}$/.test(cleanPhone)) {
         isValid = true;
         country = 'US';
       }
@@ -86,8 +91,8 @@ export class PhoneVerificationService {
         isValid = true;
         country = 'International';
       }
-      // Basic 10+ digit phone numbers without country code
-      else if (/^\d{10,11}$/.test(cleanPhone)) {
+      // Accept 11-digit numbers starting with 1 (US format)
+      else if (/^1\d{10}$/.test(cleanPhone)) {
         isValid = true;
         country = 'US';
       }
