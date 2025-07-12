@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a rental marketplace application called "Lendibl" that allows users to rent and list items in their community. It's built as a full-stack web application with a React frontend and Express.js backend, using PostgreSQL for data persistence and Drizzle ORM for database operations.
+This is a rental marketplace application called "lendibl" that allows users to rent and list items in their community. It's built as a full-stack web application with a React frontend and Express.js backend, using PostgreSQL for data persistence and Drizzle ORM for database operations.
 
 ## System Architecture
 
@@ -117,11 +117,11 @@ The application uses PostgreSQL with the following main entities:
 
 ## Changelog
 
-- June 20, 2025: Initial setup of Lendibl rental marketplace
+- June 20, 2025: Initial setup of lendibl rental marketplace
 - June 20, 2025: Updated color scheme from red/teal to blue/black/white
 - June 20, 2025: Added sample rental items (camera, drill set, mountain bike)
 - June 20, 2025: Migrated from in-memory storage to PostgreSQL database
-- June 20, 2025: Updated header to use custom Lendibl logo image
+- June 20, 2025: Updated header to use custom lendibl logo image
 - June 20, 2025: Enhanced UI with modern animations, glass morphism, gradients, and hover effects
 - June 20, 2025: Implemented real-time notifications with WebSocket for rental requests
 - June 20, 2025: Added user authentication system with registration and login functionality
@@ -154,14 +154,14 @@ The application uses PostgreSQL with the following main entities:
 - June 23, 2025: Implemented comprehensive payment collection system with three key trigger points: before payout attempts, rental approval requirements, and periodic reminders for owners with pending earnings
 - June 23, 2025: Replaced mock Stripe implementation with real Stripe Connect integration - credit card information now securely stored with Stripe, real Express accounts created for payouts, and actual payment method management
 - June 23, 2025: Completed Stripe Elements integration for secure payment setup with PCI-compliant card input, real-time validation, and production-ready live key configuration
-- June 23, 2025: Modified payout structure - owners receive exactly the item's list price (daily rate × rental days), with Lendibl keeping any amount above that as variable commission
+- June 23, 2025: Modified payout structure - owners receive exactly the item's list price (daily rate × rental days), with lendibl keeping any amount above that as variable commission
 - June 23, 2025: Updated payout timing to process immediately when rental period ends instead of waiting 24 hours
 - June 23, 2025: Successfully tested and confirmed working payout system - owners receive exact list price transfers to their stored payment methods with variable commission structure operational
 - June 23, 2025: Added comprehensive privacy policy page and footer component with legal compliance links accessible from all main pages
-- June 24, 2025: Fixed payment flow implementation to ensure proper money transfer: renter payments go to Lendibl via Stripe, then exact list price amount transfers to owners while Lendibl keeps the commission difference
-- June 24, 2025: Implemented Stripe Connect for real owner payouts - creates Express accounts for owners, handles onboarding, and enables actual money transfers from Lendibl to owner bank accounts/cards
-- June 24, 2025: Fixed Stripe payout implementation to use direct payouts from Lendibl's Stripe balance to owners, with simulation fallback for development - ensures exact list price transfers while Lendibl keeps commission
-- June 24, 2025: Successfully implemented and tested complete payment flow: renter payments go to Lendibl via Stripe, then exact list price amount ($0.50) transfers to owner while Lendibl keeps commission ($0.03) - verified working with booking ID 21
+- June 24, 2025: Fixed payment flow implementation to ensure proper money transfer: renter payments go to lendibl via Stripe, then exact list price amount transfers to owners while lendibl keeps the commission difference
+- June 24, 2025: Implemented Stripe Connect for real owner payouts - creates Express accounts for owners, handles onboarding, and enables actual money transfers from lendibl to owner bank accounts/cards
+- June 24, 2025: Fixed Stripe payout implementation to use direct payouts from lendibl's Stripe balance to owners, with simulation fallback for development - ensures exact list price transfers while lendibl keeps commission
+- June 24, 2025: Successfully implemented and tested complete payment flow: renter payments go to lendibl via Stripe, then exact list price amount ($0.50) transfers to owner while lendibl keeps commission ($0.03) - verified working with booking ID 21
 - June 24, 2025: Created complete Stripe Connect onboarding system - owners can create Connect accounts via Settings page, complete onboarding through Stripe interface, and receive real money transfers upon rental completion
 - June 24, 2025: Removed all simulation code and enabled real money transfers - Stripe Connect accounts are now created as real Express accounts, payments are processed with actual money movement, and payouts require completed Connect onboarding
 - June 24, 2025: Integrated PayPal Platform API for simplified owner payment setup - owners can now choose between PayPal (simple account connection) or Stripe Connect (full business verification) for receiving rental payouts, maintaining exact payment flow with real money transfers
@@ -169,11 +169,11 @@ The application uses PostgreSQL with the following main entities:
 - June 24, 2025: Simplified PayPal integration to use email-based setup instead of complex OAuth flow - owners provide PayPal email directly for streamlined onboarding
 - June 24, 2025: Enhanced PayPal setup flow with clear instructions about needing existing PayPal account and signup link for new users
 - June 24, 2025: Fixed payment flow to use automatic capture - money now goes directly from renter to Lendibl's account, then exact list price transfers to owner while Lendibl keeps commission difference
-- June 24, 2025: Implemented simplified real money transfer system - PayPal users provide email address, Lendibl processes manual payouts from captured renter payments to owner PayPal accounts, maintaining exact list price transfers while keeping commission difference
+- June 24, 2025: Implemented simplified real money transfer system - PayPal users provide email address, lendibl processes manual payouts from captured renter payments to owner PayPal accounts, maintaining exact list price transfers while keeping commission difference
 - June 24, 2025: Enhanced PayPal integration with real Payouts API - system now attempts automated transfers to owner PayPal accounts with fallback to manual logging if API fails
 - June 24, 2025: Discovered Stripe→PayPal direct transfer limitation - PayPal payouts require PayPal account balance, but rental payments are in Stripe account. Implemented manual transfer process with detailed logging for Stripe→Bank→PayPal workflow
-- June 24, 2025: Redesigned payment flow to optimal structure: Renter → Lendibl Stripe → Lendibl PayPal → Owner PayPal. This enables automated PayPal payouts once Lendibl's PayPal account is funded from Stripe balance
-- June 24, 2025: Diagnosed PayPal authentication issue - current API credentials failing with "Client Authentication failed" error. Need updated credentials from Lendibl's PayPal business account for automated payouts to function
+- June 24, 2025: Redesigned payment flow to optimal structure: Renter → lendibl Stripe → lendibl PayPal → Owner PayPal. This enables automated PayPal payouts once lendibl's PayPal account is funded from Stripe balance
+- June 24, 2025: Diagnosed PayPal authentication issue - current API credentials failing with "Client Authentication failed" error. Need updated credentials from lendibl's PayPal business account for automated payouts to function
 - June 24, 2025: Fixed PayPal API endpoint configuration - business account credentials work with production API (api.paypal.com) not sandbox. Automated PayPal payouts now functional with proper API endpoint
 - June 24, 2025: Identified PayPal Payouts API permission issue - business account requires "Payouts" feature enabled in Developer Console for automated transfers. Authorization working but payouts blocked due to insufficient API permissions
 - June 24, 2025: Created PayPal Payouts enablement guide - user needs to check "Payouts" feature in PayPal Developer Console app settings. Once enabled, automated money transfers will work immediately for all rental completions
@@ -192,7 +192,7 @@ The application uses PostgreSQL with the following main entities:
 - June 25, 2025: Stripe support confirmed US domestic marketplace configuration not available at this stage. Modified Express account creation to use standard onboarding flow with individual business type and proper capabilities for real money transfers
 - June 25, 2025: Fixed HTTPS URL issue for Stripe Connect onboarding links and restored simplified bank account connection feature in Settings page
 - June 25, 2025: Fixed automatic payout system - added interval checking for completed rentals and immediate payout processing when rental periods end to ensure owners receive bank transfers
-- June 25, 2025: Diagnosed and fixed Stripe balance issue - payments go to Lendibl's Stripe account but require 2-7 business days to settle before being available for owner payouts. Enhanced error handling and user notifications for settlement timing delays
+- June 25, 2025: Diagnosed and fixed Stripe balance issue - payments go to lendibl's Stripe account but require 2-7 business days to settle before being available for owner payouts. Enhanced error handling and user notifications for settlement timing delays
 - June 24, 2025: Implemented dynamic search functionality with real-time suggestions, auto-complete, recent searches, trending items, smart filtering, and enhanced UI with search API endpoint and debounced input
 - June 24, 2025: Successfully integrated dynamic search functionality directly into top header search bar with real-time suggestions, recent search tracking, smart auto-completions, "Search for anything..." placeholder, and automatic scrolling to items section when typing
 - June 24, 2025: Implemented real money transfer system with Stripe Connect - removed all simulations and test modes, system now creates actual Express accounts and processes real money transfers to owner bank accounts when rentals complete
@@ -225,8 +225,8 @@ The application uses PostgreSQL with the following main entities:
 - June 28, 2025: Fixed full address display in Action Dashboard - approved bookings now show complete pickup address to renters instead of just city/state for proper coordination
 - June 28, 2025: Implemented date range calendar for item availability - owners can now set specific availability periods when listing items with intuitive calendar interface and flexible date management
 - June 28, 2025: Added booking date validation - renters can only select dates within the owner's specified availability window with visual availability display and automatic date restrictions
-- June 28, 2025: Diagnosed payout system - money is available in Lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
-- June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from Lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
+- June 28, 2025: Diagnosed payout system - money is available in lendibl's Stripe account ($2.75 available, $5.27 pending) but owners need completed Stripe Connect onboarding for bank transfers to work
+- June 28, 2025: Confirmed real money transfers working - $0.50 successfully transferred from lendibl to owner's Stripe Connect account, money arrives in owner's bank account within 2 business days per Stripe's automatic payout schedule
 - June 28, 2025: Implemented free address autofill using OpenStreetMap Nominatim API - automatically fills city, state, and zip code when users select address suggestions, no API keys required
 - June 29, 2025: Enhanced AI pricing system with hard $50 maximum constraint for items with original prices up to $5000 - AI now understands and enforces pricing limits with clear prompting and fallback enforcement
 - June 29, 2025: Fixed MacBook Pro pricing estimation - corrected overestimation issue where MacBook Pro 14-inch was valued at $4,050 instead of realistic $2,200, removed Electronics category multiplier for accurate pricing
@@ -240,7 +240,7 @@ The application uses PostgreSQL with the following main entities:
 - June 29, 2025: Removed keyword-based item estimation - AI now naturally understands items and applies pricing rules directly without preset keywords or $100 defaults
 - June 29, 2025: Updated pricing constraint for items under $1000 from $40 maximum to $35 maximum daily rate
 - June 29, 2025: Enhanced AI pricing to suggest much lower prices in general for items under $1000 to be more competitive
-- June 29, 2025: Implemented AI chatbot assistant with floating circle interface in bottom right corner - answers questions about Lendibl using Gemini 2.5 Flash model
+- June 29, 2025: Implemented AI chatbot assistant with floating circle interface in bottom right corner - answers questions about lendibl using Gemini 2.5 Flash model
 - June 29, 2025: Implemented comprehensive review prompt system that automatically triggers after completed transactions - users prompted to rate their experience with star ratings and comments
 - June 29, 2025: Reset all user ratings to 0 and implemented authentic rating system - ratings only update based on actual submitted reviews, calculating accurate averages
 - June 29, 2025: Fixed rating display caching issue - items now show owner's current rating from users table instead of cached item ratings, ensuring authentic rating display
@@ -324,6 +324,7 @@ The application uses PostgreSQL with the following main entities:
 - July 8, 2025: Enhanced login requirement UX - when non-logged-in users click "Open Reservation Page", they now see a login modal with a prominent blue message: "You must have an account to reserve items"
 - July 12, 2025: Added swipe-to-dismiss functionality for white banner notifications - users can now swipe up on mobile devices to dismiss toast notifications for improved mobile UX
 - July 12, 2025: Enhanced notification auto-dismiss behavior - notifications now automatically disappear after 3 seconds, sliding right on desktop and maintaining manual swipe-up capability on mobile devices
+- July 12, 2025: Updated all branding throughout application to use lowercase "lendibl" consistently - changed email templates, chatbot responses, documentation, and alt tags per critical branding requirement
 
 ## User Preferences
 

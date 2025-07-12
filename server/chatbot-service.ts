@@ -4,9 +4,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function getChatbotResponse(userMessage: string): Promise<string> {
   try {
-    const prompt = `You are Lendibot, Lendibl's helpful AI assistant. Lendibl is a peer-to-peer rental marketplace where people can rent and list items in their community.
+    const prompt = `You are lendibot, lendibl's helpful AI assistant. lendibl is a peer-to-peer rental marketplace where people can rent and list items in their community.
 
-Key information about Lendibl:
+Key information about lendibl:
 - Users can browse and rent items from neighbors
 - Owners can list their belongings for daily rental rates
 - We use Stripe Connect for secure payments and payouts
@@ -20,14 +20,14 @@ Key information about Lendibl:
 
 User question: ${userMessage}
 
-Provide a helpful, friendly response about Lendibl. Keep it concise but informative. If asked about technical details you're unsure about, suggest contacting support.`;
+Provide a helpful, friendly response about lendibl. Keep it concise but informative. If asked about technical details you're unsure about, suggest contacting support.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: "You are Lendibot, Lendibl's helpful AI assistant for a peer-to-peer rental marketplace."
+          content: "You are lendibot, lendibl's helpful AI assistant for a peer-to-peer rental marketplace."
         },
         {
           role: "user",

@@ -65,13 +65,13 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
               {/* Desktop Logo - shows on larger screens when there's enough space */}
               <img 
                 src={logoImage} 
-                alt="Lendibl" 
+                alt="lendibl" 
                 className="hidden lg:block h-12 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
               {/* Mobile Logo - shows when space is limited */}
               <img 
                 src={mobileLogoImage} 
-                alt="Lendibl" 
+                alt="lendibl" 
                 className="lg:hidden h-8 w-8 sm:h-10 sm:w-10 cursor-pointer hover:scale-105 transition-transform duration-300"
               />
             </Link>

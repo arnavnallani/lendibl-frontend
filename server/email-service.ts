@@ -24,7 +24,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       to: params.to,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
-        name: 'Lendibl Support'
+        name: 'lendibl Support'
       },
       replyTo: process.env.SENDGRID_FROM_EMAIL!,
       subject: params.subject,
@@ -34,7 +34,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         'X-Priority': '1',
         'X-MSMail-Priority': 'High',
         'Importance': 'high',
-        'X-Mailer': 'Lendibl Password Reset System',
+        'X-Mailer': 'lendibl Password Reset System',
         'List-Unsubscribe': '<mailto:accounts@lendibl.com>',
       },
       categories: ['password-reset', 'security', 'authentication'],
@@ -74,10 +74,10 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   
   const emailParams: EmailParams = {
     to: email,
-    subject: '[Lendibl] Password Reset Request - Action Required',
+    subject: '[lendibl] Password Reset Request - Action Required',
     text: `Hello,
 
-You recently requested to reset your password for your Lendibl account. To complete this process, please click the link below:
+You recently requested to reset your password for your lendibl account. To complete this process, please click the link below:
 
 ${resetUrl}
 
@@ -86,10 +86,10 @@ This link will expire in 1 hour for your security.
 If you did not request this password reset, you can safely ignore this email. Your account remains secure.
 
 Best regards,
-The Lendibl Support Team
+The lendibl Support Team
 
 ---
-Lendibl - Peer-to-Peer Rental Marketplace
+lendibl - Peer-to-Peer Rental Marketplace
 Need help? Contact us at accounts@lendibl.com`,
     html: `
 <!DOCTYPE html>
@@ -116,7 +116,7 @@ Need help? Contact us at accounts@lendibl.com`,
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #3b82f6, #1e40af); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Lendibl</h1>
+              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">lendibl</h1>
               <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Peer-to-Peer Rental Marketplace</p>
             </td>
           </tr>
@@ -131,7 +131,7 @@ Need help? Contact us at accounts@lendibl.com`,
               </p>
               
               <p style="color: #4b5563; line-height: 1.6; margin: 0 0 30px 0; font-size: 16px;">
-                You recently requested to reset your password for your Lendibl account. To complete this process, please click the button below:
+                You recently requested to reset your password for your lendibl account. To complete this process, please click the button below:
               </p>
               
               <!-- CTA Button -->
@@ -166,10 +166,10 @@ Need help? Contact us at accounts@lendibl.com`,
             <td style="background: #f8fafc; padding: 30px; text-align: center; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
               <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">
                 Best regards,<br>
-                The Lendibl Support Team
+                The lendibl Support Team
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                © 2025 Lendibl. All rights reserved.<br>
+                © 2025 lendibl. All rights reserved.<br>
                 Need help? Contact us at accounts@lendibl.com
               </p>
             </td>
@@ -181,8 +181,8 @@ Need help? Contact us at accounts@lendibl.com`,
           <tr>
             <td style="text-align: center; padding: 20px;">
               <p style="color: #9ca3af; font-size: 11px; line-height: 1.4; margin: 0;">
-                This email was sent to ${email} because you requested a password reset on Lendibl.<br>
-                Lendibl, Peer-to-Peer Rental Marketplace<br>
+                This email was sent to ${email} because you requested a password reset on lendibl.<br>
+                lendibl, Peer-to-Peer Rental Marketplace<br>
                 <a href="mailto:accounts@lendibl.com" style="color: #6b7280; text-decoration: underline;">accounts@lendibl.com</a>
               </p>
             </td>
