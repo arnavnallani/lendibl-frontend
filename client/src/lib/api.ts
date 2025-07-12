@@ -166,9 +166,4 @@ export const api = {
     const res = await apiRequest("GET", url);
     return res.json();
   },
-
-  getUser: async (id: number): Promise<any> => {
-    const res = await apiRequest("GET", `/api/users/${id}`);
-    return res.json();
-  },
 };

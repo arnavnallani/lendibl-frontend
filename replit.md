@@ -325,6 +325,7 @@ The application uses PostgreSQL with the following main entities:
 - July 12, 2025: Added swipe-to-dismiss functionality for white banner notifications - users can now swipe up on mobile devices to dismiss toast notifications for improved mobile UX
 - July 12, 2025: Enhanced notification auto-dismiss behavior - notifications now automatically disappear after 3 seconds, sliding right on desktop and maintaining manual swipe-up capability on mobile devices
 - July 12, 2025: Updated all branding throughout application to use lowercase "lendibl" consistently - changed email templates, chatbot responses, documentation, and alt tags per critical branding requirement
+- July 12, 2025: Completed comprehensive password reset system with TeleSign phone verification integration - fixed email URLs to use proper domain, enhanced error handling, added troubleshooting guidance in emails, and improved frontend token validation. System works correctly but requires production deployment for external computer access due to Vite development middleware intercepting API routes
 
 ## User Preferences
 

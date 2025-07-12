@@ -32,6 +32,8 @@ export default function ResetPassword() {
     
     if (resetToken) {
       setToken(resetToken);
+      // Validate token immediately
+      validateToken(resetToken);
     } else {
       console.log('No reset token found, redirecting to home');
       toast({
@@ -42,6 +44,25 @@ export default function ResetPassword() {
       setTimeout(() => setLocation('/'), 2000);
     }
   }, [setLocation, toast]);
+
+  const validateToken = async (tokenToValidate: string) => {
+    try {
+      const response = await fetch(`/api/test/verify-token/${tokenToValidate}`);
+      const data = await response.json();
+      
+      if (!data.valid) {
+        toast({
+          title: "Invalid Token",
+          description: "This password reset link has expired or is invalid.",
+          variant: "destructive",
+        });
+        setTimeout(() => setLocation('/'), 3000);
+      }
+    } catch (error) {
+      console.error('Token validation error:', error);
+      // Don't show error for token validation - just log it
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,8 +131,8 @@ export default function ResetPassword() {
     } catch (error) {
       console.error('Password reset error:', error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Connection Error",
+        description: "Unable to connect to the server. Please check your internet connection and try again.",
         variant: "destructive",
       });
     } finally {
