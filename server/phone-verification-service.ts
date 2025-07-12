@@ -117,23 +117,40 @@ export class PhoneVerificationService {
           const carrierName = response?.carrier;
           const country = response?.country;
           
-          // TeleSign status codes: 300 = valid, others indicate issues
+          // TeleSign status codes: 300 = API call successful, but check phone validity
           if (status?.code === 300) {
-            resolve({
-              success: true,
-              valid: true,
-              message: 'Phone number verified successfully via TeleSign',
-              phoneNumber: cleanPhone,
-              carrierInfo: {
-                name: carrierName?.name || 'Unknown Carrier',
-                type: phoneType?.description || 'Unknown'
-              },
-              riskScore: response?.risk?.score || 0,
-              location: {
-                country: country?.name || 'Unknown',
-                region: country?.iso2 || undefined
-              }
-            });
+            // Check if phone type indicates valid phone number
+            const phoneTypeCode = phoneType?.code;
+            const phoneTypeDesc = phoneType?.description;
+            
+            // Valid phone types: 1=FIXED_LINE, 2=MOBILE, 3=FIXED_LINE_OR_MOBILE, 4=TOLL_FREE, 5=VOIP
+            // Invalid types: 6=PERSONAL_NUMBER, 7=PAGER, 8=INVALID, 9=RESTRICTED_PREMIUM
+            const validPhoneTypes = ['1', '2', '3', '4', '5'];
+            
+            if (validPhoneTypes.includes(phoneTypeCode)) {
+              resolve({
+                success: true,
+                valid: true,
+                message: 'Phone number verified successfully via TeleSign',
+                phoneNumber: cleanPhone,
+                carrierInfo: {
+                  name: carrierName?.name || 'Unknown Carrier',
+                  type: phoneTypeDesc || 'Unknown'
+                },
+                riskScore: response?.risk?.score || 0,
+                location: {
+                  country: country?.name || 'Unknown',
+                  region: country?.iso2 || undefined
+                }
+              });
+            } else {
+              // Phone type indicates invalid/restricted number
+              resolve({
+                success: false,
+                valid: false,
+                message: `Invalid phone number type: ${phoneTypeDesc || 'Phone number not suitable for verification'}`
+              });
+            }
           } else {
             resolve({
               success: false,
