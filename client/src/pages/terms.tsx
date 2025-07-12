@@ -358,7 +358,7 @@ export default function TermsOfService() {
               <p>San Ramon, CA 94582</p>
               <p>United States</p>
               <p><strong>Phone:</strong> 925-336-5339</p>
-              <p><strong>Email:</strong> arnav.nallani@gmail.com</p>
+              <p><strong>Email:</strong> legal@lendibl.com</p>
             </div>
 
             <div className="border-t border-gray-200 pt-6 mt-8">
