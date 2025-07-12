@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,7 +61,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetToken, setResetToken] = useState('');
-  // Removed phone verification step UI since we use instant verification
+  const [verificationState, setVerificationState] = useState<'idle' | 'verifying' | 'success' | 'failed'>('idle');
+  const [verificationError, setVerificationError] = useState<string>('');
   const { toast } = useToast();
   const { login, register } = useAuth();
 
@@ -142,7 +143,13 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
+    setVerificationState('verifying');
+    setVerificationError('');
+    
     try {
+      // Simulate AI verification delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       // Step 1: Instant email verification (no email sending required)
       const emailResponse = await apiRequest('POST', '/api/auth/verify-email-instant', {
         email: data.email,
@@ -179,23 +186,33 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
         emailVerified: true,
       });
       
-      toast({
-        title: 'Welcome to lendibl!',
-        description: 'Your account has been created successfully with verified email and phone.',
-      });
+      // Show success state
+      setVerificationState('success');
       
-      // Reset state and close modal
-      onClose();
-      registerForm.reset();
+      // Wait a moment to show success, then close
+      setTimeout(() => {
+        toast({
+          title: 'Welcome to lendibl!',
+          description: 'Your account has been created successfully with verified email and phone.',
+        });
+        
+        // Reset state and close modal
+        setVerificationState('idle');
+        onClose();
+        registerForm.reset();
+      }, 1500);
+      
     } catch (error) {
-      toast({
-        title: 'Registration failed',
-        description: error instanceof Error ? error.message : 'An error occurred during registration',
-        variant: 'destructive',
-      });
+      setVerificationState('failed');
+      setVerificationError(error instanceof Error ? error.message : 'An error occurred during registration');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBackToRegistration = () => {
+    setVerificationState('idle');
+    setVerificationError('');
   };
 
   // Removed old verification functions - now using instant verification
@@ -371,7 +388,47 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
           </TabsContent>
 
           <TabsContent value="register" className="space-y-4">
-            {/* Registration form - instant phone verification */}
+            {verificationState === 'verifying' ? (
+              // AI Verification Screen
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-semibold text-gray-900">Verifying with AI</h3>
+                  <p className="text-gray-600">
+                    We're validating your email and phone number using advanced verification technology...
+                  </p>
+                </div>
+              </div>
+            ) : verificationState === 'success' ? (
+              // Success Screen
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <CheckCircle className="w-16 h-16 text-green-500" />
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-semibold text-green-600">Verified!</h3>
+                  <p className="text-gray-600">
+                    Your account has been successfully created and verified.
+                  </p>
+                </div>
+              </div>
+            ) : verificationState === 'failed' ? (
+              // Failed Screen
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <XCircle className="w-16 h-16 text-red-500" />
+                <div className="text-center space-y-4">
+                  <h3 className="text-xl font-semibold text-red-600">Verification Failed</h3>
+                  <p className="text-gray-600">
+                    {verificationError || 'Would you like to edit your registration info?'}
+                  </p>
+                  <button
+                    onClick={handleBackToRegistration}
+                    className="text-blue-600 hover:text-blue-800 underline font-medium"
+                  >
+                    Back to registration
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Registration Form
               <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -522,6 +579,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                 .
               </p>
             </form>
+            )}
           </TabsContent>
         </Tabs>
 
