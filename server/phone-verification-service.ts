@@ -151,37 +151,6 @@ export class PhoneVerificationService {
         message: 'Phone number cannot exceed 15 digits'
       };
     }
-    
-    // Remove country code for US number validation
-    const usPhone = cleanPhone.startsWith('+1') ? cleanPhone.slice(2) : 
-                   cleanPhone.startsWith('1') ? cleanPhone.slice(1) : cleanPhone;
-    
-    // Reject obviously fake US phone numbers
-    if (usPhone.length === 10) {
-      // Check for invalid patterns like all same digits, sequential digits
-      if (/^(\d)\1{9}$/.test(usPhone)) {
-        return {
-          valid: false,
-          message: 'Please enter a valid phone number'
-        };
-      }
-      
-      // Check for invalid area codes (first digit can't be 0 or 1)
-      if (usPhone[0] === '0' || usPhone[0] === '1') {
-        return {
-          valid: false,
-          message: 'Invalid area code - please check your phone number'
-        };
-      }
-      
-      // Check for obviously fake numbers like 1234567890
-      if (usPhone === '1234567890' || usPhone === '0123456789') {
-        return {
-          valid: false,
-          message: 'Please enter your real phone number'
-        };
-      }
-    }
 
     // Check for valid format (starts with + or digit)
     if (!cleanPhone.match(/^[\+]?[1-9][\d]{9,14}$/)) {

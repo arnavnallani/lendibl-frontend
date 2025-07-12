@@ -89,44 +89,11 @@ export class EmailVerificationService {
       };
     }
 
-    // Extract username and domain parts
-    const [username, domain] = cleanEmail.split('@');
-    
-    // Reject obviously fake emails
-    if (username.length < 3) {
-      return {
-        valid: false,
-        message: 'Email username must be at least 3 characters'
-      };
-    }
-    
-    // Check for random keyboard mashing patterns and fake emails
-    if (/^[a-z]{15,}$/.test(username) || /(.)\1{4,}/.test(username)) {
-      return {
-        valid: false,
-        message: 'Please enter a real email address'
-      };
-    }
-    
-    // Check for obvious keyboard mashing patterns
-    const keyboardPatterns = [
-      /^[qwertyuiop]+$/i,
-      /^[asdfghjkl]+$/i,
-      /^[zxcvbnm]+$/i,
-      /^(abc|def|ghi|jkl|mno|pqr|stu|vwx|yz){3,}$/i,
-      /^[a-z]*(lkdsjf|dsjflk|kldsj|sjflk|flkdsj){1,}[a-z]*$/i
-    ];
-    
-    for (const pattern of keyboardPatterns) {
-      if (pattern.test(username)) {
-        return {
-          valid: false,
-          message: 'Please enter a real email address'
-        };
-      }
-    }
-    
     // Check for common typos in popular domains (but not for valid domains)
+    const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
+    const domain = cleanEmail.split('@')[1];
+    
+    // Only suggest corrections for actual typos, not for valid domains
     if (domain !== 'gmail.com' && (domain.includes('gmial') || domain.includes('gmai') || domain === 'gmail.co' || domain === 'gmial.com')) {
       return {
         valid: false,
