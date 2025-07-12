@@ -20,7 +20,11 @@ export interface EmailParams {
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
-    await mailService.send({
+    console.log(`📧 Attempting to send email to: ${params.to}`);
+    console.log(`📧 From: ${process.env.SENDGRID_FROM_EMAIL}`);
+    console.log(`📧 Subject: ${params.subject}`);
+    
+    const result = await mailService.send({
       to: params.to,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
@@ -43,7 +47,9 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         'platform': 'lendibl'
       },
     });
-    console.log(`Email sent successfully to ${params.to}`);
+    
+    console.log(`✅ Email sent successfully to ${params.to}`);
+    console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
     return true;
   } catch (error: any) {
     console.error('SendGrid email error:', error);

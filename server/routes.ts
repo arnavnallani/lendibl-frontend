@@ -270,6 +270,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email } = req.body;
 
+      console.log(`🔄 Password reset requested for: ${email}`);
+
       if (!email) {
         return res.status(400).json({ message: "Email is required" });
       }
@@ -277,33 +279,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user exists
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log(`⚠️ User not found for email: ${email}`);
         // Return success even if user doesn't exist for security
         return res.json({ message: "If the email exists, a reset link has been sent" });
       }
 
+      console.log(`👤 User found: ${user.username} (ID: ${user.id})`);
+
       // Generate reset token
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      console.log(`🔑 Generated reset token: ${resetToken}`);
       
       // Store the reset token in database with expiration
       await storage.storePasswordResetToken(user.id, resetToken);
+      console.log(`💾 Stored reset token in database`);
 
       // Send password reset email
+      console.log(`📤 Attempting to send email to: ${email}`);
+      console.log(`📧 From address: ${process.env.SENDGRID_FROM_EMAIL}`);
       const emailSent = await sendPasswordResetEmail(email, resetToken);
       
       if (!emailSent) {
-        console.error(`Failed to send password reset email to ${email}`);
+        console.error(`❌ Failed to send password reset email to ${email}`);
         return res.status(500).json({ message: "Failed to send reset email" });
       }
 
-      console.log(`Password reset email sent successfully to ${email}`);
+      console.log(`✅ Password reset email sent successfully to ${email}`);
       
       res.json({ 
         message: "Reset instructions sent to your email",
         // In development, include the token for testing
-        ...(process.env.NODE_ENV !== 'production' && { resetToken })
+        ...(process.env.NODE_ENV !== 'production' && { resetToken }),
+        debug: {
+          userFound: true,
+          emailSent: true,
+          sentTo: email,
+          fromEmail: process.env.SENDGRID_FROM_EMAIL,
+          timestamp: new Date().toISOString()
+        }
       });
     } catch (error) {
-      console.error("Forgot password error:", error);
+      console.error("💥 Forgot password error:", error);
       res.status(500).json({ message: "Failed to process password reset request" });
     }
   });
