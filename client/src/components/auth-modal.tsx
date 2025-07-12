@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { apiRequest } from '@/lib/queryClient';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,8 +29,23 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 type LoginFormData = z.infer<typeof loginSchema>;
 type RegisterFormData = z.infer<typeof registerSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -42,6 +58,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetToken, setResetToken] = useState('');
   const { toast } = useToast();
   const { login, register } = useAuth();
 
@@ -62,6 +80,22 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       firstName: '',
       lastName: '',
       username: '',
+    },
+  });
+
+  const forgotPasswordForm = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const resetPasswordForm = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      token: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
@@ -106,6 +140,57 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       toast({
         title: 'Registration failed',
         description: error instanceof Error ? error.message : 'An error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (data: ForgotPasswordFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('POST', '/api/auth/forgot-password', { email: data.email });
+      const result = await response.json();
+      
+      toast({
+        title: 'Reset email sent',
+        description: 'Check your email for password reset instructions.',
+      });
+      
+      setShowForgotPassword(false);
+      forgotPasswordForm.reset();
+    } catch (error) {
+      toast({
+        title: 'Failed to send reset email',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (data: ResetPasswordFormData) => {
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('POST', '/api/auth/reset-password', {
+        token: data.token,
+        password: data.password,
+      });
+      
+      toast({
+        title: 'Password reset successful',
+        description: 'Your password has been updated. You can now log in.',
+      });
+      
+      setResetToken('');
+      setShowForgotPassword(false);
+      resetPasswordForm.reset();
+    } catch (error) {
+      toast({
+        title: 'Password reset failed',
+        description: error instanceof Error ? error.message : 'Invalid or expired token',
         variant: 'destructive',
       });
     } finally {
@@ -175,6 +260,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                 {loginForm.formState.errors.password && (
                   <p className="text-sm text-red-500">{loginForm.formState.errors.password.message}</p>
                 )}
+              </div>
+
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Forgot your password?
+                </button>
               </div>
 
               <Button
@@ -355,6 +450,149 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
             </form>
           </TabsContent>
         </Tabs>
+
+        {/* Forgot Password Modal */}
+        {showForgotPassword && (
+          <div className="absolute inset-0 bg-white rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="p-0 h-auto mr-3"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h2 className="text-xl font-semibold">Reset Password</h2>
+              </div>
+
+              {!resetToken ? (
+                <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)} className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Enter your email address and we'll send you a link to reset your password.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="forgot-email">Email</Label>
+                    <Input
+                      id="forgot-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      {...forgotPasswordForm.register('email')}
+                      className="rounded-xl"
+                    />
+                    {forgotPasswordForm.formState.errors.email && (
+                      <p className="text-sm text-red-500">{forgotPasswordForm.formState.errors.email.message}</p>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full btn-primary text-white font-semibold py-3 rounded-xl"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Reset Email'
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={resetPasswordForm.handleSubmit(handleResetPassword)} className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Enter your reset token and new password.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-token">Reset Token</Label>
+                    <Input
+                      id="reset-token"
+                      placeholder="Enter the token from your email"
+                      {...resetPasswordForm.register('token')}
+                      className="rounded-xl"
+                    />
+                    {resetPasswordForm.formState.errors.token && (
+                      <p className="text-sm text-red-500">{resetPasswordForm.formState.errors.token.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-password">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="reset-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter new password"
+                        {...resetPasswordForm.register('password')}
+                        className="rounded-xl pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-medium" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-medium" />
+                        )}
+                      </Button>
+                    </div>
+                    {resetPasswordForm.formState.errors.password && (
+                      <p className="text-sm text-red-500">{resetPasswordForm.formState.errors.password.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-confirmPassword">Confirm New Password</Label>
+                    <Input
+                      id="reset-confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Confirm new password"
+                      {...resetPasswordForm.register('confirmPassword')}
+                      className="rounded-xl"
+                    />
+                    {resetPasswordForm.formState.errors.confirmPassword && (
+                      <p className="text-sm text-red-500">{resetPasswordForm.formState.errors.confirmPassword.message}</p>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full btn-primary text-white font-semibold py-3 rounded-xl"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Resetting...
+                      </>
+                    ) : (
+                      'Reset Password'
+                    )}
+                  </Button>
+                </form>
+              )}
+
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setResetToken(resetToken ? '' : 'show-form')}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {resetToken ? 'Back to email step' : 'Already have a reset token?'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

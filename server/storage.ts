@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
 
@@ -62,6 +62,12 @@ export interface IStorage {
 
   // Damage Reports
   createDamageReport(report: any): Promise<any>;
+
+  // Password reset methods
+  storePasswordResetToken(userId: number, token: string): Promise<void>;
+  verifyPasswordResetToken(token: string): Promise<number | null>;
+  deletePasswordResetToken(token: string): Promise<void>;
+  updateUserPassword(userId: number, hashedPassword: string): Promise<void>;
 
   // Additional methods
   getAllUsers(): Promise<User[]>;
@@ -892,6 +898,51 @@ export class DatabaseStorage implements IStorage {
       item: result.item!,
       owner: result.owner!,
     };
+  }
+
+  // Password reset methods
+  async storePasswordResetToken(userId: number, token: string): Promise<void> {
+    // Set expiration to 1 hour from now
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    
+    await db
+      .insert(passwordResetTokens)
+      .values({
+        userId,
+        token,
+        expiresAt,
+      });
+  }
+
+  async verifyPasswordResetToken(token: string): Promise<number | null> {
+    const [result] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+
+    if (!result) return null;
+
+    // Check if token is expired
+    if (new Date() > result.expiresAt) {
+      // Clean up expired token
+      await this.deletePasswordResetToken(token);
+      return null;
+    }
+
+    return result.userId;
+  }
+
+  async deletePasswordResetToken(token: string): Promise<void> {
+    await db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+  }
+
+  async updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, userId));
   }
 }
 
