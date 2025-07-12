@@ -204,7 +204,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       
     } catch (error) {
       setVerificationState('failed');
-      setVerificationError(error instanceof Error ? error.message : 'An error occurred during registration');
+      setVerificationError('Verification Failed. Would you like to edit your registration information and try again?');
     } finally {
       setIsLoading(false);
     }
