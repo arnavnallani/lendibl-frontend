@@ -362,12 +362,7 @@ export default function TermsOfService() {
             </div>
 
             <div className="border-t border-gray-200 pt-6 mt-8">
-              <p className="text-sm text-gray-500 text-center">
-                By using Lendibl, you acknowledge that you have read, understood, and agree to be bound by these Legal Terms. 
-                These Legal Terms constitute the sole and entire agreement between you and lendibl LLC regarding the Services 
-                and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, 
-                both written and oral, regarding the Services.
-              </p>
+              <p className="text-sm text-gray-500 text-center">By using lendibl, you acknowledge that you have read, understood, and agree to be bound by these Legal Terms. These Legal Terms constitute the sole and entire agreement between you and lendibl LLC regarding the Services and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the Services.</p>
             </div>
 
           </CardContent>
