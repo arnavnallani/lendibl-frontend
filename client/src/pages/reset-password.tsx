@@ -19,19 +19,27 @@ export default function ResetPassword() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Debug logging
+    console.log('Reset password page loaded');
+    console.log('Current URL:', window.location.href);
+    console.log('Search params:', window.location.search);
+    
     // Get token from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const resetToken = urlParams.get('reset-token');
     
+    console.log('Reset token found:', resetToken);
+    
     if (resetToken) {
       setToken(resetToken);
     } else {
+      console.log('No reset token found, redirecting to home');
       toast({
         title: "Invalid Link",
         description: "This password reset link is invalid or has expired.",
         variant: "destructive",
       });
-      setLocation('/');
+      setTimeout(() => setLocation('/'), 2000);
     }
   }, [setLocation, toast]);
 

@@ -81,7 +81,11 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   const protocol = domain.includes('replit.dev') || domain.includes('repl.co') || domain.includes('.app') ? 'https' : 'http';
   const resetUrl = `${protocol}://${domain}/reset-password?reset-token=${token}`;
   
+  // Create a fallback URL using the deployment domain if different
+  const deploymentUrl = domain.includes('replit.dev') ? resetUrl.replace('replit.dev', 'repl.co') : resetUrl;
+  
   console.log(`🔗 Password reset URL generated: ${resetUrl}`);
+  console.log(`🔗 Fallback URL: ${deploymentUrl}`);
   console.log(`🌐 Domain: ${domain}, Protocol: ${protocol}`);
   
   const emailParams: EmailParams = {
@@ -93,7 +97,15 @@ You recently requested to reset your password for your lendibl account. To compl
 
 ${resetUrl}
 
+TROUBLESHOOTING: If the link above doesn't work, please:
+1. Copy and paste the entire URL into your browser's address bar
+2. Make sure you're using a modern browser (Chrome, Firefox, Safari, Edge)
+3. Check that JavaScript is enabled in your browser
+4. Try accessing the link from a different device or network
+
 This link will expire in 1 hour for your security.
+
+Reset Token (for support): ${token}
 
 If you did not request this password reset, you can safely ignore this email. Your account remains secure.
 
@@ -162,6 +174,21 @@ Need help? Contact us at accounts@lendibl.com`,
                 <strong>Having trouble with the button?</strong><br>
                 Copy and paste this link into your browser: <span style="word-break: break-all; color: #3b82f6;">${resetUrl}</span>
               </p>
+              
+              <div style="margin: 20px 0; padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <p style="color: #92400e; font-size: 14px; line-height: 1.5; margin: 0 0 10px 0; font-weight: 600;">
+                  Troubleshooting Steps:
+                </p>
+                <ul style="color: #92400e; font-size: 13px; line-height: 1.4; margin: 0; padding-left: 20px;">
+                  <li>Make sure JavaScript is enabled in your browser</li>
+                  <li>Try using a different browser (Chrome, Firefox, Safari, Edge)</li>
+                  <li>Clear your browser cache and cookies</li>
+                  <li>Try accessing from a different device or network</li>
+                </ul>
+                <p style="color: #92400e; font-size: 12px; margin: 10px 0 0 0;">
+                  Reset Token: <code style="background: #fff; padding: 2px 4px; border-radius: 3px;">${token}</code>
+                </p>
+              </div>
               
               <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 0 0 20px 0;">
                 <strong>Important:</strong> This link will expire in 1 hour for your security.

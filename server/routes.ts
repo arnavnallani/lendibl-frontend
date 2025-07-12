@@ -266,21 +266,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logout successful" });
   });
 
-  // Test endpoint to check URL generation
-  app.get("/api/test/reset-url", (req, res) => {
-    const domain = process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
-    const protocol = domain.includes('replit.dev') || domain.includes('repl.co') || domain.includes('.app') ? 'https' : 'http';
-    const testUrl = `${protocol}://${domain}/reset-password?reset-token=test123`;
-    
-    res.json({ 
-      domain,
-      protocol,
-      testUrl,
-      env: {
-        REPLIT_DEV_DOMAIN: process.env.REPLIT_DEV_DOMAIN,
-        NODE_ENV: process.env.NODE_ENV
-      }
-    });
+  // Test endpoint to verify reset token validity
+  app.get("/api/test/verify-token/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const userId = await storage.verifyPasswordResetToken(token);
+      
+      res.json({ 
+        valid: !!userId,
+        userId: userId || null,
+        message: userId ? "Token is valid" : "Token is invalid or expired"
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to verify token" });
+    }
   });
 
   // Password reset functionality
