@@ -53,7 +53,98 @@ export class PhoneVerificationService {
     return !!(this.customerId && this.apiKey && this.telesign);
   }
 
+  // Send SMS verification code using TeleSign
+  async sendSMSVerificationCode(phoneNumber: string, message?: string): Promise<{ success: boolean; transactionId?: string; message: string }> {
+    if (!this.isConfigured()) {
+      return {
+        success: false,
+        message: "TeleSign SMS service not configured"
+      };
+    }
 
+    try {
+      // Format phone number - ensure it has country code
+      let formattedPhone = phoneNumber.replace(/[^\d+]/g, '');
+      if (!formattedPhone.startsWith('+')) {
+        // Add +1 for US numbers that don't have country code
+        if (formattedPhone.length === 10) {
+          formattedPhone = '+1' + formattedPhone;
+        } else if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+          formattedPhone = '+' + formattedPhone;
+        } else {
+          formattedPhone = '+' + formattedPhone;
+        }
+      }
+
+      const verificationMessage = message || "Your lendibl verification code is: $$CODE$$";
+
+      return new Promise((resolve) => {
+        this.telesign.sms.message((err: any, reply: any) => {
+          if (err) {
+            console.error('TeleSign SMS Error:', err);
+            resolve({
+              success: false,
+              message: "Failed to send SMS verification code"
+            });
+          } else {
+            console.log('✅ SMS sent successfully:', reply);
+            resolve({
+              success: true,
+              transactionId: reply.reference_id,
+              message: "SMS verification code sent successfully"
+            });
+          }
+        }, formattedPhone, verificationMessage, 'ARN');
+      });
+    } catch (error) {
+      console.error('TeleSign SMS Service Error:', error);
+      return {
+        success: false,
+        message: "SMS service error"
+      };
+    }
+  }
+
+  // Verify SMS code using TeleSign
+  async verifySMSCode(transactionId: string, verificationCode: string): Promise<{ success: boolean; valid: boolean; message: string }> {
+    if (!this.isConfigured()) {
+      return {
+        success: false,
+        valid: false,
+        message: "TeleSign verification service not configured"
+      };
+    }
+
+    try {
+      return new Promise((resolve) => {
+        this.telesign.verify.sms((err: any, reply: any) => {
+          if (err) {
+            console.error('TeleSign Verification Error:', err);
+            resolve({
+              success: false,
+              valid: false,
+              message: "Failed to verify SMS code"
+            });
+          } else {
+            console.log('📱 SMS verification result:', reply);
+            const isValid = reply.verify && reply.verify.code_state === "VALID";
+            resolve({
+              success: true,
+              valid: isValid,
+              message: isValid ? "Phone number verified successfully" : "Invalid verification code"
+            });
+          }
+        }, transactionId, verificationCode);
+      });
+    } catch (error) {
+      console.error('TeleSign Verification Service Error:', error);
+      return {
+        success: false,
+        valid: false,
+        message: "Verification service error"
+      };
+    }
+  }
 
   // Instant phone number verification using built-in validation
   async verifyPhoneInstant(phoneNumber: string): Promise<PhoneIDResult> {

@@ -61,8 +61,13 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetToken, setResetToken] = useState('');
-  const [verificationState, setVerificationState] = useState<'idle' | 'verifying' | 'success' | 'failed'>('idle');
+  const [verificationState, setVerificationState] = useState<'idle' | 'email-sent' | 'sms-sent' | 'verifying' | 'success' | 'failed'>('idle');
   const [verificationError, setVerificationError] = useState<string>('');
+  const [emailToken, setEmailToken] = useState<string>('');
+  const [smsTransactionId, setSmsTransactionId] = useState<string>('');
+  const [emailCode, setEmailCode] = useState<string>('');
+  const [smsCode, setSmsCode] = useState<string>('');
+  const [registrationData, setRegistrationData] = useState<RegisterFormData | null>(null);
   const { toast } = useToast();
   const { login, register } = useAuth();
 
@@ -143,45 +148,92 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
 
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
-    setVerificationState('verifying');
     setVerificationError('');
+    setRegistrationData(data);
     
     try {
-      // Simulate AI verification delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Step 1: Instant email verification (no email sending required)
-      const emailResponse = await apiRequest('POST', '/api/auth/verify-email-instant', {
+      // Step 1: Send email verification
+      const emailResponse = await apiRequest('POST', '/api/auth/send-email-verification', {
         email: data.email,
+        firstName: data.firstName,
       });
       
       const emailResult = await emailResponse.json();
       
-      if (!emailResult.success || !emailResult.valid) {
-        throw new Error(emailResult.message || 'Email verification failed');
+      if (!emailResult.success) {
+        throw new Error(emailResult.message || 'Failed to send email verification');
       }
       
-      // Step 2: Instant phone verification (no SMS required)
-      const phoneResponse = await apiRequest('POST', '/api/auth/verify-instant', {
+      setEmailToken(emailResult.token);
+      
+      // Step 2: Send SMS verification
+      const smsResponse = await apiRequest('POST', '/api/auth/send-sms-verification', {
         phoneNumber: data.phone,
-        firstName: data.firstName,
-        lastName: data.lastName,
       });
       
-      const phoneResult = await phoneResponse.json();
+      const smsResult = await smsResponse.json();
       
-      if (!phoneResult.success || !phoneResult.valid) {
-        throw new Error(phoneResult.message || 'Phone number verification failed');
+      if (!smsResult.success) {
+        throw new Error(smsResult.message || 'Failed to send SMS verification');
       }
       
-      // Step 3: Complete registration with verified email and phone
+      setSmsTransactionId(smsResult.transactionId);
+      setVerificationState('sms-sent');
+      
+      toast({
+        title: 'Verification codes sent!',
+        description: 'Check your email and phone for verification codes.',
+      });
+      
+    } catch (error) {
+      setVerificationState('failed');
+      setVerificationError(error instanceof Error ? error.message : 'Failed to send verification codes');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerificationSubmit = async () => {
+    if (!emailCode || !smsCode || !registrationData) {
+      setVerificationError('Please enter both verification codes');
+      return;
+    }
+
+    setIsLoading(true);
+    setVerificationState('verifying');
+    
+    try {
+      // Verify email token
+      const emailVerifyResponse = await apiRequest('POST', '/api/auth/verify-email-token', {
+        token: emailToken,
+      });
+      
+      const emailVerifyResult = await emailVerifyResponse.json();
+      
+      if (!emailVerifyResult.success || !emailVerifyResult.valid) {
+        throw new Error('Invalid email verification code');
+      }
+      
+      // Verify SMS code
+      const smsVerifyResponse = await apiRequest('POST', '/api/auth/verify-sms-code', {
+        transactionId: smsTransactionId,
+        verificationCode: smsCode,
+      });
+      
+      const smsVerifyResult = await smsVerifyResponse.json();
+      
+      if (!smsVerifyResult.success || !smsVerifyResult.valid) {
+        throw new Error('Invalid SMS verification code');
+      }
+      
+      // Complete registration with verified email and phone
       await register({
-        email: emailResult.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        username: data.username,
-        phone: phoneResult.phoneNumber,
+        email: registrationData.email,
+        password: registrationData.password,
+        firstName: registrationData.firstName,
+        lastName: registrationData.lastName,
+        username: registrationData.username,
+        phone: registrationData.phone,
         phoneVerified: true,
         emailVerified: true,
       });
@@ -198,14 +250,16 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
         
         // Reset state and close modal
         setVerificationState('idle');
+        setEmailCode('');
+        setSmsCode('');
+        setRegistrationData(null);
         onClose();
         registerForm.reset();
       }, 1500);
       
     } catch (error) {
       setVerificationState('failed');
-      setVerificationError(error instanceof Error ? error.message : 'An error occurred during registration');
-    } finally {
+      setVerificationError(error instanceof Error ? error.message : 'Verification failed');
       setIsLoading(false);
     }
   };
@@ -388,14 +442,83 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
           </TabsContent>
 
           <TabsContent value="register" className="space-y-4">
-            {verificationState === 'verifying' ? (
-              // AI Verification Screen
+            {verificationState === 'sms-sent' ? (
+              // Verification Code Input Screen
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-semibold text-gray-900">Enter Verification Codes</h3>
+                  <p className="text-gray-600">
+                    We've sent verification codes to your email and phone number.
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email-code">Email Verification Code</Label>
+                    <Input
+                      id="email-code"
+                      type="text"
+                      placeholder="Enter code from email"
+                      value={emailCode}
+                      onChange={(e) => setEmailCode(e.target.value)}
+                      className="rounded-xl text-center text-lg tracking-wider"
+                    />
+                    <p className="text-xs text-gray-500">Check your email for the verification code</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="sms-code">SMS Verification Code</Label>
+                    <Input
+                      id="sms-code"
+                      type="text"
+                      placeholder="Enter SMS code"
+                      value={smsCode}
+                      onChange={(e) => setSmsCode(e.target.value)}
+                      className="rounded-xl text-center text-lg tracking-wider"
+                    />
+                    <p className="text-xs text-gray-500">Check your text messages for the verification code</p>
+                  </div>
+                </div>
+                
+                {verificationError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-600">{verificationError}</p>
+                  </div>
+                )}
+                
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleVerificationSubmit}
+                    disabled={isLoading || !emailCode || !smsCode}
+                    className="w-full btn-primary text-white font-semibold py-3 rounded-xl"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      'Verify & Create Account'
+                    )}
+                  </Button>
+                  
+                  <button
+                    type="button"
+                    onClick={handleBackToRegistration}
+                    className="w-full text-sm text-gray-600 hover:text-gray-800 underline"
+                  >
+                    Back to registration
+                  </button>
+                </div>
+              </div>
+            ) : verificationState === 'verifying' ? (
+              // Processing Verification Screen
               <div className="flex flex-col items-center justify-center py-12 space-y-6">
                 <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                 <div className="text-center space-y-2">
-                  <h3 className="text-xl font-semibold text-gray-900">Verifying with AI</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Verifying Codes</h3>
                   <p className="text-gray-600">
-                    We're validating your email and phone number using advanced verification technology...
+                    Validating your verification codes and creating your account...
                   </p>
                 </div>
               </div>
@@ -404,9 +527,9 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
               <div className="flex flex-col items-center justify-center py-12 space-y-6">
                 <CheckCircle className="w-16 h-16 text-green-500" />
                 <div className="text-center space-y-2">
-                  <h3 className="text-xl font-semibold text-green-600">Verified!</h3>
+                  <h3 className="text-xl font-semibold text-green-600">Account Created!</h3>
                   <p className="text-gray-600">
-                    Your account has been successfully created and verified.
+                    Your account has been successfully created with verified email and phone.
                   </p>
                 </div>
               </div>
@@ -417,7 +540,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                 <div className="text-center space-y-4">
                   <h3 className="text-xl font-semibold text-red-600">Verification Failed</h3>
                   <p className="text-gray-600">
-                    {verificationError || 'Would you like to edit your registration info?'}
+                    {verificationError || 'Please check your verification codes and try again.'}
                   </p>
                   <button
                     onClick={handleBackToRegistration}
