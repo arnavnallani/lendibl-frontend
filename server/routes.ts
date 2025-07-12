@@ -17,6 +17,7 @@ import { db } from "./db";
 import { users } from "@shared/schema";
 import { refundService } from "./refund-service";
 import { responseTrackingService } from "./response-tracking-service";
+import { sendPasswordResetEmail } from "./email-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -280,15 +281,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ message: "If the email exists, a reset link has been sent" });
       }
 
-      // Generate reset token (in a real app, you'd save this to database with expiration)
+      // Generate reset token
       const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       
-      // Store the reset token temporarily (in production, use a proper cache or database)
+      // Store the reset token in database with expiration
       await storage.storePasswordResetToken(user.id, resetToken);
 
-      // In a real app, you'd send an email here
-      // For now, we'll just log the token and return it in the response
-      console.log(`Password reset token for ${email}: ${resetToken}`);
+      // Send password reset email
+      const emailSent = await sendPasswordResetEmail(email, resetToken);
+      
+      if (!emailSent) {
+        console.error(`Failed to send password reset email to ${email}`);
+        return res.status(500).json({ message: "Failed to send reset email" });
+      }
+
+      console.log(`Password reset email sent successfully to ${email}`);
       
       res.json({ 
         message: "Reset instructions sent to your email",

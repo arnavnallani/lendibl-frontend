@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -62,6 +62,23 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const [resetToken, setResetToken] = useState('');
   const { toast } = useToast();
   const { login, register } = useAuth();
+
+  // Check for reset token in URL parameters when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get('reset-token');
+      if (tokenFromUrl) {
+        setResetToken(tokenFromUrl);
+        setShowForgotPassword(true);
+        resetPasswordForm.setValue('token', tokenFromUrl);
+        // Clean up URL parameter
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('reset-token');
+        window.history.replaceState({}, document.title, newUrl.toString());
+      }
+    }
+  }, [isOpen]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

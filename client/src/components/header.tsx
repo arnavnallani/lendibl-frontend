@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Menu, User, LogOut, Settings, Zap, MessageSquare, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,15 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
   const { user, logout } = useAuth();
   const unreadCount = useNotificationCount();
   const [location] = useLocation();
+
+  // Check for reset token in URL and auto-open auth modal
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get('reset-token');
+    if (resetToken && !user) {
+      setIsAuthModalOpen(true);
+    }
+  }, [user]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
