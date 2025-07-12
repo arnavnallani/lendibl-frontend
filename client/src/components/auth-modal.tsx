@@ -24,6 +24,7 @@ const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   username: z.string().min(3, 'Username must be at least 3 characters'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits').regex(/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -97,6 +98,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       firstName: '',
       lastName: '',
       username: '',
+      phone: '',
     },
   });
 
@@ -388,6 +390,20 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                 />
                 {registerForm.formState.errors.email && (
                   <p className="text-sm text-red-500">{registerForm.formState.errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="register-phone">Phone Number</Label>
+                <Input
+                  id="register-phone"
+                  type="tel"
+                  placeholder="+1 (555) 123-4567"
+                  {...registerForm.register('phone')}
+                  className="rounded-xl"
+                />
+                {registerForm.formState.errors.phone && (
+                  <p className="text-sm text-red-500">{registerForm.formState.errors.phone.message}</p>
                 )}
               </div>
 
