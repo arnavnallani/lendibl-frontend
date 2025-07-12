@@ -89,9 +89,44 @@ export class EmailVerificationService {
       };
     }
 
+    // Check for obvious fake/nonsense domains
+    const domain = cleanEmail.split('@')[1];
+    const localPart = cleanEmail.split('@')[0];
+    
+    // Check for obviously fake domains or gibberish
+    if (domain.length < 4 || localPart.length < 1) {
+      return {
+        valid: false,
+        message: 'Please enter a valid email address'
+      };
+    }
+    
+    // Check for domains that are clearly nonsense (long random strings)
+    if (domain.length > 30 || /^[a-z]{20,}\.com$/.test(domain)) {
+      return {
+        valid: false,
+        message: 'Please enter a valid email address'
+      };
+    }
+    
+    // Check for domains with obvious typos or test patterns
+    const invalidPatterns = [
+      /test/i, /fake/i, /invalid/i, /example/i, /dummy/i, /temp/i,
+      /^[a-z]{10,}\.com$/, // very long random strings
+      /^[jklmnpqrstuvwxyz]+\.com$/ // random consonant strings
+    ];
+    
+    for (const pattern of invalidPatterns) {
+      if (pattern.test(domain)) {
+        return {
+          valid: false,
+          message: 'Please enter a valid email address'
+        };
+      }
+    }
+
     // Check for common typos in popular domains (but not for valid domains)
     const commonDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
-    const domain = cleanEmail.split('@')[1];
     
     // Only suggest corrections for actual typos, not for valid domains
     if (domain !== 'gmail.com' && (domain.includes('gmial') || domain.includes('gmai') || domain === 'gmail.co' || domain === 'gmial.com')) {
