@@ -143,33 +143,45 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      // Step 1: Instant phone verification (no SMS required)
-      const response = await apiRequest('POST', '/api/auth/verify-instant', {
+      // Step 1: Instant email verification (no email sending required)
+      const emailResponse = await apiRequest('POST', '/api/auth/verify-email-instant', {
+        email: data.email,
+      });
+      
+      const emailResult = await emailResponse.json();
+      
+      if (!emailResult.success || !emailResult.valid) {
+        throw new Error(emailResult.message || 'Email verification failed');
+      }
+      
+      // Step 2: Instant phone verification (no SMS required)
+      const phoneResponse = await apiRequest('POST', '/api/auth/verify-instant', {
         phoneNumber: data.phone,
         firstName: data.firstName,
         lastName: data.lastName,
       });
       
-      const result = await response.json();
+      const phoneResult = await phoneResponse.json();
       
-      if (!result.success || !result.valid) {
-        throw new Error(result.message || 'Phone number verification failed');
+      if (!phoneResult.success || !phoneResult.valid) {
+        throw new Error(phoneResult.message || 'Phone number verification failed');
       }
       
-      // Step 2: Complete registration with verified phone number
+      // Step 3: Complete registration with verified email and phone
       await register({
-        email: data.email,
+        email: emailResult.email,
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
         username: data.username,
-        phone: result.phoneNumber,
+        phone: phoneResult.phoneNumber,
         phoneVerified: true,
+        emailVerified: true,
       });
       
       toast({
         title: 'Welcome to lendibl!',
-        description: 'Your account has been created successfully with verified phone number.',
+        description: 'Your account has been created successfully with verified email and phone.',
       });
       
       // Reset state and close modal

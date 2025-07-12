@@ -19,6 +19,7 @@ import { refundService } from "./refund-service";
 import { responseTrackingService } from "./response-tracking-service";
 import { sendPasswordResetEmail } from "./email-service";
 import { phoneVerificationService } from "./phone-verification-service";
+import { emailVerificationService } from "./email-verification-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -434,6 +435,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false, 
         valid: false,
         message: "Failed to verify phone number instantly" 
+      });
+    }
+  });
+
+  // Instant email verification (no email sending required)
+  app.post("/api/auth/verify-email-instant", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ 
+          success: false, 
+          valid: false,
+          message: "Email address is required" 
+        });
+      }
+
+      console.log(`📧 Instant email verification for: ${email}`);
+      
+      const result = await emailVerificationService.verifyEmailInstant(email);
+      
+      console.log(`✅ Email verification result: ${result.message}`);
+      res.json(result);
+    } catch (error) {
+      console.error('💥 Instant email verification error:', error);
+      res.status(500).json({ 
+        success: false, 
+        valid: false,
+        message: "Failed to verify email address instantly" 
       });
     }
   });

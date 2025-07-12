@@ -23,6 +23,7 @@ interface AuthContextType {
     username: string;
     phone?: string;
     phoneVerified?: boolean;
+    emailVerified?: boolean;
   }) => Promise<void>;
   logout: () => void;
   isLoading: boolean;

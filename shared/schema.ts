@@ -58,6 +58,7 @@ export const users = pgTable("users", {
   lastName: text("last_name").notNull(),
   phone: text("phone"),
   phoneVerified: boolean("phone_verified").default(false),
+  emailVerified: boolean("email_verified").default(false),
   avatar: text("avatar"),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
   reviewCount: integer("review_count").default(0),
