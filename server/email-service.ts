@@ -29,8 +29,26 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     });
     console.log(`Email sent successfully to ${params.to}`);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('SendGrid email error:', error);
+    
+    // Log detailed error information
+    if (error.response && error.response.body && error.response.body.errors) {
+      console.error('SendGrid error details:', JSON.stringify(error.response.body.errors, null, 2));
+      
+      // Check for specific verification error
+      const errors = error.response.body.errors;
+      const hasVerificationError = errors.some((err: any) => 
+        err.message && err.message.includes('verified')
+      );
+      
+      if (hasVerificationError) {
+        console.error(`❌ SENDGRID VERIFICATION ERROR: The sender email "${process.env.SENDGRID_FROM_EMAIL}" is not verified.`);
+        console.error('📧 Please verify this email in SendGrid dashboard: Settings → Sender Authentication');
+        console.error('💡 Alternative: Update SENDGRID_FROM_EMAIL to a verified email address');
+      }
+    }
+    
     return false;
   }
 }
