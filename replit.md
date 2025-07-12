@@ -327,6 +327,7 @@ The application uses PostgreSQL with the following main entities:
 - July 12, 2025: Updated all branding throughout application to use lowercase "lendibl" consistently - changed email templates, chatbot responses, documentation, and alt tags per critical branding requirement
 - July 12, 2025: Completed comprehensive password reset system with TeleSign phone verification integration - fixed email URLs to use proper domain, enhanced error handling, added troubleshooting guidance in emails, and improved frontend token validation. System works correctly but requires production deployment for external computer access due to Vite development middleware intercepting API routes
 - July 12, 2025: Successfully implemented instant phone number verification system - removed SMS/voice verification methods, configured TeleSign SDK with proper ES module imports, created comprehensive phone validation with US/international number detection, format validation, and instant verification API endpoint (/api/auth/verify-instant)
+- July 12, 2025: Upgraded to full TeleSign paid account - phone verification now working for all real phone numbers with comprehensive carrier information, location data, and fraud scoring. System costs $0.011 per verification with no trial account restrictions
 
 ## User Preferences
 
