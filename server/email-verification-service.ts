@@ -75,6 +75,22 @@ export class EmailVerificationService {
       };
     }
 
+    // Check for obvious fake patterns
+    if (this.isObviousFakeEmail(cleanEmail)) {
+      return {
+        valid: false,
+        message: 'Please provide a valid email address'
+      };
+    }
+
+    // Check if it's a disposable email domain
+    if (this.isDisposableEmail(cleanEmail)) {
+      return {
+        valid: false,
+        message: 'Disposable email addresses are not allowed. Please use a permanent email address.'
+      };
+    }
+
     if (cleanEmail.length > 254) {
       return {
         valid: false,
@@ -147,6 +163,45 @@ export class EmailVerificationService {
       valid: true,
       message: 'Valid email format'
     };
+  }
+
+  private isObviousFakeEmail(email: string): boolean {
+    const localPart = email.split('@')[0];
+    const domain = email.split('@')[1];
+    
+    // Check for obvious fake patterns in local part
+    const fakePatterns = [
+      /^[a-z]{15,}$/, // very long random strings
+      /^(test|fake|invalid|dummy|example|temp|mail|email)$/i,
+      /^[jklmnpqrstuvwxyz]{8,}$/, // random consonants
+      /^[aeiou]{5,}$/, // all vowels
+      /^(asdf|qwerty|zxcv|hjkl|mnop)/, // keyboard patterns
+      /^[a-z]\1{4,}$/ // repeated characters (aaaaa, bbbbb)
+    ];
+    
+    for (const pattern of fakePatterns) {
+      if (pattern.test(localPart)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  private isDisposableEmail(email: string): boolean {
+    const domain = email.split('@')[1];
+    
+    // Common disposable email domains
+    const disposableDomains = [
+      '10minutemail.com', '10minutemail.net', '2prong.com', '33mail.com',
+      'guerrillamail.com', 'guerrillamailblock.com', 'mailinator.com', 
+      'mailinator.net', 'maildrop.cc', 'tempmail.org', 'temp-mail.org',
+      'yopmail.com', 'throwaway.email', 'dispostable.com', 'trash-mail.com',
+      'getnada.com', 'emailondeck.com', 'sharklasers.com', 'grr.la',
+      'spamgourmet.com', 'mytrashmail.com', 'tempinbox.com'
+    ];
+    
+    return disposableDomains.includes(domain);
   }
 
   private async verifyDomain(email: string): Promise<{ valid: boolean; message: string; domainInfo?: any }> {
