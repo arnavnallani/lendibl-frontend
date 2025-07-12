@@ -26,10 +26,22 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         email: process.env.SENDGRID_FROM_EMAIL!,
         name: 'Lendibl Support'
       },
-      replyTo: process.env.SENDGRID_FROM_EMAIL!, // Can be changed to support@lendibl.com later
+      replyTo: process.env.SENDGRID_FROM_EMAIL!,
       subject: params.subject,
       text: params.text,
       html: params.html,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high',
+        'X-Mailer': 'Lendibl Password Reset System',
+        'List-Unsubscribe': '<mailto:accounts@lendibl.com>',
+      },
+      categories: ['password-reset', 'security', 'authentication'],
+      customArgs: {
+        'email_type': 'password_reset',
+        'platform': 'lendibl'
+      },
     });
     console.log(`Email sent successfully to ${params.to}`);
     return true;
@@ -62,48 +74,125 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   
   const emailParams: EmailParams = {
     to: email,
-    subject: 'Reset Your Lendibl Password',
-    text: `You requested a password reset for your Lendibl account. 
+    subject: '[Lendibl] Password Reset Request - Action Required',
+    text: `Hello,
 
-Click this link to reset your password: ${resetUrl}
+You recently requested to reset your password for your Lendibl account. To complete this process, please click the link below:
 
-If you didn't request this, please ignore this email. This link will expire in 1 hour.
+${resetUrl}
 
-- The Lendibl Team`,
+This link will expire in 1 hour for your security.
+
+If you did not request this password reset, you can safely ignore this email. Your account remains secure.
+
+Best regards,
+The Lendibl Support Team
+
+---
+Lendibl - Peer-to-Peer Rental Marketplace
+Need help? Contact us at accounts@lendibl.com`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Lendibl</h1>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Lendibl Password</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #3b82f6, #1e40af); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Lendibl</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Peer-to-Peer Rental Marketplace</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Password Reset Request</h2>
+              
+              <p style="color: #4b5563; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+                Hello,
+              </p>
+              
+              <p style="color: #4b5563; line-height: 1.6; margin: 0 0 30px 0; font-size: 16px;">
+                You recently requested to reset your password for your Lendibl account. To complete this process, please click the button below:
+              </p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" style="margin: 0 auto;">
+                <tr>
+                  <td style="text-align: center; padding: 20px 0;">
+                    <a href="${resetUrl}" 
+                       style="background: #3b82f6; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; text-align: center; min-width: 200px; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);">
+                      Reset My Password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 30px 0 20px 0; padding: 20px; background: #f9fafb; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <strong>Having trouble with the button?</strong><br>
+                Copy and paste this link into your browser: <span style="word-break: break-all; color: #3b82f6;">${resetUrl}</span>
+              </p>
+              
+              <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 0 0 20px 0;">
+                <strong>Important:</strong> This link will expire in 1 hour for your security.
+              </p>
+              
+              <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 0;">
+                If you did not request this password reset, you can safely ignore this email. Your account remains secure.
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background: #f8fafc; padding: 30px; text-align: center; border-radius: 0 0 12px 12px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: 600;">
+                Best regards,<br>
+                The Lendibl Support Team
+              </p>
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                © 2025 Lendibl. All rights reserved.<br>
+                Need help? Contact us at accounts@lendibl.com
+              </p>
+            </td>
+          </tr>
+        </table>
         
-        <div style="padding: 30px; background: #f9fafb;">
-          <h2 style="color: #1f2937; margin-bottom: 20px;">Reset Your Password</h2>
-          
-          <p style="color: #4b5563; line-height: 1.6; margin-bottom: 25px;">
-            You requested a password reset for your Lendibl account. Click the button below to create a new password.
-          </p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" 
-               style="background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
-              Reset My Password
-            </a>
-          </div>
-          
-          <p style="color: #6b7280; font-size: 14px; line-height: 1.5;">
-            If the button doesn't work, copy and paste this link into your browser:<br>
-            <span style="word-break: break-all;">${resetUrl}</span>
-          </p>
-          
-          <p style="color: #6b7280; font-size: 14px; margin-top: 25px;">
-            If you didn't request this password reset, please ignore this email. This link will expire in 1 hour for security.
-          </p>
-        </div>
-        
-        <div style="background: #e5e7eb; padding: 15px; text-align: center; color: #6b7280; font-size: 12px;">
-          © 2025 Lendibl. All rights reserved.
-        </div>
-      </div>
+        <!-- Anti-spam footer -->
+        <table role="presentation" style="max-width: 600px; margin: 20px auto 0 auto;">
+          <tr>
+            <td style="text-align: center; padding: 20px;">
+              <p style="color: #9ca3af; font-size: 11px; line-height: 1.4; margin: 0;">
+                This email was sent to ${email} because you requested a password reset on Lendibl.<br>
+                Lendibl, Peer-to-Peer Rental Marketplace<br>
+                <a href="mailto:accounts@lendibl.com" style="color: #6b7280; text-decoration: underline;">accounts@lendibl.com</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
     `,
   };
 
