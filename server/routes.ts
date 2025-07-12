@@ -510,6 +510,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Instant phone verification (no SMS required)
+  app.post("/api/auth/verify-instant", async (req, res) => {
+    try {
+      const { phoneNumber } = req.body;
+      
+      if (!phoneNumber) {
+        return res.status(400).json({ 
+          success: false, 
+          valid: false,
+          message: "Phone number is required" 
+        });
+      }
+
+      console.log(`📱 Instant verification for: ${phoneNumber}`);
+      
+      const result = await phoneVerificationService.verifyPhoneInstant(phoneNumber);
+      
+      console.log(`✅ Instant verification result: ${result.message}`);
+      res.json(result);
+    } catch (error) {
+      console.error('💥 Instant phone verification error:', error);
+      res.status(500).json({ 
+        success: false, 
+        valid: false,
+        message: "Failed to verify phone number instantly" 
+      });
+    }
+  });
+
+  // Voice call verification
+  app.post("/api/auth/send-call", async (req, res) => {
+    try {
+      const { phoneNumber, firstName, lastName } = req.body;
+      
+      if (!phoneNumber || !firstName || !lastName) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Phone number, first name, and last name are required" 
+        });
+      }
+
+      // Validate phone number format
+      const validation = phoneVerificationService.validatePhoneNumber(phoneNumber);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      console.log(`📞 Sending verification call to: ${phoneNumber} for ${firstName} ${lastName}`);
+
+      const result = await phoneVerificationService.sendVerificationCall(phoneNumber, firstName);
+      
+      if (!result.success) {
+        console.error(`❌ Failed to send verification call: ${result.message}`);
+        return res.status(500).json({ message: result.message });
+      }
+
+      // Store verification attempt in database
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+
+      await storage.createPhoneVerification({
+        phoneNumber: result.phoneNumber!,
+        firstName,
+        lastName,
+        transactionId: result.transactionId!,
+        expiresAt,
+      });
+
+      console.log(`✅ Verification call sent successfully, transaction ID: ${result.transactionId}`);
+
+      res.json({
+        message: "Verification call initiated successfully",
+        transactionId: result.transactionId,
+        phoneNumber: result.phoneNumber,
+      });
+    } catch (error) {
+      console.error('💥 Voice verification error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to initiate verification call" 
+      });
+    }
+  });
+
   // AI-powered search endpoint
   app.get("/api/ai-search", async (req, res) => {
     try {

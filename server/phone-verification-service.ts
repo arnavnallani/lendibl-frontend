@@ -7,6 +7,22 @@ interface VerificationResult {
   phoneNumber?: string;
 }
 
+interface PhoneIDResult {
+  success: boolean;
+  valid: boolean;
+  message: string;
+  phoneNumber?: string;
+  carrierInfo?: {
+    name: string;
+    type: string;
+  };
+  riskScore?: number;
+  location?: {
+    country: string;
+    region?: string;
+  };
+}
+
 interface VerificationStatus {
   success: boolean;
   verified: boolean;
@@ -129,6 +145,121 @@ export class PhoneVerificationService {
         success: false,
         verified: false,
         message: 'Verification failed'
+      };
+    }
+  }
+
+  // Instant phone number verification using PhoneID API (no SMS required)
+  async verifyPhoneInstant(phoneNumber: string): Promise<PhoneIDResult> {
+    if (!this.isConfigured()) {
+      return {
+        success: false,
+        valid: false,
+        message: 'Phone verification service not configured'
+      };
+    }
+
+    try {
+      // Format phone number
+      const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+      
+      // Use TeleSign PhoneID API for instant verification
+      const response = await new Promise((resolve, reject) => {
+        this.telesign!.phoneid.standard((error: any, responseBody: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(responseBody);
+          }
+        }, cleanPhone);
+      });
+
+      console.log('TeleSign PhoneID response:', response);
+      const responseData = response as any;
+
+      if (responseData.status && responseData.status.code === 300) {
+        // Extract relevant information
+        const numbering = responseData.numbering || {};
+        const carrier = responseData.carrier || {};
+        const risk = responseData.risk || {};
+        
+        return {
+          success: true,
+          valid: true,
+          message: 'Phone number verified instantly',
+          phoneNumber: cleanPhone,
+          carrierInfo: {
+            name: carrier.name || 'Unknown',
+            type: numbering.original?.phone_type || 'Unknown'
+          },
+          riskScore: risk.score || 0,
+          location: {
+            country: numbering.original?.country_iso2 || 'Unknown',
+            region: carrier.country_iso2 || undefined
+          }
+        };
+      } else {
+        return {
+          success: false,
+          valid: false,
+          message: responseData.status?.description || 'Phone number validation failed'
+        };
+      }
+    } catch (error) {
+      console.error('TeleSign PhoneID error:', error);
+      return {
+        success: false,
+        valid: false,
+        message: 'Failed to verify phone number instantly'
+      };
+    }
+  }
+
+  // Voice call verification (alternative to SMS)
+  async sendVerificationCall(phoneNumber: string, name: string): Promise<VerificationResult> {
+    if (!this.isConfigured()) {
+      return {
+        success: false,
+        message: 'Phone verification service not configured'
+      };
+    }
+
+    try {
+      // Format phone number
+      const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
+      
+      // Send voice call verification
+      const response = await new Promise((resolve, reject) => {
+        this.telesign!.voice.call((error: any, responseBody: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(responseBody);
+          }
+        }, cleanPhone, `Hello ${name}! Your lendibl verification code is $$CODE$$. Please enter this code to verify your phone number.`, 'ARN');
+      });
+
+      console.log('TeleSign Voice response:', response);
+      const responseData = response as any;
+
+      if (responseData.status && responseData.status.code === 290) {
+        return {
+          success: true,
+          transactionId: responseData.reference_id,
+          message: 'Verification call initiated successfully',
+          phoneNumber: cleanPhone
+        };
+      } else {
+        return {
+          success: false,
+          message: responseData.status?.description || 'Failed to initiate verification call'
+        };
+      }
+    } catch (error) {
+      console.error('TeleSign Voice error:', error);
+      return {
+        success: false,
+        message: 'Failed to initiate verification call'
       };
     }
   }
