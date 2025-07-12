@@ -77,16 +77,27 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
   // Get the proper domain for Replit deployments
-  const domain = process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
-  const protocol = domain.includes('replit.dev') || domain.includes('repl.co') || domain.includes('.app') ? 'https' : 'http';
+  let domain = process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
+  
+  // Handle multiple domains - take the first one
+  if (domain.includes(',')) {
+    domain = domain.split(',')[0].trim();
+  }
+  
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Convert development domains to public deployment domains
+  if (domain.includes('.replit.dev')) {
+    // For deployed apps, use the public .repl.co domain
+    domain = domain.replace('.replit.dev', '.repl.co');
+  }
+  
+  const protocol = domain.includes('localhost') ? 'http' : 'https';
   const resetUrl = `${protocol}://${domain}/reset-password?reset-token=${token}`;
   
-  // Create a fallback URL using the deployment domain if different
-  const deploymentUrl = domain.includes('replit.dev') ? resetUrl.replace('replit.dev', 'repl.co') : resetUrl;
-  
   console.log(`🔗 Password reset URL generated: ${resetUrl}`);
-  console.log(`🔗 Fallback URL: ${deploymentUrl}`);
-  console.log(`🌐 Domain: ${domain}, Protocol: ${protocol}`);
+  console.log(`🌐 Domain: ${domain}, Protocol: ${protocol}, Production: ${isProduction}`);
+  console.log(`🔧 Original domain env: ${process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN}`);
   
   const emailParams: EmailParams = {
     to: email,

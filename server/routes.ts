@@ -282,6 +282,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to check domain configuration
+  app.get("/api/test/domain-config", (req, res) => {
+    let domain = process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
+    
+    if (domain.includes(',')) {
+      domain = domain.split(',')[0].trim();
+    }
+    
+    const originalDomain = domain;
+    if (domain.includes('.replit.dev')) {
+      domain = domain.replace('.replit.dev', '.repl.co');
+    }
+    
+    const protocol = domain.includes('localhost') ? 'http' : 'https';
+    const testUrl = `${protocol}://${domain}/reset-password?reset-token=test123`;
+    
+    res.json({
+      originalDomain,
+      convertedDomain: domain,
+      protocol,
+      testUrl,
+      isProduction: process.env.NODE_ENV === 'production',
+      environment: {
+        REPLIT_DOMAINS: process.env.REPLIT_DOMAINS,
+        REPLIT_DEV_DOMAIN: process.env.REPLIT_DEV_DOMAIN,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    });
+  });
+
   // Password reset functionality
   app.post("/api/auth/forgot-password", async (req, res) => {
     try {
