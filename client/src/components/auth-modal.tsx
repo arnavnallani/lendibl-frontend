@@ -61,6 +61,17 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetToken, setResetToken] = useState('');
+  const [phoneVerificationStep, setPhoneVerificationStep] = useState<'form' | 'verify' | null>(null);
+  const [verificationData, setVerificationData] = useState<{
+    transactionId: string;
+    phoneNumber: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    username: string;
+    password: string;
+  } | null>(null);
+  const [verificationCode, setVerificationCode] = useState('');
   const { toast } = useToast();
   const { login, register } = useAuth();
 
@@ -142,28 +153,105 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
   const handleRegister = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      await register({
-        email: data.email,
-        password: data.password,
+      // Step 1: Send verification code to phone number
+      const response = await apiRequest('POST', '/api/auth/send-verification', {
+        phoneNumber: data.phone,
         firstName: data.firstName,
         lastName: data.lastName,
+      });
+      
+      const result = await response.json();
+      
+      // Store registration data for completion after verification
+      setVerificationData({
+        transactionId: result.transactionId,
+        phoneNumber: result.phoneNumber,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
         username: data.username,
+        password: data.password,
       });
+      
+      // Move to verification step
+      setPhoneVerificationStep('verify');
+      
       toast({
-        title: 'Welcome to Lendibl!',
-        description: 'Your account has been created successfully.',
+        title: 'Verification code sent',
+        description: `We've sent a verification code to ${result.phoneNumber}`,
       });
-      onClose();
-      registerForm.reset();
     } catch (error) {
       toast({
-        title: 'Registration failed',
+        title: 'Failed to send verification',
         description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleVerifyPhone = async () => {
+    if (!verificationData || !verificationCode.trim()) {
+      toast({
+        title: 'Invalid code',
+        description: 'Please enter the verification code',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Step 2: Verify the code
+      const verifyResponse = await apiRequest('POST', '/api/auth/verify-phone', {
+        transactionId: verificationData.transactionId,
+        code: verificationCode.trim(),
+      });
+      
+      const verifyResult = await verifyResponse.json();
+      
+      if (!verifyResult.verified) {
+        throw new Error('Phone number verification failed');
+      }
+      
+      // Step 3: Complete registration with verified phone
+      await register({
+        email: verificationData.email,
+        password: verificationData.password,
+        firstName: verificationData.firstName,
+        lastName: verificationData.lastName,
+        username: verificationData.username,
+        phone: verificationData.phoneNumber,
+        phoneVerified: true,
+      });
+      
+      toast({
+        title: 'Welcome to lendibl!',
+        description: 'Your account has been created successfully with verified phone number.',
+      });
+      
+      // Reset state and close modal
+      setPhoneVerificationStep(null);
+      setVerificationData(null);
+      setVerificationCode('');
+      onClose();
+      registerForm.reset();
+    } catch (error) {
+      toast({
+        title: 'Verification failed',
+        description: error instanceof Error ? error.message : 'Invalid verification code',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToForm = () => {
+    setPhoneVerificationStep(null);
+    setVerificationData(null);
+    setVerificationCode('');
   };
 
   const handleForgotPassword = async (data: ForgotPasswordFormData) => {
@@ -337,7 +425,65 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
           </TabsContent>
 
           <TabsContent value="register" className="space-y-4">
-            <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+            {phoneVerificationStep === 'verify' ? (
+              // Phone verification step
+              <div className="space-y-4">
+                <div className="text-center space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-dark">Verify Your Phone</h3>
+                  <p className="text-sm text-gray-medium">
+                    We've sent a verification code to{' '}
+                    <span className="font-medium">{verificationData?.phoneNumber}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="verification-code">Verification Code</Label>
+                  <Input
+                    id="verification-code"
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    className="rounded-xl text-center text-lg font-mono"
+                    maxLength={6}
+                    autoComplete="one-time-code"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBackToForm}
+                    className="flex-1 rounded-xl"
+                    disabled={isLoading}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleVerifyPhone}
+                    disabled={isLoading || verificationCode.length !== 6}
+                    className="flex-1 btn-primary text-white rounded-xl"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      'Verify & Create Account'
+                    )}
+                  </Button>
+                </div>
+
+                <p className="text-xs text-gray-500 text-center">
+                  Didn't receive a code? Check your messages or try again.
+                </p>
+              </div>
+            ) : (
+              // Registration form
+              <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="register-firstName">First Name</Label>
@@ -487,6 +633,7 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
                 .
               </p>
             </form>
+            )}
           </TabsContent>
         </Tabs>
 

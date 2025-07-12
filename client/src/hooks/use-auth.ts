@@ -21,6 +21,8 @@ interface AuthContextType {
     firstName: string;
     lastName: string;
     username: string;
+    phone?: string;
+    phoneVerified?: boolean;
   }) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -107,6 +109,8 @@ export function useAuthProvider(): AuthContextType {
     firstName: string;
     lastName: string;
     username: string;
+    phone?: string;
+    phoneVerified?: boolean;
   }) => {
     const response = await fetch('/api/auth/register', {
       method: 'POST',

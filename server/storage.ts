@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
 
@@ -68,6 +68,13 @@ export interface IStorage {
   verifyPasswordResetToken(token: string): Promise<number | null>;
   deletePasswordResetToken(token: string): Promise<void>;
   updateUserPassword(userId: number, hashedPassword: string): Promise<void>;
+
+  // Phone verification methods
+  createPhoneVerification(verification: InsertPhoneVerification): Promise<PhoneVerification>;
+  getPhoneVerification(transactionId: string): Promise<PhoneVerification | undefined>;
+  updatePhoneVerification(transactionId: string, updates: Partial<PhoneVerification>): Promise<PhoneVerification | undefined>;
+  deletePhoneVerification(transactionId: string): Promise<void>;
+  updateUserPhoneVerified(userId: number, phoneVerified: boolean): Promise<User | undefined>;
 
   // Additional methods
   getAllUsers(): Promise<User[]>;
@@ -943,6 +950,47 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set({ password: hashedPassword })
       .where(eq(users.id, userId));
+  }
+
+  // Phone verification methods
+  async createPhoneVerification(verification: InsertPhoneVerification): Promise<PhoneVerification> {
+    const [result] = await db
+      .insert(phoneVerifications)
+      .values(verification)
+      .returning();
+    return result;
+  }
+
+  async getPhoneVerification(transactionId: string): Promise<PhoneVerification | undefined> {
+    const [result] = await db
+      .select()
+      .from(phoneVerifications)
+      .where(eq(phoneVerifications.transactionId, transactionId));
+    return result || undefined;
+  }
+
+  async updatePhoneVerification(transactionId: string, updates: Partial<PhoneVerification>): Promise<PhoneVerification | undefined> {
+    const [result] = await db
+      .update(phoneVerifications)
+      .set(updates)
+      .where(eq(phoneVerifications.transactionId, transactionId))
+      .returning();
+    return result || undefined;
+  }
+
+  async deletePhoneVerification(transactionId: string): Promise<void> {
+    await db
+      .delete(phoneVerifications)
+      .where(eq(phoneVerifications.transactionId, transactionId));
+  }
+
+  async updateUserPhoneVerified(userId: number, phoneVerified: boolean): Promise<User | undefined> {
+    const [result] = await db
+      .update(users)
+      .set({ phoneVerified })
+      .where(eq(users.id, userId))
+      .returning();
+    return result || undefined;
   }
 }
 

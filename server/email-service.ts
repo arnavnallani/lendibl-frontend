@@ -76,7 +76,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 }
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
-  const resetUrl = `${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${process.env.REPLIT_DEV_DOMAIN || 'localhost:5000'}/?reset-token=${token}`;
+  const resetUrl = `${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${process.env.REPLIT_DEV_DOMAIN || 'localhost:5000'}/reset-password?reset-token=${token}`;
   
   const emailParams: EmailParams = {
     to: email,

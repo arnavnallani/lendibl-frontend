@@ -18,6 +18,7 @@ import { users } from "@shared/schema";
 import { refundService } from "./refund-service";
 import { responseTrackingService } from "./response-tracking-service";
 import { sendPasswordResetEmail } from "./email-service";
+import { phoneVerificationService } from "./phone-verification-service";
 
 // Helper function for smart search completions
 function generateSmartCompletions(query: string, items: any[]): any[] {
@@ -355,6 +356,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Reset password error:", error);
       res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  // Phone verification routes
+  app.post("/api/auth/send-verification", async (req, res) => {
+    try {
+      const { phoneNumber, firstName, lastName } = req.body;
+
+      if (!phoneNumber || !firstName || !lastName) {
+        return res.status(400).json({ message: "Phone number, first name, and last name are required" });
+      }
+
+      // Validate phone number format
+      const validation = phoneVerificationService.validatePhoneNumber(phoneNumber);
+      if (!validation.valid) {
+        return res.status(400).json({ message: validation.message });
+      }
+
+      console.log(`📱 Sending verification to: ${phoneNumber} for ${firstName} ${lastName}`);
+
+      // Send verification code via TeleSign
+      const result = await phoneVerificationService.sendVerificationCode(phoneNumber, firstName);
+      
+      if (!result.success) {
+        console.error(`❌ Failed to send verification: ${result.message}`);
+        return res.status(500).json({ message: result.message });
+      }
+
+      // Store verification attempt in database
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minute expiration
+
+      await storage.createPhoneVerification({
+        phoneNumber: result.phoneNumber!,
+        firstName,
+        lastName,
+        transactionId: result.transactionId!,
+        expiresAt,
+      });
+
+      console.log(`✅ Verification sent successfully, transaction ID: ${result.transactionId}`);
+
+      res.json({
+        message: "Verification code sent successfully",
+        transactionId: result.transactionId,
+        phoneNumber: result.phoneNumber,
+      });
+    } catch (error) {
+      console.error("💥 Send verification error:", error);
+      res.status(500).json({ message: "Failed to send verification code" });
+    }
+  });
+
+  app.post("/api/auth/verify-phone", async (req, res) => {
+    try {
+      const { transactionId, code } = req.body;
+
+      if (!transactionId || !code) {
+        return res.status(400).json({ message: "Transaction ID and verification code are required" });
+      }
+
+      console.log(`🔍 Verifying code for transaction: ${transactionId}`);
+
+      // Get verification record from database
+      const verification = await storage.getPhoneVerification(transactionId);
+      if (!verification) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+
+      // Check if verification is expired
+      if (new Date() > verification.expiresAt) {
+        await storage.deletePhoneVerification(transactionId);
+        return res.status(400).json({ message: "Verification code has expired" });
+      }
+
+      // Verify code with TeleSign
+      const verifyResult = await phoneVerificationService.verifyCode(transactionId, code);
+      
+      if (!verifyResult.success) {
+        console.error(`❌ Verification failed: ${verifyResult.message}`);
+        return res.status(400).json({ message: verifyResult.message });
+      }
+
+      if (!verifyResult.verified) {
+        console.log(`⚠️ Invalid code provided for transaction: ${transactionId}`);
+        return res.status(400).json({ message: "Invalid verification code" });
+      }
+
+      // Update verification status in database
+      await storage.updatePhoneVerification(transactionId, { verified: true });
+
+      console.log(`✅ Phone number verified successfully: ${verification.phoneNumber}`);
+
+      res.json({
+        message: "Phone number verified successfully",
+        verified: true,
+        phoneNumber: verification.phoneNumber,
+        firstName: verification.firstName,
+        lastName: verification.lastName,
+      });
+    } catch (error) {
+      console.error("💥 Verify phone error:", error);
+      res.status(500).json({ message: "Failed to verify phone number" });
     }
   });
 
