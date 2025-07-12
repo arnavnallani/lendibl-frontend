@@ -1,12 +1,5 @@
 import TeleSignSDK from 'telesign';
 
-interface VerificationResult {
-  success: boolean;
-  transactionId?: string;
-  message: string;
-  phoneNumber?: string;
-}
-
 interface PhoneIDResult {
   success: boolean;
   valid: boolean;
@@ -21,13 +14,6 @@ interface PhoneIDResult {
     country: string;
     region?: string;
   };
-}
-
-interface VerificationStatus {
-  success: boolean;
-  verified: boolean;
-  message: string;
-  phoneNumber?: string;
 }
 
 export class PhoneVerificationService {
@@ -48,106 +34,7 @@ export class PhoneVerificationService {
     return !!(this.customerId && this.apiKey && this.telesign);
   }
 
-  async sendVerificationCode(phoneNumber: string, name: string): Promise<VerificationResult> {
-    if (!this.isConfigured()) {
-      return {
-        success: false,
-        message: 'Phone verification service not configured'
-      };
-    }
 
-    try {
-      // Format phone number (remove any non-digit characters except +)
-      const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
-      
-      // Send SMS verification code
-      const response = await new Promise((resolve, reject) => {
-        this.telesign!.sms.message((error: any, responseBody: any) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(responseBody);
-          }
-        }, cleanPhone, `Hello ${name}! Your lendibl verification code is: $$CODE$$. This code expires in 10 minutes.`, 'ARN');
-      });
-
-      console.log('TeleSign SMS response:', response);
-      const responseData = response as any;
-
-      if (responseData.status && responseData.status.code === 290) {
-        return {
-          success: true,
-          transactionId: responseData.reference_id,
-          message: 'Verification code sent successfully',
-          phoneNumber: cleanPhone
-        };
-      } else {
-        return {
-          success: false,
-          message: responseData.status?.description || 'Failed to send verification code'
-        };
-      }
-    } catch (error) {
-      console.error('TeleSign SMS error:', error);
-      return {
-        success: false,
-        message: 'Failed to send verification code'
-      };
-    }
-  }
-
-  async verifyCode(transactionId: string, code: string): Promise<VerificationStatus> {
-    if (!this.isConfigured()) {
-      return {
-        success: false,
-        verified: false,
-        message: 'Phone verification service not configured'
-      };
-    }
-
-    try {
-      const response = await new Promise((resolve, reject) => {
-        this.telesign!.verify.status((error: any, responseBody: any) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(responseBody);
-          }
-        }, transactionId, code);
-      });
-
-      console.log('TeleSign verify response:', response);
-      const responseData = response as any;
-
-      if (responseData.status && responseData.status.code === 290) {
-        return {
-          success: true,
-          verified: true,
-          message: 'Phone number verified successfully',
-          phoneNumber: responseData.phone_number
-        };
-      } else if (responseData.status && responseData.status.code === 291) {
-        return {
-          success: true,
-          verified: false,
-          message: 'Invalid verification code'
-        };
-      } else {
-        return {
-          success: false,
-          verified: false,
-          message: responseData.status?.description || 'Verification failed'
-        };
-      }
-    } catch (error) {
-      console.error('TeleSign verify error:', error);
-      return {
-        success: false,
-        verified: false,
-        message: 'Verification failed'
-      };
-    }
-  }
 
   // Instant phone number verification using PhoneID API (no SMS required)
   async verifyPhoneInstant(phoneNumber: string): Promise<PhoneIDResult> {
@@ -215,54 +102,7 @@ export class PhoneVerificationService {
     }
   }
 
-  // Voice call verification (alternative to SMS)
-  async sendVerificationCall(phoneNumber: string, name: string): Promise<VerificationResult> {
-    if (!this.isConfigured()) {
-      return {
-        success: false,
-        message: 'Phone verification service not configured'
-      };
-    }
 
-    try {
-      // Format phone number
-      const cleanPhone = phoneNumber.replace(/[^\d+]/g, '');
-      
-      // Send voice call verification
-      const response = await new Promise((resolve, reject) => {
-        this.telesign!.voice.call((error: any, responseBody: any) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(responseBody);
-          }
-        }, cleanPhone, `Hello ${name}! Your lendibl verification code is $$CODE$$. Please enter this code to verify your phone number.`, 'ARN');
-      });
-
-      console.log('TeleSign Voice response:', response);
-      const responseData = response as any;
-
-      if (responseData.status && responseData.status.code === 290) {
-        return {
-          success: true,
-          transactionId: responseData.reference_id,
-          message: 'Verification call initiated successfully',
-          phoneNumber: cleanPhone
-        };
-      } else {
-        return {
-          success: false,
-          message: responseData.status?.description || 'Failed to initiate verification call'
-        };
-      }
-    } catch (error) {
-      console.error('TeleSign Voice error:', error);
-      return {
-        success: false,
-        message: 'Failed to initiate verification call'
-      };
-    }
-  }
 
   // Simple phone number validation
   validatePhoneNumber(phoneNumber: string): { valid: boolean; message: string } {
