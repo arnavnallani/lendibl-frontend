@@ -22,7 +22,11 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
     await mailService.send({
       to: params.to,
-      from: process.env.SENDGRID_FROM_EMAIL!,
+      from: {
+        email: process.env.SENDGRID_FROM_EMAIL!,
+        name: 'Lendibl Support'
+      },
+      replyTo: process.env.SENDGRID_FROM_EMAIL!, // Can be changed to support@lendibl.com later
       subject: params.subject,
       text: params.text,
       html: params.html,
