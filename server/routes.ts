@@ -266,6 +266,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Logout successful" });
   });
 
+  // Test endpoint to check URL generation
+  app.get("/api/test/reset-url", (req, res) => {
+    const domain = process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
+    const protocol = domain.includes('replit.dev') || domain.includes('repl.co') || domain.includes('.app') ? 'https' : 'http';
+    const testUrl = `${protocol}://${domain}/reset-password?reset-token=test123`;
+    
+    res.json({ 
+      domain,
+      protocol,
+      testUrl,
+      env: {
+        REPLIT_DEV_DOMAIN: process.env.REPLIT_DEV_DOMAIN,
+        NODE_ENV: process.env.NODE_ENV
+      }
+    });
+  });
+
   // Password reset functionality
   app.post("/api/auth/forgot-password", async (req, res) => {
     try {
@@ -298,6 +315,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send password reset email
       console.log(`📤 Attempting to send email to: ${email}`);
       console.log(`📧 From address: ${process.env.SENDGRID_FROM_EMAIL}`);
+      console.log(`🔑 Reset token: ${resetToken}`);
+      console.log(`🌐 REPLIT_DEV_DOMAIN: ${process.env.REPLIT_DEV_DOMAIN}`);
       const emailSent = await sendPasswordResetEmail(email, resetToken);
       
       if (!emailSent) {

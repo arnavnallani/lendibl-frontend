@@ -76,7 +76,13 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 }
 
 export async function sendPasswordResetEmail(email: string, token: string): Promise<boolean> {
-  const resetUrl = `${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${process.env.REPLIT_DEV_DOMAIN || 'localhost:5000'}/reset-password?reset-token=${token}`;
+  // Get the proper domain for Replit deployments
+  const domain = process.env.REPLIT_DEV_DOMAIN || 'localhost:5000';
+  const protocol = domain.includes('replit.dev') || domain.includes('repl.co') || domain.includes('.app') ? 'https' : 'http';
+  const resetUrl = `${protocol}://${domain}/reset-password?reset-token=${token}`;
+  
+  console.log(`🔗 Password reset URL generated: ${resetUrl}`);
+  console.log(`🌐 Domain: ${domain}, Protocol: ${protocol}`);
   
   const emailParams: EmailParams = {
     to: email,
