@@ -29,7 +29,7 @@ const FlipCard = ({
         style={{ transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
       >
         {/* Front of card */}
-        <Card className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300`}>
+        <div className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-lg`}>
           <div className="flex flex-col items-center justify-center h-full p-8 text-white">
             <div className="flex flex-col items-center">
               <Icon size={40} className="text-white mb-6" />
@@ -37,7 +37,7 @@ const FlipCard = ({
               <p className="text-sm text-center font-medium">Click to learn more</p>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Back of card */}
         <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black border-0 shadow-2xl">
