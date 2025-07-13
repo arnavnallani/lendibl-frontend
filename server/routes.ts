@@ -766,22 +766,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to update this item" });
       }
 
-      const updates = req.body;
+      const { 
+        title, 
+        description, 
+        price, 
+        categoryId,
+        location, 
+        address, 
+        city, 
+        state, 
+        zipCode, 
+        images, 
+        included,
+        availableFrom,
+        availableTo 
+      } = req.body;
       
-      // Convert ISO date strings back to Date objects for database
-      if (updates.availableFrom) {
-        updates.availableFrom = new Date(updates.availableFrom);
-      }
-      if (updates.availableTo) {
-        updates.availableTo = new Date(updates.availableTo);
+      // Build clean update object with only valid fields
+      const updates: any = {};
+      
+      if (title) updates.title = title;
+      if (description) updates.description = description;
+      if (price) updates.price = price.toString();
+      if (categoryId && typeof categoryId === 'number') updates.categoryId = categoryId;
+      if (location) updates.location = location;
+      if (address) updates.address = address;
+      if (city) updates.city = city;
+      if (state) updates.state = state;
+      if (zipCode) updates.zipCode = zipCode;
+      if (Array.isArray(images)) updates.images = images;
+      if (Array.isArray(included)) updates.included = included;
+      
+      // Handle availability dates carefully
+      if (availableFrom) {
+        const fromDate = new Date(availableFrom);
+        if (!isNaN(fromDate.getTime())) {
+          updates.availableFrom = fromDate;
+        }
       }
       
-      // Ensure price is a string (decimal format)
-      if (updates.price && typeof updates.price !== 'string') {
-        updates.price = updates.price.toString();
+      if (availableTo) {
+        const toDate = new Date(availableTo);
+        if (!isNaN(toDate.getTime())) {
+          updates.availableTo = toDate;
+        }
       }
       
-      console.log('Update data being sent to database:', updates);
+      console.log('Clean update data:', updates);
       
       const item = await storage.updateItem(id, updates);
 
