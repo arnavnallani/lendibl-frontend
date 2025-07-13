@@ -218,13 +218,13 @@ export default function WhoWeAre() {
               <AIAgentCard
                 title="Search"
                 frontIcon={<Search className="w-8 h-8 text-white" />}
-                backContent="AI analyzes your search input to truly understand what you're saying before delivering the item outputs. All within 2-3 seconds. Instead of a search bar that can only detect keywords, or doesn't get what you're actually saying, our AI comprehends the full scope of what you type to show you items like a real person."
+                backContent="This AI agent analyzes your search input to truly understand what you're saying before delivering the item outputs. All within 2-3 seconds. Instead of a search bar that can only detect keywords, or doesn't get what you're actually saying, our AI comprehends the full scope of what you type to show you items like a real person."
                 cardColor="bg-blue-500"
               />
               <AIAgentCard
                 title="Pricing"
                 frontIcon={<DollarSign className="w-8 h-8 text-white" />}
-                backContent="Using market data, demand patterns, and seasonal trends, this AI agent gives you intelligent pricing suggestions after reviewing all of your listing information. Unlike other platforms that manually suggest to you how to price your item, our AI uses all the data available to intelligently give you a recommendation."
+                backContent="Using market data, demand patterns, and seasonal trends, this agent gives you intelligent pricing suggestions after reviewing all of your listing information. Unlike other platforms that manually suggest to you how to price your item, our AI uses all the data available to intelligently give you a recommendation."
                 cardColor="bg-green-500"
               />
               <AIAgentCard
@@ -236,7 +236,7 @@ export default function WhoWeAre() {
               <AIAgentCard
                 title="Authentication"
                 frontIcon={<Shield className="w-8 h-8 text-white" />}
-                backContent="After you put in your registration info, AI analyzes your email and phone number to make sure that they pass verification checks, including fraud detection. Instead of having to go through that whole annoying process of getting a code sent to you and and putting that in, we verify you without you having to do anything."
+                backContent="After you put in your registration info, this agent analyzes your email and phone number to make sure that they pass verification checks, including fraud detection. Instead of having to go through that whole annoying process of getting a code sent to you and and putting that in, we verify you without you having to do anything."
                 cardColor="bg-purple-500"
               />
             </motion.div>
