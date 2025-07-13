@@ -78,7 +78,7 @@ export default function WhoWeAre() {
             transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
           >
             <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="text-blue-600 dark:text-blue-400 font-medium">Discover lendibl</span>
+            <span className="text-blue-600 dark:text-blue-400 font-medium">Why lendibl?</span>
           </motion.div>
           
           <motion.h1 
