@@ -70,7 +70,7 @@ export default function WhoWeAre() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
           >
-            Who We Are
+            Our Mission
           </motion.h1>
           
           <motion.p 
