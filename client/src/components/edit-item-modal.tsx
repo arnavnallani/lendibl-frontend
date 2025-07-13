@@ -101,6 +101,7 @@ interface EditItemModalProps {
 
 export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: EditItemModalProps) {
   const [images, setImages] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
   const { data: categories = [] } = useQuery({
@@ -164,6 +165,7 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
   const onSubmit = async (values: EditItemFormData) => {
     if (!item) return;
     
+    setIsSubmitting(true);
     // Combine address fields into location for backward compatibility
     const fullAddress = `${values.address}, ${values.city}, ${values.state} ${values.zipCode}`;
     
@@ -186,9 +188,8 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       await api.updateItem(item.id, updateData);
       
       toast({
-        title: "Item Updated Successfully",
-        description: "Your listing has been saved with the latest changes.",
-        className: "bg-green-50 border-green-200 text-green-800"
+        title: "✅ Changes Saved Successfully!",
+        description: "Your item listing has been updated.",
       });
       
       onClose();
@@ -196,10 +197,12 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
     } catch (error) {
       console.error('Failed to update item:', error);
       toast({
-        title: "Update Failed",
+        title: "❌ Update Failed",
         description: "There was an error saving your changes. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -538,7 +541,9 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                 <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
             </div>
           </form>
