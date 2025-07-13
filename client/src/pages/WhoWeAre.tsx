@@ -131,12 +131,47 @@ export default function WhoWeAre() {
           </motion.div>
         </motion.div>
 
+        {/* The lendibl difference Section */}
+        <motion.div 
+          className="text-center mt-32 mb-20"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.8, duration: 0.8 }}
+        >
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.0, duration: 0.8 }}
+          >
+            The lendibl difference
+          </motion.h2>
+          
+          <motion.p 
+            className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.2, duration: 0.8 }}
+          >
+            We're not like any other rental company. At lendibl we focus on one main thing:
+          </motion.p>
+
+          <motion.div
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
+          >
+            simplicity
+          </motion.div>
+        </motion.div>
+
         {/* Call to Action */}
         <motion.div 
           className="text-center mt-20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.8, duration: 0.8 }}
+          transition={{ delay: 2.6, duration: 0.8 }}
         >
           <motion.div
             className="inline-block bg-gradient-to-r from-blue-600 to-black text-white px-8 py-4 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 cursor-pointer transform hover:scale-105"
