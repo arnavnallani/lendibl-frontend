@@ -36,13 +36,13 @@ const FlipCard = ({
         </Card>
 
         {/* Back of card */}
-        <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-gray-800 border-0 shadow-xl">
+        <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black border-0 shadow-xl">
           <div className="flex flex-col items-center justify-center h-full p-6">
-            <Icon size={32} className={`mb-4 ${color.includes('blue') ? 'text-blue-500' : color.includes('green') ? 'text-green-500' : 'text-purple-500'}`} />
-            <p className="text-gray-700 dark:text-gray-300 text-center leading-relaxed">
+            <Icon size={32} className="mb-4 text-blue-500" />
+            <p className="text-black dark:text-white text-center leading-relaxed">
               {description}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
               Click to flip back
             </p>
           </div>
@@ -73,39 +73,39 @@ export default function WhoWeAre() {
       title: "Make Money Effortlessly",
       description: "All you do is list something you own on the app, give it to someone when they request it, get it back in a few days, and the money is yours. Could it get any easier than that?",
       icon: TrendingUp,
-      color: "bg-gradient-to-br from-green-500 to-green-700"
+      color: "bg-gradient-to-br from-blue-600 to-black"
     },
     {
       title: "Help the Environment",
       description: "Every time you rent something that other people own instead of actually buying it from somewhere, we lower the demand for mass-production and greatly help the environment. Best side effect ever.",
       icon: Leaf,
-      color: "bg-gradient-to-br from-purple-500 to-purple-700"
+      color: "bg-gradient-to-br from-black to-blue-800"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-black dark:to-gray-900">
       {/* Innovative Header Section */}
       <div className="relative overflow-hidden py-20 px-4">
         {/* Animated background elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-900 rounded-full opacity-30 animate-spin" />
-          <div className="absolute top-40 right-20 w-16 h-16 bg-green-200 dark:bg-green-900 rounded-full opacity-30 animate-pulse" />
-          <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-purple-200 dark:bg-purple-900 rounded-full opacity-30 animate-bounce" />
+          <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full opacity-30 animate-spin" />
+          <div className="absolute top-40 right-20 w-16 h-16 bg-blue-300 dark:bg-blue-700 rounded-full opacity-30 animate-pulse" />
+          <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-blue-400 dark:bg-blue-600 rounded-full opacity-30 animate-bounce" />
         </div>
 
         {/* Main header content */}
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="animate-fade-in-up">
-            <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent">
+            <h1 className="text-6xl md:text-8xl font-bold mb-8 bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent">
               WHO WE ARE
             </h1>
           </div>
 
           <div className="relative animate-fade-in-scale">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-green-400 rounded-3xl blur-xl opacity-30" />
-            <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl p-8 border border-white/50 dark:border-gray-700/50 shadow-2xl">
-              <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-200 leading-relaxed">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800 rounded-3xl blur-xl opacity-30" />
+            <div className="relative bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-3xl p-8 border border-white/50 dark:border-blue-900/50 shadow-2xl">
+              <p className="text-xl md:text-2xl text-black dark:text-white leading-relaxed">
                 We are the most innovative way to rent anything from anyone else anytime. 
                 You can use our app to...
               </p>
@@ -139,7 +139,7 @@ export default function WhoWeAre() {
       </div>
 
       {/* Additional decorative elements */}
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent dark:from-gray-800 dark:to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent dark:from-black dark:to-transparent pointer-events-none" />
     </div>
   );
 }
