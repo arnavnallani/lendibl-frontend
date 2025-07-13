@@ -166,14 +166,22 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
     const fullAddress = `${values.address}, ${values.city}, ${values.state} ${values.zipCode}`;
     
     try {
-      await api.updateItem(item.id, {
+      const updateData: any = {
         ...values,
         price: values.price.toString(),
         location: fullAddress,
         images: images,
-        availableFrom: values.availableFrom?.toISOString(),
-        availableTo: values.availableTo?.toISOString(),
-      });
+      };
+
+      // Only include availability dates if they are valid dates
+      if (values.availableFrom && !isNaN(values.availableFrom.getTime())) {
+        updateData.availableFrom = values.availableFrom.toISOString();
+      }
+      if (values.availableTo && !isNaN(values.availableTo.getTime())) {
+        updateData.availableTo = values.availableTo.toISOString();
+      }
+
+      await api.updateItem(item.id, updateData);
       onClose();
       onItemUpdated?.();
     } catch (error) {

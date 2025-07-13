@@ -767,6 +767,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updates = req.body;
+      
+      // Convert ISO date strings back to Date objects for database
+      if (updates.availableFrom) {
+        updates.availableFrom = new Date(updates.availableFrom);
+      }
+      if (updates.availableTo) {
+        updates.availableTo = new Date(updates.availableTo);
+      }
+      
+      // Ensure price is a string (decimal format)
+      if (updates.price && typeof updates.price !== 'string') {
+        updates.price = updates.price.toString();
+      }
+      
+      console.log('Update data being sent to database:', updates);
+      
       const item = await storage.updateItem(id, updates);
 
       res.json(item);
