@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Leaf } from "lucide-react";
 
 const FlipCard = ({ 
@@ -40,7 +39,7 @@ const FlipCard = ({
         </div>
 
         {/* Back of card */}
-        <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black border-0 shadow-2xl">
+        <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black shadow-2xl rounded-lg">
           <div className="flex flex-col items-center justify-center h-full p-8 relative">
             {/* Decorative corner elements */}
             <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gray-200 dark:border-gray-700 rounded-tl-lg" />
@@ -61,7 +60,7 @@ const FlipCard = ({
               </p>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
