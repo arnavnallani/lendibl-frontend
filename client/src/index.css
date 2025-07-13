@@ -56,6 +56,19 @@
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* Force remove any borders on flip cards */
+.flip-card-front,
+.flip-card-back {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.flip-card-front * {
+  border: none !important;
+  outline: none !important;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

@@ -28,7 +28,7 @@ const FlipCard = ({
         style={{ transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
       >
         {/* Front of card */}
-        <div className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-lg`}>
+        <div className={`flip-card-front absolute inset-0 w-full h-full backface-hidden ${color} transition-all duration-300 rounded-lg overflow-hidden`} style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
           <div className="flex flex-col items-center justify-center h-full p-8 text-white">
             <div className="flex flex-col items-center">
               <Icon size={40} className="text-white mb-6" />
@@ -39,7 +39,7 @@ const FlipCard = ({
         </div>
 
         {/* Back of card */}
-        <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black shadow-2xl rounded-lg">
+        <div className="flip-card-back absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black rounded-lg" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
           <div className="flex flex-col items-center justify-center h-full p-8 relative">
             {/* Decorative corner elements */}
             <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gray-200 dark:border-gray-700 rounded-tl-lg" />
@@ -81,21 +81,21 @@ export default function WhoWeAre() {
       title: "Save Money",
       description: "Instead of having to go to the store and buy something for full price when you only need it for a short amount of time, use our platform to rent anything you need. All for a fraction of the cost.",
       icon: DollarSign,
-      color: "bg-gradient-to-br from-blue-500 to-blue-700",
+      color: "bg-blue-600",
       iconColor: "text-blue-500"
     },
     {
       title: "Make Money Effortlessly",
       description: "All you do is list something you own on the app, give it to someone when they request it, get it back in a few days, and the money is yours. Could it get any easier than that?",
       icon: TrendingUp,
-      color: "bg-gradient-to-br from-yellow-400 to-yellow-600",
+      color: "bg-yellow-500",
       iconColor: "text-yellow-500"
     },
     {
       title: "Help the Environment",
       description: "Every time you rent something that other people own instead of actually buying it from somewhere, we lower the demand for mass-production and greatly help the environment. Best side effect ever.",
       icon: Leaf,
-      color: "bg-gradient-to-br from-green-500 to-green-700",
+      color: "bg-green-600",
       iconColor: "text-green-500"
     }
   ];
