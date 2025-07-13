@@ -91,7 +91,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
 
         {/* Back of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-          <div className={`h-full ${cardColor} rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden`}>
+          <div className={`h-full ${cardColor} rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden`}>
             {/* Animated background pattern */}
             <motion.div
               className="absolute inset-0 opacity-10"
