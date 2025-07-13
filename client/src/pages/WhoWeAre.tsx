@@ -9,7 +9,7 @@ export default function WhoWeAre() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-black dark:via-gray-900 dark:to-gray-800 relative overflow-hidden">
       {/* Back to Home Button */}
-      <Link href="/">
+      <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <motion.div 
           className="fixed top-6 left-6 z-50 flex items-center gap-2 bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-white/30 dark:border-gray-600/30 hover:bg-white/90 dark:hover:bg-black/90 transition-all duration-300 cursor-pointer"
           initial={{ opacity: 0, x: -20 }}
