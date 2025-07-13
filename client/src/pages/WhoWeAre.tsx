@@ -7,6 +7,7 @@ const FlipCard = ({
   description, 
   icon: Icon, 
   color,
+  iconColor,
   isFlipped,
   onFlip 
 }: {
@@ -14,37 +15,56 @@ const FlipCard = ({
   description: string;
   icon: any;
   color: string;
+  iconColor: string;
   isFlipped: boolean;
   onFlip: () => void;
 }) => {
   return (
-    <div className="perspective-1000 h-64 w-full max-w-sm mx-auto">
+    <div className="perspective-1000 h-80 w-full max-w-sm mx-auto">
       <div
-        className={`relative w-full h-full cursor-pointer preserve-3d transition-transform duration-600 ease-in-out ${
+        className={`relative w-full h-full cursor-pointer preserve-3d transition-all duration-700 ease-in-out hover:scale-105 ${
           isFlipped ? 'rotate-y-180' : ''
         }`}
         onClick={onFlip}
         style={{ transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
       >
         {/* Front of card */}
-        <Card className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-xl`}>
-          <div className="flex flex-col items-center justify-center h-full p-6 text-white">
-            <Icon size={48} className="mb-4" />
-            <h3 className="text-2xl font-bold text-center">{title}</h3>
-            <p className="text-sm opacity-90 mt-2 text-center">Click to learn more</p>
+        <Card className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300`}>
+          <div className="flex flex-col items-center justify-center h-full p-8 text-white relative overflow-hidden">
+            {/* Subtle pattern overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="bg-white/20 rounded-full p-4 mb-6 backdrop-blur-sm">
+                <Icon size={40} className="text-white drop-shadow-lg" />
+              </div>
+              <h3 className="text-2xl font-bold text-center mb-2 drop-shadow-md">{title}</h3>
+              <div className="w-16 h-1 bg-white/50 rounded-full mb-3" />
+              <p className="text-sm opacity-90 text-center font-medium">Click to learn more</p>
+            </div>
           </div>
         </Card>
 
         {/* Back of card */}
-        <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black border-0 shadow-xl">
-          <div className="flex flex-col items-center justify-center h-full p-6">
-            <Icon size={32} className="mb-4 text-blue-500" />
-            <p className="text-black dark:text-white text-center leading-relaxed">
-              {description}
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 text-center">
-              Click to flip back
-            </p>
+        <Card className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-black border-0 shadow-2xl">
+          <div className="flex flex-col items-center justify-center h-full p-8 relative">
+            {/* Decorative corner elements */}
+            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gray-200 dark:border-gray-700 rounded-tl-lg" />
+            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-gray-200 dark:border-gray-700 rounded-tr-lg" />
+            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-gray-200 dark:border-gray-700 rounded-bl-lg" />
+            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-gray-200 dark:border-gray-700 rounded-br-lg" />
+            
+            <div className="text-center max-w-xs">
+              <div className={`${iconColor} bg-gray-50 dark:bg-gray-800 rounded-full p-3 mb-6 mx-auto w-fit`}>
+                <Icon size={28} />
+              </div>
+              <p className="text-black dark:text-white text-center leading-relaxed text-sm font-medium mb-6">
+                {description}
+              </p>
+              <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent mx-auto mb-4" />
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center uppercase tracking-wide">
+                Click to flip back
+              </p>
+            </div>
           </div>
         </Card>
       </div>
@@ -67,19 +87,22 @@ export default function WhoWeAre() {
       title: "Save Money",
       description: "Instead of having to go to the store and buy something for full price when you only need it for a short amount of time, use our platform to rent anything you need. All for a fraction of the cost.",
       icon: DollarSign,
-      color: "bg-gradient-to-br from-blue-500 to-blue-700"
+      color: "bg-gradient-to-br from-blue-500 to-blue-700",
+      iconColor: "text-blue-500"
     },
     {
       title: "Make Money Effortlessly",
       description: "All you do is list something you own on the app, give it to someone when they request it, get it back in a few days, and the money is yours. Could it get any easier than that?",
       icon: TrendingUp,
-      color: "bg-gradient-to-br from-blue-600 to-black"
+      color: "bg-gradient-to-br from-yellow-400 to-yellow-600",
+      iconColor: "text-yellow-500"
     },
     {
       title: "Help the Environment",
       description: "Every time you rent something that other people own instead of actually buying it from somewhere, we lower the demand for mass-production and greatly help the environment. Best side effect ever.",
       icon: Leaf,
-      color: "bg-gradient-to-br from-black to-blue-800"
+      color: "bg-gradient-to-br from-green-500 to-green-700",
+      iconColor: "text-green-500"
     }
   ];
 
@@ -104,11 +127,17 @@ export default function WhoWeAre() {
 
           <div className="relative animate-fade-in-scale">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800 rounded-3xl blur-xl opacity-30" />
-            <div className="relative bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-3xl p-8 border border-white/50 dark:border-blue-900/50 shadow-2xl">
-              <p className="text-xl md:text-2xl text-black dark:text-white leading-relaxed">
+            <div className="relative bg-white/95 dark:bg-black/95 backdrop-blur-lg rounded-3xl p-10 border-2 border-white/60 dark:border-blue-900/60 shadow-2xl">
+              <p className="text-xl md:text-2xl text-black dark:text-white leading-relaxed font-medium">
                 We are the most innovative way to rent anything from anyone else anytime. 
                 You can use our app to...
               </p>
+              {/* Decorative dots */}
+              <div className="flex justify-center mt-6 space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-blue-300 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
             </div>
           </div>
         </div>
@@ -129,6 +158,7 @@ export default function WhoWeAre() {
                   description={card.description}
                   icon={card.icon}
                   color={card.color}
+                  iconColor={card.iconColor}
                   isFlipped={flippedCards[index] || false}
                   onFlip={() => toggleCard(index)}
                 />
