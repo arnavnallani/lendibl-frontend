@@ -110,7 +110,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
               animate={isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <h3 className="text-lg font-bold text-white mb-3">
+              <h3 className="text-lg font-bold text-white mb-3 mt-2">
                 {displayTitle}
               </h3>
               <p className="text-white/95 leading-relaxed text-xs mb-4">
