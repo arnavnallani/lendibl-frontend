@@ -102,6 +102,7 @@ interface EditItemModalProps {
 export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: EditItemModalProps) {
   const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const { toast } = useToast();
   
   const { data: categories = [] } = useQuery({
@@ -187,13 +188,21 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
 
       await api.updateItem(item.id, updateData);
       
+      // Show success message
+      setShowSuccess(true);
+      
+      // Also try the toast
       toast({
         title: "✅ Changes Saved Successfully!",
         description: "Your item listing has been updated.",
       });
       
-      onClose();
-      onItemUpdated?.();
+      // Close after a brief delay to show success
+      setTimeout(() => {
+        onClose();
+        onItemUpdated?.();
+        setShowSuccess(false);
+      }, 1500);
     } catch (error) {
       console.error('Failed to update item:', error);
       toast({
@@ -239,6 +248,12 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
+          {showSuccess && (
+            <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded-md flex items-center gap-2">
+              <span className="text-green-600">✅</span>
+              <span className="font-medium">Changes saved successfully!</span>
+            </div>
+          )}
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
