@@ -28,10 +28,10 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
       >
         {/* Front of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden">
-          <div className="h-full bg-gradient-to-br from-white via-blue-50/50 to-purple-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 backdrop-blur-sm p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          <div className="h-full bg-gradient-to-br from-white via-blue-50/50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 backdrop-blur-sm p-8 flex flex-col items-center justify-center text-center relative overflow-hidden">
             {/* Animated background gradient */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-400/5 to-blue-400/5"
+              className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-gray-400/5 to-blue-400/5"
               animate={isHovered ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.3 }}
             />
@@ -86,7 +86,7 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
 
         {/* Back of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-          <div className="h-full bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 dark:from-blue-700 dark:via-purple-700 dark:to-blue-800 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
+          <div className="h-full bg-gradient-to-br from-blue-600 via-blue-800 to-black dark:from-blue-700 dark:via-blue-900 dark:to-black rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
             {/* Animated background pattern */}
             <motion.div
               className="absolute inset-0 opacity-10"
