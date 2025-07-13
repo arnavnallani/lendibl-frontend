@@ -2,30 +2,9 @@ import { FlipCard } from '@/components/FlipCard';
 import { AIAgentCard } from '@/components/AIAgentCard';
 import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+
 
 export default function WhoWeAre() {
-  const [showScrollIndicator, setShowScrollIndicator] = useState(true);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
-      // Hide the indicator after scrolling down 50vh
-      setShowScrollIndicator(scrollPosition < windowHeight * 0.5);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToContent = () => {
-    window.scrollTo({
-      top: window.innerHeight * 0.8,
-      behavior: 'smooth'
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-black dark:via-gray-900 dark:to-gray-800 relative overflow-hidden">
       {/* Animated Background Elements */}
@@ -263,45 +242,10 @@ export default function WhoWeAre() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll Down Indicator */}
-        {showScrollIndicator && (
-          <motion.div
-            className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ delay: 3, duration: 0.8 }}
-          >
-            <motion.button
-              onClick={scrollToContent}
-              className="bg-white/20 dark:bg-black/30 backdrop-blur-md rounded-full p-4 shadow-xl border border-white/30 dark:border-gray-600/30 hover:bg-white/30 dark:hover:bg-black/40 transition-all duration-300"
-              animate={{ 
-                y: [0, -8, 0],
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <ChevronDown className="w-6 h-6 text-gray-800 dark:text-white" />
-            </motion.button>
-            
-            <motion.div
-              className="text-center mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3.5, duration: 0.5 }}
-            >
-              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                Scroll for more
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
+        {/* Simple Scroll Arrow */}
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        </div>
       </div>
     </div>
   );
