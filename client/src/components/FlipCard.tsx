@@ -3,12 +3,17 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
 interface FlipCardProps {
-  frontTitle: string;
+  frontTitle?: string;
+  title?: string;
   backContent: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
+  frontIcon?: React.ReactNode;
+  cardColor?: string;
 }
 
-export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
+export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, cardColor = "bg-blue-600" }: FlipCardProps) {
+  const displayTitle = title || frontTitle;
+  const displayIcon = frontIcon || icon;
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -28,7 +33,7 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
       >
         {/* Front of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden">
-          <div className="h-full bg-gradient-to-br from-white via-blue-50/50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-black rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 backdrop-blur-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
+          <div className={`h-full ${cardColor} rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 backdrop-blur-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden`}>
             {/* Animated background gradient */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-gray-400/5 to-blue-400/5"
@@ -52,19 +57,19 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
             </motion.div>
 
             <motion.div
-              className="text-blue-600 dark:text-blue-400 mb-4 relative z-10"
+              className="text-white mb-4 relative z-10"
               animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              {icon}
+              {displayIcon}
             </motion.div>
             
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 relative z-10">
-              {frontTitle}
+            <h3 className="text-xl font-bold text-white mb-3 relative z-10">
+              {displayTitle}
             </h3>
             
             <motion.div
-              className="flex items-center gap-2 text-blue-600 dark:text-blue-400 text-sm font-medium relative z-10"
+              className="flex items-center gap-2 text-white/90 text-sm font-medium relative z-10"
               animate={isHovered ? { y: -2 } : { y: 0 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -86,7 +91,7 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
 
         {/* Back of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-          <div className="h-full bg-gradient-to-br from-blue-600 via-blue-800 to-black dark:from-blue-700 dark:via-blue-900 dark:to-black rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden">
+          <div className={`h-full ${cardColor} rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden`}>
             {/* Animated background pattern */}
             <motion.div
               className="absolute inset-0 opacity-10"
@@ -105,10 +110,10 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
               animate={isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <h3 className="text-xl font-bold text-white mb-4">
-                {frontTitle}
+              <h3 className="text-lg font-bold text-white mb-3">
+                {displayTitle}
               </h3>
-              <p className="text-white/95 leading-relaxed text-base mb-6">
+              <p className="text-white/95 leading-relaxed text-xs mb-4">
                 {backContent}
               </p>
               <div className="flex items-center gap-2 text-white/80 text-sm">
