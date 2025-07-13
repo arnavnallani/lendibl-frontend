@@ -2,24 +2,20 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
-interface FlipCardProps {
-  frontTitle?: string;
-  title?: string;
+interface AIAgentCardProps {
+  title: string;
+  frontIcon: React.ReactNode;
   backContent: string;
-  icon?: React.ReactNode;
-  frontIcon?: React.ReactNode;
-  cardColor?: string;
+  cardColor: string;
 }
 
-export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, cardColor = "bg-blue-600" }: FlipCardProps) {
-  const displayTitle = title || frontTitle;
-  const displayIcon = frontIcon || icon;
+export function AIAgentCard({ title, frontIcon, backContent, cardColor }: AIAgentCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div 
-      className="relative w-full h-72 cursor-pointer perspective-1000"
+      className="relative w-full h-96 cursor-pointer perspective-1000"
       onClick={() => setIsFlipped(!isFlipped)}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
@@ -53,7 +49,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
                 scale: { duration: 1, repeat: Infinity }
               }}
             >
-              <Sparkles className="w-4 h-4 text-blue-400/60" />
+              <Sparkles className="w-4 h-4 text-white/60" />
             </motion.div>
 
             <motion.div
@@ -61,11 +57,11 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
               animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              {displayIcon}
+              {frontIcon}
             </motion.div>
             
             <h3 className="text-xl font-bold text-white mb-3 relative z-10">
-              {displayTitle}
+              {title}
             </h3>
             
             <motion.div
@@ -113,7 +109,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
             >
               <div className="flex-1 flex flex-col justify-center">
                 <h3 className="text-lg font-bold text-white mb-4">
-                  {displayTitle}
+                  {title}
                 </h3>
                 <p className="text-white/95 leading-relaxed text-xs">
                   {backContent}

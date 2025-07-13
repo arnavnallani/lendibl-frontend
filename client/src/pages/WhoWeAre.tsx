@@ -1,4 +1,5 @@
 import { FlipCard } from '@/components/FlipCard';
+import { AIAgentCard } from '@/components/AIAgentCard';
 import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -187,31 +188,31 @@ export default function WhoWeAre() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.8, duration: 0.8 }}
             >
-              <FlipCard
+              <AIAgentCard
                 title="Recommendations"
                 frontIcon={<Sparkles className="w-8 h-8 text-white" />}
                 backContent="Here, machine learning algorithms use your activity on the site to smartly detect what items you'll likely be interested in next. Instead of having to manually look through items to find what you need, we intelligently hand pick what we predict you need."
                 cardColor="bg-red-500"
               />
-              <FlipCard
+              <AIAgentCard
                 title="Search"
                 frontIcon={<Search className="w-8 h-8 text-white" />}
                 backContent="AI analyzes your search input to truly understand what you're saying before delivering the item outputs. All within 2-3 seconds. Instead of a search bar that can only detect keywords, or doesn't get what you're actually saying, our AI comprehends the full scope of what you type to show you items like a real person."
                 cardColor="bg-blue-500"
               />
-              <FlipCard
+              <AIAgentCard
                 title="Pricing"
                 frontIcon={<DollarSign className="w-8 h-8 text-white" />}
                 backContent="Using market data, demand patterns, and seasonal trends, this AI agent gives you intelligent pricing suggestions after reviewing all of your listing information. Unlike other platforms that manually suggest to you how to price your item, our AI uses all the data available to intelligently give you a recommendation."
                 cardColor="bg-green-500"
               />
-              <FlipCard
+              <AIAgentCard
                 title="Chat"
                 frontIcon={<MessageCircle className="w-8 h-8 text-white" />}
                 backContent="A generative AI model that accurately gives you any information at all about how to use the lendibl app. Unlike other chat systems that only understand certain phrases in a rigid way, our chatbot can be communicated with just like a regular person, except it's someone who knows everything there is to know about lendibl."
                 cardColor="bg-orange-500"
               />
-              <FlipCard
+              <AIAgentCard
                 title="Authentication"
                 frontIcon={<Shield className="w-8 h-8 text-white" />}
                 backContent="After you put in your registration info, AI analyzes your email and phone number to make sure that they pass verification checks, including fraud detection. Instead of having to go through that whole annoying process of getting a code sent to you and and putting that in, we verify you without you having to do anything."
