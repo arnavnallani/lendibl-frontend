@@ -9,10 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { X, Plus, Trash2, Calendar } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { format } from 'date-fns';
 import type { ItemWithDetails } from '@shared/schema';
 import { ImageUpload } from '@/components/image-upload';
 
@@ -29,6 +32,8 @@ const editItemSchema = z.object({
   images: z.array(z.string()).default([]),
   included: z.array(z.string()).default([]),
   available: z.boolean().default(true),
+  availableFrom: z.date().optional(),
+  availableTo: z.date().optional(),
 });
 
 const US_STATES = [
@@ -116,6 +121,8 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       images: [],
       included: [],
       available: true,
+      availableFrom: undefined,
+      availableTo: undefined,
     },
   });
 
@@ -146,6 +153,8 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
         images: item.images || [],
         included: item.included || [],
         available: item.available ?? true,
+        availableFrom: item.availableFrom ? new Date(item.availableFrom) : undefined,
+        availableTo: item.availableTo ? new Date(item.availableTo) : undefined,
       });
     }
   }, [item, form]);
@@ -162,6 +171,8 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
         price: values.price.toString(),
         location: fullAddress,
         images: images,
+        availableFrom: values.availableFrom?.toISOString(),
+        availableTo: values.availableTo?.toISOString(),
       });
       onClose();
       onItemUpdated?.();
@@ -362,6 +373,105 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                 onImagesChange={handleImagesChange}
                 maxImages={5}
               />
+            </div>
+
+            {/* Availability Calendar Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-primary-blue" />
+                <h3 className="text-lg font-semibold text-gray-dark">Availability Calendar</h3>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Calendar className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-dark dark:text-gray-200">Flexible Availability</p>
+                    <p className="text-green-600 dark:text-green-400 text-sm">Set when your item is available for rental. You can leave dates blank for open availability.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="availableFrom"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Available From</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick start date</span>
+                              )}
+                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="availableTo"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Available Until</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick end date</span>
+                              )}
+                              <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
             
             <div className="flex justify-between pt-4">
