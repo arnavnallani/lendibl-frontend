@@ -18,6 +18,7 @@ import ActionDashboard from "@/pages/action-dashboard";
 import Messages from "@/pages/messages";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms";
+import WhoWeAre from "@/pages/WhoWeAre";
 import ResetPassword from "@/pages/reset-password";
 import NotFound from "@/pages/not-found";
 
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/messages" component={Messages} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
+      <Route path="/who-we-are" component={WhoWeAre} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route component={NotFound} />
     </Switch>
