@@ -771,6 +771,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(item);
     } catch (error) {
+      console.error("Error updating item:", error);
       res.status(500).json({ message: "Failed to update item" });
     }
   });
