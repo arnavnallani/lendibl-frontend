@@ -1,6 +1,6 @@
 import { FlipCard } from '@/components/FlipCard';
 import { AIAgentCard } from '@/components/AIAgentCard';
-import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ChevronDown } from 'lucide-react';
+import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ArrowDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 
@@ -135,7 +135,7 @@ export default function WhoWeAre() {
 
         {/* Simple Scroll Arrow */}
         <div className="flex justify-center mt-16 mb-16">
-          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <ArrowDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </div>
 
         {/* The lendibl difference Section */}
