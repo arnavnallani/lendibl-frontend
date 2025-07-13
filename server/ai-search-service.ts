@@ -9,6 +9,7 @@ export interface SearchAnalysis {
   categories: string[];
   synonyms: string[];
   relatedTerms: string[];
+  priceFilter?: 'low' | 'high'; // For price-based searches
 }
 
 export interface ItemMatch {
@@ -25,6 +26,14 @@ export class AISearchService {
     
     // Enhanced semantic mapping for better understanding
     const semanticMappings = {
+      // Price-based searches
+      'cheap': { intent: 'affordable low-cost rental items', keywords: ['cheap', 'affordable', 'budget'], categories: ['Tools', 'Sports', 'Outdoor'], synonyms: ['inexpensive', 'budget', 'affordable', 'low-cost'], relatedTerms: ['under $10', 'budget friendly', 'economical'], priceFilter: 'low' },
+      'low cost': { intent: 'budget-friendly rental items', keywords: ['low', 'cost', 'cheap', 'affordable'], categories: ['Tools', 'Sports', 'Outdoor'], synonyms: ['cheap', 'budget', 'inexpensive', 'affordable'], relatedTerms: ['under $15', 'budget items', 'economical'], priceFilter: 'low' },
+      'budget': { intent: 'budget-friendly rental options', keywords: ['budget', 'cheap', 'affordable'], categories: ['Tools', 'Sports', 'Outdoor'], synonyms: ['cheap', 'low-cost', 'economical'], relatedTerms: ['under $12', 'affordable', 'value'], priceFilter: 'low' },
+      'expensive': { intent: 'premium high-end rental items', keywords: ['expensive', 'premium', 'high-end'], categories: ['Electronics', 'Photography'], synonyms: ['costly', 'high-end', 'premium', 'luxury'], relatedTerms: ['professional grade', 'premium equipment', 'high-value'], priceFilter: 'high' },
+      'premium': { intent: 'high-end premium rental equipment', keywords: ['premium', 'expensive', 'luxury'], categories: ['Electronics', 'Photography'], synonyms: ['high-end', 'luxury', 'professional', 'costly'], relatedTerms: ['professional equipment', 'high-quality', 'top-tier'], priceFilter: 'high' },
+      'luxury': { intent: 'luxury high-value rental items', keywords: ['luxury', 'premium', 'expensive'], categories: ['Electronics', 'Photography'], synonyms: ['high-end', 'premium', 'exclusive'], relatedTerms: ['professional grade', 'top quality', 'exclusive'], priceFilter: 'high' },
+      
       // Tech and computers
       'computer': { intent: 'computing device rental', keywords: ['computer', 'laptop', 'pc'], categories: ['Electronics'], synonyms: ['laptop', 'macbook', 'pc', 'desktop', 'notebook'], relatedTerms: ['macbook', 'laptop', 'gaming pc', 'workstation', 'tablet'] },
       'laptop': { intent: 'portable computer rental', keywords: ['laptop', 'computer'], categories: ['Electronics'], synonyms: ['macbook', 'notebook', 'computer'], relatedTerms: ['macbook pro', 'gaming laptop', 'business laptop'] },
@@ -51,7 +60,14 @@ export class AISearchService {
     // Find best match
     for (const [key, mapping] of Object.entries(semanticMappings)) {
       if (lowercaseQuery.includes(key)) {
-        return mapping;
+        return {
+          intent: mapping.intent,
+          keywords: mapping.keywords,
+          categories: mapping.categories,
+          synonyms: mapping.synonyms,
+          relatedTerms: mapping.relatedTerms,
+          priceFilter: mapping.priceFilter
+        };
       }
     }
     
@@ -213,6 +229,30 @@ Examples:
         }
       }
 
+      // Price-based scoring boost
+      if (searchAnalysis.priceFilter) {
+        const price = parseFloat(item.price);
+        if (searchAnalysis.priceFilter === 'low') {
+          // Boost items under $15 for cheap/budget searches
+          if (price <= 15) {
+            score += 15;
+            reasons.push(`Budget-friendly price: $${price}`);
+          } else if (price <= 25) {
+            score += 8;
+            reasons.push(`Affordable price: $${price}`);
+          }
+        } else if (searchAnalysis.priceFilter === 'high') {
+          // Boost items over $30 for expensive/premium searches
+          if (price >= 30) {
+            score += 15;
+            reasons.push(`Premium price: $${price}`);
+          } else if (price >= 20) {
+            score += 8;
+            reasons.push(`High-end price: $${price}`);
+          }
+        }
+      }
+
       // Brand recognition boost
       const premiumBrands = ['apple', 'macbook', 'canon', 'nikon', 'sony', 'gaming'];
       for (const brand of premiumBrands) {
@@ -267,12 +307,44 @@ Examples:
     const searchAnalysis = await this.analyzeSearchQuery(query);
     console.log('AI Search Analysis:', searchAnalysis);
 
+    // For price-based searches, implement direct price filtering first
+    if (searchAnalysis.priceFilter) {
+      console.log(`Price-based search detected: ${searchAnalysis.priceFilter}`);
+      
+      let priceFilteredItems = allItems;
+      if (searchAnalysis.priceFilter === 'low') {
+        // For "cheap" searches, prioritize items under $15, then under $25
+        priceFilteredItems = allItems
+          .filter(item => parseFloat(item.price) <= 25)
+          .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        console.log(`Found ${priceFilteredItems.length} budget-friendly items (under $25)`);
+      } else if (searchAnalysis.priceFilter === 'high') {
+        // For "expensive" searches, prioritize items over $20
+        priceFilteredItems = allItems
+          .filter(item => parseFloat(item.price) >= 20)
+          .sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        console.log(`Found ${priceFilteredItems.length} premium items (over $20)`);
+      }
+      
+      // Return the price-filtered results directly for better performance
+      if (priceFilteredItems.length > 0) {
+        return priceFilteredItems.slice(0, 10).map(item => ({
+          ...item,
+          aiScore: 20,
+          aiReason: `Price-based match: ${searchAnalysis.priceFilter === 'low' ? 'Budget-friendly' : 'Premium'} pricing`
+        }));
+      }
+    }
+
     // Score items based on AI analysis
     const scoredItems = await this.scoreItemRelevance(allItems, searchAnalysis);
     
+    // Adjust threshold for price-based searches (lower threshold for broader results)
+    const threshold = searchAnalysis.priceFilter ? 5 : 8; // Lower threshold for price searches
+    
     // Return top matches with scores above threshold
-    const relevantItems = scoredItems
-      .filter(item => item.score >= 8) // Higher threshold for direct matches
+    let relevantItems = scoredItems
+      .filter(item => item.score >= threshold)
       .slice(0, 10)
       .map(match => {
         const originalItem = allItems.find(item => item.id === match.id);
@@ -283,6 +355,19 @@ Examples:
         };
       });
 
+    // Apply price-based sorting if this is a price-related search
+    if (searchAnalysis.priceFilter) {
+      if (searchAnalysis.priceFilter === 'low') {
+        // For "cheap" or "low cost" searches, sort by price ascending (lowest first)
+        relevantItems = relevantItems.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        console.log('Applied low-cost price sorting (cheapest first)');
+      } else if (searchAnalysis.priceFilter === 'high') {
+        // For "expensive" or "premium" searches, sort by price descending (highest first)
+        relevantItems = relevantItems.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        console.log('Applied high-cost price sorting (most expensive first)');
+      }
+    }
+
     // Check if we should show alternative suggestions
     // Show alternatives if no high-quality matches OR if query contains specific brand not found
     const shouldShowAlternatives = relevantItems.length === 0 || this.shouldTriggerAlternatives(query, relevantItems);
@@ -290,7 +375,18 @@ Examples:
     if (shouldShowAlternatives) {
       const alternativeMatches = await this.findAlternativeSuggestions(query, allItems, searchAnalysis);
       console.log(`No exact matches for "${query}", suggesting ${alternativeMatches.length} alternatives`);
-      return alternativeMatches.map(match => ({
+      
+      // Apply price sorting to alternatives as well
+      let sortedAlternatives = alternativeMatches;
+      if (searchAnalysis.priceFilter) {
+        if (searchAnalysis.priceFilter === 'low') {
+          sortedAlternatives = alternativeMatches.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        } else if (searchAnalysis.priceFilter === 'high') {
+          sortedAlternatives = alternativeMatches.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        }
+      }
+      
+      return sortedAlternatives.map(match => ({
         ...match,
         isAlternativeSuggestion: true,
         originalQuery: query
