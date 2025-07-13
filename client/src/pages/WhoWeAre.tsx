@@ -139,7 +139,12 @@ export default function WhoWeAre() {
           transition={{ delay: 1.8, duration: 0.8 }}
         >
           <motion.h2 
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8"
+            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 tracking-wider"
+            style={{ 
+              fontFamily: 'Courier New, monospace',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+              letterSpacing: '0.1em'
+            }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.0, duration: 0.8 }}
