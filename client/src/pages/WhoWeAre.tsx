@@ -32,12 +32,10 @@ const FlipCard = ({
         <Card className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300`}>
           <div className="flex flex-col items-center justify-center h-full p-8 text-white">
             <div className="flex flex-col items-center">
-              <div className="bg-white/20 rounded-full p-4 mb-6 backdrop-blur-sm">
-                <Icon size={40} className="text-white drop-shadow-lg" />
-              </div>
-              <h3 className="text-2xl font-bold text-center mb-2 drop-shadow-md">{title}</h3>
-              <div className="w-16 h-1 bg-white/50 rounded-full mb-3" />
-              <p className="text-sm opacity-90 text-center font-medium">Click to learn more</p>
+              <Icon size={40} className="text-white mb-6" />
+              <h3 className="text-2xl font-bold text-center mb-2">{title}</h3>
+              <div className="w-16 h-1 bg-white/30 rounded-full mb-3" />
+              <p className="text-sm text-center font-medium">Click to learn more</p>
             </div>
           </div>
         </Card>
