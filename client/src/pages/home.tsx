@@ -97,14 +97,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Golden "Who We Are" Banner */}
-      <div className="fixed top-4 right-4 z-40">
-        <Link href="/who-we-are">
-          <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
-            <span className="font-semibold text-sm">Who We Are</span>
-          </div>
-        </Link>
-      </div>
+
 
       <Header 
         currentMode={currentMode}

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
 import { useBrowserNotifications } from "@/hooks/use-browser-notifications";
 import { AIBanner } from "@/components/ai-banner";
+import { WhoWeAreBanner } from "@/components/who-we-are-banner";
 import AiChatbot from "@/components/AiChatbot";
 import ReviewPromptProvider from "@/components/ReviewPromptProvider";
 import Home from "@/pages/home";
@@ -52,6 +53,7 @@ function App() {
           <BrowserNotificationProvider />
           <Toaster />
           <AIBanner />
+          <WhoWeAreBanner />
           <Router />
           <AiChatbot />
           <ReviewPromptProvider />
