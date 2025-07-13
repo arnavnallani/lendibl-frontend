@@ -133,7 +133,7 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="text-center mt-32 mb-20"
+          className="text-center mt-32 mb-20 mx-auto max-w-6xl bg-gradient-to-r from-blue-50/50 via-white/80 to-blue-50/50 dark:from-gray-900/50 dark:via-black/80 dark:to-gray-900/50 rounded-3xl p-12 shadow-xl border border-blue-100/50 dark:border-gray-700/50 backdrop-blur-sm"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
