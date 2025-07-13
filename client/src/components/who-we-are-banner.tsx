@@ -13,7 +13,7 @@ export function WhoWeAreBanner() {
       <Link href="/who-we-are">
         <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer backdrop-blur-sm border border-yellow-500/20">
           <div className="flex items-center text-sm font-medium">
-            <span>Who We Are</span>
+            <span>Why lendibl?</span>
           </div>
         </div>
       </Link>
