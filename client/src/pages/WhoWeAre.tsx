@@ -1,5 +1,5 @@
 import { FlipCard } from '@/components/FlipCard';
-import { DollarSign, TrendingUp, Leaf, Sparkles, Users, Globe } from 'lucide-react';
+import { DollarSign, TrendingUp, Leaf, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function WhoWeAre() {
@@ -85,58 +85,7 @@ export default function WhoWeAre() {
           </motion.p>
         </motion.div>
 
-        {/* Stats Section */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.8 }}
-        >
-          <div className="text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-            <motion.div
-              className="text-3xl font-bold text-blue-600 mb-2"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.1, type: "spring" }}
-            >
-              1000+
-            </motion.div>
-            <div className="text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>Community Members</span>
-            </div>
-          </div>
-          
-          <div className="text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-            <motion.div
-              className="text-3xl font-bold text-purple-600 mb-2"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.2, type: "spring" }}
-            >
-              500+
-            </motion.div>
-            <div className="text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              <span>Items Available</span>
-            </div>
-          </div>
-          
-          <div className="text-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-            <motion.div
-              className="text-3xl font-bold text-green-600 mb-2"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.3, type: "spring" }}
-            >
-              50+
-            </motion.div>
-            <div className="text-gray-600 dark:text-gray-300 flex items-center justify-center gap-2">
-              <Globe className="w-4 h-4" />
-              <span>Cities Served</span>
-            </div>
-          </div>
-        </motion.div>
+
 
         {/* Enhanced Flip Cards Section */}
         <motion.div 
