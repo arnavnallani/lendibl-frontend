@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { api } from '@/lib/api';
 import { useLocation } from 'wouter';
@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { User, Star, MapPin, Clock, Package, Eye, Edit, ArrowLeft, Home, Trash2, MoreVertical, X, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 import Footer from "@/components/footer";
 import { Link } from 'wouter';
@@ -48,6 +49,8 @@ type EditItemFormData = z.infer<typeof editItemSchema>;
 export default function MyProfile() {
   const { user } = useAuth();
   const [location] = useLocation();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('listings');
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
@@ -186,14 +189,35 @@ export default function MyProfile() {
     setItemImageUrls(itemImageUrls.filter((_, i) => i !== index));
   };
 
-  const handleBookingAction = async (bookingId: number, status: string) => {
-    try {
-      await api.updateBooking(bookingId, { status });
-      // Refresh the rentals data
-      window.location.reload();
-    } catch (error) {
+  // Booking action mutation with immediate feedback
+  const bookingActionMutation = useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: number; status: string }) => {
+      return api.updateBooking(bookingId, { status });
+    },
+    onSuccess: (_, { status }) => {
+      // Invalidate all booking-related queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
+      
+      // Show success toast
+      toast({
+        title: status === 'approved' ? 'Booking Approved' : 'Booking Declined',
+        description: status === 'approved' 
+          ? 'The rental request has been approved successfully.' 
+          : 'The rental request has been declined.',
+      });
+    },
+    onError: (error) => {
       console.error('Failed to update booking:', error);
-    }
+      toast({
+        title: 'Action Failed',
+        description: 'Unable to update the booking. Please try again.',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleBookingAction = (bookingId: number, status: string) => {
+    bookingActionMutation.mutate({ bookingId, status });
   };
 
   const handleCancelBooking = async (bookingId: number, bookingStatus: string) => {
@@ -573,15 +597,17 @@ export default function MyProfile() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleBookingAction(rental.id, 'approved')}
+                                  disabled={bookingActionMutation.isPending}
                                 >
-                                  Approve
+                                  {bookingActionMutation.isPending ? 'Approving...' : 'Approve'}
                                 </Button>
                                 <Button 
                                   size="sm" 
                                   variant="destructive"
                                   onClick={() => handleBookingAction(rental.id, 'rejected')}
+                                  disabled={bookingActionMutation.isPending}
                                 >
-                                  Decline
+                                  {bookingActionMutation.isPending ? 'Declining...' : 'Decline'}
                                 </Button>
                               </div>
                             )}
