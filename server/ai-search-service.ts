@@ -67,8 +67,17 @@ export class AISearchService {
   }
 
   async analyzeSearchQuery(query: string): Promise<SearchAnalysis> {
-    try {
-      const prompt = `Analyze this search query for a rental marketplace: "${query}"
+    // Start timer for 3-second timeout
+    const timeout = new Promise<SearchAnalysis>((_, reject) => {
+      setTimeout(() => {
+        console.log(`⏰ AI search timeout after 3 seconds for query: "${query}"`);
+        reject(new Error('AI search timeout'));
+      }, 3000); // 3 second timeout
+    });
+
+    const aiAnalysis = async (): Promise<SearchAnalysis> => {
+      try {
+        const prompt = `Analyze this search query for a rental marketplace: "${query}"
 
 You must understand semantic meaning and context. Be smart about matching:
 - "computer" should match MacBooks, laptops, PCs, gaming computers
@@ -87,32 +96,43 @@ Examples:
 - "computer" → intent: "computing devices including laptops and desktops", keywords: ["computer", "laptop", "macbook", "pc"], categories: ["Electronics"], synonyms: ["laptop", "macbook", "desktop", "notebook", "gaming pc"], relatedTerms: ["macbook pro", "gaming laptop", "workstation", "tablet"]
 - "cool stuff" → intent: "trendy and interesting rental items", keywords: ["cool", "awesome", "trendy"], categories: ["Electronics", "Photography", "Gaming"], synonyms: ["awesome", "amazing", "popular", "trendy"], relatedTerms: ["camera", "drone", "gaming gear", "macbook", "gadgets"]`;
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are a search analysis expert for a rental marketplace. Always respond with valid JSON only."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3
-      });
+        const response = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "system",
+              content: "You are a search analysis expert for a rental marketplace. Always respond with valid JSON only."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.3,
+          max_tokens: 500 // Limit response size for faster processing
+        });
 
-      const rawJson = response.choices[0].message.content;
-      if (rawJson) {
-        return JSON.parse(rawJson);
-      } else {
-        throw new Error("Empty response from AI");
+        const rawJson = response.choices[0].message.content;
+        if (rawJson) {
+          return JSON.parse(rawJson);
+        } else {
+          throw new Error("Empty response from AI");
+        }
+      } catch (error) {
+        console.error('AI search analysis failed:', error);
+        throw error;
       }
+    };
+
+    try {
+      // Race between AI response and timeout
+      const result = await Promise.race([aiAnalysis(), timeout]);
+      console.log(`✅ AI search completed for query: "${query}"`);
+      return result;
     } catch (error) {
-      console.error('AI search analysis failed:', error);
       // Use smart fallback with enhanced semantic understanding
-      console.log("Using smart fallback analysis for:", query);
+      console.log(`🔄 Using smart fallback analysis for: "${query}"`);
       return this.getSmartFallbackAnalysis(query);
     }
   }

@@ -476,26 +476,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // AI-powered search endpoint
+  // AI-powered search endpoint with 3-second timeout
   app.get("/api/ai-search", async (req, res) => {
+    const startTime = Date.now();
+    
     try {
       const { q } = req.query;
       if (!q || typeof q !== 'string') {
         return res.json([]);
       }
 
-      const allItems = await storage.getItems();
-      const aiResults = await aiSearchService.enhancedSearch(q, allItems);
+      // Set 3-second timeout for entire search operation
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => {
+          console.log(`⏰ Search API timeout after 3 seconds for query: "${q}"`);
+          reject(new Error('Search timeout'));
+        }, 3000);
+      });
+
+      const searchOperation = async () => {
+        const allItems = await storage.getItems();
+        return await aiSearchService.enhancedSearch(q as string, allItems);
+      };
+
+      // Race between search operation and timeout
+      const aiResults = await Promise.race([searchOperation(), timeout]);
+      
+      const duration = Date.now() - startTime;
+      console.log(`✅ Search completed in ${duration}ms for query: "${q}"`);
       
       res.json(aiResults);
-    } catch (error) {
-      console.error('AI search error:', error);
-      res.status(500).json({ message: "Search failed" });
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      console.error(`❌ AI search error after ${duration}ms:`, error.message);
+      
+      // Return empty results on timeout or error
+      res.json([]);
     }
   });
 
-  // Enhanced search suggestions endpoint with AI integration
+  // Enhanced search suggestions endpoint with AI integration and timeout
   app.get("/api/search-suggestions", async (req, res) => {
+    const startTime = Date.now();
+    
     try {
       const { q } = req.query;
       if (!q || typeof q !== 'string') {
@@ -503,19 +526,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const query = q.toLowerCase().trim();
-      const suggestions: any[] = [];
+      
+      // Set 2.5-second timeout for search suggestions
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => {
+          console.log(`⏰ Search suggestions timeout after 2.5 seconds for query: "${q}"`);
+          reject(new Error('Suggestions timeout'));
+        }, 2500);
+      });
 
-      // Get all items for search matching
-      const allItems = await storage.getItems();
-      const categories = await storage.getCategories();
+      const suggestionsOperation = async () => {
+        const suggestions: any[] = [];
 
-      // Use AI to analyze the query for better suggestions
-      let aiAnalysis = null;
-      try {
-        aiAnalysis = await aiSearchService.analyzeSearchQuery(query);
-      } catch (error) {
-        console.log('AI analysis failed, using fallback');
-      }
+        // Get all items for search matching
+        const allItems = await storage.getItems();
+        const categories = await storage.getCategories();
+
+        // Use AI to analyze the query for better suggestions
+        let aiAnalysis = null;
+        try {
+          aiAnalysis = await aiSearchService.analyzeSearchQuery(query);
+        } catch (error) {
+          console.log('AI analysis failed, using fallback');
+        }
+        
+        return { allItems, categories, aiAnalysis, suggestions };
+      };
+
+      // Race between suggestions operation and timeout
+      const { allItems, categories, aiAnalysis, suggestions } = await Promise.race([suggestionsOperation(), timeout]);
 
       // AI-enhanced item matches
       if (aiAnalysis) {
@@ -579,10 +618,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const smartSuggestions = generateSmartCompletions(query, allItems);
       suggestions.push(...smartSuggestions);
 
+      const duration = Date.now() - startTime;
+      console.log(`✅ Search suggestions completed in ${duration}ms for query: "${q}"`);
+      
       res.json(suggestions.slice(0, 8));
-    } catch (error) {
-      console.error('Search suggestions error:', error);
-      res.status(500).json([]);
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      console.error(`❌ Search suggestions error after ${duration}ms:`, error.message);
+      res.json([]); // Return empty array on timeout or error
     }
   });
 
