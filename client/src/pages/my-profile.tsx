@@ -255,6 +255,12 @@ export default function MyProfile() {
 
   const activeListings = myItems.filter(item => item.available).length;
   const totalListings = myItems.length;
+  
+  // Debug logging
+  console.log('Debug: myItems count:', myItems.length);
+  console.log('Debug: myItems data:', myItems);
+  console.log('Debug: activeListings count:', activeListings);
+  console.log('Debug: available items:', myItems.filter(item => item.available));
 
   return (
     <div className="min-h-screen bg-white">
