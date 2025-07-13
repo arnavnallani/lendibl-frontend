@@ -113,7 +113,7 @@ export default function MyProfile() {
   };
 
   const { data: myItems = [], isLoading: itemsLoading } = useQuery({
-    queryKey: ['/api/items', 'myItems'],
+    queryKey: ['/api/items', 'myItems', user?.id],
     queryFn: async (): Promise<ItemWithDetails[]> => {
       const response = await api.getItems({ ownerId: user?.id });
       return response.items || [];
@@ -128,7 +128,7 @@ export default function MyProfile() {
   });
 
   const { data: myRentals = [], isLoading: rentalsLoading } = useQuery({
-    queryKey: ['/api/bookings', 'rentals'],
+    queryKey: ['/api/bookings', 'rentals', user?.id],
     queryFn: async (): Promise<BookingWithDetails[]> => {
       const allBookings = await api.getBookings();
       return allBookings.filter(booking => booking.item.ownerId === user?.id);

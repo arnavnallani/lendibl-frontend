@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
+import { queryClient } from '@/lib/queryClient';
 
 export interface User {
   id: number;
@@ -102,6 +103,9 @@ export function useAuthProvider(): AuthContextType {
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
     setUser(data.user);
+    
+    // Clear React Query cache to avoid stale data from previous user
+    queryClient.clear();
   };
 
   const register = async (userData: {
@@ -130,12 +134,18 @@ export function useAuthProvider(): AuthContextType {
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
     setUser(data.user);
+    
+    // Clear React Query cache for fresh user data
+    queryClient.clear();
   };
 
   const logout = () => {
     localStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
+    
+    // Clear React Query cache to remove all user-specific data
+    queryClient.clear();
   };
 
   return {
