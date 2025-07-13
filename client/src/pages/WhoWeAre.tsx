@@ -33,8 +33,7 @@ const FlipCard = ({
           <div className="flex flex-col items-center justify-center h-full p-8 text-white">
             <div className="flex flex-col items-center">
               <Icon size={40} className="text-white mb-6" />
-              <h3 className="text-2xl font-bold text-center mb-2">{title}</h3>
-              <div className="w-16 h-1 bg-white/30 rounded-full mb-3" />
+              <h3 className="text-2xl font-bold text-center mb-4">{title}</h3>
               <p className="text-sm text-center font-medium">Click to learn more</p>
             </div>
           </div>
