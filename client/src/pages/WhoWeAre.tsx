@@ -243,7 +243,7 @@ export default function WhoWeAre() {
         </motion.div>
 
         {/* Simple Scroll Arrow */}
-        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
           <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </div>
       </div>
