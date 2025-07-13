@@ -30,10 +30,8 @@ const FlipCard = ({
       >
         {/* Front of card */}
         <Card className={`absolute inset-0 w-full h-full backface-hidden ${color} border-0 shadow-2xl hover:shadow-3xl transition-all duration-300`}>
-          <div className="flex flex-col items-center justify-center h-full p-8 text-white relative overflow-hidden">
-            {/* Subtle pattern overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-            <div className="relative z-10 flex flex-col items-center">
+          <div className="flex flex-col items-center justify-center h-full p-8 text-white">
+            <div className="flex flex-col items-center">
               <div className="bg-white/20 rounded-full p-4 mb-6 backdrop-blur-sm">
                 <Icon size={40} className="text-white drop-shadow-lg" />
               </div>
