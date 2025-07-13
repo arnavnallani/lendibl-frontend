@@ -115,7 +115,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
                 <h3 className="text-lg font-bold text-white mb-4">
                   {displayTitle}
                 </h3>
-                <p className="text-white/95 leading-relaxed text-xs">
+                <p className="text-white/95 leading-relaxed text-sm">
                   {backContent}
                 </p>
               </div>
