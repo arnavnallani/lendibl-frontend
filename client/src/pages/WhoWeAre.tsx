@@ -1,5 +1,5 @@
 import { FlipCard } from '@/components/FlipCard';
-import { DollarSign, TrendingUp, Leaf, Sparkles } from 'lucide-react';
+import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function WhoWeAre() {
@@ -133,42 +133,87 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="text-center mt-32 mb-20 mx-auto max-w-6xl bg-gradient-to-r from-blue-50/50 via-white/80 to-blue-50/50 dark:from-gray-900/50 dark:via-black/80 dark:to-gray-900/50 rounded-3xl p-12 shadow-xl border border-blue-100/50 dark:border-gray-700/50 backdrop-blur-sm"
+          className="mt-32 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-slate-800 dark:via-slate-900 dark:to-black py-20 px-6"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
         >
-          <motion.h2 
-            className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 tracking-wider"
-            style={{ 
-              fontFamily: 'Courier New, monospace',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
-              letterSpacing: '0.1em'
-            }}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.0, duration: 0.8 }}
-          >
-            The lendibl difference
-          </motion.h2>
-          
-          <motion.p 
-            className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.2, duration: 0.8 }}
-          >
-            We're not like any other rental company. At lendibl we focus on one main thing:
-          </motion.p>
+          <div className="text-center max-w-6xl mx-auto">
+            <motion.h2 
+              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 tracking-wider"
+              style={{ 
+                fontFamily: 'Courier New, monospace',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                letterSpacing: '0.1em'
+              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.0, duration: 0.8 }}
+            >
+              The lendibl difference
+            </motion.h2>
+            
+            <motion.p 
+              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.2, duration: 0.8 }}
+            >
+              We're not like any other rental company. At lendibl we focus on one main thing:
+            </motion.p>
 
-          <motion.div
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
-          >
-            simplicity
-          </motion.div>
+            <motion.div
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent mb-16"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
+            >
+              simplicity
+            </motion.div>
+
+            <motion.p 
+              className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-5xl mx-auto leading-relaxed mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.6, duration: 0.8 }}
+            >
+              We pay attention to every single minute step of the rental process to make sure everything is both intuitive and seamless. To do this, we realized that we needed to be powered by AI. We have 5 powerful agents that help you throughout all of this...
+            </motion.p>
+
+            {/* AI Agents Grid */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mt-12"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2.8, duration: 0.8 }}
+            >
+              <FlipCard
+                title="Recommendations"
+                frontIcon={<Sparkles className="w-8 h-8" />}
+                backContent="Here, machine learning algorithms use your activity on the site to smartly detect what items you'll likely be interested in next. Instead of having to manually look through items to find what you need, we intelligently hand pick what we predict you need."
+              />
+              <FlipCard
+                title="Search"
+                frontIcon={<Search className="w-8 h-8" />}
+                backContent="AI analyzes your search input to truly understand what you're saying before delivering the item outputs. All within 2-3 seconds. Instead of a search bar that can only detect keywords, or doesn't get what you're actually saying, our AI comprehends the full scope of what you type to show you items like a real person."
+              />
+              <FlipCard
+                title="Pricing"
+                frontIcon={<DollarSign className="w-8 h-8" />}
+                backContent="Using market data, demand patterns, and seasonal trends, this AI agent gives you intelligent pricing suggestions after reviewing all of your listing information. Unlike other platforms that manually suggest to you how to price your item, our AI uses all the data available to intelligently give you a recommendation."
+              />
+              <FlipCard
+                title="Chat"
+                frontIcon={<MessageCircle className="w-8 h-8" />}
+                backContent="A generative AI model that accurately gives you any information at all about how to use the lendibl app. Unlike other chat systems that only understand certain phrases in a rigid way, our chatbot can be communicated with just like a regular person, except it's someone who knows everything there is to know about lendibl."
+              />
+              <FlipCard
+                title="Authentication"
+                frontIcon={<Shield className="w-8 h-8" />}
+                backContent="After you put in your registration info, AI analyzes your email and phone number to make sure that they pass verification checks, including fraud detection. Instead of having to go through that whole annoying process of getting a code sent to you and and putting that in, we verify you without you having to do anything."
+              />
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* Call to Action */}
