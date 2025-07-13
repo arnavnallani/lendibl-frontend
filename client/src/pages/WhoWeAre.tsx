@@ -133,6 +133,11 @@ export default function WhoWeAre() {
           </motion.div>
         </motion.div>
 
+        {/* Simple Scroll Arrow */}
+        <div className="flex justify-center mt-16 mb-16">
+          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        </div>
+
         {/* The lendibl difference Section */}
         <motion.div 
           className="mt-32 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-slate-800 dark:via-slate-900 dark:to-black py-20 px-6"
@@ -242,10 +247,7 @@ export default function WhoWeAre() {
           </motion.div>
         </motion.div>
 
-        {/* Simple Scroll Arrow */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-        </div>
+
       </div>
     </div>
   );
