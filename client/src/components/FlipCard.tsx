@@ -108,7 +108,7 @@ export function FlipCard({ frontTitle, backContent, icon }: FlipCardProps) {
               <h3 className="text-xl font-bold text-white mb-4">
                 {frontTitle}
               </h3>
-              <p className="text-white/95 leading-relaxed text-base mb-4">
+              <p className="text-white/95 leading-relaxed text-base mb-6">
                 {backContent}
               </p>
               <div className="flex items-center gap-2 text-white/80 text-sm">
