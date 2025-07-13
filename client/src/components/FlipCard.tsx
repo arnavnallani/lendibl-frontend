@@ -91,7 +91,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
 
         {/* Back of card */}
         <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180">
-          <div className={`h-full ${cardColor} rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden`}>
+          <div className={`h-full ${cardColor} rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden`}>
             {/* Animated background pattern */}
             <motion.div
               className="absolute inset-0 opacity-10"
@@ -110,13 +110,13 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
               animate={isFlipped ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <h3 className="text-base font-bold text-white mb-2">
+              <h3 className="text-lg font-bold text-white mb-3">
                 {displayTitle}
               </h3>
-              <p className="text-white/95 leading-tight text-xs mb-3 overflow-y-auto max-h-40">
+              <p className="text-white/95 leading-relaxed text-xs mb-4">
                 {backContent}
               </p>
-              <div className="flex items-center gap-1 text-white/80 text-xs">
+              <div className="flex items-center gap-2 text-white/80 text-sm">
                 <span>Click to flip back</span>
                 <motion.div
                   animate={{ rotate: 180 }}
