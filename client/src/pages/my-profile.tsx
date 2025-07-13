@@ -115,8 +115,8 @@ export default function MyProfile() {
   const { data: myItems = [], isLoading: itemsLoading } = useQuery({
     queryKey: ['/api/items', 'myItems'],
     queryFn: async (): Promise<ItemWithDetails[]> => {
-      const allItems = await api.getItems();
-      return allItems.filter(item => item.ownerId === user?.id);
+      const response = await api.getItems({ ownerId: user?.id });
+      return response.items || [];
     },
     enabled: !!user,
   });
@@ -255,12 +255,6 @@ export default function MyProfile() {
 
   const activeListings = myItems.filter(item => item.available).length;
   const totalListings = myItems.length;
-  
-  // Debug logging
-  console.log('Debug: myItems count:', myItems.length);
-  console.log('Debug: myItems data:', myItems);
-  console.log('Debug: activeListings count:', activeListings);
-  console.log('Debug: available items:', myItems.filter(item => item.available));
 
   return (
     <div className="min-h-screen bg-white">
