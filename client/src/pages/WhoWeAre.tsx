@@ -1,12 +1,27 @@
 import { FlipCard } from '@/components/FlipCard';
 import { AIAgentCard } from '@/components/AIAgentCard';
-import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ArrowDown } from 'lucide-react';
+import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ArrowDown, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'wouter';
 
 
 export default function WhoWeAre() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-black dark:via-gray-900 dark:to-gray-800 relative overflow-hidden">
+      {/* Back to Home Button */}
+      <Link href="/">
+        <motion.div 
+          className="fixed top-6 left-6 z-50 flex items-center gap-2 bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-white/30 dark:border-gray-600/30 hover:bg-white/90 dark:hover:bg-black/90 transition-all duration-300 cursor-pointer"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Back to Home</span>
+        </motion.div>
+      </Link>
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -240,10 +255,12 @@ export default function WhoWeAre() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5" />
-              <span className="text-lg font-semibold">Start Your Journey Today</span>
-            </div>
+            <Link href="/">
+              <div className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform duration-300">
+                <Sparkles className="w-5 h-5" />
+                <span className="text-lg font-semibold">Start Your Journey Now</span>
+              </div>
+            </Link>
           </motion.div>
         </motion.div>
 
