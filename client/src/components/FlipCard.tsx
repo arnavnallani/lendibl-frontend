@@ -19,7 +19,7 @@ export function FlipCard({ frontTitle, title, backContent, icon, frontIcon, card
 
   return (
     <motion.div 
-      className="relative w-full h-72 cursor-pointer perspective-1000"
+      className="relative w-full h-80 cursor-pointer perspective-1000"
       onClick={() => setIsFlipped(!isFlipped)}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
