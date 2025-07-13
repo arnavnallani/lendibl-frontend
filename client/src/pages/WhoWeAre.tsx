@@ -134,7 +134,7 @@ export default function WhoWeAre() {
         </motion.div>
 
         {/* Simple Scroll Arrow */}
-        <div className="flex justify-center mt-24 mb-16">
+        <div className="flex justify-center mt-21 mb-16">
           <ArrowDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
         </div>
 
