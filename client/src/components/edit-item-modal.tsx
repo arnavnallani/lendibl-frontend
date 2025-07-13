@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { format } from 'date-fns';
 import type { ItemWithDetails } from '@shared/schema';
 import { ImageUpload } from '@/components/image-upload';
+import { useToast } from '@/hooks/use-toast';
 
 const editItemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -100,6 +101,7 @@ interface EditItemModalProps {
 
 export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: EditItemModalProps) {
   const [images, setImages] = useState<string[]>([]);
+  const { toast } = useToast();
   
   const { data: categories = [] } = useQuery({
     queryKey: ['/api/categories'],
@@ -182,10 +184,22 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
       }
 
       await api.updateItem(item.id, updateData);
+      
+      toast({
+        title: "Item Updated Successfully",
+        description: "Your listing has been saved with the latest changes.",
+        className: "bg-green-50 border-green-200 text-green-800"
+      });
+      
       onClose();
       onItemUpdated?.();
     } catch (error) {
       console.error('Failed to update item:', error);
+      toast({
+        title: "Update Failed",
+        description: "There was an error saving your changes. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -198,10 +212,22 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
     
     try {
       await api.deleteItem(item.id);
+      
+      toast({
+        title: "Item Deleted Successfully",
+        description: "Your listing has been permanently removed.",
+        className: "bg-red-50 border-red-200 text-red-800"
+      });
+      
       onClose();
       onItemUpdated?.();
     } catch (error) {
       console.error('Failed to delete item:', error);
+      toast({
+        title: "Delete Failed",
+        description: "There was an error deleting your item. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
