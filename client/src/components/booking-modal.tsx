@@ -380,7 +380,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               </Button>
 
               <p className="text-sm text-gray-medium text-center">
-                {user ? "You will receive a full refund if: • You cancel before the owner approves your request • The owner has not approved your request 24 hours after it has been made • Note: NO REFUND if you cancel after approval" : "Please login to make a booking request"}
+                {user ? "You will receive a full refund if: • You cancel before the owner approves your request • The owner has not approved your request 24 hours after it has been made" : "Please login to make a booking request"}
               </p>
             </form>
           </div>
