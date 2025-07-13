@@ -17,12 +17,6 @@ export default function Footer() {
           
           <div className="flex items-center space-x-6">
             <Link 
-              href="/who-we-are" 
-              className="text-gray-600 hover:text-blue-600 text-sm transition-colors"
-            >
-              Who We Are
-            </Link>
-            <Link 
               href="/privacy-policy" 
               className="text-gray-600 hover:text-blue-600 text-sm transition-colors"
             >
