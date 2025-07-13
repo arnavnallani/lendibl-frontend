@@ -223,6 +223,11 @@ export default function WhoWeAre() {
           </div>
         </motion.div>
 
+        {/* Simple Scroll Arrow */}
+        <div className="text-center py-8">
+          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400 mx-auto" />
+        </div>
+
         {/* Call to Action */}
         <motion.div 
           className="text-center mt-20"
@@ -242,10 +247,7 @@ export default function WhoWeAre() {
           </motion.div>
         </motion.div>
 
-        {/* Simple Scroll Arrow */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-          <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-        </div>
+
       </div>
     </div>
   );
