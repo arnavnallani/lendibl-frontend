@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const telesign = require('telesign');
+const TelesignSDK = require('telesignsdk');
 
 interface PhoneIDResult {
   success: boolean;
@@ -48,10 +48,7 @@ export class PhoneVerificationService {
     if (this.customerId && this.apiKey) {
       try {
         console.log('📱 Initializing TeleSign SDK...');
-        this.telesign = telesign.setup({
-          customerId: this.customerId,
-          apiKey: this.apiKey
-        });
+        this.telesign = new TelesignSDK(this.customerId, this.apiKey);
         console.log('✅ TeleSign SDK initialized successfully');
       } catch (error) {
         console.error('❌ Failed to initialize TeleSign SDK:', error);
@@ -289,11 +286,21 @@ export class PhoneVerificationService {
 
       // Check if Contact Match addon was successful
       const contactMatch = data.contact_match;
-      if (!contactMatch || contactMatch.status?.code !== 2800) {
+      if (!contactMatch) {
+        console.log('⚠️ Contact Match data not present in response - service may not be enabled');
         return {
           success: false,
           verified: false,
-          message: `Contact match failed: ${contactMatch?.status?.description || 'Contact match service unavailable'}`
+          message: 'Contact match service not available - requires enterprise account with Contact Match enabled'
+        };
+      }
+      
+      if (contactMatch.status?.code !== 2800) {
+        console.log(`⚠️ Contact Match status code: ${contactMatch.status?.code}, description: ${contactMatch.status?.description}`);
+        return {
+          success: false,
+          verified: false,
+          message: `Contact match failed: ${contactMatch.status?.description || 'Contact match service unavailable'}`
         };
       }
 
