@@ -164,6 +164,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       // Step 2: Instant phone verification (no SMS required)
       const phoneResponse = await apiRequest('POST', '/api/auth/verify-instant', {
         phoneNumber: data.phone,
+        firstName: data.firstName,
+        lastName: data.lastName,
       });
       
       const phoneResult = await phoneResponse.json();
@@ -171,32 +173,8 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       if (!phoneResult.success || !phoneResult.valid) {
         throw new Error(phoneResult.message || 'Phone number verification failed');
       }
-
-      // Step 3: Phone-to-name verification using TeleSign Contact Match
-      // NOTE: Contact Match requires TeleSign sales contact to enable for full-service accounts
-      // Currently implementing graceful fallback until this feature is enabled
-      try {
-        const nameVerificationResponse = await apiRequest('POST', '/api/auth/verify-phone-to-name', {
-          phoneNumber: data.phone,
-          firstName: data.firstName,
-          lastName: data.lastName,
-        });
-        
-        const nameVerificationResult = await nameVerificationResponse.json();
-        
-        if (nameVerificationResult.success && nameVerificationResult.verified) {
-          console.log('✅ Phone-to-name verification successful - strong identity match');
-        } else {
-          // Log Contact Match limitations but continue registration
-          console.log('📞 Contact Match verification not available - requires TeleSign enterprise account');
-          console.log('   Proceeding with email and phone verification only');
-        }
-      } catch (error) {
-        // Contact Match API not available - continue with standard verification
-        console.log('📞 Contact Match service not enabled, using standard verification flow');
-      }
       
-      // Step 4: Complete registration with verified email, phone, and identity
+      // Step 3: Complete registration with verified email and phone
       await register({
         email: emailResult.email,
         password: data.password,
