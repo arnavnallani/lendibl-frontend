@@ -164,8 +164,6 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       // Step 2: Instant phone verification (no SMS required)
       const phoneResponse = await apiRequest('POST', '/api/auth/verify-instant', {
         phoneNumber: data.phone,
-        firstName: data.firstName,
-        lastName: data.lastName,
       });
       
       const phoneResult = await phoneResponse.json();
@@ -173,8 +171,21 @@ export default function AuthModal({ isOpen, onClose, defaultTab = 'login', messa
       if (!phoneResult.success || !phoneResult.valid) {
         throw new Error(phoneResult.message || 'Phone number verification failed');
       }
+
+      // Step 3: Phone-to-name verification using TeleSign Contact Match
+      const nameVerificationResponse = await apiRequest('POST', '/api/auth/verify-phone-to-name', {
+        phoneNumber: data.phone,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
       
-      // Step 3: Complete registration with verified email and phone
+      const nameVerificationResult = await nameVerificationResponse.json();
+      
+      if (!nameVerificationResult.success || !nameVerificationResult.verified) {
+        throw new Error(nameVerificationResult.message || 'Phone number does not match the provided name');
+      }
+      
+      // Step 4: Complete registration with verified email, phone, and identity
       await register({
         email: emailResult.email,
         password: data.password,

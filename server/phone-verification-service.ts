@@ -18,6 +18,21 @@ interface PhoneIDResult {
   };
 }
 
+interface NameVerificationResult {
+  success: boolean;
+  verified: boolean;
+  message: string;
+  firstNameScore?: number;
+  lastNameScore?: number;
+  overallMatch?: 'strong' | 'moderate' | 'weak' | 'no_match';
+  phoneNumber?: string;
+  carrierInfo?: {
+    name: string;
+    type: string;
+  };
+  riskLevel?: 'low' | 'medium' | 'high';
+}
+
 export class PhoneVerificationService {
   private telesign: any | null = null;
   private customerId: string;
@@ -203,6 +218,147 @@ export class PhoneVerificationService {
       valid: true,
       message: 'Valid phone number'
     };
+  }
+
+  // Verify if a phone number belongs to a specific person by name
+  async verifyPhoneToName(phoneNumber: string, firstName: string, lastName: string): Promise<NameVerificationResult> {
+    try {
+      // Validate inputs
+      const phoneValidation = this.validatePhoneNumber(phoneNumber);
+      if (!phoneValidation.valid) {
+        return {
+          success: false,
+          verified: false,
+          message: phoneValidation.message
+        };
+      }
+
+      if (!firstName?.trim() || !lastName?.trim()) {
+        return {
+          success: false,
+          verified: false,
+          message: 'First name and last name are required for verification'
+        };
+      }
+
+      // Check TeleSign configuration
+      if (!this.isConfigured()) {
+        return {
+          success: false,
+          verified: false,
+          message: 'Phone verification service is not properly configured'
+        };
+      }
+
+      // Clean and format phone number (remove non-digits)
+      const cleanedPhone = phoneNumber.replace(/\D/g, '');
+      const formattedPhone = cleanedPhone.startsWith('1') ? cleanedPhone : `1${cleanedPhone}`;
+
+      console.log(`🔍 Verifying phone ${formattedPhone} belongs to ${firstName} ${lastName}`);
+
+      // Make TeleSign PhoneID request with Contact Match addon
+      const response = await new Promise((resolve, reject) => {
+        this.telesign.phoneid.score(formattedPhone, {
+          addons: {
+            contact_match: {
+              first_name: firstName.toUpperCase().trim(),
+              last_name: lastName.toUpperCase().trim()
+            }
+          }
+        }, (error: any, response: any) => {
+          if (error) {
+            console.error('❌ TeleSign Contact Match error:', error);
+            reject(error);
+          } else {
+            console.log('✅ TeleSign Contact Match response:', JSON.stringify(response, null, 2));
+            resolve(response);
+          }
+        });
+      });
+
+      const data = response as any;
+
+      // Check if the request was successful
+      if (data.status?.code !== 300) {
+        return {
+          success: false,
+          verified: false,
+          message: `Phone verification failed: ${data.status?.description || 'Unknown error'}`
+        };
+      }
+
+      // Extract contact match scores
+      const contactMatch = data.contact_match;
+      const firstNameScore = contactMatch?.first_name_score || 0;
+      const lastNameScore = contactMatch?.last_name_score || 0;
+      
+      // Calculate overall match confidence
+      const averageScore = (firstNameScore + lastNameScore) / 2;
+      let overallMatch: 'strong' | 'moderate' | 'weak' | 'no_match';
+      let verified = false;
+
+      if (averageScore >= 80) {
+        overallMatch = 'strong';
+        verified = true;
+      } else if (averageScore >= 60) {
+        overallMatch = 'moderate';
+        verified = true; // Still consider it verified but with lower confidence
+      } else if (averageScore >= 30) {
+        overallMatch = 'weak';
+        verified = false;
+      } else {
+        overallMatch = 'no_match';
+        verified = false;
+      }
+
+      // Extract additional phone information
+      const carrierInfo = data.carrier ? {
+        name: data.carrier.name || 'Unknown',
+        type: data.phone_type?.description || 'Unknown'
+      } : undefined;
+
+      const riskLevel = data.risk?.level || 'unknown';
+
+      return {
+        success: true,
+        verified,
+        message: verified 
+          ? `Phone number verified as belonging to ${firstName} ${lastName} (${Math.round(averageScore)}% match confidence)`
+          : `Phone number does not appear to belong to ${firstName} ${lastName} (${Math.round(averageScore)}% match confidence)`,
+        firstNameScore,
+        lastNameScore,
+        overallMatch,
+        phoneNumber: data.numbering?.original?.complete_phone_number,
+        carrierInfo,
+        riskLevel: riskLevel as 'low' | 'medium' | 'high'
+      };
+
+    } catch (error: any) {
+      console.error('❌ Phone-to-name verification error:', error);
+      
+      // Check for specific TeleSign errors
+      if (error.message?.includes('404')) {
+        return {
+          success: false,
+          verified: false,
+          message: 'Contact match service not available for this account'
+        };
+      }
+      
+      if (error.message?.includes('403')) {
+        return {
+          success: false,
+          verified: false,
+          message: 'Contact match service access denied - enterprise account required'
+        };
+      }
+
+      return {
+        success: false,
+        verified: false,
+        message: `Phone verification service error: ${error.message || 'Unknown error'}`
+      };
+    }
   }
 }
 

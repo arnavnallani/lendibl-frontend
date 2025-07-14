@@ -445,6 +445,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Phone-to-name verification using TeleSign Contact Match
+  app.post("/api/auth/verify-phone-to-name", async (req, res) => {
+    try {
+      const { phoneNumber, firstName, lastName } = req.body;
+      
+      if (!phoneNumber || !firstName || !lastName) {
+        return res.status(400).json({ 
+          success: false, 
+          verified: false,
+          message: "Phone number, first name, and last name are required" 
+        });
+      }
+
+      console.log(`🔍 Phone-to-name verification for: ${phoneNumber} -> ${firstName} ${lastName}`);
+      
+      const result = await phoneVerificationService.verifyPhoneToName(phoneNumber, firstName, lastName);
+      
+      console.log(`✅ Phone-to-name verification result: ${result.message}`);
+      res.json(result);
+    } catch (error) {
+      console.error('💥 Phone-to-name verification error:', error);
+      res.status(500).json({ 
+        success: false, 
+        verified: false,
+        message: "Failed to verify phone number ownership" 
+      });
+    }
+  });
+
   // Instant email verification (no email sending required)
   app.post("/api/auth/verify-email-instant", async (req, res) => {
     try {
