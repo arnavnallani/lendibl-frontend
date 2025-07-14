@@ -258,14 +258,7 @@ export class PhoneVerificationService {
 
       // Make TeleSign PhoneID request with Contact Match addon
       const response = await new Promise((resolve, reject) => {
-        this.telesign.phoneid.score(formattedPhone, {
-          addons: {
-            contact_match: {
-              first_name: firstName.toUpperCase().trim(),
-              last_name: lastName.toUpperCase().trim()
-            }
-          }
-        }, (error: any, response: any) => {
+        this.telesign.phoneid.phoneID((error: any, response: any) => {
           if (error) {
             console.error('❌ TeleSign Contact Match error:', error);
             reject(error);
@@ -273,12 +266,19 @@ export class PhoneVerificationService {
             console.log('✅ TeleSign Contact Match response:', JSON.stringify(response, null, 2));
             resolve(response);
           }
+        }, formattedPhone, {
+          addons: {
+            contact_match: {
+              first_name: firstName.toUpperCase().trim(),
+              last_name: lastName.toUpperCase().trim()
+            }
+          }
         });
       });
 
       const data = response as any;
 
-      // Check if the request was successful
+      // Check if the main request was successful
       if (data.status?.code !== 300) {
         return {
           success: false,
@@ -287,8 +287,17 @@ export class PhoneVerificationService {
         };
       }
 
-      // Extract contact match scores
+      // Check if Contact Match addon was successful
       const contactMatch = data.contact_match;
+      if (!contactMatch || contactMatch.status?.code !== 2800) {
+        return {
+          success: false,
+          verified: false,
+          message: `Contact match failed: ${contactMatch?.status?.description || 'Contact match service unavailable'}`
+        };
+      }
+
+      // Extract contact match scores
       const firstNameScore = contactMatch?.first_name_score || 0;
       const lastNameScore = contactMatch?.last_name_score || 0;
       
@@ -345,11 +354,19 @@ export class PhoneVerificationService {
         };
       }
       
-      if (error.message?.includes('403')) {
+      if (error.message?.includes('403') || error.message?.includes('access denied')) {
         return {
           success: false,
           verified: false,
           message: 'Contact match service access denied - enterprise account required'
+        };
+      }
+
+      if (error.message?.includes('contact_match') || error.message?.includes('not enabled')) {
+        return {
+          success: false,
+          verified: false,
+          message: 'Contact match feature not enabled - requires enterprise account'
         };
       }
 

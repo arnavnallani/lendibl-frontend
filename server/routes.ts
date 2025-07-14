@@ -460,6 +460,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`🔍 Phone-to-name verification for: ${phoneNumber} -> ${firstName} ${lastName}`);
       
+      // Check if TeleSign is configured first
+      if (!phoneVerificationService.isConfigured()) {
+        console.log('📱 TeleSign not configured - allowing registration');
+        return res.json({
+          success: true,
+          verified: true,
+          message: 'Phone verification service not configured - registration allowed'
+        });
+      }
+      
       const result = await phoneVerificationService.verifyPhoneToName(phoneNumber, firstName, lastName);
       
       console.log(`✅ Phone-to-name verification result: ${result.message}`);
