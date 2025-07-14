@@ -462,11 +462,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if TeleSign is configured first
       if (!phoneVerificationService.isConfigured()) {
-        console.log('📱 TeleSign not configured - allowing registration');
+        console.log('📱 TeleSign not configured - Contact Match unavailable');
         return res.json({
-          success: true,
-          verified: true,
-          message: 'Phone verification service not configured - registration allowed'
+          success: false,
+          verified: false,
+          message: 'Contact Match requires TeleSign configuration - using standard verification'
         });
       }
       
@@ -2301,6 +2301,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to confirm condition:', error);
       res.status(500).json({ message: "Failed to confirm condition" });
+    }
+  });
+
+  // Test endpoint to check TeleSign Contact Match availability
+  app.post("/api/test/contact-match", async (req, res) => {
+    try {
+      console.log('🧪 Testing TeleSign Contact Match API...');
+      
+      // Use a known test phone number with obvious fake name
+      const testResult = await phoneVerificationService.verifyPhoneToName(
+        "15551234567", // Test phone number
+        "FAKENAME", 
+        "TESTUSER"
+      );
+      
+      console.log('🧪 Contact Match test result:', testResult);
+      res.json({
+        testResult,
+        message: 'Contact Match test completed - check server logs for details'
+      });
+    } catch (error) {
+      console.error('🧪 Contact Match test error:', error);
+      res.status(500).json({ 
+        error: error.message,
+        message: 'Contact Match test failed'
+      });
     }
   });
 

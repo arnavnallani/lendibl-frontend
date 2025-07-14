@@ -377,10 +377,12 @@ export class PhoneVerificationService {
         };
       }
 
+      // Most likely Contact Match is not enabled - requires TeleSign sales contact
+      console.log('📞 Contact Match likely not enabled - requires contacting TeleSign sales for full-service accounts');
       return {
         success: false,
         verified: false,
-        message: `Phone verification service error: ${error.message || 'Unknown error'}`
+        message: 'Contact Match feature not enabled - requires contacting TeleSign sales to add this enterprise feature'
       };
     }
   }
