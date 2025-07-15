@@ -62,7 +62,6 @@ export default function WhoWeAre() {
           }}
         />
       </div>
-
       <div className="container mx-auto px-4 py-16 relative z-10">
         {/* Header Section with Enhanced Animation */}
         <motion.div 
@@ -198,9 +197,7 @@ export default function WhoWeAre() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.8 }}
-            >
-              We pay attention to every single minute step of the rental process to make sure everything is both intuitive and seamless. To do this, we incorporate 5 powerful AI agents that make things as simple as possible. Learn about them below...
-            </motion.p>
+            >We pay attention to every single minute step of the rental process to make sure everything is both intuitive and seamless. To do this, we incorporate powerful AI agents that make things as simple as possible. Learn about them the 5 most important ones below...</motion.p>
 
             {/* AI Agents Grid */}
             <motion.div 
