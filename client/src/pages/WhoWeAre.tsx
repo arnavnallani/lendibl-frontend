@@ -197,7 +197,7 @@ export default function WhoWeAre() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.8 }}
-            >We pay attention to every single minute step of the rental process to make sure everything is both intuitive and seamless. One of the main ways we make this happen is by using powerful AI agents. Learn about our 5 most important ones below, and how each of them supports our value of simplicity...</motion.p>
+            >We pay attention to every single minute step of the rental process to make sure everything is both intuitive and seamless. One of the main ways we make this happen is by using powerful AI agents. Learn about the 5 most important ones below, and how each of them supports our value of simplicity...</motion.p>
 
             {/* AI Agents Grid */}
             <motion.div 

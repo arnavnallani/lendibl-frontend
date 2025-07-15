@@ -913,6 +913,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           item.location
         );
         
+        // If there's a message, create the initial rental message
+        if (validatedData.message && validatedData.message.trim()) {
+          await storage.createRentalMessage({
+            bookingId: booking.id,
+            senderId: req.user!.id,
+            receiverId: item.ownerId,
+            message: validatedData.message.trim()
+          });
+        }
+        
         // Send notification to item owner
         await notificationService.notifyBookingRequest(
           item.ownerId,
@@ -1138,6 +1148,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send notification to item owner
       const item = await storage.getItem(booking.itemId);
       if (item) {
+        // If there's a message, create the initial rental message
+        if (validatedData.message && validatedData.message.trim()) {
+          await storage.createRentalMessage({
+            bookingId: booking.id,
+            senderId: req.user!.id,
+            receiverId: item.ownerId,
+            message: validatedData.message.trim()
+          });
+        }
+        
         const notification = {
           type: "booking_request",
           id: Date.now(),
