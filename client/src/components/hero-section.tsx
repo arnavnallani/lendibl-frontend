@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Wrench, Car, Camera, Home, Dribbble, TreePine, Shirt } from "lucide-react";
+import lendiblCollageImage from "@assets/lendibl_collage_1752546761630.jpg";
 
 const categoryIcons = {
   "tools": Wrench,
@@ -34,7 +35,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('@assets/lendibl_collage_1752546761630.jpg')`
+          backgroundImage: `url(${lendiblCollageImage})`
         }}
       />
       
