@@ -79,7 +79,39 @@ export default function TermsOfService() {
               with local laws, if and to the extent local laws are applicable.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">2. INTELLECTUAL PROPERTY RIGHTS</h2>
+            <h3 className="text-lg font-semibold mt-6 mb-3">Platform Role</h3>
+            <p>
+              <strong>lendibl acts solely as a platform provider.</strong> We do not own, control, or manage any items listed on our marketplace. 
+              All rental agreements are directly between the lender (owner) and renter. lendibl facilitates these connections but is not 
+              a party to any rental transactions.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">2. USER RESPONSIBILITIES AND ASSUMPTION OF RISK</h2>
+            
+            <h3 className="text-lg font-semibold mt-6 mb-3">Lender Responsibilities</h3>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Ensure items are safe, functional, and described accurately</li>
+              <li>Provide honest condition assessments and complete item descriptions</li>
+              <li>May specify security deposit requirements when listing items</li>
+              <li>May request documentation from renters if damage or loss occurs</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-6 mb-3">Renter Responsibilities</h3>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Return items in the same condition they were received</li>
+              <li>You are responsible for the item's condition from pick-up to return</li>
+              <li>If damaged, lost, or stolen during your rental period, you must notify the lender immediately and arrange compensation</li>
+              <li>If an item is damaged, lost, or stolen, you agree to compensate the lender at fair market value</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-6 mb-3">Assumption of Risk</h3>
+            <p>
+              <strong>You acknowledge that engaging in peer-to-peer rentals carries inherent risks.</strong> You agree that any use of rented 
+              items is at your own risk. By participating in any transaction on lendibl, you expressly acknowledge and agree that you are 
+              renting or lending at your own risk.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">3. INTELLECTUAL PROPERTY RIGHTS</h2>
             
             <h3 className="text-lg font-semibold mt-6 mb-3">Our intellectual property</h3>
             <p>
@@ -212,14 +244,34 @@ export default function TermsOfService() {
               </p>
             </div>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">7. USER REGISTRATION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">7. DAMAGE, LOSS, AND DISPUTE POLICY</h2>
+            <p>
+              At lendibl, we strive to provide a safe and trusted marketplace. However, as a peer-to-peer platform, the responsibility 
+              for item care and return lies with the users.
+            </p>
+
+            <h3 className="text-lg font-semibold mt-6 mb-3">Dispute Handling</h3>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>lendibl provides a Dispute Reporting Tool within the app for transparency</li>
+              <li>lendibl may facilitate communication between parties in case of disputes but is not obligated to resolve them</li>
+              <li>lendibl can offer mediation support but does not guarantee resolution outcomes</li>
+              <li>All disputes are ultimately between the lender and renter</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold mt-6 mb-3">No Guarantees or Insurance</h3>
+            <p>
+              <strong>lendibl does not provide any insurance, warranties, or guarantees regarding the condition, quality, or safety of items.</strong> 
+              We are actively evaluating insurance and protection options to offer enhanced security to our community in the future.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">8. USER REGISTRATION</h2>
             <p>
               You may be required to register to use the Services. You agree to keep your password confidential and will be responsible 
               for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we 
               determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">8. SERVICES MANAGEMENT</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">9. SERVICES MANAGEMENT</h2>
             <p>
               We reserve the right, but not the obligation, to: (1) monitor the Services for violations of these Legal Terms; 
               (2) take appropriate legal action against anyone who, in our sole discretion, violates the law or these Legal Terms, 
@@ -231,7 +283,7 @@ export default function TermsOfService() {
               and to facilitate the proper functioning of the Services.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">9. PRIVACY POLICY</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">10. PRIVACY POLICY</h2>
             <p>
               We care about data privacy and security. Please review our Privacy Policy: <a href="/privacy-policy" className="text-blue-600 hover:underline">https://lendibl.com/privacy-policy</a>. 
               By using the Services, you agree to be bound by our Privacy Policy, which is incorporated into these Legal Terms. 
@@ -241,7 +293,31 @@ export default function TermsOfService() {
               and you expressly consent to have your data transferred to and processed in the United States.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">10. TERM AND TERMINATION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">11. LIMITATION OF LIABILITY AND WAIVER</h2>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 my-6">
+              <h3 className="text-lg font-semibold text-yellow-800 mb-3">⚠️ WAIVER AND RELEASE OF LIABILITY</h3>
+              <p className="text-yellow-700 mb-4">
+                By participating in any transaction on lendibl, you expressly acknowledge and agree:
+              </p>
+              <ul className="list-disc ml-6 text-yellow-700 space-y-2">
+                <li>You are renting or lending at your own risk</li>
+                <li>You release lendibl, its affiliates, officers, and employees from any and all claims, liabilities, damages, injuries, or losses arising from or connected to your use of the platform</li>
+                <li>This waiver applies to personal injury, property damage, financial loss, or any other harm experienced during a rental transaction</li>
+              </ul>
+            </div>
+
+            <p>
+              <strong>TO THE MAXIMUM EXTENT PERMITTED BY LAW, LENDIBL IS NOT LIABLE FOR ANY DAMAGES, LOSSES, INJURIES, OR CLAIMS ARISING OUT OF OR RELATED TO RENTALS FACILITATED ON THE PLATFORM.</strong>
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">12. INDEMNIFICATION</h2>
+            <p>
+              You agree to indemnify and hold harmless lendibl from any claims, damages, or liabilities arising from your use of the platform or any rental activities. 
+              This includes but is not limited to legal fees, court costs, and any settlements or judgments related to disputes between users.
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-8 mb-4">13. TERM AND TERMINATION</h2>
             <p>
               These Legal Terms shall remain in full force and effect while you use the Services. WITHOUT LIMITING ANY OTHER PROVISION 
               OF THESE LEGAL TERMS, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT NOTICE OR LIABILITY, DENY ACCESS TO 
@@ -251,7 +327,7 @@ export default function TermsOfService() {
               AND ANY CONTENT OR INFORMATION THAT YOU POSTED AT ANY TIME, WITHOUT WARNING, IN OUR SOLE DISCRETION.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">11. MODIFICATIONS AND INTERRUPTIONS</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">14. MODIFICATIONS AND INTERRUPTIONS</h2>
             <p>
               We reserve the right to change, modify, or remove the contents of the Services at any time or for any reason 
               at our sole discretion without notice. However, we have no obligation to update any information on our Services. 
@@ -266,14 +342,14 @@ export default function TermsOfService() {
               or for any reason without notice to you.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">12. GOVERNING LAW</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">15. GOVERNING LAW</h2>
             <p>
               These Legal Terms shall be governed by and defined following the laws of California, United States. 
               lendibl LLC and yourself irrevocably consent that the courts of California, United States shall have 
               exclusive jurisdiction to resolve any dispute which may arise in connection with these Legal Terms.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">13. DISPUTE RESOLUTION</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">16. DISPUTE RESOLUTION</h2>
             
             <h3 className="text-lg font-semibold mt-6 mb-3">Informal Negotiations</h3>
             <p>
@@ -294,14 +370,14 @@ export default function TermsOfService() {
               shall be English. The governing law of these Legal Terms shall be substantive law of California, United States.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">14. CORRECTIONS</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">17. CORRECTIONS</h2>
             <p>
               There may be information on the Services that contains typographical errors, inaccuracies, or omissions, including 
               descriptions, pricing, availability, and various other information. We reserve the right to correct any errors, 
               inaccuracies, or omissions and to change or update the information on the Services at any time, without prior notice.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">15. DISCLAIMER</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">18. DISCLAIMER</h2>
             <p>
               THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR 
               SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH 
@@ -317,7 +393,7 @@ export default function TermsOfService() {
               OF THE USE OF ANY CONTENT POSTED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES.
             </p>
 
-            <h2 className="text-2xl font-semibold mt-8 mb-4">16. LIMITATIONS OF LIABILITY</h2>
+            <h2 className="text-2xl font-semibold mt-8 mb-4">19. LIMITATIONS OF LIABILITY</h2>
             <p>
               IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, 
               CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, 
