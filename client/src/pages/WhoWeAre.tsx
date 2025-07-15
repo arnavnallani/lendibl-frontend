@@ -16,11 +16,11 @@ export default function WhoWeAre() {
         }}
       />
       
-      {/* Blue-tinted Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/75 to-cyan-700/80"></div>
+      {/* Strong Blue-tinted Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-700/85 to-blue-600/85"></div>
       
-      {/* Additional overlay for better text contrast */}
-      <div className="absolute inset-0 bg-black/20"></div>
+      {/* Blue-tinted overlay for enhanced contrast */}
+      <div className="absolute inset-0 bg-blue-900/25"></div>
       {/* Back to Home Button */}
       <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <motion.div 
@@ -89,7 +89,7 @@ export default function WhoWeAre() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
           >
-            <Sparkles className="w-5 h-5 text-cyan-200" />
+            <Sparkles className="w-5 h-5 text-blue-200" />
             <span className="text-white font-medium">Why lendibl?</span>
           </motion.div>
           
@@ -110,7 +110,7 @@ export default function WhoWeAre() {
           >
             We allow anyone to rent anything from anyone else anytime. 
             <br />
-            <span className="text-cyan-200 font-medium">You can use our app to...</span>
+            <span className="text-blue-200 font-medium">You can use our app to...</span>
           </motion.p>
         </motion.div>
 
@@ -167,7 +167,7 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-900/80 via-blue-800/70 to-cyan-800/80 backdrop-blur-sm py-20 px-6 border-t border-white/20"
+          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-900/85 via-blue-800/75 to-blue-700/85 backdrop-blur-sm py-20 px-6 border-t border-white/20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
@@ -197,7 +197,7 @@ export default function WhoWeAre() {
             </motion.p>
 
             <motion.div
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-sky-300 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-300 via-blue-200 to-blue-100 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
