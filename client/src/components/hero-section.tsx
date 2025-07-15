@@ -40,10 +40,10 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
       />
       
       {/* Enhanced Blue Gradient Overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/85 to-blue-700/90"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/85 to-blue-600/90"></div>
       
-      {/* Additional dark blue overlay for enhanced text contrast */}
-      <div className="absolute inset-0 bg-blue-900/40"></div>
+      {/* Additional pure blue overlay for enhanced text contrast */}
+      <div className="absolute inset-0 bg-blue-800/35"></div>
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
