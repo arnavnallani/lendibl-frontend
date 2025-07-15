@@ -115,11 +115,7 @@ function PaymentForm({ amount, onSuccess, onCancel, clientSecret }: {
             <strong>Test Mode:</strong> Use test card 4242 4242 4242 4242 with any future date and CVC
           </div>
         )}
-        {import.meta.env.VITE_STRIPE_PUBLIC_KEY?.startsWith('pk_live_') && (
-          <div className="text-xs bg-red-50 p-2 rounded border border-red-200">
-            <strong>Live Mode:</strong> Real credit cards will be charged actual money
-          </div>
-        )}
+
       </div>
       
       {error && (
@@ -180,11 +176,7 @@ export default function SimplePaymentModal({
             <p className="text-gray-600 text-sm">
               {itemTitle}
             </p>
-            {isLiveMode && (
-              <p className="text-green-700 text-xs font-medium mt-1">
-                Live Payment - Card will be charged
-              </p>
-            )}
+
           </div>
           
           <Elements stripe={stripePromise}>
