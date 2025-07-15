@@ -30,11 +30,11 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
 
   return (
     <section className="relative text-white py-[5rem] overflow-hidden">
-      {/* Hero Background Image */}
+      {/* Hero Background Image - lendibl Collage */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')`
+          backgroundImage: `url('@assets/lendibl_collage_1752546761630.jpg')`
         }}
       />
       
