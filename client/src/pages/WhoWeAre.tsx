@@ -7,7 +7,20 @@ import { Link } from 'wouter';
 
 export default function WhoWeAre() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-100 dark:from-black dark:via-gray-900 dark:to-gray-800 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2342&q=80')`
+        }}
+      />
+      
+      {/* Blue Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/70 to-cyan-700/75"></div>
+      
+      {/* Additional overlay for better text contrast */}
+      <div className="absolute inset-0 bg-black/20"></div>
       {/* Back to Home Button */}
       <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <motion.div 
@@ -71,17 +84,17 @@ export default function WhoWeAre() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <motion.div
-            className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-4 py-2 rounded-full mb-12"
+            className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full mb-12 border border-white/30"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
           >
-            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <span className="text-blue-600 dark:text-blue-400 font-medium">Why lendibl?</span>
+            <Sparkles className="w-5 h-5 text-cyan-200" />
+            <span className="text-white font-medium">Why lendibl?</span>
           </motion.div>
           
           <motion.h1 
-            className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent mb-6"
+            className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
@@ -90,14 +103,14 @@ export default function WhoWeAre() {
           </motion.h1>
           
           <motion.p 
-            className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-5xl mx-auto leading-relaxed font-light mb-12"
+            className="text-xl md:text-2xl text-white max-w-5xl mx-auto leading-relaxed font-light mb-12 drop-shadow-lg"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           >
             We allow anyone to rent anything from anyone else anytime. 
             <br />
-            <span className="text-blue-600 dark:text-blue-400 font-medium">You can use our app to...</span>
+            <span className="text-cyan-200 font-medium">You can use our app to...</span>
           </motion.p>
         </motion.div>
 
