@@ -8,16 +8,16 @@ import { Link } from 'wouter';
 export default function WhoWeAre() {
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background Image */}
+      {/* Motivational Tech Mission Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2342&q=80')`
+          backgroundImage: `url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2344&q=80')`
         }}
       />
       
-      {/* Blue Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/70 to-cyan-700/75"></div>
+      {/* Tech-inspired Blue Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-indigo-800/75 to-purple-700/80"></div>
       
       {/* Additional overlay for better text contrast */}
       <div className="absolute inset-0 bg-black/20"></div>
@@ -162,22 +162,22 @@ export default function WhoWeAre() {
 
         {/* Simple Scroll Arrow */}
         <div className="flex justify-center mt-20 mb-16">
-          <ArrowDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <ArrowDown className="w-4 h-4 text-white/60" />
         </div>
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-100 via-blue-50 to-white dark:from-slate-800 dark:via-slate-900 dark:to-black py-20 px-6"
+          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-indigo-900/80 via-purple-800/70 to-blue-900/80 backdrop-blur-sm py-20 px-6 border-t border-white/20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
         >
           <div className="text-center max-w-6xl mx-auto">
             <motion.h2 
-              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8 tracking-wider"
+              className="text-3xl md:text-4xl font-bold text-white mb-8 tracking-wider drop-shadow-lg"
               style={{ 
                 fontFamily: 'Courier New, monospace',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
                 letterSpacing: '0.1em'
               }}
               initial={{ opacity: 0, y: 30 }}
@@ -188,7 +188,7 @@ export default function WhoWeAre() {
             </motion.h2>
             
             <motion.p 
-              className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed mb-12"
+              className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto leading-relaxed mb-12 drop-shadow-md"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.2, duration: 0.8 }}
@@ -197,7 +197,7 @@ export default function WhoWeAre() {
             </motion.p>
 
             <motion.div
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 via-blue-800 to-black bg-clip-text text-transparent mb-16"
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
@@ -206,7 +206,7 @@ export default function WhoWeAre() {
             </motion.div>
 
             <motion.p 
-              className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-5xl mx-auto leading-relaxed mb-16"
+              className="text-lg md:text-xl text-white/80 max-w-5xl mx-auto leading-relaxed mb-16 drop-shadow-md"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.8 }}
