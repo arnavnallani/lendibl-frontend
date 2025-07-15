@@ -16,11 +16,11 @@ export default function WhoWeAre() {
         }}
       />
       
-      {/* Vibrant Blue Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-800/85 via-blue-700/80 to-blue-600/85"></div>
+      {/* Custom Blue Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#17556e]/85 via-[#17556e]/80 to-[#17556e]/85"></div>
       
-      {/* True blue overlay for enhanced color */}
-      <div className="absolute inset-0 bg-blue-700/30"></div>
+      {/* Custom blue overlay for enhanced color */}
+      <div className="absolute inset-0 bg-[#17556e]/30"></div>
       {/* Back to Home Button */}
       <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <motion.div 
@@ -167,7 +167,7 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-800/85 via-blue-700/75 to-blue-600/85 backdrop-blur-sm py-20 px-6 border-t border-white/20"
+          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-[#17556e]/85 via-[#17556e]/75 to-[#17556e]/85 backdrop-blur-sm py-20 px-6 border-t border-white/20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
