@@ -16,8 +16,8 @@ export default function WhoWeAre() {
         }}
       />
       
-      {/* Tech-inspired Blue Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-indigo-800/75 to-purple-700/80"></div>
+      {/* Blue-tinted Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/85 via-blue-800/75 to-cyan-700/80"></div>
       
       {/* Additional overlay for better text contrast */}
       <div className="absolute inset-0 bg-black/20"></div>
@@ -167,7 +167,7 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-indigo-900/80 via-purple-800/70 to-blue-900/80 backdrop-blur-sm py-20 px-6 border-t border-white/20"
+          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-900/80 via-blue-800/70 to-cyan-800/80 backdrop-blur-sm py-20 px-6 border-t border-white/20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
@@ -197,7 +197,7 @@ export default function WhoWeAre() {
             </motion.p>
 
             <motion.div
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-sky-300 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
