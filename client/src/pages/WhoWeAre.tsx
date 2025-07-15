@@ -16,11 +16,11 @@ export default function WhoWeAre() {
         }}
       />
       
-      {/* Strong Blue-tinted Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-700/85 to-blue-600/85"></div>
+      {/* Vibrant Blue Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/85 via-blue-500/80 to-blue-400/85"></div>
       
-      {/* Blue-tinted overlay for enhanced contrast */}
-      <div className="absolute inset-0 bg-blue-900/25"></div>
+      {/* True blue overlay for enhanced color */}
+      <div className="absolute inset-0 bg-blue-500/30"></div>
       {/* Back to Home Button */}
       <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <motion.div 
@@ -167,7 +167,7 @@ export default function WhoWeAre() {
 
         {/* The lendibl difference Section */}
         <motion.div 
-          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-900/85 via-blue-800/75 to-blue-700/85 backdrop-blur-sm py-20 px-6 border-t border-white/20"
+          className="mt-20 mb-20 mx-auto max-w-full bg-gradient-to-b from-blue-600/85 via-blue-500/75 to-blue-400/85 backdrop-blur-sm py-20 px-6 border-t border-white/20"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.8, duration: 0.8 }}
@@ -197,7 +197,7 @@ export default function WhoWeAre() {
             </motion.p>
 
             <motion.div
-              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-300 via-blue-200 to-blue-100 bg-clip-text text-transparent mb-16 drop-shadow-2xl"
+              className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-200 via-blue-100 to-white bg-clip-text text-transparent mb-16 drop-shadow-2xl"
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.4, duration: 1.2, ease: "easeOut" }}
