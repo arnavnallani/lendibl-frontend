@@ -39,11 +39,11 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         }}
       />
       
-      {/* Lighter Blue Gradient Overlay to show more image */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 via-blue-800/65 to-blue-600/75"></div>
+      {/* Pure Blue Gradient Overlay to show more image */}
+      <div className="absolute inset-0 bg-gradient-to-r from-sky-900/70 via-sky-700/65 to-cyan-600/75"></div>
       
-      {/* Subtle blue overlay for text contrast */}
-      <div className="absolute inset-0 bg-blue-800/25"></div>
+      {/* Subtle pure blue overlay for text contrast */}
+      <div className="absolute inset-0 bg-sky-800/25"></div>
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
