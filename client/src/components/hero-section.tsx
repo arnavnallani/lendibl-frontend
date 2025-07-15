@@ -29,7 +29,21 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
     .filter((category): category is NonNullable<typeof category> => Boolean(category));
 
   return (
-    <section className="gradient-bg text-white py-[5rem] relative overflow-hidden">
+    <section className="relative text-white py-[5rem] overflow-hidden">
+      {/* Hero Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')`
+        }}
+      />
+      
+      {/* Gradient Overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/85 via-blue-800/75 to-indigo-900/85"></div>
+      
+      {/* Additional dark overlay for text contrast */}
+      <div className="absolute inset-0 bg-black/20"></div>
+      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/10 rounded-full animate-float blur-sm"></div>
