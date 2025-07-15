@@ -39,7 +39,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
       />
       
       {/* Gradient Overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/85 via-blue-800/75 to-indigo-900/85"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-900/85 via-blue-800/75 to-blue-700/85"></div>
       
       {/* Additional dark overlay for text contrast */}
       <div className="absolute inset-0 bg-black/20"></div>
