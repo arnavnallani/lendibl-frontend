@@ -248,17 +248,47 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <DropdownMenuItem 
                       onClick={async () => {
                         try {
+                          // First check if notifications are granted
+                          if (Notification.permission !== 'granted') {
+                            const permission = await Notification.requestPermission();
+                            if (permission !== 'granted') {
+                              alert('Please allow notifications to test push notifications');
+                              return;
+                            }
+                          }
+
+                          const token = localStorage.getItem('auth_token');
+                          if (!token) {
+                            alert('Authentication required - please log in');
+                            return;
+                          }
+
                           const response = await fetch('/api/push-test', {
                             method: 'POST',
                             headers: {
-                              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                              'Authorization': `Bearer ${token}`,
                               'Content-Type': 'application/json'
                             }
                           });
+                          
+                          if (!response.ok) {
+                            const error = await response.json();
+                            console.error('Push test failed:', error);
+                            alert(`Push test failed: ${error.error || 'Unknown error'}`);
+                            return;
+                          }
+
                           const result = await response.json();
                           console.log('Push test result:', result);
+                          
+                          if (result.success) {
+                            alert('Push notification sent! Check your notifications.');
+                          } else {
+                            alert(`Push test failed: ${result.message}`);
+                          }
                         } catch (error) {
                           console.error('Push test error:', error);
+                          alert('Failed to send test notification');
                         }
                       }}
                     >

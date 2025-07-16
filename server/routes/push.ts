@@ -1,13 +1,10 @@
 import type { Express } from "express";
 import { pushNotificationService } from "../push-service";
-import type { AuthRequest } from "../auth";
+import { authenticateToken, type AuthRequest } from "../auth";
 
 export function registerPushRoutes(app: Express) {
   // Subscribe to push notifications
-  app.post("/api/push-subscribe", async (req: AuthRequest, res) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+  app.post("/api/push-subscribe", authenticateToken, async (req: AuthRequest, res) => {
 
     try {
       const subscription = req.body;
@@ -25,10 +22,7 @@ export function registerPushRoutes(app: Express) {
   });
 
   // Test push notification (for development)
-  app.post("/api/push-test", async (req: AuthRequest, res) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
+  app.post("/api/push-test", authenticateToken, async (req: AuthRequest, res) => {
 
     try {
       const success = await pushNotificationService.sendPushToUser(req.user.id, {

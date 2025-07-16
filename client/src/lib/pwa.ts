@@ -32,10 +32,10 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
       return;
     }
 
-    // Create new subscription
+    // Create new subscription with correct VAPID key
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: 'BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo'
+      applicationServerKey: urlB64ToUint8Array('BMxb5Wk-pKtXjhzjRn8-zBxaZyKjQSfCfhvJeJx7QYxI9NKJw4yVyGFjIEsb_RJjFf5xJjvVJGxZlV5YY3sHGKw')
     });
 
     console.log('Push notification subscription created:', subscription);
@@ -76,4 +76,34 @@ export function checkPWAInstallPrompt() {
       }
     }
   };
+}
+
+// Helper function to convert VAPID key
+function urlB64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// Register push notification when user logs in
+export async function registerPushOnLogin() {
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (registration) {
+        await subscribeToPushNotifications(registration);
+      }
+    } catch (error) {
+      console.error('Failed to register push on login:', error);
+    }
+  }
 }

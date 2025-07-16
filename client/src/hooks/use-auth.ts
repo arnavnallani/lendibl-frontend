@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { queryClient } from '@/lib/queryClient';
+import { registerPushOnLogin } from '@/lib/pwa';
 
 export interface User {
   id: number;
@@ -103,6 +104,11 @@ export function useAuthProvider(): AuthContextType {
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
     setUser(data.user);
+    
+    // Register push notifications after successful login
+    setTimeout(() => {
+      registerPushOnLogin();
+    }, 1000);
     
     // Clear React Query cache to avoid stale data from previous user
     queryClient.clear();
