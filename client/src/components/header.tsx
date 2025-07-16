@@ -352,7 +352,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           if (!response.ok) {
                             const error = await response.json();
                             console.error('Push test failed:', error);
-                            alert(`Push test failed: ${error.message || 'Unknown error'}`);
+                            alert(`Push test failed (${response.status}): ${error.message || error.error || 'Unknown error'}`);
                             return;
                           }
 
@@ -360,9 +360,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           console.log('Push test result:', result);
                           
                           if (result.success) {
-                            alert('Push notification sent! Check your notifications.');
+                            alert('✅ Push notification sent successfully! Check your notifications.');
                           } else {
-                            alert(`Push test failed: ${result.message}`);
+                            alert(`❌ Push test failed: ${result.message || 'Unknown error'}\n\nPlease try enabling notifications again or refresh the page.`);
                           }
                         } catch (error) {
                           console.error('Push test error:', error);
