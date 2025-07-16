@@ -194,7 +194,7 @@ export default function ReportMisbehaviorModal({
               <div className="text-sm">
                 <p className="font-medium text-yellow-800">Important Notice</p>
                 <p className="text-yellow-700 mt-1">
-                  This report will be sent to disputes@lendibl.com for review. Our team will investigate and contact both parties if needed. Please provide accurate and detailed information.
+                  This report will be sent to disputes@lendibl.com for review. We will investigate and contact both parties if needed.
                 </p>
               </div>
             </div>
