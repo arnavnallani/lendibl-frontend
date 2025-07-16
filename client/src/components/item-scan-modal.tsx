@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import type { BookingWithDetails } from "@shared/schema";
-import MobileImageScanner from "@/components/mobile-image-scanner";
+import SimpleCameraScanner from "@/components/simple-camera-scanner";
 
 interface ItemScanModalProps {
   isOpen: boolean;
@@ -298,9 +298,9 @@ export default function ItemScanModal({
     
     {/* Mobile Scanner Modal - Outside main dialog for proper z-index */}
     {showScanner && (
-      <MobileImageScanner
+      <SimpleCameraScanner
         onClose={() => setShowScanner(false)}
-        onCapture={(capturedImages) => {
+        onCapture={(capturedImages: string[]) => {
           setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
           setShowScanner(false);
         }}
