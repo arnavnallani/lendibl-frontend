@@ -183,9 +183,7 @@ export default function ReportMisbehaviorModal({
                 checked={reportData.agreesToTerms}
                 onCheckedChange={(checked) => setReportData({...reportData, agreesToTerms: !!checked})}
               />
-              <Label htmlFor="terms-agreement" className="text-sm leading-5">
-                I agree that this report is accurate and submitted in good faith. I understand that false reports may result in account suspension. *
-              </Label>
+              <Label htmlFor="terms-agreement" className="text-sm leading-5">I confirm that this report is accurate and submitted in good faith. I understand that false reports may result in account suspension. *</Label>
             </div>
           </div>
 
