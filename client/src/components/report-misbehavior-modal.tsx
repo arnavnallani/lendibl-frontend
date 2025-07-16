@@ -60,7 +60,7 @@ export default function ReportMisbehaviorModal({
     onSuccess: () => {
       toast({
         title: "Report Submitted",
-        description: "Your report has been sent to disputes@lendibl.com for review.",
+        description: "Your report has been sent to customerservice@lendibl.com for review.",
       });
       onClose();
       setReportData({
