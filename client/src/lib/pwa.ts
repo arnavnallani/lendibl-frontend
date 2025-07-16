@@ -12,9 +12,15 @@ export function registerServiceWorker() {
           console.log('Notification permission:', permission);
         }
 
-        // Subscribe to push notifications if supported
+        // Subscribe to push notifications if supported and user is logged in
         if ('PushManager' in window && registration.pushManager) {
-          await subscribeToPushNotifications(registration);
+          const token = localStorage.getItem('auth_token');
+          if (token) {
+            console.log('🔔 User is logged in, attempting push subscription...');
+            await subscribeToPushNotifications(registration);
+          } else {
+            console.log('⚠️ User not logged in, skipping push subscription');
+          }
         }
       } catch (error) {
         console.log('ServiceWorker registration failed:', error);
@@ -71,8 +77,14 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
       console.log('✅ Push subscription saved successfully to server:', result);
       return true;
     } else {
-      const errorText = await response.text();
-      console.error('❌ Failed to save push subscription. Status:', response.status, 'Error:', errorText);
+      let errorDetails;
+      try {
+        errorDetails = await response.json();
+      } catch {
+        errorDetails = await response.text();
+      }
+      console.error('❌ Failed to save push subscription. Status:', response.status);
+      console.error('❌ Error details:', errorDetails);
       return false;
     }
   } catch (error) {
@@ -145,7 +157,10 @@ export async function registerPushOnLogin(): Promise<boolean> {
       }
       
       // Wait for service worker to be ready
+      console.log('⏳ Waiting for service worker to be ready...');
       const registration = await navigator.serviceWorker.ready;
+      console.log('✅ Service worker ready:', registration);
+      
       if (registration) {
         console.log('🔧 Service worker ready, subscribing to push notifications...');
         const success = await subscribeToPushNotifications(registration);
