@@ -252,6 +252,17 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           console.log('🧪 Starting manual push notification test...');
                           console.log('Current notification permission:', Notification.permission);
                           
+                          // Check if browser supports push notifications
+                          if (!('serviceWorker' in navigator)) {
+                            alert('❌ Your browser does not support service workers');
+                            return;
+                          }
+                          
+                          if (!('PushManager' in window)) {
+                            alert('❌ Your browser does not support push notifications');
+                            return;
+                          }
+                          
                           // Check current permission status
                           if (Notification.permission === 'denied') {
                             alert('Notifications are blocked. To enable them in Safari:\n\n1. Go to Safari menu > Preferences > Websites\n2. Click "Notifications" in the left sidebar\n3. Find this website and change to "Allow"\n\nOR:\n1. Click Safari menu > Settings for This Website\n2. Change Notifications to "Allow"\n3. Refresh the page and try again');
@@ -327,6 +338,9 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             return;
                           }
 
+                          // Wait a moment for subscription to be processed
+                          await new Promise(resolve => setTimeout(resolve, 1000));
+                          
                           const response = await fetch('/api/push-test', {
                             method: 'POST',
                             headers: {
@@ -338,7 +352,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           if (!response.ok) {
                             const error = await response.json();
                             console.error('Push test failed:', error);
-                            alert(`Push test failed: ${error.error || 'Unknown error'}`);
+                            alert(`Push test failed: ${error.message || 'Unknown error'}`);
                             return;
                           }
 
