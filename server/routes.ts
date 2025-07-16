@@ -2492,7 +2492,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "You must agree to the terms to submit a report" });
       }
 
-      // Verify the user has access to this rental if rentalId provided
+      // Get additional party information if rentalId provided
+      let renterInfo = null;
+      let ownerInfo = null;
+      let actualItemTitle = itemTitle;
+
       if (rentalId) {
         const booking = await storage.getBooking(rentalId);
         if (!booking) {
@@ -2508,6 +2512,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (item.ownerId !== req.user!.id && booking.userId !== req.user!.id) {
           return res.status(403).json({ message: "Not authorized to report on this rental" });
         }
+
+        // Get both parties' information for the dispute team
+        renterInfo = await storage.getUser(booking.userId);
+        ownerInfo = await storage.getUser(item.ownerId);
+        actualItemTitle = item.title;
       }
 
       // Create report object
@@ -2520,9 +2529,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reporterId: req.user!.id,
         reporterUsername: req.user!.username,
         rentalId: rentalId || null,
-        itemTitle: itemTitle || 'Not specified',
+        itemTitle: actualItemTitle || 'Not specified',
         submittedAt,
-        status: 'submitted'
+        status: 'submitted',
+        // Include both parties' information for dispute resolution
+        renterInfo: renterInfo ? {
+          id: renterInfo.id,
+          username: renterInfo.username,
+          email: renterInfo.email,
+          firstName: renterInfo.firstName,
+          lastName: renterInfo.lastName
+        } : null,
+        ownerInfo: ownerInfo ? {
+          id: ownerInfo.id,
+          username: ownerInfo.username,
+          email: ownerInfo.email,
+          firstName: ownerInfo.firstName,
+          lastName: ownerInfo.lastName
+        } : null
       };
 
       // Log the report for disputes@lendibl.com
@@ -2536,6 +2560,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Item: ${report.itemTitle}`);
       console.log(`Description: ${report.description}`);
       console.log(`Submitted: ${report.submittedAt}`);
+      if (report.renterInfo) {
+        console.log(`Renter: ${report.renterInfo.firstName} ${report.renterInfo.lastName} (${report.renterInfo.email})`);
+      }
+      if (report.ownerInfo) {
+        console.log(`Owner: ${report.ownerInfo.firstName} ${report.ownerInfo.lastName} (${report.ownerInfo.email})`);
+      }
       console.log('====================================');
       
       // Send misbehavior report to disputes@lendibl.com (will be automatically forwarded)
@@ -2559,6 +2589,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <p><strong>Item:</strong> ${report.itemTitle || 'N/A'}</p>
             <p><strong>Submitted:</strong> ${new Date(report.submittedAt).toLocaleString()}</p>
           </div>
+
+          ${report.renterInfo || report.ownerInfo ? `
+          <div style="background-color: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #22c55e;">
+            <h3>🔗 Contact Information for Both Parties</h3>
+            ${report.renterInfo ? `
+            <p><strong>Renter:</strong> ${report.renterInfo.firstName} ${report.renterInfo.lastName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${report.renterInfo.email}">${report.renterInfo.email}</a></p>
+            <p><strong>Username:</strong> ${report.renterInfo.username}</p>
+            <br>
+            ` : ''}
+            ${report.ownerInfo ? `
+            <p><strong>Owner:</strong> ${report.ownerInfo.firstName} ${report.ownerInfo.lastName}</p>
+            <p><strong>Email:</strong> <a href="mailto:${report.ownerInfo.email}">${report.ownerInfo.email}</a></p>
+            <p><strong>Username:</strong> ${report.ownerInfo.username}</p>
+            ` : ''}
+          </div>
+          ` : ''}
           
           <h3>Incident Description</h3>
           <div style="background-color: #fff3cd; padding: 15px; border-radius: 6px; border-left: 4px solid #ffc107;">
@@ -2569,7 +2616,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             <p><strong>Required Actions:</strong></p>
             <ul>
               <li>Review the incident details above</li>
-              <li>Contact the reporter at ${report.contactEmail} for more information</li>
+              <li>Contact the reporter at ${report.contactEmail} for initial information</li>
+              ${report.renterInfo || report.ownerInfo ? `
+              <li>Contact both parties using the provided email addresses for complete investigation</li>
+              <li>Mediate between renter and owner to resolve the dispute</li>
+              ` : ''}
               <li>Take appropriate action based on lendibl's dispute policy</li>
               <li>Document resolution and outcome</li>
             </ul>
@@ -2598,7 +2649,13 @@ ${report.description}
 
 Required Actions:
 - Review the incident details above
-- Contact the reporter at ${report.contactEmail} for more information
+- Contact the reporter at ${report.contactEmail} for initial information
+${report.renterInfo || report.ownerInfo ? `
+- Contact both parties for complete investigation:
+  ${report.renterInfo ? `  * Renter: ${report.renterInfo.firstName} ${report.renterInfo.lastName} (${report.renterInfo.email})` : ''}
+  ${report.ownerInfo ? `  * Owner: ${report.ownerInfo.firstName} ${report.ownerInfo.lastName} (${report.ownerInfo.email})` : ''}
+- Mediate between renter and owner to resolve the dispute
+` : ''}
 - Take appropriate action based on lendibl's dispute policy
 - Document resolution and outcome
 
