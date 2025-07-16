@@ -336,54 +336,59 @@ export default function ActionDashboard() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-3">
-                      {status !== 'completed' && (
-                        <Button
-                          variant="outline"
-                          onClick={() => handleSendMessage(rental)}
-                          className="flex items-center gap-2"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          {isOwner ? 'Message Renter' : 'Message Owner'}
-                        </Button>
-                      )}
+                    <div className="flex flex-wrap gap-3 justify-between items-start">
+                      <div className="flex flex-wrap gap-3">
+                        {status !== 'completed' && (
+                          <Button
+                            variant="outline"
+                            onClick={() => handleSendMessage(rental)}
+                            className="flex items-center gap-2"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            {isOwner ? 'Message Renter' : 'Message Owner'}
+                          </Button>
+                        )}
 
-                      
-                      {/* Item Protection Workflow */}
-                      {/* Pre-rental: Owner can scan item */}
-                      {isOwner && status === 'pre-rental' && (
-                        <Button
-                          onClick={() => handleScanItem(rental)}
-                          variant="outline"
-                          className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                        >
-                          <Camera className="h-4 w-4" />
-                          Scan Item
-                        </Button>
-                      )}
+                        
+                        {/* Item Protection Workflow */}
+                        {/* Pre-rental: Owner can scan item */}
+                        {isOwner && status === 'pre-rental' && (
+                          <Button
+                            onClick={() => handleScanItem(rental)}
+                            variant="outline"
+                            className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                          >
+                            <Camera className="h-4 w-4" />
+                            Scan Item
+                          </Button>
+                        )}
 
-                      {/* During rental: View item scan */}
-                      {status === 'active' && (
-                        <Button
-                          onClick={() => handleViewScan(rental)}
-                          variant="outline"
-                          className="flex items-center gap-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View Item Scan
-                        </Button>
-                      )}
+                        {/* During rental: View item scan */}
+                        {status === 'active' && (
+                          <Button
+                            onClick={() => handleViewScan(rental)}
+                            variant="outline"
+                            className="flex items-center gap-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View Item Scan
+                          </Button>
+                        )}
+                      </div>
 
-                      {/* Report misbehavior available for both parties at all stages */}
+                      {/* Report misbehavior button positioned on the far right */}
                       <Button
                         onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
                         variant="outline"
-                        className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                        className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100 ml-auto"
                       >
                         <AlertTriangle className="h-4 w-4" />
                         Report Misbehavior
                       </Button>
+                    </div>
 
+                    {/* Additional Controls Section */}
+                    <div className="flex flex-wrap gap-3 mt-3">
                       {/* Owner Controls */}
                       {isOwner && canStartRental(rental) && (
                         <Button
@@ -407,8 +412,10 @@ export default function ActionDashboard() {
                           {isOverdue ? 'End Overdue Rental' : 'End Rental Period'}
                         </Button>
                       )}
+                    </div>
 
-                      {/* Status Messages */}
+                    {/* Status Messages */}
+                    <div className="mt-3">
                       {status === 'completed' && (
                         <div className="text-green-600 font-medium flex items-center gap-2">
                           <CheckCircle className="h-4 w-4" />
