@@ -173,7 +173,7 @@ export default function ReportMisbehaviorModal({
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                <strong>Contact Information:</strong> Your account details will be automatically included in the report for dispute resolution.
+                <strong>Contact Information:</strong> Your account details will be automatically included in the report.
               </p>
             </div>
 
