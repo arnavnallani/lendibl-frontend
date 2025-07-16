@@ -343,6 +343,7 @@ The application uses PostgreSQL with the following main entities:
 - July 16, 2025: Improved action dashboard button layout - positioned "Report Misbehavior" button on far right of rental cards, moved "Start Rental Period" button inline with other action buttons, and positioned status messages on far left for optimal visual organization
 - July 16, 2025: Removed testing popup for misbehavior reports - cleaned up development testing code and deleted test component for production readiness
 - July 16, 2025: Implemented comprehensive push notification system for all 4 key events: listing items (already working), rental requests (via WebSocket), approval notifications (via WebSocket), and successful reservations (after payment confirmation) - users now receive desktop/mobile browser notifications for all major rental activities
+- July 16, 2025: Enhanced mobile notification capabilities by converting to Progressive Web App (PWA) with service worker registration, app manifest, and installable functionality - enables app-like mobile notifications that work even when browser is closed and allows users to install lendibl to their home screen
 
 ## User Preferences
 
