@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera, Eye, Upload, X, CheckCircle, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,11 @@ export default function ItemScanModal({
   const [scanNotes, setScanNotes] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('🔄 ItemScanModal state changed - isOpen:', isOpen, 'showScanner:', showScanner);
+  }, [isOpen, showScanner]);
 
   const saveScanMutation = useMutation({
     mutationFn: async (scanData: any) => {
@@ -172,9 +177,9 @@ export default function ItemScanModal({
 
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      console.log('🎯 ItemScanModal Dialog onOpenChange:', open);
-      if (!open) {
+    <Dialog open={isOpen && !showScanner} onOpenChange={(open) => {
+      console.log('🎯 ItemScanModal Dialog onOpenChange:', open, 'showScanner:', showScanner);
+      if (!open && !showScanner) {
         onClose();
       }
     }}>

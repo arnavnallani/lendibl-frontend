@@ -167,6 +167,16 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
         userSelect: 'none',
         height: '100dvh' // Use dynamic viewport height for mobile
       }}
+      onClick={(e) => {
+        // Prevent any clicks from bubbling up to parent modals
+        e.stopPropagation();
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+      }}
+      onTouchStart={(e) => {
+        e.stopPropagation();
+      }}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-black/70 text-white flex-shrink-0">

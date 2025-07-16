@@ -513,7 +513,10 @@ export default function ActionDashboard() {
       {/* Item Scan Modal */}
       <ItemScanModal
         isOpen={isScanModalOpen}
-        onClose={() => setIsScanModalOpen(false)}
+        onClose={() => {
+          console.log('🎯 ActionDashboard: ItemScanModal onClose called');
+          setIsScanModalOpen(false);
+        }}
         rental={selectedRental}
         mode={scanMode}
       />
