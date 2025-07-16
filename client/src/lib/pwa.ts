@@ -1,4 +1,4 @@
-// PWA Service Worker Registration
+// PWA Service Worker Registration with Push Notifications
 export function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
@@ -8,12 +8,49 @@ export function registerServiceWorker() {
         
         // Request notification permission for PWA
         if ('Notification' in window && Notification.permission === 'default') {
-          await Notification.requestPermission();
+          const permission = await Notification.requestPermission();
+          console.log('Notification permission:', permission);
+        }
+
+        // Subscribe to push notifications if supported
+        if ('PushManager' in window && registration.pushManager) {
+          await subscribeToPushNotifications(registration);
         }
       } catch (error) {
         console.log('ServiceWorker registration failed:', error);
       }
     });
+  }
+}
+
+async function subscribeToPushNotifications(registration: ServiceWorkerRegistration) {
+  try {
+    // Check if already subscribed
+    const existingSubscription = await registration.pushManager.getSubscription();
+    if (existingSubscription) {
+      console.log('Already subscribed to push notifications');
+      return;
+    }
+
+    // Create new subscription
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: 'BEl62iUYgUivyIebhd_XXXXX' // This would be your VAPID public key
+    });
+
+    console.log('Push notification subscription created:', subscription);
+    
+    // Send subscription to server
+    await fetch('/api/push-subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      },
+      body: JSON.stringify(subscription)
+    });
+  } catch (error) {
+    console.log('Push subscription failed:', error);
   }
 }
 

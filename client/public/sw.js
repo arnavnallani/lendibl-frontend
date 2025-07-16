@@ -28,19 +28,30 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Push event for notifications
+// Push event for notifications - works even when app is closed
 self.addEventListener('push', (event) => {
+  let notificationData = {};
+  
+  if (event.data) {
+    try {
+      notificationData = event.data.json();
+    } catch (e) {
+      notificationData = { body: event.data.text() };
+    }
+  }
+
   const options = {
-    body: event.data ? event.data.text() : 'New lendibl notification',
-    icon: '/icon-192.png',
+    body: notificationData.body || 'New lendibl notification',
+    icon: '/icon-192.svg',
     badge: '/favicon.ico',
     vibrate: [200, 100, 200],
     requireInteraction: true,
+    data: notificationData.data || {},
     actions: [
       {
         action: 'view',
         title: 'View',
-        icon: '/icon-192.png'
+        icon: '/icon-192.svg'
       },
       {
         action: 'dismiss',
@@ -50,7 +61,7 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('lendibl', options)
+    self.registration.showNotification(notificationData.title || 'lendibl', options)
   );
 });
 
