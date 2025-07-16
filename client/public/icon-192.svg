@@ -1,14 +1,19 @@
 <svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
   <rect width="192" height="192" rx="24" fill="#2563eb"/>
   
-  <!-- Two people sharing (left and right) -->
-  <circle cx="50" cy="70" r="18" fill="white"/>
-  <circle cx="142" cy="70" r="18" fill="white"/>
+  <!-- Person on left -->
+  <circle cx="65" cy="70" r="15" fill="white"/>
+  <path d="M50 90 Q65 85 80 90 Q80 105 65 110 Q50 105 50 90 Z" fill="white"/>
   
-  <!-- Sharing arrows -->
-  <path d="M68 85 Q96 78 124 85" stroke="white" stroke-width="8" fill="none"/>
-  <path d="M124 100 Q96 107 68 100" stroke="white" stroke-width="8" fill="none"/>
+  <!-- Person on right -->
+  <circle cx="127" cy="70" r="15" fill="white"/>
+  <path d="M112 90 Q127 85 142 90 Q142 105 127 110 Q112 105 112 90 Z" fill="white"/>
   
-  <!-- "l" text at bottom -->
-  <text x="96" y="160" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">l</text>
+  <!-- Top curved arrow (left to right) -->
+  <path d="M80 60 Q96 35 112 60" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M107 55 L112 60 L107 65" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Bottom curved arrow (right to left) -->
+  <path d="M112 132 Q96 157 80 132" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M85 137 L80 132 L85 127" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
 </svg>

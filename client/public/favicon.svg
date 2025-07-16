@@ -1,15 +1,20 @@
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-  <!-- lendibl logo favicon with sharing symbol -->
-  <rect width="32" height="32" rx="4" fill="#2563eb"/>
+  <!-- White background for contrast -->
+  <rect width="32" height="32" rx="4" fill="white"/>
   
-  <!-- Two people sharing (left and right) -->
-  <circle cx="8" cy="12" r="3" fill="white"/>
-  <circle cx="24" cy="12" r="3" fill="white"/>
+  <!-- Person on left -->
+  <circle cx="11" cy="12" r="2.5" fill="#2563eb"/>
+  <path d="M8 16 Q11 15 14 16 Q14 18 11 19 Q8 18 8 16 Z" fill="#2563eb"/>
   
-  <!-- Sharing arrows -->
-  <path d="M11 15 Q16 13 21 15" stroke="white" stroke-width="1.5" fill="none"/>
-  <path d="M21 17 Q16 19 11 17" stroke="white" stroke-width="1.5" fill="none"/>
+  <!-- Person on right -->
+  <circle cx="21" cy="12" r="2.5" fill="#2563eb"/>
+  <path d="M18 16 Q21 15 24 16 Q24 18 21 19 Q18 18 18 16 Z" fill="#2563eb"/>
   
-  <!-- Small "l" at bottom -->
-  <text x="16" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">l</text>
+  <!-- Top curved arrow (left to right) -->
+  <path d="M14 10 Q16 6 18 10" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M17 9 L18 10 L17 11" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Bottom curved arrow (right to left) -->
+  <path d="M18 22 Q16 26 14 22" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M15 23 L14 22 L15 21" stroke="#2563eb" stroke-width="2" fill="none" stroke-linecap="round"/>
 </svg>

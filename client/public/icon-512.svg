@@ -1,14 +1,19 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect width="512" height="512" rx="64" fill="#2563eb"/>
   
-  <!-- Two people sharing (left and right) -->
-  <circle cx="140" cy="180" r="48" fill="white"/>
-  <circle cx="372" cy="180" r="48" fill="white"/>
+  <!-- Person on left -->
+  <circle cx="170" cy="185" r="40" fill="white"/>
+  <path d="M130 235 Q170 225 210 235 Q210 275 170 285 Q130 275 130 235 Z" fill="white"/>
   
-  <!-- Sharing arrows -->
-  <path d="M188 230 Q256 210 324 230" stroke="white" stroke-width="20" fill="none"/>
-  <path d="M324 270 Q256 290 188 270" stroke="white" stroke-width="20" fill="none"/>
+  <!-- Person on right -->
+  <circle cx="342" cy="185" r="40" fill="white"/>
+  <path d="M302 235 Q342 225 382 235 Q382 275 342 285 Q302 275 302 235 Z" fill="white"/>
   
-  <!-- "l" text at bottom -->
-  <text x="256" y="420" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="120" font-weight="bold">l</text>
+  <!-- Top curved arrow (left to right) -->
+  <path d="M210 160 Q256 90 302 160" stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
+  <path d="M287 145 L302 160 L287 175" stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
+  
+  <!-- Bottom curved arrow (right to left) -->
+  <path d="M302 352 Q256 422 210 352" stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
+  <path d="M225 367 L210 352 L225 337" stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
 </svg>
