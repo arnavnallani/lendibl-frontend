@@ -31,8 +31,10 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   }, [facingMode]);
 
   const startCamera = async () => {
+    console.log('📱 Starting camera...');
     try {
       if (stream) {
+        console.log('🔄 Stopping existing stream');
         stream.getTracks().forEach(track => track.stop());
       }
 
@@ -44,12 +46,17 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
         }
       };
 
+      console.log('📞 Requesting camera with constraints:', constraints);
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('✅ Camera stream received');
       setStream(newStream);
 
       if (videoRef.current) {
+        console.log('🎬 Setting video source and playing');
         videoRef.current.srcObject = newStream;
         videoRef.current.play();
+      } else {
+        console.log('❌ Video ref not available');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -99,42 +106,64 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   };
 
   const captureImage = async () => {
-    if (!videoRef.current || !canvasRef.current || capturedImages.length >= maxImages) return;
+    console.log('🎯 Capture button clicked!');
+    console.log('Video ref:', videoRef.current);
+    console.log('Canvas ref:', canvasRef.current);
+    console.log('Captured images count:', capturedImages.length, 'Max:', maxImages);
+    
+    if (!videoRef.current || !canvasRef.current || capturedImages.length >= maxImages) {
+      console.log('❌ Early return - missing refs or max images reached');
+      return;
+    }
 
     setIsCapturing(true);
+    console.log('📸 Starting capture process...');
 
     try {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       
-      if (!ctx) return;
+      if (!ctx) {
+        console.log('❌ No canvas context');
+        return;
+      }
 
       // Set canvas size to video dimensions
+      console.log('📹 Video dimensions:', video.videoWidth, 'x', video.videoHeight);
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
 
       // Draw current video frame to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      console.log('🖼️ Drew image to canvas');
 
       // Enhance the captured image
       const enhancedImage = enhanceImage(canvas);
+      console.log('✨ Enhanced image:', enhancedImage.substring(0, 50) + '...');
       
-      setCapturedImages(prev => [...prev, enhancedImage]);
+      setCapturedImages(prev => {
+        const newImages = [...prev, enhancedImage];
+        console.log('📊 Updated captured images count:', newImages.length);
+        return newImages;
+      });
       
       toast({
         title: "Image Captured",
         description: `Captured ${capturedImages.length + 1} of ${maxImages} images`,
       });
 
+      console.log('✅ Capture completed successfully');
+
     } catch (error) {
-      console.error('Error capturing image:', error);
+      console.error('❌ Error capturing image:', error);
       toast({
         title: "Capture Error",
         description: "Failed to capture image. Please try again.",
         variant: "destructive",
       });
     } finally {
+      console.log('🔄 Setting isCapturing to false');
       setIsCapturing(false);
     }
   };
