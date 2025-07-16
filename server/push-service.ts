@@ -3,9 +3,9 @@ import { db } from './db';
 import { users, pushSubscriptions } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
-// VAPID keys for web push (you'll need to generate these)
-const VAPID_PUBLIC_KEY = 'BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo';
-const VAPID_PRIVATE_KEY = 'YJTpDwq2ItjJJ7nWpE1hfMgZ0Q8rQ1c5vL8dF4gHkWo';
+// VAPID keys for web push (generated using web-push)
+const VAPID_PUBLIC_KEY = 'BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8';
+const VAPID_PRIVATE_KEY = 'hJ3KLrBtPNHX3FCvRcHt6giAv8zl2BG-zUYrz_o7cDY';
 
 // Configure web-push
 webpush.setVapidDetails(

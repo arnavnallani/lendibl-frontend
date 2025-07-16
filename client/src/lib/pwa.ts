@@ -39,7 +39,7 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
     // Always try to save the subscription (even if it exists) to ensure it's in the database
     const subscription = existingSubscription || await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
+      applicationServerKey: urlB64ToUint8Array('BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8')
     });
 
     console.log('🔔 Push notification subscription ready:', subscription);
@@ -149,7 +149,7 @@ export async function registerPushOnLogin(): Promise<boolean> {
       // Create subscription using properly converted VAPID key
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
+        applicationServerKey: urlB64ToUint8Array('BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8')
       });
 
       // Save to server

@@ -295,7 +295,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             // Create subscription
                             const subscription = await registration.pushManager.subscribe({
                               userVisibleOnly: true,
-                              applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
+                              applicationServerKey: urlB64ToUint8Array('BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8')
                             });
                             
                             // Save to server
