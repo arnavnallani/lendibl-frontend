@@ -19,25 +19,9 @@ export interface EmailParams {
   type?: 'password-reset' | 'misbehavior-report' | 'general';
 }
 
-// Email forwarding configuration for lendibl.com addresses
-const EMAIL_FORWARDING_MAP: Record<string, string> = {
-  'disputes@lendibl.com': 'arnav.nallani@gmail.com',
-  'customerservice@lendibl.com': 'arnav.nallani@gmail.com',
-  'support@lendibl.com': 'arnav.nallani@gmail.com',
-  'admin@lendibl.com': 'arnav.nallani@gmail.com'
-};
-
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
-    // Check if we need to forward this email to a working address
-    const originalTo = params.to;
-    const forwardedTo = EMAIL_FORWARDING_MAP[params.to.toLowerCase()];
-    const actualTo = forwardedTo || params.to;
-    
     console.log(`📧 Attempting to send email to: ${params.to}`);
-    if (forwardedTo) {
-      console.log(`📧 Forwarding ${originalTo} → ${forwardedTo}`);
-    }
     console.log(`📧 From: ${process.env.SENDGRID_FROM_EMAIL}`);
     console.log(`📧 Subject: ${params.subject}`);
     
@@ -45,22 +29,17 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const isPasswordReset = emailType === 'password-reset';
     const isMisbehaviorReport = emailType === 'misbehavior-report';
     
-    // Configure email settings with proper forwarding
+    // Configure email settings
     const emailSettings: any = {
-      to: actualTo,
+      to: params.to,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
         name: isMisbehaviorReport ? 'lendibl Disputes' : 'lendibl Support'
       },
       replyTo: process.env.SENDGRID_FROM_EMAIL!,
-      subject: forwardedTo ? `[FORWARDED FROM ${originalTo.toUpperCase()}] ${params.subject}` : params.subject,
-      text: forwardedTo ? `FORWARDED FROM: ${originalTo}\n\n${params.text}` : params.text,
-      html: forwardedTo ? `
-        <div style="background-color: #1f2937; color: white; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
-          <strong>📧 FORWARDED EMAIL</strong><br>
-          <span style="color: #d1d5db;">Originally sent to: ${originalTo}</span>
-        </div>
-        ${params.html}` : params.html,
+      subject: params.subject,
+      text: params.text,
+      html: params.html,
       headers: {
         'X-Priority': isMisbehaviorReport ? '1' : '3',
         'X-MSMail-Priority': isMisbehaviorReport ? 'High' : 'Normal',
@@ -90,13 +69,15 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 
     const result = await mailService.send(emailSettings);
     
-    if (forwardedTo) {
-      console.log(`✅ Email successfully forwarded from ${originalTo} to ${actualTo}`);
-      console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
-      console.log(`📧 Forwarding configured for lendibl.com domain - emails will reach the intended recipient`);
-    } else {
-      console.log(`✅ Email sent successfully to ${params.to}`);
-      console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
+    console.log(`✅ Email sent successfully to ${params.to}`);
+    console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
+    
+    // Special logging for lendibl.com domain emails
+    if (params.to.includes('@lendibl.com')) {
+      console.log('⚠️  WARNING: lendibl.com domain may not be configured for email hosting');
+      console.log('📧 SendGrid shows successful delivery (202), but recipient may not receive email');
+      console.log('💡 To fix: Configure MX records and email hosting for lendibl.com domain');
+      console.log('🔧 Alternative: Set up email forwarding at domain registrar level');
     }
     
     return true;
@@ -120,57 +101,7 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       }
     }
     
-    // If forwarding failed, try sending to original address as fallback
-    if (forwardedTo && error.code === 400) {
-      console.log('🔄 Forwarding failed, attempting direct send to original address...');
-      try {
-        const fallbackSettings = {
-          to: originalTo,
-          from: {
-            email: process.env.SENDGRID_FROM_EMAIL!,
-            name: isMisbehaviorReport ? 'lendibl Disputes' : 'lendibl Support'
-          },
-          replyTo: process.env.SENDGRID_FROM_EMAIL!,
-          subject: params.subject,
-          text: params.text,
-          html: params.html,
-          headers: {
-            'X-Priority': isMisbehaviorReport ? '1' : '3',
-            'X-MSMail-Priority': isMisbehaviorReport ? 'High' : 'Normal',
-            'Importance': isMisbehaviorReport ? 'high' : 'normal',
-            'X-Mailer': isMisbehaviorReport ? 'lendibl Dispute System' : (isPasswordReset ? 'lendibl Password Reset System' : 'lendibl Platform'),
-            'List-Unsubscribe': '<mailto:accounts@lendibl.com>',
-          },
-          categories: isMisbehaviorReport ? ['dispute', 'misbehavior-report', 'moderation'] : (isPasswordReset ? ['password-reset', 'security', 'authentication'] : ['general', 'platform']),
-          customArgs: {
-            'email_type': emailType,
-            'platform': 'lendibl'
-          },
-          trackingSettings: {
-            clickTracking: {
-              enable: false
-            },
-            openTracking: {
-              enable: false
-            },
-            subscriptionTracking: {
-              enable: false
-            }
-          }
-        };
-        
-        const fallbackResult = await mailService.send(fallbackSettings);
-        console.log(`✅ Fallback email sent directly to ${originalTo}`);
-        console.log(`📧 SendGrid Response:`, fallbackResult[0]?.statusCode, fallbackResult[0]?.headers?.['x-message-id']);
-        return true;
-      } catch (fallbackError: any) {
-        console.error('Fallback email also failed:', fallbackError);
-        if (fallbackError.response?.body?.errors) {
-          console.error('Fallback error details:', JSON.stringify(fallbackError.response.body.errors, null, 2));
-        }
-        return false;
-      }
-    }
+
     
     return false;
   }
