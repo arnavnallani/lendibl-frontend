@@ -126,7 +126,7 @@ export default function ReportMisbehaviorModal({
                 </div>
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-gray-500" />
-                  <span>{userRole === 'owner' ? rental.user.username : rental.item.owner.username}</span>
+                  <span>{userRole === 'owner' ? rental.renter.username : rental.item.owner.username}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-gray-500" />
