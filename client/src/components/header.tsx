@@ -270,7 +270,12 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           // Try to register push notifications
                           try {
                             console.log('🔄 Attempting to register push notifications...');
-                            await registerPushOnLogin();
+                            const success = await registerPushOnLogin();
+                            if (success) {
+                              console.log('✅ Push notification registration successful');
+                            } else {
+                              console.log('❌ Push notification registration failed');
+                            }
                           } catch (error) {
                             console.error('❌ Failed to register push notifications:', error);
                           }

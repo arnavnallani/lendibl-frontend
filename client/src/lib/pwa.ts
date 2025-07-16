@@ -120,20 +120,26 @@ function urlB64ToUint8Array(base64String: string): Uint8Array {
 }
 
 // Register push notification when user logs in
-export async function registerPushOnLogin() {
+export async function registerPushOnLogin(): Promise<boolean> {
   console.log('🚀 Starting push notification registration on login...');
   
   if ('serviceWorker' in navigator && 'PushManager' in window) {
     try {
-      // First request permission
+      // Check current permission
+      console.log('📋 Current notification permission:', Notification.permission);
+      
+      // First request permission if needed
       if (Notification.permission === 'default') {
         console.log('📋 Requesting notification permission...');
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
           console.log('❌ Notification permission not granted:', permission);
-          return;
+          return false;
         }
         console.log('✅ Notification permission granted');
+      } else if (Notification.permission === 'denied') {
+        console.log('❌ Notification permission denied');
+        return false;
       }
       
       // Wait for service worker to be ready
@@ -143,16 +149,21 @@ export async function registerPushOnLogin() {
         const success = await subscribeToPushNotifications(registration);
         if (success) {
           console.log('✅ Push notification registration completed successfully');
+          return true;
         } else {
           console.log('❌ Push notification registration failed');
+          return false;
         }
       } else {
         console.log('❌ No service worker registration found');
+        return false;
       }
     } catch (error) {
       console.error('❌ Failed to register push on login:', error);
+      return false;
     }
   } else {
     console.log('❌ Push notifications not supported in this browser');
+    return false;
   }
 }

@@ -9,13 +9,23 @@ export function registerPushRoutes(app: Express) {
     
     try {
       const subscription = req.body;
-      console.log('📝 Subscription data received:', subscription);
+      console.log('📝 Subscription data received:', JSON.stringify(subscription, null, 2));
+      
+      // Validate subscription data
+      if (!subscription.endpoint || !subscription.keys || !subscription.keys.p256dh || !subscription.keys.auth) {
+        console.log('❌ Invalid subscription data format');
+        return res.status(400).json({ error: "Invalid subscription data format" });
+      }
+      
+      console.log(`💾 Attempting to save subscription for user ${req.user.id}...`);
       
       const success = await pushNotificationService.saveSubscription(req.user.id, subscription);
       
       if (success) {
+        console.log(`✅ Push subscription saved successfully for user ${req.user.id}`);
         res.json({ success: true, message: "Push subscription saved" });
       } else {
+        console.log(`❌ Failed to save push subscription for user ${req.user.id}`);
         res.status(500).json({ error: "Failed to save push subscription" });
       }
     } catch (error) {
