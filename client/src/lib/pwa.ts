@@ -46,11 +46,13 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
     }
 
     // Properly format the subscription data for the server
+    const subscriptionJSON = subscription.toJSON();
     const subscriptionData = {
       endpoint: subscription.endpoint,
-      keys: subscription.toJSON().keys
+      keys: subscriptionJSON.keys
     };
 
+    console.log('📡 Subscription JSON:', subscriptionJSON);
     console.log('📡 Sending subscription to server:', subscriptionData);
 
     const response = await fetch('/api/push-subscribe', {

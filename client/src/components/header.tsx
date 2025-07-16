@@ -273,11 +273,14 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             const success = await registerPushOnLogin();
                             if (success) {
                               console.log('✅ Push notification registration successful');
+                              alert('✅ Push notifications enabled successfully! You should receive notifications for rental updates.');
                             } else {
                               console.log('❌ Push notification registration failed');
+                              alert('❌ Push notification registration failed. Check console for details.');
                             }
                           } catch (error) {
                             console.error('❌ Failed to register push notifications:', error);
+                            alert('❌ Error registering push notifications: ' + error.message);
                           }
 
                           const token = localStorage.getItem('auth_token');
