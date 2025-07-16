@@ -25,6 +25,8 @@ export function registerServiceWorker() {
 
 async function subscribeToPushNotifications(registration: ServiceWorkerRegistration) {
   try {
+    console.log('🔔 Starting push notification subscription...');
+    
     // Check if already subscribed
     const existingSubscription = await registration.pushManager.getSubscription();
     
@@ -38,27 +40,42 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
     
     // Send subscription to server
     const token = localStorage.getItem('auth_token');
-    if (token) {
-      const response = await fetch('/api/push-subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(subscription)
-      });
-      
-      if (response.ok) {
-        console.log('✅ Push subscription saved successfully to server');
-      } else {
-        const error = await response.json();
-        console.error('❌ Failed to save push subscription:', error);
-      }
-    } else {
+    if (!token) {
       console.log('⚠️ No auth token available for push subscription');
+      return false;
+    }
+
+    // Properly format the subscription data for the server
+    const subscriptionData = {
+      endpoint: subscription.endpoint,
+      keys: subscription.toJSON().keys
+    };
+
+    console.log('📡 Sending subscription to server:', subscriptionData);
+
+    const response = await fetch('/api/push-subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(subscriptionData)
+    });
+    
+    console.log('📡 Server response status:', response.status);
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Push subscription saved successfully to server:', result);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error('❌ Failed to save push subscription. Status:', response.status, 'Error:', errorText);
+      return false;
     }
   } catch (error) {
     console.error('❌ Push subscription failed:', error);
+    return false;
   }
 }
 
@@ -123,7 +140,12 @@ export async function registerPushOnLogin() {
       const registration = await navigator.serviceWorker.ready;
       if (registration) {
         console.log('🔧 Service worker ready, subscribing to push notifications...');
-        await subscribeToPushNotifications(registration);
+        const success = await subscribeToPushNotifications(registration);
+        if (success) {
+          console.log('✅ Push notification registration completed successfully');
+        } else {
+          console.log('❌ Push notification registration failed');
+        }
       } else {
         console.log('❌ No service worker registration found');
       }
