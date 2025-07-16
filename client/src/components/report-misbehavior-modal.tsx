@@ -45,7 +45,7 @@ export default function ReportMisbehaviorModal({
     : [
         'Item not as described',
         'Item was damaged/broken',
-        'Owner/renter was unresponsive',
+        'Owner was unresponsive',
         'Pickup/return issues',
         'Inappropriate behavior',
         'Other'
