@@ -103,13 +103,16 @@ export default function ReportMisbehaviorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="report-modal-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600">
             <AlertTriangle className="h-5 w-5" />
             Report Misbehavior
           </DialogTitle>
         </DialogHeader>
+        <div id="report-modal-description" className="sr-only">
+          Report issues or inappropriate behavior during the rental process
+        </div>
         
         <div className="space-y-6">
           {/* Rental Information */}

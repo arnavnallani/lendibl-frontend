@@ -374,17 +374,15 @@ export default function ActionDashboard() {
                         </Button>
                       )}
 
-                      {/* Post-rental: Report misbehavior for both parties */}
-                      {status === 'completed' && (
-                        <Button
-                          onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
-                          variant="outline"
-                          className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-                        >
-                          <AlertTriangle className="h-4 w-4" />
-                          Report Misbehavior
-                        </Button>
-                      )}
+                      {/* Report misbehavior available for both parties at all stages */}
+                      <Button
+                        onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
+                        variant="outline"
+                        className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                      >
+                        <AlertTriangle className="h-4 w-4" />
+                        Report Misbehavior
+                      </Button>
 
                       {/* Owner Controls */}
                       {isOwner && canStartRental(rental) && (

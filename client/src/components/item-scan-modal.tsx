@@ -109,13 +109,16 @@ export default function ItemScanModal({
   if (mode === 'view' && existingScan) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="scan-view-description">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Eye className="h-5 w-5" />
               Pre-Rental Item Scan
             </DialogTitle>
           </DialogHeader>
+          <div id="scan-view-description" className="sr-only">
+            View the pre-rental item scan documentation
+          </div>
           
           <div className="space-y-6">
             <div className="bg-blue-50 p-4 rounded-lg">
@@ -167,13 +170,16 @@ export default function ItemScanModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="scan-modal-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
             Scan Item Before Rental
           </DialogTitle>
         </DialogHeader>
+        <div id="scan-modal-description" className="sr-only">
+          Upload photos and document the item condition before rental begins
+        </div>
         
         <div className="space-y-6">
           <div className="bg-blue-50 p-4 rounded-lg">
