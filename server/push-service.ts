@@ -57,6 +57,8 @@ export class PushNotificationService {
 
   async sendPushToUser(userId: number, notificationData: PushNotificationData) {
     try {
+      console.log(`🔍 Looking for push subscription for user ${userId}...`);
+      
       // Get user's push subscription
       const [subscription] = await db
         .select()
@@ -64,9 +66,16 @@ export class PushNotificationService {
         .where(eq(pushSubscriptions.userId, userId));
 
       if (!subscription) {
-        console.log(`No push subscription found for user ${userId}`);
+        console.log(`❌ No push subscription found for user ${userId}`);
+        
+        // Debug: Check what subscriptions exist
+        const allSubscriptions = await db.select().from(pushSubscriptions);
+        console.log(`📊 Total subscriptions in database: ${allSubscriptions.length}`);
+        
         return false;
       }
+      
+      console.log(`✅ Found push subscription for user ${userId}`);
 
       const pushSubscription = {
         endpoint: subscription.endpoint,

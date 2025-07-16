@@ -107,8 +107,9 @@ export function useAuthProvider(): AuthContextType {
     
     // Register push notifications after successful login
     setTimeout(() => {
+      console.log('🔔 Triggering push notification registration after login...');
       registerPushOnLogin();
-    }, 1000);
+    }, 2000);
     
     // Clear React Query cache to avoid stale data from previous user
     queryClient.clear();
