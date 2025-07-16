@@ -75,38 +75,18 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
       },
     };
 
-    // Add SPF/DKIM bypass settings for lendibl.com domain emails
-    if (params.to.includes('@lendibl.com')) {
-      emailSettings.mailSettings = {
-        bypassListManagement: {
-          enable: true
-        },
-        bypassSpamManagement: {
-          enable: true
-        },
-        bypassBounceManagement: {
-          enable: true
-        },
-        bypassUnsubscribeManagement: {
-          enable: true
-        }
-      };
-      
-      // Add tracking settings that might help with delivery
-      emailSettings.trackingSettings = {
-        clickTracking: {
-          enable: false
-        },
-        openTracking: {
-          enable: false
-        },
-        subscriptionTracking: {
-          enable: false
-        }
-      };
-      
-      console.log('📧 Added bypass settings for lendibl.com domain email');
-    }
+    // Add tracking settings for better delivery
+    emailSettings.trackingSettings = {
+      clickTracking: {
+        enable: false
+      },
+      openTracking: {
+        enable: false
+      },
+      subscriptionTracking: {
+        enable: false
+      }
+    };
 
     const result = await mailService.send(emailSettings);
     
@@ -137,6 +117,58 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         console.error(`❌ SENDGRID VERIFICATION ERROR: The sender email "${process.env.SENDGRID_FROM_EMAIL}" is not verified.`);
         console.error('📧 Please verify this email in SendGrid dashboard: Settings → Sender Authentication');
         console.error('💡 Alternative: Update SENDGRID_FROM_EMAIL to a verified email address');
+      }
+    }
+    
+    // If forwarding failed, try sending to original address as fallback
+    if (forwardedTo && error.code === 400) {
+      console.log('🔄 Forwarding failed, attempting direct send to original address...');
+      try {
+        const fallbackSettings = {
+          to: originalTo,
+          from: {
+            email: process.env.SENDGRID_FROM_EMAIL!,
+            name: isMisbehaviorReport ? 'lendibl Disputes' : 'lendibl Support'
+          },
+          replyTo: process.env.SENDGRID_FROM_EMAIL!,
+          subject: params.subject,
+          text: params.text,
+          html: params.html,
+          headers: {
+            'X-Priority': isMisbehaviorReport ? '1' : '3',
+            'X-MSMail-Priority': isMisbehaviorReport ? 'High' : 'Normal',
+            'Importance': isMisbehaviorReport ? 'high' : 'normal',
+            'X-Mailer': isMisbehaviorReport ? 'lendibl Dispute System' : (isPasswordReset ? 'lendibl Password Reset System' : 'lendibl Platform'),
+            'List-Unsubscribe': '<mailto:accounts@lendibl.com>',
+          },
+          categories: isMisbehaviorReport ? ['dispute', 'misbehavior-report', 'moderation'] : (isPasswordReset ? ['password-reset', 'security', 'authentication'] : ['general', 'platform']),
+          customArgs: {
+            'email_type': emailType,
+            'platform': 'lendibl'
+          },
+          trackingSettings: {
+            clickTracking: {
+              enable: false
+            },
+            openTracking: {
+              enable: false
+            },
+            subscriptionTracking: {
+              enable: false
+            }
+          }
+        };
+        
+        const fallbackResult = await mailService.send(fallbackSettings);
+        console.log(`✅ Fallback email sent directly to ${originalTo}`);
+        console.log(`📧 SendGrid Response:`, fallbackResult[0]?.statusCode, fallbackResult[0]?.headers?.['x-message-id']);
+        return true;
+      } catch (fallbackError: any) {
+        console.error('Fallback email also failed:', fallbackError);
+        if (fallbackError.response?.body?.errors) {
+          console.error('Fallback error details:', JSON.stringify(fallbackError.response.body.errors, null, 2));
+        }
+        return false;
       }
     }
     
