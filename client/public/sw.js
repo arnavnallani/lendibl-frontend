@@ -30,24 +30,37 @@ self.addEventListener('fetch', (event) => {
 
 // Push event for notifications - works even when app is closed
 self.addEventListener('push', (event) => {
+  console.log('📱 Push event received in service worker');
+  
   let notificationData = {};
   
   if (event.data) {
     try {
       notificationData = event.data.json();
+      console.log('📱 Push data:', notificationData);
     } catch (e) {
       notificationData = { body: event.data.text() };
     }
   }
 
+  // Mobile-compatible options
   const options = {
     body: notificationData.body || 'New lendibl notification',
     icon: '/icon-192.svg',
     badge: '/favicon.ico',
-    vibrate: [200, 100, 200],
-    requireInteraction: true,
-    data: notificationData.data || {},
-    actions: [
+    tag: 'lendibl-notification',
+    requireInteraction: false, // Changed for mobile compatibility
+    renotify: true,
+    silent: false,
+    data: notificationData.data || {}
+  };
+
+  // Only add vibrate and actions if not on mobile Safari
+  const isMobileSafari = /iPhone|iPad|iPod/.test(self.navigator.userAgent || '');
+  
+  if (!isMobileSafari) {
+    options.vibrate = [200, 100, 200];
+    options.actions = [
       {
         action: 'view',
         title: 'View',
@@ -57,11 +70,13 @@ self.addEventListener('push', (event) => {
         action: 'dismiss',
         title: 'Dismiss'
       }
-    ]
-  };
+    ];
+  }
 
   event.waitUntil(
     self.registration.showNotification(notificationData.title || 'lendibl', options)
+      .then(() => console.log('📱 Notification shown successfully'))
+      .catch(error => console.error('📱 Error showing notification:', error))
   );
 });
 
@@ -103,7 +118,7 @@ async function registerPushSubscription() {
         // Subscribe to push notifications with the VAPID public key
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
+          applicationServerKey: urlB64ToUint8Array('BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8')
         });
         
         console.log('Push subscription created:', subscription);
