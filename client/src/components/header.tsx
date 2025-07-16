@@ -248,6 +248,40 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={async () => {
+                        // Simple notification test first
+                        if (Notification.permission === 'granted') {
+                          try {
+                            console.log('📱 Testing simple browser notification...');
+                            new Notification('Simple Test ✅', {
+                              body: 'This is a simple browser notification test',
+                              icon: '/icon-192.svg'
+                            });
+                            alert('✅ Simple notification should appear. If not, your device may not support notifications.');
+                            return;
+                          } catch (error) {
+                            console.error('❌ Simple notification failed:', error);
+                            alert(`❌ Simple notification failed: ${error.message}`);
+                            return;
+                          }
+                        }
+                        
+                        // Request permission first
+                        const permission = await Notification.requestPermission();
+                        if (permission === 'granted') {
+                          new Notification('Permission Granted ✅', {
+                            body: 'Notifications are now enabled!',
+                            icon: '/icon-192.svg'
+                          });
+                          alert('✅ Permission granted! Notifications should work.');
+                        } else {
+                          alert('❌ Notification permission denied or not supported on this device.');
+                        }
+                      }}
+                    >
+                      🔔 Test Simple Notification
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={async () => {
                         try {
                           console.log('🧪 Starting manual push notification test...');
                           console.log('Current notification permission:', Notification.permission);
@@ -376,7 +410,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                         }
                       }}
                     >
-                      🔔 Test Push Notification
+                      🚀 Test Advanced Push
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
