@@ -54,7 +54,19 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       if (videoRef.current) {
         console.log('🎬 Setting video source and playing');
         videoRef.current.srcObject = newStream;
-        videoRef.current.play();
+        
+        // Wait for video to be ready before allowing capture
+        videoRef.current.addEventListener('loadedmetadata', () => {
+          console.log('✅ Video metadata loaded - camera ready for capture');
+          console.log('📐 Video dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
+        });
+        
+        videoRef.current.addEventListener('canplay', () => {
+          console.log('▶️ Video can start playing - fully ready');
+        });
+        
+        await videoRef.current.play();
+        console.log('🎥 Video is now playing');
       } else {
         console.log('❌ Video ref not available');
       }
@@ -116,6 +128,17 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       return;
     }
 
+    // Check if video is ready
+    if (videoRef.current.videoWidth === 0 || videoRef.current.videoHeight === 0) {
+      console.log('⚠️ Video not ready yet - dimensions:', videoRef.current.videoWidth, 'x', videoRef.current.videoHeight);
+      toast({
+        title: "Camera Not Ready",
+        description: "Please wait a moment for the camera to initialize.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsCapturing(true);
     console.log('📸 Starting capture process...');
 
@@ -169,7 +192,10 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   };
 
   const toggleCamera = () => {
-    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+    console.log('🔄 Toggling camera from', facingMode);
+    const newMode = facingMode === 'environment' ? 'user' : 'environment';
+    console.log('📷 Switching to:', newMode);
+    setFacingMode(newMode);
   };
 
   const toggleFlash = async () => {
@@ -407,7 +433,16 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
         {/* Camera Toggle */}
         <div className="flex justify-center mt-4">
           <button
-            onClick={toggleCamera}
+            onClick={(e) => {
+              console.log('🔄 SWITCH CAMERA BUTTON CLICKED!', e);
+              e.preventDefault();
+              e.stopPropagation();
+              toggleCamera();
+            }}
+            onTouchStart={(e) => {
+              console.log('👆 TOUCH START on switch camera button');
+              e.stopPropagation();
+            }}
             className="px-4 py-2 text-white hover:bg-white/10 rounded-lg cursor-pointer touch-manipulation flex items-center"
             style={{ WebkitTapHighlightColor: 'transparent' }}
           >
