@@ -38,13 +38,10 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           backgroundImage: `url(${lendiblCollageImage})`
         }}
       />
-      
       {/* Strong Blue Gradient Overlay to reduce image visibility */}
       <div className="absolute inset-0 bg-gradient-to-r from-sky-900/85 via-sky-700/80 to-cyan-600/85"></div>
-      
       {/* Additional blue overlay for enhanced text contrast */}
       <div className="absolute inset-0 bg-sky-800/40"></div>
-      
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/2 w-96 h-96 bg-white/10 rounded-full animate-float blur-sm"></div>
@@ -73,9 +70,7 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
           Rent Anything<br />
           <span className="tracking-wider bg-gradient-to-r from-cyan-200 via-white to-blue-200 bg-clip-text text-transparent font-light" style={{textShadow: '0 0 40px rgba(59, 130, 246, 1), 0 0 80px rgba(56, 189, 248, 0.8), 0 0 120px rgba(255, 255, 255, 0.6), 0 4px 20px rgba(0, 0, 0, 0.8)'}}>Anytime</span>
         </h2>
-        <p className="text-2xl md:text-3xl mb-12 animate-fade-in max-w-4xl mx-auto font-medium leading-relaxed text-white" style={{animationDelay: '0.3s', textShadow: '0 2px 15px rgba(0, 0, 0, 0.9), 0 4px 30px rgba(0, 0, 0, 0.7)'}}>
-          Your neighborhood marketplace for borrowing and lending anything you need
-        </p>
+        <p className="text-2xl md:text-3xl mb-12 animate-fade-in max-w-4xl mx-auto font-medium leading-relaxed text-white" style={{animationDelay: '0.3s', textShadow: '0 2px 15px rgba(0, 0, 0, 0.9), 0 4px 30px rgba(0, 0, 0, 0.7)'}}>It's that simple.</p>
         
         {/* Category Quick Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto animate-scale-in" style={{animationDelay: '0.6s'}}>
