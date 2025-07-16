@@ -1,4 +1,14 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect width="512" height="512" rx="64" fill="#2563eb"/>
-  <text x="256" y="320" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="180" font-weight="bold">L</text>
+  
+  <!-- Two people sharing (left and right) -->
+  <circle cx="140" cy="180" r="48" fill="white"/>
+  <circle cx="372" cy="180" r="48" fill="white"/>
+  
+  <!-- Sharing arrows -->
+  <path d="M188 230 Q256 210 324 230" stroke="white" stroke-width="20" fill="none"/>
+  <path d="M324 270 Q256 290 188 270" stroke="white" stroke-width="20" fill="none"/>
+  
+  <!-- "l" text at bottom -->
+  <text x="256" y="420" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="120" font-weight="bold">l</text>
 </svg>

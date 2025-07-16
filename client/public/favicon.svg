@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- lendibl logo favicon with sharing symbol -->
+  <rect width="32" height="32" rx="4" fill="#2563eb"/>
+  
+  <!-- Two people sharing (left and right) -->
+  <circle cx="8" cy="12" r="3" fill="white"/>
+  <circle cx="24" cy="12" r="3" fill="white"/>
+  
+  <!-- Sharing arrows -->
+  <path d="M11 15 Q16 13 21 15" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M21 17 Q16 19 11 17" stroke="white" stroke-width="1.5" fill="none"/>
+  
+  <!-- Small "l" at bottom -->
+  <text x="16" y="28" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">l</text>
+</svg>

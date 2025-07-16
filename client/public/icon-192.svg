@@ -1,1 +1,14 @@
-<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg"><rect width="192" height="192" rx="24" fill="#3b82f6"/><text x="96" y="120" font-family="Arial" font-size="120" fill="white" text-anchor="middle">l</text></svg>
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#2563eb"/>
+  
+  <!-- Two people sharing (left and right) -->
+  <circle cx="50" cy="70" r="18" fill="white"/>
+  <circle cx="142" cy="70" r="18" fill="white"/>
+  
+  <!-- Sharing arrows -->
+  <path d="M68 85 Q96 78 124 85" stroke="white" stroke-width="8" fill="none"/>
+  <path d="M124 100 Q96 107 68 100" stroke="white" stroke-width="8" fill="none"/>
+  
+  <!-- "l" text at bottom -->
+  <text x="96" y="160" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="bold">l</text>
+</svg>
