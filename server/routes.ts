@@ -2134,64 +2134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 360° Item Scanning API endpoints
-  app.post("/api/item-scans", authenticateToken, async (req: AuthRequest, res) => {
-    try {
-      const { bookingId, scanType, scanImages } = req.body;
-      const userId = req.user!.id;
 
-      if (!bookingId || !scanType || !scanImages || !Array.isArray(scanImages)) {
-        return res.status(400).json({ 
-          message: "Missing required fields: bookingId, scanType, scanImages" 
-        });
-      }
-
-      // Verify user has permission for this booking
-      const booking = await storage.getBookingWithDetails(bookingId);
-      if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
-      }
-
-      if (booking.item.ownerId !== userId && booking.renterId !== userId) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      const itemScan = await storage.createItemScan({
-        bookingId,
-        scanType,
-        scanImages,
-        userId
-      });
-
-      res.json(itemScan);
-    } catch (error) {
-      console.error('Failed to create item scan:', error);
-      res.status(500).json({ message: "Failed to save scan" });
-    }
-  });
-
-  app.get("/api/item-scans/:bookingId", authenticateToken, async (req: AuthRequest, res) => {
-    try {
-      const bookingId = parseInt(req.params.bookingId);
-      const userId = req.user!.id;
-
-      // Verify user has permission for this booking
-      const booking = await storage.getBookingWithDetails(bookingId);
-      if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
-      }
-
-      if (booking.item.ownerId !== userId && booking.renterId !== userId) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      const scans = await storage.getItemScansByBooking(bookingId);
-      res.json(scans);
-    } catch (error) {
-      console.error('Failed to fetch item scans:', error);
-      res.status(500).json({ message: "Failed to fetch scans" });
-    }
-  });
 
   // Damage reporting endpoints
   app.post("/api/damage-reports", authenticateToken, async (req: AuthRequest, res) => {

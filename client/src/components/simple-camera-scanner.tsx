@@ -143,7 +143,11 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
     if (capturedImages.length > 0) {
       onCapture(capturedImages);
     }
-    onClose();
+    // Only close the camera scanner, not the parent modal
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+    onClose(); // This will close the camera and return to the scan modal
   };
 
   const removeImage = (index: number) => {
@@ -157,7 +161,6 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
         touchAction: 'manipulation',
         WebkitUserSelect: 'none',
         userSelect: 'none',
-        height: '100vh',
         height: '100dvh' // Use dynamic viewport height for mobile
       }}
     >
