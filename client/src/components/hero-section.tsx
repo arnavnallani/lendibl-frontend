@@ -39,11 +39,11 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         }}
       />
       
-      {/* Pure Blue Gradient Overlay to show more image */}
-      <div className="absolute inset-0 bg-gradient-to-r from-sky-900/70 via-sky-700/65 to-cyan-600/75"></div>
+      {/* Strong Blue Gradient Overlay to reduce image visibility */}
+      <div className="absolute inset-0 bg-gradient-to-r from-sky-900/85 via-sky-700/80 to-cyan-600/85"></div>
       
-      {/* Subtle pure blue overlay for text contrast */}
-      <div className="absolute inset-0 bg-sky-800/25"></div>
+      {/* Additional blue overlay for enhanced text contrast */}
+      <div className="absolute inset-0 bg-sky-800/40"></div>
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -69,12 +69,12 @@ export default function HeroSection({ onCategorySelect }: HeroSectionProps) {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up text-shadow">
+        <h2 className="text-6xl md:text-8xl font-bold mb-8 animate-slide-up" style={{textShadow: '0 4px 20px rgba(0, 0, 0, 0.8), 0 8px 40px rgba(0, 0, 0, 0.6)'}}>
           Rent Anything<br />
-          <span className="tracking-wider bg-gradient-to-r from-cyan-300 via-gray-100 to-blue-300 bg-clip-text text-transparent drop-shadow-2xl font-light" style={{textShadow: '0 0 30px rgba(59, 130, 246, 0.8), 0 0 60px rgba(56, 189, 248, 0.6), 0 0 90px rgba(255, 255, 255, 0.4)'}}>Anytime</span>
+          <span className="tracking-wider bg-gradient-to-r from-cyan-200 via-white to-blue-200 bg-clip-text text-transparent font-light" style={{textShadow: '0 0 40px rgba(59, 130, 246, 1), 0 0 80px rgba(56, 189, 248, 0.8), 0 0 120px rgba(255, 255, 255, 0.6), 0 4px 20px rgba(0, 0, 0, 0.8)'}}>Anytime</span>
         </h2>
-        <p className="text-2xl md:text-3xl mb-12 opacity-95 animate-fade-in max-w-4xl mx-auto font-light leading-relaxed" style={{animationDelay: '0.3s'}}>
-          It's that simple.
+        <p className="text-2xl md:text-3xl mb-12 animate-fade-in max-w-4xl mx-auto font-medium leading-relaxed text-white" style={{animationDelay: '0.3s', textShadow: '0 2px 15px rgba(0, 0, 0, 0.9), 0 4px 30px rgba(0, 0, 0, 0.7)'}}>
+          Your neighborhood marketplace for borrowing and lending anything you need
         </p>
         
         {/* Category Quick Links */}
