@@ -152,22 +152,28 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
 
   return createPortal(
     <div 
-      className="fixed inset-0 bg-black z-[10000] flex flex-col"
+      className="fixed inset-0 bg-black z-[10000] flex flex-col h-screen"
       style={{ 
         touchAction: 'manipulation',
         WebkitUserSelect: 'none',
-        userSelect: 'none'
+        userSelect: 'none',
+        height: '100vh',
+        height: '100dvh' // Use dynamic viewport height for mobile
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-black/70 text-white">
-        <div
+      <div className="flex items-center justify-between p-4 bg-black/70 text-white flex-shrink-0">
+        <button
           onClick={onClose}
-          className="p-3 cursor-pointer"
-          style={{ WebkitTapHighlightColor: 'transparent' }}
+          className="p-3 cursor-pointer bg-white/10 rounded-lg active:bg-white/20"
+          style={{ 
+            WebkitTapHighlightColor: 'transparent',
+            minHeight: '44px',
+            minWidth: '44px'
+          }}
         >
           <X className="h-6 w-6" />
-        </div>
+        </button>
         <span className="text-sm font-medium">
           Scan Item ({capturedImages.length}/{maxImages})
         </span>
@@ -175,7 +181,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
       </div>
 
       {/* Camera View */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
@@ -183,7 +189,8 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
           muted
           style={{ 
             WebkitUserSelect: 'none',
-            userSelect: 'none'
+            userSelect: 'none',
+            maxHeight: 'calc(100vh - 200px)'
           }}
         />
         
@@ -201,22 +208,26 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
 
       {/* Captured Images Preview */}
       {capturedImages.length > 0 && (
-        <div className="bg-black/80 p-4">
+        <div className="bg-black/80 p-3 flex-shrink-0">
           <div className="flex space-x-2 overflow-x-auto">
             {capturedImages.map((image, index) => (
               <div key={index} className="relative flex-shrink-0">
                 <img
                   src={image}
                   alt={`Captured ${index + 1}`}
-                  className="w-16 h-20 object-cover rounded border-2 border-white"
+                  className="w-12 h-16 object-cover rounded border border-white"
                 />
-                <div
+                <button
                   onClick={() => removeImage(index)}
-                  className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                  className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white rounded-full flex items-center justify-center cursor-pointer"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    minHeight: '20px',
+                    minWidth: '20px'
+                  }}
                 >
-                  <X className="h-3 w-3" />
-                </div>
+                  <X className="h-2 w-2" />
+                </button>
               </div>
             ))}
           </div>
@@ -224,42 +235,56 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
       )}
 
       {/* Controls */}
-      <div className="bg-black p-6">
+      <div className="bg-black p-6 flex-shrink-0">
         <div className="flex items-center justify-between max-w-md mx-auto">
           {/* Switch Camera */}
-          <div
+          <button
             onClick={toggleCamera}
-            className="px-4 py-2 bg-white/10 text-white rounded-lg cursor-pointer flex items-center"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
+            className="px-4 py-2 bg-white/20 text-white rounded-lg cursor-pointer flex items-center active:bg-white/30"
+            style={{ 
+              WebkitTapHighlightColor: 'transparent',
+              minHeight: '44px',
+              minWidth: '80px'
+            }}
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             Switch
-          </div>
+          </button>
 
           {/* Capture Button */}
-          <div
+          <button
             onClick={captureImage}
+            disabled={!cameraReady || isCapturing || capturedImages.length >= maxImages}
             className={`h-16 w-16 rounded-full bg-white flex items-center justify-center cursor-pointer ${
               !cameraReady || isCapturing || capturedImages.length >= maxImages 
                 ? 'opacity-50' 
-                : 'hover:bg-gray-100'
+                : 'active:bg-gray-200'
             }`}
-            style={{ WebkitTapHighlightColor: 'transparent' }}
+            style={{ 
+              WebkitTapHighlightColor: 'transparent',
+              minHeight: '64px',
+              minWidth: '64px'
+            }}
           >
             <Camera className="h-6 w-6 text-black" />
-          </div>
+          </button>
 
           {/* Done Button */}
-          <div
+          <button
             onClick={finishScanning}
+            disabled={capturedImages.length === 0}
             className={`px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer flex items-center ${
-              capturedImages.length === 0 ? 'opacity-50' : 'hover:bg-blue-700'
+              capturedImages.length === 0 ? 'opacity-50' : 'active:bg-blue-700'
             }`}
-            style={{ WebkitTapHighlightColor: 'transparent' }}
+            style={{ 
+              WebkitTapHighlightColor: 'transparent',
+              minHeight: '44px',
+              minWidth: '80px'
+            }}
           >
             <Check className="h-4 w-4 mr-2" />
             Done
-          </div>
+          </button>
         </div>
       </div>
     </div>,
