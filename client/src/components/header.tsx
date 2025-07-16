@@ -254,7 +254,7 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           
                           // Check current permission status
                           if (Notification.permission === 'denied') {
-                            alert('Notifications are blocked. To enable them:\n\n1. Click the lock icon (🔒) in your browser address bar\n2. Change notifications from "Block" to "Allow"\n3. Refresh the page and try again');
+                            alert('Notifications are blocked. To enable them in Safari:\n\n1. Go to Safari menu > Preferences > Websites\n2. Click "Notifications" in the left sidebar\n3. Find this website and change to "Allow"\n\nOR:\n1. Click Safari menu > Settings for This Website\n2. Change Notifications to "Allow"\n3. Refresh the page and try again');
                             return;
                           }
                           
