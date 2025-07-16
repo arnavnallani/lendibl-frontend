@@ -362,7 +362,13 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                           if (result.success) {
                             alert('✅ Push notification sent successfully! Check your notifications.');
                           } else {
-                            alert(`❌ Push test failed: ${result.message || 'Unknown error'}\n\nPlease try enabling notifications again or refresh the page.`);
+                            // Log detailed error information for debugging
+                            console.error('Detailed push test failure:', {
+                              success: result.success,
+                              message: result.message,
+                              fullResult: result
+                            });
+                            alert(`❌ Push test failed: ${result.message || 'Unknown error'}\n\nTechnical details logged to console.`);
                           }
                         } catch (error) {
                           console.error('Push test error:', error);
