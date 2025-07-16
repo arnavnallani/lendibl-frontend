@@ -19,9 +19,25 @@ export interface EmailParams {
   type?: 'password-reset' | 'misbehavior-report' | 'general';
 }
 
+// Email forwarding configuration for lendibl.com addresses
+const EMAIL_FORWARDING_MAP: Record<string, string> = {
+  'disputes@lendibl.com': 'arnav.nallani@gmail.com',
+  'customerservice@lendibl.com': 'arnav.nallani@gmail.com',
+  'support@lendibl.com': 'arnav.nallani@gmail.com',
+  'admin@lendibl.com': 'arnav.nallani@gmail.com'
+};
+
 export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
+    // Check if we need to forward this email to a working address
+    const originalTo = params.to;
+    const forwardedTo = EMAIL_FORWARDING_MAP[params.to.toLowerCase()];
+    const actualTo = forwardedTo || params.to;
+    
     console.log(`📧 Attempting to send email to: ${params.to}`);
+    if (forwardedTo) {
+      console.log(`📧 Forwarding ${originalTo} → ${forwardedTo}`);
+    }
     console.log(`📧 From: ${process.env.SENDGRID_FROM_EMAIL}`);
     console.log(`📧 Subject: ${params.subject}`);
     
@@ -29,17 +45,22 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const isPasswordReset = emailType === 'password-reset';
     const isMisbehaviorReport = emailType === 'misbehavior-report';
     
-    // For misbehavior reports to lendibl domain, also add BCC to user's email for verification
+    // Configure email settings with proper forwarding
     const emailSettings: any = {
-      to: params.to,
+      to: actualTo,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
         name: isMisbehaviorReport ? 'lendibl Disputes' : 'lendibl Support'
       },
       replyTo: process.env.SENDGRID_FROM_EMAIL!,
-      subject: params.subject,
-      text: params.text,
-      html: params.html,
+      subject: forwardedTo ? `[FORWARDED FROM ${originalTo.toUpperCase()}] ${params.subject}` : params.subject,
+      text: forwardedTo ? `FORWARDED FROM: ${originalTo}\n\n${params.text}` : params.text,
+      html: forwardedTo ? `
+        <div style="background-color: #1f2937; color: white; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+          <strong>📧 FORWARDED EMAIL</strong><br>
+          <span style="color: #d1d5db;">Originally sent to: ${originalTo}</span>
+        </div>
+        ${params.html}` : params.html,
       headers: {
         'X-Priority': isMisbehaviorReport ? '1' : '3',
         'X-MSMail-Priority': isMisbehaviorReport ? 'High' : 'Normal',
@@ -89,18 +110,13 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 
     const result = await mailService.send(emailSettings);
     
-    console.log(`✅ Email sent successfully to ${params.to}`);
-    console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
-    
-    // Special logging for lendibl.com domain emails
-    if (params.to.includes('@lendibl.com')) {
-      console.log('🔍 lendibl.com domain email details:');
-      console.log(`   - Status: ${result[0]?.statusCode}`);
-      console.log(`   - Message ID: ${result[0]?.headers?.['x-message-id']}`);
-      console.log(`   - To: ${params.to}`);
-      console.log(`   - Subject: ${params.subject}`);
-      console.log('📧 Note: SendGrid reports successful delivery (202), but email may not reach recipient due to domain configuration');
-      console.log('💡 Common causes: MX records not configured, domain not set up for email, or email forwarding not enabled');
+    if (forwardedTo) {
+      console.log(`✅ Email successfully forwarded from ${originalTo} to ${actualTo}`);
+      console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
+      console.log(`📧 Forwarding configured for lendibl.com domain - emails will reach the intended recipient`);
+    } else {
+      console.log(`✅ Email sent successfully to ${params.to}`);
+      console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
     }
     
     return true;
