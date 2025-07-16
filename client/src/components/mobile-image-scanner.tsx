@@ -247,27 +247,49 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   };
 
   return createPortal(
-    <div className="fixed inset-0 bg-black z-[9999] flex flex-col">
+    <div className="fixed inset-0 bg-black z-[9999] flex flex-col touch-manipulation">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-black/50 text-white">
-        <Button variant="ghost" size="sm" onClick={onClose}>
+      <div className="flex items-center justify-between p-4 bg-black/50 text-white relative z-10">
+        <button 
+          onClick={(e) => {
+            console.log('❌ CLOSE BUTTON CLICKED!', e);
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          onTouchStart={(e) => {
+            console.log('👆 TOUCH START on close button');
+            e.stopPropagation();
+          }}
+          className="p-2 rounded-lg bg-black/30 hover:bg-black/50 text-white border-none cursor-pointer touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+        >
           <X className="h-5 w-5" />
-        </Button>
-        <span className="text-sm font-medium">
+        </button>
+        <span className="text-sm font-medium select-none">
           Photo Capture ({capturedImages.length}/{maxImages})
         </span>
-        <Button variant="ghost" size="sm" onClick={toggleFlash}>
+        <button 
+          onClick={toggleFlash}
+          className="p-2 rounded-lg bg-black/30 hover:bg-black/50 text-white border-none cursor-pointer touch-manipulation"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+        >
           <Flashlight className={`h-5 w-5 ${flashEnabled ? 'text-yellow-400' : ''}`} />
-        </Button>
+        </button>
       </div>
 
       {/* Camera View */}
-      <div className="flex-1 relative overflow-hidden" onTouchStart={handleTapToFocus}>
+      <div 
+        className="flex-1 relative overflow-hidden select-none touch-manipulation" 
+        onTouchStart={handleTapToFocus}
+        style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }}
+      >
         <video
           ref={videoRef}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover select-none"
           playsInline
           muted
+          style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
         />
         
         {/* Focus Point Indicator */}
@@ -338,54 +360,60 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       )}
 
       {/* Controls */}
-      <div className="bg-black p-6">
+      <div className="bg-black p-6 relative z-10">
         <div className="flex items-center justify-between max-w-md mx-auto">
           {/* Retake Button */}
-          <Button
-            variant="outline"
-            size="lg"
+          <button
             onClick={retake}
             disabled={capturedImages.length === 0}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            className="px-4 py-2 bg-white/10 border border-white/20 text-white hover:bg-white/20 disabled:opacity-50 rounded-lg cursor-pointer touch-manipulation flex items-center"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <RotateCcw className="h-5 w-5 mr-2" />
             Retake
-          </Button>
+          </button>
 
           {/* Capture Button */}
-          <Button
-            size="lg"
-            onClick={captureImage}
+          <button
+            onClick={(e) => {
+              console.log('🔥 CAPTURE BUTTON CLICKED!', e);
+              e.preventDefault();
+              e.stopPropagation();
+              captureImage();
+            }}
+            onTouchStart={(e) => {
+              console.log('👆 TOUCH START on capture button');
+              e.stopPropagation();
+            }}
             disabled={isCapturing || capturedImages.length >= maxImages}
-            className="h-16 w-16 rounded-full bg-white hover:bg-gray-100 disabled:opacity-50"
+            className="h-16 w-16 rounded-full bg-white hover:bg-gray-100 disabled:opacity-50 cursor-pointer touch-manipulation flex items-center justify-center border-none"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Camera className="h-6 w-6 text-black" />
-          </Button>
+          </button>
 
           {/* Done Button */}
-          <Button
-            variant="outline"
-            size="lg"
+          <button
             onClick={finishScanning}
             disabled={capturedImages.length === 0}
-            className="bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 border border-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 rounded-lg cursor-pointer touch-manipulation flex items-center"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <Check className="h-5 w-5 mr-2" />
             Done
-          </Button>
+          </button>
         </div>
 
         {/* Camera Toggle */}
         <div className="flex justify-center mt-4">
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={toggleCamera}
-            className="text-white hover:bg-white/10"
+            className="px-4 py-2 text-white hover:bg-white/10 rounded-lg cursor-pointer touch-manipulation flex items-center"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             Switch Camera
-          </Button>
+          </button>
         </div>
       </div>
     </div>,
