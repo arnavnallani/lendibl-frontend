@@ -250,22 +250,29 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       onClick={async () => {
                         try {
                           console.log('🧪 Starting manual push notification test...');
+                          console.log('Current notification permission:', Notification.permission);
                           
-                          // First try to register push notifications if they don't exist
-                          try {
-                            console.log('🔄 Attempting to register push notifications...');
-                            await registerPushOnLogin();
-                          } catch (error) {
-                            console.error('❌ Failed to register push notifications:', error);
+                          // Check current permission status
+                          if (Notification.permission === 'denied') {
+                            alert('Notifications are blocked. To enable them:\n\n1. Click the lock icon (🔒) in your browser address bar\n2. Change notifications from "Block" to "Allow"\n3. Refresh the page and try again');
+                            return;
                           }
                           
-                          // First check if notifications are granted
+                          // Request permission if not granted
                           if (Notification.permission !== 'granted') {
                             const permission = await Notification.requestPermission();
                             if (permission !== 'granted') {
                               alert('Please allow notifications to test push notifications');
                               return;
                             }
+                          }
+                          
+                          // Try to register push notifications
+                          try {
+                            console.log('🔄 Attempting to register push notifications...');
+                            await registerPushOnLogin();
+                          } catch (error) {
+                            console.error('❌ Failed to register push notifications:', error);
                           }
 
                           const token = localStorage.getItem('auth_token');
