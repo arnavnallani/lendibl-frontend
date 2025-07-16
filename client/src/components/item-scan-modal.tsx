@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, Eye, Upload, X, CheckCircle } from "lucide-react";
+import { Camera, Eye, Upload, X, CheckCircle, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import type { BookingWithDetails } from "@shared/schema";
+import MobileImageScanner from "@/components/mobile-image-scanner";
 
 interface ItemScanModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function ItemScanModal({
   const [scanImages, setScanImages] = useState<string[]>([]);
   const [scanNotes, setScanNotes] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   const saveScanMutation = useMutation({
     mutationFn: async (scanData: any) => {
@@ -205,20 +207,43 @@ export default function ItemScanModal({
               />
               
               {scanImages.length < 8 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="w-full h-32 border-dashed border-2 border-gray-300 hover:border-gray-400"
-                >
-                  <div className="text-center">
-                    <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm text-gray-600">
-                      {isUploading ? 'Uploading...' : 'Click to upload photos'}
-                    </p>
+                <div className="space-y-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-full h-32 border-dashed border-2 border-gray-300 hover:border-gray-400"
+                  >
+                    <div className="text-center">
+                      <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-600">
+                        {isUploading ? 'Uploading...' : 'Click to upload photos'}
+                      </p>
+                    </div>
+                  </Button>
+                  
+                  <div className="flex gap-2 justify-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose Files
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowScanner(true)}
+                      disabled={isUploading}
+                    >
+                      <Scan className="h-4 w-4 mr-2" />
+                      Scan Item
+                    </Button>
                   </div>
-                </Button>
+                </div>
               )}
             </div>
 
@@ -268,6 +293,18 @@ export default function ItemScanModal({
           </div>
         </div>
       </DialogContent>
+      
+      {/* Mobile Scanner Modal */}
+      {showScanner && (
+        <MobileImageScanner
+          isOpen={showScanner}
+          onClose={() => setShowScanner(false)}
+          onImagesCapture={(capturedImages) => {
+            setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
+            setShowScanner(false);
+          }}
+        />
+      )}
     </Dialog>
   );
 }
