@@ -1,19 +1,13 @@
 {
-  "name": "lendibl - Peer-to-Peer Rental Marketplace",
-  "short_name": "lendibl",
-  "description": "Rent and list items in your community with lendibl's secure rental marketplace",
+  "name": "lendibl",
+  "short_name": "lendibl", 
+  "description": "Peer-to-peer rental marketplace",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#2563eb",
   "orientation": "portrait-primary",
-  "categories": ["shopping", "business", "finance"],
   "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "32x32",
-      "type": "image/x-icon"
-    },
     {
       "src": "/icon-192.svg",
       "sizes": "192x192",
@@ -26,5 +20,7 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en-US"
 }

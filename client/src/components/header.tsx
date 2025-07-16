@@ -248,33 +248,38 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={async () => {
-                        // Simple notification test first
-                        if (Notification.permission === 'granted') {
-                          try {
-                            console.log('📱 Testing simple browser notification...');
-                            new Notification('Simple Test ✅', {
-                              body: 'This is a simple browser notification test',
-                              icon: '/icon-192.svg'
-                            });
-                            alert('✅ Simple notification should appear. If not, your device may not support notifications.');
-                            return;
-                          } catch (error) {
-                            console.error('❌ Simple notification failed:', error);
-                            alert(`❌ Simple notification failed: ${error.message}`);
-                            return;
-                          }
+                        // Detect mobile Safari
+                        const isMobileSafari = /iP(ad|hone|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                        
+                        console.log('Device detection:', {
+                          userAgent: navigator.userAgent,
+                          isMobileSafari,
+                          isIOS,
+                          notificationSupport: 'Notification' in window,
+                          permission: Notification.permission
+                        });
+                        
+                        if (isMobileSafari || isIOS) {
+                          alert(`📱 iOS/Safari Mobile Detected\n\nNotifications work differently on iOS:\n\n✅ Desktop notifications work fully\n⚠️ Mobile Safari has limited support\n🏠 Add lendibl to your home screen for better notifications\n\nTo add to home screen:\n1. Tap the Share button\n2. Select "Add to Home Screen"\n3. Notifications will work better as an app`);
+                          return;
                         }
                         
-                        // Request permission first
-                        const permission = await Notification.requestPermission();
-                        if (permission === 'granted') {
-                          new Notification('Permission Granted ✅', {
-                            body: 'Notifications are now enabled!',
-                            icon: '/icon-192.svg'
-                          });
-                          alert('✅ Permission granted! Notifications should work.');
-                        } else {
-                          alert('❌ Notification permission denied or not supported on this device.');
+                        // Test on non-iOS devices
+                        try {
+                          const permission = await Notification.requestPermission();
+                          if (permission === 'granted') {
+                            new Notification('Test Notification', {
+                              body: 'Notifications are working!',
+                              icon: '/icon-192.svg'
+                            });
+                            alert('✅ Notification test successful!');
+                          } else {
+                            alert('❌ Notification permission denied');
+                          }
+                        } catch (error) {
+                          console.error('Notification error:', error);
+                          alert(`❌ Notification not supported: ${error.message}`);
                         }
                       }}
                     >
