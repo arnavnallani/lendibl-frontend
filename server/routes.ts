@@ -2518,6 +2518,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         actualItemTitle = item.title;
       }
 
+      // Get reporter's full information
+      const reporterUser = await storage.getUser(req.user!.id);
+      const reporterName = reporterUser ? `${reporterUser.firstName} ${reporterUser.lastName}` : (req.user!.username || 'Unknown User');
+
       // Create report object
       const report = {
         reportId: `report_${Date.now()}_${Math.random().toString(36).substring(7)}`,
@@ -2526,7 +2530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         contactEmail: req.user!.email, // Use authenticated user's email automatically
         reporterRole,
         reporterId: req.user!.id,
-        reporterUsername: req.user!.username,
+        reporterUsername: reporterName,
         rentalId: rentalId || null,
         itemTitle: actualItemTitle || 'Not specified',
         submittedAt,
