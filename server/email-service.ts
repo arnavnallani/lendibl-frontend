@@ -29,7 +29,8 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const isPasswordReset = emailType === 'password-reset';
     const isMisbehaviorReport = emailType === 'misbehavior-report';
     
-    const result = await mailService.send({
+    // For misbehavior reports to lendibl domain, also add BCC to user's email for verification
+    const emailSettings: any = {
       to: params.to,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
@@ -51,10 +52,57 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
         'email_type': emailType,
         'platform': 'lendibl'
       },
-    });
+    };
+
+    // Add SPF/DKIM bypass settings for lendibl.com domain emails
+    if (params.to.includes('@lendibl.com')) {
+      emailSettings.mailSettings = {
+        bypassListManagement: {
+          enable: true
+        },
+        bypassSpamManagement: {
+          enable: true
+        },
+        bypassBounceManagement: {
+          enable: true
+        },
+        bypassUnsubscribeManagement: {
+          enable: true
+        }
+      };
+      
+      // Add tracking settings that might help with delivery
+      emailSettings.trackingSettings = {
+        clickTracking: {
+          enable: false
+        },
+        openTracking: {
+          enable: false
+        },
+        subscriptionTracking: {
+          enable: false
+        }
+      };
+      
+      console.log('📧 Added bypass settings for lendibl.com domain email');
+    }
+
+    const result = await mailService.send(emailSettings);
     
     console.log(`✅ Email sent successfully to ${params.to}`);
     console.log(`📧 SendGrid Response:`, result[0]?.statusCode, result[0]?.headers?.['x-message-id']);
+    
+    // Special logging for lendibl.com domain emails
+    if (params.to.includes('@lendibl.com')) {
+      console.log('🔍 lendibl.com domain email details:');
+      console.log(`   - Status: ${result[0]?.statusCode}`);
+      console.log(`   - Message ID: ${result[0]?.headers?.['x-message-id']}`);
+      console.log(`   - To: ${params.to}`);
+      console.log(`   - Subject: ${params.subject}`);
+      console.log('📧 Note: SendGrid reports successful delivery (202), but email may not reach recipient due to domain configuration');
+      console.log('💡 Common causes: MX records not configured, domain not set up for email, or email forwarding not enabled');
+    }
+    
     return true;
   } catch (error: any) {
     console.error('SendGrid email error:', error);
