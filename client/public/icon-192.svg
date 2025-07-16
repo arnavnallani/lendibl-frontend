@@ -1,19 +1,23 @@
 <svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
-  <rect width="192" height="192" rx="24" fill="#2563eb"/>
+  <!-- White background for better visibility on home screen -->
+  <rect width="192" height="192" rx="24" fill="white"/>
+  
+  <!-- Circular container for the logo -->
+  <circle cx="96" cy="96" r="70" fill="none" stroke="#2563eb" stroke-width="3"/>
   
   <!-- Person on left -->
-  <circle cx="65" cy="70" r="15" fill="white"/>
-  <path d="M50 90 Q65 85 80 90 Q80 105 65 110 Q50 105 50 90 Z" fill="white"/>
+  <circle cx="70" cy="85" r="12" fill="#2563eb"/>
+  <path d="M58 105 Q70 100 82 105 Q82 120 70 125 Q58 120 58 105 Z" fill="#2563eb"/>
   
   <!-- Person on right -->
-  <circle cx="127" cy="70" r="15" fill="white"/>
-  <path d="M112 90 Q127 85 142 90 Q142 105 127 110 Q112 105 112 90 Z" fill="white"/>
+  <circle cx="122" cy="85" r="12" fill="#2563eb"/>
+  <path d="M110 105 Q122 100 134 105 Q134 120 122 125 Q110 120 110 105 Z" fill="#2563eb"/>
   
   <!-- Top curved arrow (left to right) -->
-  <path d="M80 60 Q96 35 112 60" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <path d="M107 55 L112 60 L107 65" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M82 75 Q96 50 110 75" stroke="#2563eb" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <polygon points="108,70 114,75 108,80" fill="#2563eb"/>
   
   <!-- Bottom curved arrow (right to left) -->
-  <path d="M112 132 Q96 157 80 132" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <path d="M85 137 L80 132 L85 127" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M110 117 Q96 142 82 117" stroke="#2563eb" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <polygon points="84,122 78,117 84,112" fill="#2563eb"/>
 </svg>
