@@ -11,7 +11,10 @@ import {
   Calendar,
   DollarSign,
   User,
-  Send
+  Send,
+  Camera,
+  Eye,
+  AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +26,8 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import type { BookingWithDetails } from "@shared/schema";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
+import ReportMisbehaviorModal from "@/components/report-misbehavior-modal";
+import ItemScanModal from "@/components/item-scan-modal";
 
 
 export default function ActionDashboard() {
@@ -31,6 +36,10 @@ export default function ActionDashboard() {
   const [selectedRental, setSelectedRental] = useState<BookingWithDetails | null>(null);
   const [messageText, setMessageText] = useState("");
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [scanMode, setScanMode] = useState<'scan' | 'view'>('scan');
+  const [reportUserRole, setReportUserRole] = useState<'owner' | 'renter'>('owner');
 
   
   // Extract city and state from location for privacy
@@ -130,6 +139,24 @@ export default function ActionDashboard() {
   const handleSendMessage = (rental: BookingWithDetails) => {
     setSelectedRental(rental);
     setIsMessageModalOpen(true);
+  };
+
+  const handleScanItem = (rental: BookingWithDetails) => {
+    setSelectedRental(rental);
+    setScanMode('scan');
+    setIsScanModalOpen(true);
+  };
+
+  const handleViewScan = (rental: BookingWithDetails) => {
+    setSelectedRental(rental);
+    setScanMode('view');
+    setIsScanModalOpen(true);
+  };
+
+  const handleReportMisbehavior = (rental: BookingWithDetails, userRole: 'owner' | 'renter') => {
+    setSelectedRental(rental);
+    setReportUserRole(userRole);
+    setIsReportModalOpen(true);
   };
 
   const submitMessage = () => {
@@ -322,6 +349,43 @@ export default function ActionDashboard() {
                       )}
 
                       
+                      {/* Item Protection Workflow */}
+                      {/* Pre-rental: Owner can scan item */}
+                      {isOwner && status === 'pre-rental' && (
+                        <Button
+                          onClick={() => handleScanItem(rental)}
+                          variant="outline"
+                          className="flex items-center gap-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        >
+                          <Camera className="h-4 w-4" />
+                          Scan Item
+                        </Button>
+                      )}
+
+                      {/* During rental: View item scan */}
+                      {status === 'active' && (
+                        <Button
+                          onClick={() => handleViewScan(rental)}
+                          variant="outline"
+                          className="flex items-center gap-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View Item Scan
+                        </Button>
+                      )}
+
+                      {/* Post-rental: Report misbehavior for both parties */}
+                      {status === 'completed' && (
+                        <Button
+                          onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
+                          variant="outline"
+                          className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                        >
+                          <AlertTriangle className="h-4 w-4" />
+                          Report Misbehavior
+                        </Button>
+                      )}
+
                       {/* Owner Controls */}
                       {isOwner && canStartRental(rental) && (
                         <Button
@@ -442,7 +506,21 @@ export default function ActionDashboard() {
         </DialogContent>
       </Dialog>
 
+      {/* Item Scan Modal */}
+      <ItemScanModal
+        isOpen={isScanModalOpen}
+        onClose={() => setIsScanModalOpen(false)}
+        rental={selectedRental}
+        mode={scanMode}
+      />
 
+      {/* Report Misbehavior Modal */}
+      <ReportMisbehaviorModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        rental={selectedRental}
+        userRole={reportUserRole}
+      />
     </div>
   );
 }

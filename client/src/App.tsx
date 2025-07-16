@@ -9,6 +9,7 @@ import { AIBanner } from "@/components/ai-banner";
 import { WhoWeAreBanner } from "@/components/who-we-are-banner";
 import AiChatbot from "@/components/AiChatbot";
 import ReviewPromptProvider from "@/components/ReviewPromptProvider";
+import TestReportPopup from "@/components/test-report-popup";
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
@@ -57,6 +58,7 @@ function App() {
           <Router />
           <AiChatbot />
           <ReviewPromptProvider />
+          <TestReportPopup />
         </TooltipProvider>
       </AuthContext.Provider>
     </QueryClientProvider>

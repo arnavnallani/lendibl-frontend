@@ -166,4 +166,36 @@ export const api = {
     const res = await apiRequest("GET", url);
     return res.json();
   },
+
+  // Item Protection Workflow
+  saveItemScan: async (scanData: {
+    rentalId: number;
+    images: string[];
+    notes: string;
+    scannedAt: string;
+  }): Promise<any> => {
+    const res = await apiRequest("POST", "/api/item-scans", scanData);
+    return res.json();
+  },
+
+  getItemScan: async (rentalId: number): Promise<any> => {
+    const res = await apiRequest("GET", `/api/item-scans/${rentalId}`);
+    return res.json();
+  },
+
+  submitMisbehaviorReport: async (reportData: {
+    incidentType: string;
+    severity: string;
+    description: string;
+    requestedAction: string;
+    contactEmail: string;
+    agreesToTerms: boolean;
+    rentalId?: number;
+    itemTitle?: string;
+    reporterRole: 'owner' | 'renter';
+    submittedAt: string;
+  }): Promise<any> => {
+    const res = await apiRequest("POST", "/api/misbehavior-reports", reportData);
+    return res.json();
+  },
 };

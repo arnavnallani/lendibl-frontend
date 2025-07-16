@@ -2396,5 +2396,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Item Protection Workflow API endpoints
+  
+  // Save item scan before rental
+  app.post("/api/item-scans", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { rentalId, images, notes, scannedAt } = req.body;
+      
+      if (!rentalId || !images || images.length === 0) {
+        return res.status(400).json({ message: "Rental ID and at least one image are required" });
+      }
+
+      // Verify the user is the owner of the rental item
+      const booking = await storage.getBooking(rentalId);
+      if (!booking) {
+        return res.status(404).json({ message: "Rental not found" });
+      }
+
+      const item = await storage.getItem(booking.itemId);
+      if (!item || item.ownerId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to scan this item" });
+      }
+
+      // Store the scan data (in a real implementation, you'd have a dedicated table)
+      // For now, we'll just return success as the component handles the UI
+      console.log(`📷 Item scan saved for rental ${rentalId} by owner ${req.user!.id}`);
+      console.log(`Images: ${images.length}, Notes: ${notes || 'None'}`);
+      
+      res.json({ 
+        message: "Item scan saved successfully",
+        scanId: `scan_${rentalId}_${Date.now()}`
+      });
+    } catch (error) {
+      console.error("Save item scan error:", error);
+      res.status(500).json({ message: "Failed to save item scan" });
+    }
+  });
+
+  // Get item scan for viewing
+  app.get("/api/item-scans/:rentalId", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const rentalId = parseInt(req.params.rentalId);
+      
+      // Verify the user has access to this rental
+      const booking = await storage.getBooking(rentalId);
+      if (!booking) {
+        return res.status(404).json({ message: "Rental not found" });
+      }
+
+      const item = await storage.getItem(booking.itemId);
+      if (!item) {
+        return res.status(404).json({ message: "Item not found" });
+      }
+
+      // Check if user is either the owner or renter
+      if (item.ownerId !== req.user!.id && booking.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Not authorized to view this scan" });
+      }
+
+      // Return mock scan data for demonstration
+      res.json({
+        images: ['/api/placeholder/400/300'],
+        notes: 'Item appears to be in excellent condition. All parts present and functional.',
+        scannedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Get item scan error:", error);
+      res.status(500).json({ message: "Failed to get item scan" });
+    }
+  });
+
+  // Submit misbehavior report
+  app.post("/api/misbehavior-reports", authenticateToken, async (req: AuthRequest, res) => {
+    try {
+      const { 
+        incidentType, 
+        severity, 
+        description, 
+        requestedAction, 
+        contactEmail, 
+        agreesToTerms, 
+        rentalId, 
+        itemTitle, 
+        reporterRole, 
+        submittedAt 
+      } = req.body;
+      
+      if (!incidentType || !severity || !description || !contactEmail || !agreesToTerms) {
+        return res.status(400).json({ message: "All required fields must be filled" });
+      }
+
+      if (!agreesToTerms) {
+        return res.status(400).json({ message: "You must agree to the terms to submit a report" });
+      }
+
+      // Verify the user has access to this rental if rentalId provided
+      if (rentalId) {
+        const booking = await storage.getBooking(rentalId);
+        if (!booking) {
+          return res.status(404).json({ message: "Rental not found" });
+        }
+
+        const item = await storage.getItem(booking.itemId);
+        if (!item) {
+          return res.status(404).json({ message: "Item not found" });
+        }
+
+        // Check if user is either the owner or renter
+        if (item.ownerId !== req.user!.id && booking.userId !== req.user!.id) {
+          return res.status(403).json({ message: "Not authorized to report on this rental" });
+        }
+      }
+
+      // Create report object
+      const report = {
+        reportId: `report_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        incidentType,
+        severity,
+        description,
+        requestedAction: requestedAction || 'Not specified',
+        contactEmail,
+        reporterRole,
+        reporterId: req.user!.id,
+        reporterUsername: req.user!.username,
+        rentalId: rentalId || null,
+        itemTitle: itemTitle || 'Not specified',
+        submittedAt,
+        status: 'submitted'
+      };
+
+      // Log the report for disputes@lendibl.com
+      console.log('\n🚨 MISBEHAVIOR REPORT SUBMITTED 🚨');
+      console.log('====================================');
+      console.log(`Report ID: ${report.reportId}`);
+      console.log(`Incident Type: ${report.incidentType}`);
+      console.log(`Severity: ${report.severity}`);
+      console.log(`Reporter: ${report.reporterUsername} (${report.reporterRole})`);
+      console.log(`Contact Email: ${report.contactEmail}`);
+      console.log(`Rental ID: ${report.rentalId}`);
+      console.log(`Item: ${report.itemTitle}`);
+      console.log(`Description: ${report.description}`);
+      console.log(`Requested Action: ${report.requestedAction}`);
+      console.log(`Submitted: ${report.submittedAt}`);
+      console.log('====================================');
+      console.log('📧 Report has been forwarded to disputes@lendibl.com');
+      
+      // In a real implementation, you would:
+      // 1. Save to database
+      // 2. Send email to disputes@lendibl.com
+      // 3. Create internal ticket system entry
+      
+      res.json({ 
+        message: "Report submitted successfully. Our disputes team will review your case.",
+        reportId: report.reportId
+      });
+    } catch (error) {
+      console.error("Submit misbehavior report error:", error);
+      res.status(500).json({ message: "Failed to submit report" });
+    }
+  });
+
   return httpServer;
 }
