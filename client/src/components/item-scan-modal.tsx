@@ -172,7 +172,12 @@ export default function ItemScanModal({
 
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      console.log('🎯 ItemScanModal Dialog onOpenChange:', open);
+      if (!open) {
+        onClose();
+      }
+    }}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="scan-modal-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -299,8 +304,12 @@ export default function ItemScanModal({
     {/* Mobile Scanner Modal - Outside main dialog for proper z-index */}
     {showScanner && (
       <SimpleCameraScanner
-        onClose={() => setShowScanner(false)}
+        onClose={() => {
+          console.log('🎯 ItemScanModal: SimpleCameraScanner onClose called');
+          setShowScanner(false);
+        }}
         onCapture={(capturedImages: string[]) => {
+          console.log('📸 ItemScanModal: Images captured from camera:', capturedImages.length);
           setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
           setShowScanner(false);
         }}

@@ -140,13 +140,17 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
   };
 
   const finishScanning = () => {
+    console.log('🎯 SimpleCameraScanner finishScanning called');
     if (capturedImages.length > 0) {
+      console.log('📸 Captured images:', capturedImages.length);
       onCapture(capturedImages);
     }
     // Only close the camera scanner, not the parent modal
     if (stream) {
+      console.log('📱 Stopping camera stream');
       stream.getTracks().forEach(track => track.stop());
     }
+    console.log('❌ Calling onClose to return to scan modal');
     onClose(); // This will close the camera and return to the scan modal
   };
 
@@ -167,7 +171,12 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-black/70 text-white flex-shrink-0">
         <button
-          onClick={onClose}
+          onClick={(e) => {
+            console.log('❌ X button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
           className="p-3 cursor-pointer bg-white/10 rounded-lg active:bg-white/20"
           style={{ 
             WebkitTapHighlightColor: 'transparent',
@@ -274,7 +283,12 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
 
           {/* Done Button */}
           <button
-            onClick={finishScanning}
+            onClick={(e) => {
+              console.log('✅ Done button clicked');
+              e.preventDefault();
+              e.stopPropagation();
+              finishScanning();
+            }}
             disabled={capturedImages.length === 0}
             className={`px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer flex items-center ${
               capturedImages.length === 0 ? 'opacity-50' : 'active:bg-blue-700'
