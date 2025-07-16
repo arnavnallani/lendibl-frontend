@@ -130,6 +130,14 @@ export class BrowserNotificationService {
       data: { type: 'payment_received' }
     });
   }
+
+  async showReservationSuccessNotification(itemTitle: string) {
+    return this.showNotification('Reservation Confirmed! 🎉', {
+      body: `Your reservation for ${itemTitle} has been successfully processed`,
+      url: '/action-dashboard',
+      data: { type: 'reservation_success' }
+    });
+  }
 }
 
 export const browserNotifications = BrowserNotificationService.getInstance();

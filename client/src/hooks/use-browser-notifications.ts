@@ -83,6 +83,10 @@ export function useBrowserNotifications() {
             case 'listing_published':
               // Already handled in list-item page
               break;
+              
+            case 'reservation_success':
+              // Already handled in booking modal
+              break;
           }
         }
       } catch (error) {

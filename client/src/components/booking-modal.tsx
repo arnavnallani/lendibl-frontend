@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { api } from "@/lib/api";
+import { browserNotifications } from "@/lib/browser-notifications";
 import { format } from "date-fns";
 import type { ItemWithDetails, InsertBooking } from "@shared/schema";
 import AuthModal from "./auth-modal";
@@ -67,6 +68,12 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
         title: "Reservation Confirmed!",
         description: "Your payment has been processed and the owner will be notified.",
       });
+      
+      // Show browser notification
+      if (item) {
+        browserNotifications.showReservationSuccessNotification(item.title);
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       onClose();
       setStartDate("");
@@ -109,6 +116,12 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
         title: "Payment Confirmed!",
         description: "Your payment has been processed and the owner will be notified.",
       });
+      
+      // Show browser notification
+      if (item) {
+        browserNotifications.showReservationSuccessNotification(item.title);
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       onClose();
       setStartDate("");
