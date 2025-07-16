@@ -14,7 +14,8 @@ import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
 import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
-import { users } from "@shared/schema";
+import { users, itemScans } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { refundService } from "./refund-service";
 import { responseTrackingService } from "./response-tracking-service";
 import { sendPasswordResetEmail, sendEmail } from "./email-service";
@@ -2365,14 +2366,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to scan this item" });
       }
 
-      // Store the scan data (in a real implementation, you'd have a dedicated table)
-      // For now, we'll just return success as the component handles the UI
+      // Store the scan data in the database
+      const scanData = {
+        bookingId: rentalId,
+        scanType: 'pre_rental',
+        scanImages: images,
+        userId: req.user!.id,
+      };
+
+      const [savedScan] = await db.insert(itemScans).values(scanData).returning();
+      
       console.log(`📷 Item scan saved for rental ${rentalId} by owner ${req.user!.id}`);
       console.log(`Images: ${images.length}, Notes: ${notes || 'None'}`);
       
       res.json({ 
         message: "Item scan saved successfully",
-        scanId: `scan_${rentalId}_${Date.now()}`
+        scanId: savedScan.id,
+        scanData: {
+          images: savedScan.scanImages,
+          notes: notes || '',
+          scannedAt: savedScan.createdAt
+        }
       });
     } catch (error) {
       console.error("Save item scan error:", error);
@@ -2401,11 +2415,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to view this scan" });
       }
 
-      // Return mock scan data for demonstration
+      // Retrieve actual scan data from database
+      const existingScan = await db
+        .select()
+        .from(itemScans)
+        .where(eq(itemScans.bookingId, rentalId))
+        .limit(1);
+
+      if (existingScan.length === 0) {
+        return res.status(404).json({ message: "No scan data found for this rental" });
+      }
+
+      const scanData = existingScan[0];
       res.json({
-        images: ['/api/placeholder/400/300'],
-        notes: 'Item appears to be in excellent condition. All parts present and functional.',
-        scannedAt: new Date().toISOString()
+        images: scanData.scanImages,
+        notes: '',
+        scannedAt: scanData.createdAt
       });
     } catch (error) {
       console.error("Get item scan error:", error);

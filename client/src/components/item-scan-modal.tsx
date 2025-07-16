@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Camera, Eye, Upload, X, CheckCircle, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -105,15 +105,13 @@ export default function ItemScanModal({
     saveScanMutation.mutate(scanData);
   };
 
-  // For viewing mode, we would fetch the existing scan data
-  // For now, using placeholder data for demonstration
-  const existingScan = mode === 'view' ? {
-    images: ['/api/placeholder/400/300'], // This would come from the API
-    notes: 'Item appears to be in excellent condition. All parts present and functional.',
-    scannedAt: new Date().toISOString()
-  } : null;
+  // Fetch actual scan data for viewing mode
+  const { data: existingScan, isLoading: isLoadingScan } = useQuery({
+    queryKey: ['/api/item-scans', rental?.id],
+    enabled: mode === 'view' && !!rental?.id,
+  }) as { data: { images: string[]; notes: string; scannedAt: string } | undefined; isLoading: boolean };
 
-  if (mode === 'view' && existingScan) {
+  if (mode === 'view') {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="scan-view-description">
@@ -126,6 +124,16 @@ export default function ItemScanModal({
           <div id="scan-view-description" className="sr-only">
             View the pre-rental item scan documentation
           </div>
+
+          {isLoadingScan ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+          ) : !existingScan ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No scan data found for this rental.</p>
+            </div>
+          ) : (
           
           <div className="space-y-6">
             <div className="bg-blue-50 p-4 rounded-lg">
@@ -170,6 +178,7 @@ export default function ItemScanModal({
               </Button>
             </div>
           </div>
+          )}
         </DialogContent>
       </Dialog>
     );
