@@ -135,52 +135,46 @@ function urlB64ToUint8Array(base64String: string): Uint8Array {
 
 // Register push notification when user logs in
 export async function registerPushOnLogin(): Promise<boolean> {
-  console.log('🚀 Starting push notification registration on login...');
-  
-  if ('serviceWorker' in navigator && 'PushManager' in window) {
+  if ('serviceWorker' in navigator && 'PushManager' in window && Notification.permission === 'granted') {
     try {
-      // Check current permission
-      console.log('📋 Current notification permission:', Notification.permission);
+      // Wait for service worker registration
+      let registration = await navigator.serviceWorker.getRegistration();
       
-      // First request permission if needed
-      if (Notification.permission === 'default') {
-        console.log('📋 Requesting notification permission...');
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          console.log('❌ Notification permission not granted:', permission);
-          return false;
-        }
-        console.log('✅ Notification permission granted');
-      } else if (Notification.permission === 'denied') {
-        console.log('❌ Notification permission denied');
-        return false;
+      if (!registration) {
+        // Register service worker if not already registered
+        registration = await navigator.serviceWorker.register('/sw.js');
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for registration
       }
       
       // Wait for service worker to be ready
-      console.log('⏳ Waiting for service worker to be ready...');
-      const registration = await navigator.serviceWorker.ready;
-      console.log('✅ Service worker ready:', registration);
+      await navigator.serviceWorker.ready;
       
-      if (registration) {
-        console.log('🔧 Service worker ready, subscribing to push notifications...');
-        const success = await subscribeToPushNotifications(registration);
-        if (success) {
-          console.log('✅ Push notification registration completed successfully');
-          return true;
-        } else {
-          console.log('❌ Push notification registration failed');
-          return false;
-        }
-      } else {
-        console.log('❌ No service worker registration found');
-        return false;
-      }
+      // Create push subscription
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
+      });
+
+      // Send to server
+      const token = localStorage.getItem('auth_token');
+      if (!token) return false;
+
+      const response = await fetch('/api/push-subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          endpoint: subscription.endpoint,
+          keys: subscription.toJSON().keys
+        })
+      });
+
+      return response.ok;
     } catch (error) {
-      console.error('❌ Failed to register push on login:', error);
       return false;
     }
-  } else {
-    console.log('❌ Push notifications not supported in this browser');
-    return false;
   }
+  return false;
 }
