@@ -337,6 +337,7 @@ The application uses PostgreSQL with the following main entities:
 - July 15, 2025: Integrated comprehensive legal content into Terms of Service including platform role clarification, user responsibilities, damage/loss policy, assumption of risk, liability waivers, dispute handling procedures, and enhanced indemnification clauses for complete legal protection
 - July 16, 2025: Enhanced hero section background visibility - reduced lendibl collage image prominence with stronger blue overlays (80-85% opacity) and enhanced text contrast with bold shadows and brighter colors for optimal readability
 - July 16, 2025: Implemented comprehensive item protection workflow system with three phases: pre-rental "Scan Item" button (owner only), during-rental "View Item Scan" button, and post-rental "Report Misbehavior" button (both parties). All reports sent to disputes@lendibl.com with detailed logging. Added testing popup that shows report modal immediately when app opens for development testing
+- July 16, 2025: Simplified misbehavior report form by removing severity level and requested action fields - now only requires incident type, description, contact email, and terms agreement for streamlined dispute reporting
 
 ## User Preferences
 

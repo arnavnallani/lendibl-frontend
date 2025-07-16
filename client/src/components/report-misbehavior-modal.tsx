@@ -28,9 +28,7 @@ export default function ReportMisbehaviorModal({
   const { toast } = useToast();
   const [reportData, setReportData] = useState({
     incidentType: '',
-    severity: '',
     description: '',
-    requestedAction: '',
     contactEmail: '',
     agreesToTerms: false
   });
@@ -53,12 +51,7 @@ export default function ReportMisbehaviorModal({
         'Other'
       ];
 
-  const severityLevels = [
-    'Low - Minor issue',
-    'Medium - Significant concern',
-    'High - Serious violation',
-    'Critical - Major damage/loss'
-  ];
+
 
   const submitReportMutation = useMutation({
     mutationFn: async (reportData: any) => {
@@ -72,9 +65,7 @@ export default function ReportMisbehaviorModal({
       onClose();
       setReportData({
         incidentType: '',
-        severity: '',
         description: '',
-        requestedAction: '',
         contactEmail: '',
         agreesToTerms: false
       });
@@ -89,7 +80,7 @@ export default function ReportMisbehaviorModal({
   });
 
   const handleSubmit = () => {
-    if (!reportData.incidentType || !reportData.severity || !reportData.description || 
+    if (!reportData.incidentType || !reportData.description || 
         !reportData.contactEmail || !reportData.agreesToTerms) {
       toast({
         title: "Missing Information",
@@ -165,22 +156,7 @@ export default function ReportMisbehaviorModal({
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="severity">Severity Level *</Label>
-              <Select 
-                value={reportData.severity} 
-                onValueChange={(value) => setReportData({...reportData, severity: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select severity level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {severityLevels.map((level) => (
-                    <SelectItem key={level} value={level}>{level}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
 
             <div>
               <Label htmlFor="description">Detailed Description *</Label>
@@ -193,16 +169,7 @@ export default function ReportMisbehaviorModal({
               />
             </div>
 
-            <div>
-              <Label htmlFor="requested-action">Requested Action</Label>
-              <Textarea
-                id="requested-action"
-                placeholder="What resolution are you seeking? (refund, replacement, warning, etc.)"
-                value={reportData.requestedAction}
-                onChange={(e) => setReportData({...reportData, requestedAction: e.target.value})}
-                className="min-h-[80px]"
-              />
-            </div>
+
 
             <div>
               <Label htmlFor="contact-email">Your Contact Email *</Label>

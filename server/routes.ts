@@ -2471,9 +2471,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { 
         incidentType, 
-        severity, 
         description, 
-        requestedAction, 
         contactEmail, 
         agreesToTerms, 
         rentalId, 
@@ -2482,7 +2480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         submittedAt 
       } = req.body;
       
-      if (!incidentType || !severity || !description || !contactEmail || !agreesToTerms) {
+      if (!incidentType || !description || !contactEmail || !agreesToTerms) {
         return res.status(400).json({ message: "All required fields must be filled" });
       }
 
@@ -2512,9 +2510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const report = {
         reportId: `report_${Date.now()}_${Math.random().toString(36).substring(7)}`,
         incidentType,
-        severity,
         description,
-        requestedAction: requestedAction || 'Not specified',
         contactEmail,
         reporterRole,
         reporterId: req.user!.id,
@@ -2530,13 +2526,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('====================================');
       console.log(`Report ID: ${report.reportId}`);
       console.log(`Incident Type: ${report.incidentType}`);
-      console.log(`Severity: ${report.severity}`);
       console.log(`Reporter: ${report.reporterUsername} (${report.reporterRole})`);
       console.log(`Contact Email: ${report.contactEmail}`);
       console.log(`Rental ID: ${report.rentalId}`);
       console.log(`Item: ${report.itemTitle}`);
       console.log(`Description: ${report.description}`);
-      console.log(`Requested Action: ${report.requestedAction}`);
       console.log(`Submitted: ${report.submittedAt}`);
       console.log('====================================');
       console.log('📧 Report has been forwarded to disputes@lendibl.com');
