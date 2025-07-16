@@ -340,6 +340,7 @@ The application uses PostgreSQL with the following main entities:
 - July 16, 2025: Simplified misbehavior report form by removing severity level and requested action fields - now only requires incident type, description, contact email, and terms agreement for streamlined dispute reporting
 - July 16, 2025: Fixed white screen issue in item protection modals by correcting JSX syntax errors and adding proper accessibility attributes - resolved critical DialogContent closing tag mismatch and added aria-describedby attributes for screen reader compatibility
 - July 16, 2025: Enhanced protection workflow availability - "Report Misbehavior" button now available for both renters and owners at ALL rental stages (pre-rental, active, completed) instead of only after completion, providing comprehensive dispute reporting throughout the rental process
+- July 16, 2025: Improved action dashboard button layout - positioned "Report Misbehavior" button on far right of rental cards, moved "Start Rental Period" button inline with other action buttons for better visual organization
 
 ## User Preferences
 

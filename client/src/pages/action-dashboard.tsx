@@ -374,6 +374,30 @@ export default function ActionDashboard() {
                             View Item Scan
                           </Button>
                         )}
+
+                        {/* Owner Controls inline with other buttons */}
+                        {isOwner && canStartRental(rental) && (
+                          <Button
+                            onClick={() => handleStartRental(rental)}
+                            className="flex items-center gap-2"
+                            disabled={updateRentalStatusMutation.isPending}
+                          >
+                            <PlayCircle className="h-4 w-4" />
+                            Start Rental Period
+                          </Button>
+                        )}
+                        
+                        {isOwner && canEndRental(rental) && (
+                          <Button
+                            onClick={() => handleEndRental(rental)}
+                            variant="outline"
+                            className="flex items-center gap-2"
+                            disabled={updateRentalStatusMutation.isPending}
+                          >
+                            <StopCircle className="h-4 w-4" />
+                            {isOverdue ? 'End Overdue Rental' : 'End Rental Period'}
+                          </Button>
+                        )}
                       </div>
 
                       {/* Report misbehavior button positioned on the far right */}
@@ -387,32 +411,7 @@ export default function ActionDashboard() {
                       </Button>
                     </div>
 
-                    {/* Additional Controls Section */}
-                    <div className="flex flex-wrap gap-3 mt-3">
-                      {/* Owner Controls */}
-                      {isOwner && canStartRental(rental) && (
-                        <Button
-                          onClick={() => handleStartRental(rental)}
-                          className="flex items-center gap-2"
-                          disabled={updateRentalStatusMutation.isPending}
-                        >
-                          <PlayCircle className="h-4 w-4" />
-                          Start Rental Period
-                        </Button>
-                      )}
-                      
-                      {isOwner && canEndRental(rental) && (
-                        <Button
-                          onClick={() => handleEndRental(rental)}
-                          variant="outline"
-                          className="flex items-center gap-2"
-                          disabled={updateRentalStatusMutation.isPending}
-                        >
-                          <StopCircle className="h-4 w-4" />
-                          {isOverdue ? 'End Overdue Rental' : 'End Rental Period'}
-                        </Button>
-                      )}
-                    </div>
+
 
                     {/* Status Messages */}
                     <div className="mt-3">
