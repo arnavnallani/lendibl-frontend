@@ -72,7 +72,7 @@ export class PushNotificationService {
         const allSubscriptions = await db.select().from(pushSubscriptions);
         console.log(`📊 Total subscriptions in database: ${allSubscriptions.length}`);
         
-        return false;
+        return { success: false, message: "No push subscription found for this user" };
       }
       
       console.log(`✅ Found push subscription for user ${userId}`);
@@ -97,16 +97,20 @@ export class PushNotificationService {
       });
 
       await webpush.sendNotification(pushSubscription, payload);
-      console.log(`Push notification sent to user ${userId}: ${notificationData.title}`);
-      return true;
+      console.log(`✅ Push notification sent successfully to user ${userId}: ${notificationData.title}`);
+      return { success: true, message: "Push notification sent successfully" };
     } catch (error) {
-      console.error(`Failed to send push notification to user ${userId}:`, error);
+      console.error(`❌ Error sending push notification to user ${userId}:`, error);
+      console.error(`❌ Error details:`, error.body || error.message);
       
       // If subscription is invalid, remove it
-      if (error.statusCode === 410) {
+      if (error.statusCode === 410 || error.statusCode === 404) {
+        console.log(`🗑️ Removing invalid subscription for user ${userId}`);
         await this.removeSubscription(userId);
+        return { success: false, message: "Push subscription expired. Please re-enable notifications." };
       }
-      return false;
+      
+      return { success: false, message: `Failed to send push notification: ${error.message}` };
     }
   }
 

@@ -39,23 +39,29 @@ export function registerPushRoutes(app: Express) {
     console.log(`🧪 Push test request from user ${req.user?.id}`);
     
     try {
-      const success = await pushNotificationService.sendPushToUser(req.user.id, {
+      const result = await pushNotificationService.sendPushToUser(req.user.id, {
         title: "Test Notification",
         body: "This is a test push notification from lendibl!",
         actionUrl: "/"
       });
 
-      res.json({ success, message: success ? "Test notification sent" : "Failed to send notification" });
+      console.log(`🧪 Push test result for user ${req.user.id}:`, result);
+
+      if (result.success) {
+        res.json({ success: true, message: result.message });
+      } else {
+        res.json({ success: false, message: result.message });
+      }
     } catch (error) {
       console.error("❌ Push test error:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
 
   // Get VAPID public key
   app.get("/api/vapid-public-key", (req, res) => {
     res.json({ 
-      publicKey: 'BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo'
+      publicKey: 'BL3rHN5Zb_fIiGqdZz-DZvbDaSvsPw0sD0pFnBNhRf5Y82Yfb4MxOcAtvneR4o4m-EU3Kxa_of1w4gVCrpG6RE8'
     });
   });
 }
