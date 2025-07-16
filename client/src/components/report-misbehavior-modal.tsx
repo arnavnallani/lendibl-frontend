@@ -162,7 +162,7 @@ export default function ReportMisbehaviorModal({
               <Label htmlFor="description">Detailed Description *</Label>
               <Textarea
                 id="description"
-                placeholder="Please provide a detailed description of what happened, including dates, times, and any relevant details..."
+                placeholder="Please provide a detailed description of what happened, including dates, times, and any other relevant details..."
                 value={reportData.description}
                 onChange={(e) => setReportData({...reportData, description: e.target.value})}
                 className="min-h-[120px]"
