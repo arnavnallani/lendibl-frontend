@@ -337,7 +337,30 @@ export default function ActionDashboard() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3 justify-between items-start">
-                      <div className="flex flex-wrap gap-3">
+                      <div className="flex flex-wrap gap-3 items-center">
+                        {/* Status Messages on far left */}
+                        {status === 'completed' && (
+                          <div className="text-green-600 font-medium flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            {isOwner ? 'Rental completed - Payout processed' : 'Rental completed'}
+                          </div>
+                        )}
+
+                        {/* Renter Status Messages on far left */}
+                        {isRenter && status === 'pre-rental' && (
+                          <div className="text-blue-600 font-medium flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            Waiting for owner to start rental period
+                          </div>
+                        )}
+
+                        {isRenter && status === 'active' && (
+                          <div className="text-blue-600 font-medium flex items-center gap-2">
+                            <PlayCircle className="h-4 w-4" />
+                            Rental is active - enjoy your rental!
+                          </div>
+                        )}
+
                         {status !== 'completed' && (
                           <Button
                             variant="outline"
@@ -400,41 +423,15 @@ export default function ActionDashboard() {
                         )}
                       </div>
 
-                      {/* Right side: Status message or Report button */}
-                      <div className="flex items-center gap-3 ml-auto">
-                        {/* Status Messages inline */}
-                        {status === 'completed' && (
-                          <div className="text-green-600 font-medium flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4" />
-                            {isOwner ? 'Rental completed - Payout processed' : 'Rental completed'}
-                          </div>
-                        )}
-
-                        {/* Renter Status Messages inline */}
-                        {isRenter && status === 'pre-rental' && (
-                          <div className="text-blue-600 font-medium flex items-center gap-2">
-                            <Clock className="h-4 w-4" />
-                            Waiting for owner to start rental period
-                          </div>
-                        )}
-
-                        {isRenter && status === 'active' && (
-                          <div className="text-blue-600 font-medium flex items-center gap-2">
-                            <PlayCircle className="h-4 w-4" />
-                            Rental is active - enjoy your rental!
-                          </div>
-                        )}
-
-                        {/* Report misbehavior button */}
-                        <Button
-                          onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
-                          variant="outline"
-                          className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
-                        >
-                          <AlertTriangle className="h-4 w-4" />
-                          Report Misbehavior
-                        </Button>
-                      </div>
+                      {/* Report misbehavior button on far right */}
+                      <Button
+                        onClick={() => handleReportMisbehavior(rental, isOwner ? 'owner' : 'renter')}
+                        variant="outline"
+                        className="flex items-center gap-2 bg-red-50 border-red-200 text-red-700 hover:bg-red-100 ml-auto"
+                      >
+                        <AlertTriangle className="h-4 w-4" />
+                        Report Misbehavior
+                      </Button>
                     </div>
 
 
