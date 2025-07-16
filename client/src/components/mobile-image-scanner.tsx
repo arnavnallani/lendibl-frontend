@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Camera, X, Check, RotateCcw, Flashlight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -216,8 +217,8 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+  return createPortal(
+    <div className="fixed inset-0 bg-black z-[9999] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-black/50 text-white">
         <Button variant="ghost" size="sm" onClick={onClose}>
@@ -358,6 +359,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

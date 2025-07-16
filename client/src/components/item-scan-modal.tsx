@@ -299,9 +299,8 @@ export default function ItemScanModal({
     {/* Mobile Scanner Modal - Outside main dialog for proper z-index */}
     {showScanner && (
       <MobileImageScanner
-        isOpen={showScanner}
         onClose={() => setShowScanner(false)}
-        onImagesCapture={(capturedImages) => {
+        onCapture={(capturedImages) => {
           setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
           setShowScanner(false);
         }}
