@@ -2509,12 +2509,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if user is either the owner or renter
-        if (item.ownerId !== req.user!.id && booking.userId !== req.user!.id) {
+        if (item.ownerId !== req.user!.id && booking.renterId !== req.user!.id) {
           return res.status(403).json({ message: "Not authorized to report on this rental" });
         }
 
         // Get both parties' information for the dispute team
-        renterInfo = await storage.getUser(booking.userId);
+        renterInfo = await storage.getUser(booking.renterId);
         ownerInfo = await storage.getUser(item.ownerId);
         actualItemTitle = item.title;
       }
