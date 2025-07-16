@@ -171,6 +171,7 @@ export default function ItemScanModal({
   }
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="scan-modal-description">
         <DialogHeader>
@@ -293,18 +294,19 @@ export default function ItemScanModal({
           </div>
         </div>
       </DialogContent>
-      
-      {/* Mobile Scanner Modal */}
-      {showScanner && (
-        <MobileImageScanner
-          isOpen={showScanner}
-          onClose={() => setShowScanner(false)}
-          onImagesCapture={(capturedImages) => {
-            setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
-            setShowScanner(false);
-          }}
-        />
-      )}
     </Dialog>
+    
+    {/* Mobile Scanner Modal - Outside main dialog for proper z-index */}
+    {showScanner && (
+      <MobileImageScanner
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onImagesCapture={(capturedImages) => {
+          setScanImages(prev => [...prev, ...capturedImages].slice(0, 8));
+          setShowScanner(false);
+        }}
+      />
+    )}
+    </>
   );
 }
