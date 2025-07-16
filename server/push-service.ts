@@ -27,6 +27,8 @@ export class PushNotificationService {
   
   async saveSubscription(userId: number, subscription: any) {
     try {
+      console.log(`💾 Saving push subscription for user ${userId}:`, subscription);
+      
       // Save or update push subscription for user
       await db.insert(pushSubscriptions).values({
         userId,
@@ -45,10 +47,10 @@ export class PushNotificationService {
         }
       });
       
-      console.log(`Push subscription saved for user ${userId}`);
+      console.log(`✅ Push subscription saved successfully for user ${userId}`);
       return true;
     } catch (error) {
-      console.error('Failed to save push subscription:', error);
+      console.error('❌ Failed to save push subscription:', error);
       return false;
     }
   }

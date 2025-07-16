@@ -103,7 +103,7 @@ async function registerPushSubscription() {
         // Subscribe to push notifications with the VAPID public key
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlB64ToUint8Array('BMxb5Wk-pKtXjhzjRn8-zBxaZyKjQSfCfhvJeJx7QYxI9NKJw4yVyGFjIEsb_RJjFf5xJjvVJGxZlV5YY3sHGKw')
+          applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
         });
         
         console.log('Push subscription created:', subscription);

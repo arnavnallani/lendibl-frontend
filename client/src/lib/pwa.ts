@@ -27,30 +27,38 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
   try {
     // Check if already subscribed
     const existingSubscription = await registration.pushManager.getSubscription();
-    if (existingSubscription) {
-      console.log('Already subscribed to push notifications');
-      return;
-    }
-
-    // Create new subscription with correct VAPID key
-    const subscription = await registration.pushManager.subscribe({
+    
+    // Always try to save the subscription (even if it exists) to ensure it's in the database
+    const subscription = existingSubscription || await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlB64ToUint8Array('BMxb5Wk-pKtXjhzjRn8-zBxaZyKjQSfCfhvJeJx7QYxI9NKJw4yVyGFjIEsb_RJjFf5xJjvVJGxZlV5YY3sHGKw')
+      applicationServerKey: urlB64ToUint8Array('BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo')
     });
 
-    console.log('Push notification subscription created:', subscription);
+    console.log('🔔 Push notification subscription ready:', subscription);
     
     // Send subscription to server
-    await fetch('/api/push-subscribe', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-      },
-      body: JSON.stringify(subscription)
-    });
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      const response = await fetch('/api/push-subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(subscription)
+      });
+      
+      if (response.ok) {
+        console.log('✅ Push subscription saved successfully to server');
+      } else {
+        const error = await response.json();
+        console.error('❌ Failed to save push subscription:', error);
+      }
+    } else {
+      console.log('⚠️ No auth token available for push subscription');
+    }
   } catch (error) {
-    console.log('Push subscription failed:', error);
+    console.error('❌ Push subscription failed:', error);
   }
 }
 
@@ -98,9 +106,21 @@ function urlB64ToUint8Array(base64String: string): Uint8Array {
 export async function registerPushOnLogin() {
   if ('serviceWorker' in navigator && 'PushManager' in window) {
     try {
+      // First request permission
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          console.log('Notification permission not granted');
+          return;
+        }
+      }
+      
       const registration = await navigator.serviceWorker.getRegistration();
       if (registration) {
+        console.log('Attempting to subscribe to push notifications after login...');
         await subscribeToPushNotifications(registration);
+      } else {
+        console.log('No service worker registration found');
       }
     } catch (error) {
       console.error('Failed to register push on login:', error);
