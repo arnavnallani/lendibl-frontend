@@ -2476,7 +2476,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { 
         incidentType, 
         description, 
-        contactEmail, 
         agreesToTerms, 
         rentalId, 
         itemTitle, 
@@ -2484,7 +2483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         submittedAt 
       } = req.body;
       
-      if (!incidentType || !description || !contactEmail || !agreesToTerms) {
+      if (!incidentType || !description || !agreesToTerms) {
         return res.status(400).json({ message: "All required fields must be filled" });
       }
 
@@ -2524,7 +2523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reportId: `report_${Date.now()}_${Math.random().toString(36).substring(7)}`,
         incidentType,
         description,
-        contactEmail,
+        contactEmail: req.user!.email, // Use authenticated user's email automatically
         reporterRole,
         reporterId: req.user!.id,
         reporterUsername: req.user!.username,

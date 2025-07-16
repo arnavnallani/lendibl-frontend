@@ -186,7 +186,6 @@ export const api = {
   submitMisbehaviorReport: async (reportData: {
     incidentType: string;
     description: string;
-    contactEmail: string;
     agreesToTerms: boolean;
     rentalId?: number;
     itemTitle?: string;

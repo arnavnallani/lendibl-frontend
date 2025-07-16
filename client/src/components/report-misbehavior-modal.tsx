@@ -29,7 +29,6 @@ export default function ReportMisbehaviorModal({
   const [reportData, setReportData] = useState({
     incidentType: '',
     description: '',
-    contactEmail: '',
     agreesToTerms: false
   });
 
@@ -66,7 +65,6 @@ export default function ReportMisbehaviorModal({
       setReportData({
         incidentType: '',
         description: '',
-        contactEmail: '',
         agreesToTerms: false
       });
     },
@@ -80,8 +78,7 @@ export default function ReportMisbehaviorModal({
   });
 
   const handleSubmit = () => {
-    if (!reportData.incidentType || !reportData.description || 
-        !reportData.contactEmail || !reportData.agreesToTerms) {
+    if (!reportData.incidentType || !reportData.description || !reportData.agreesToTerms) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields and agree to the terms.",
@@ -174,15 +171,10 @@ export default function ReportMisbehaviorModal({
 
 
 
-            <div>
-              <Label htmlFor="contact-email">Your Contact Email *</Label>
-              <Input
-                id="contact-email"
-                type="email"
-                placeholder="your.email@example.com"
-                value={reportData.contactEmail}
-                onChange={(e) => setReportData({...reportData, contactEmail: e.target.value})}
-              />
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Contact Information:</strong> Your account details will be automatically included in the report for dispute resolution.
+              </p>
             </div>
 
             <div className="flex items-start space-x-2">
