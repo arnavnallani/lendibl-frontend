@@ -346,6 +346,7 @@ The application uses PostgreSQL with the following main entities:
 - July 16, 2025: Enhanced mobile notification capabilities by converting to Progressive Web App (PWA) with service worker registration, app manifest, and installable functionality - enables app-like mobile notifications that work even when browser is closed and allows users to install lendibl to their home screen
 - July 16, 2025: Implemented full background push notification system using Web Push Protocol with VAPID keys - notifications now work even when app is completely closed through server-side push infrastructure using web-push library, push subscriptions stored in database, integrated with existing notification service for all rental events
 - July 16, 2025: Fixed push notification registration issues by correcting subscription data format and improving error handling - enhanced test button to detect blocked notifications and provide clear instructions to users on how to enable notifications in browser settings
+- July 16, 2025: Completely redesigned push notification registration - test button now directly registers push subscriptions instead of relying on login timing, using proper VAPID key encoding and immediate subscription creation for reliable notification setup
 
 ## User Preferences
 

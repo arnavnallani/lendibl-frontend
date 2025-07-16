@@ -267,20 +267,44 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                             }
                           }
                           
-                          // Try to register push notifications
+                          // Try to register push notifications directly
                           try {
-                            console.log('🔄 Attempting to register push notifications...');
-                            const success = await registerPushOnLogin();
-                            if (success) {
-                              console.log('✅ Push notification registration successful');
-                              alert('✅ Push notifications enabled successfully! You should receive notifications for rental updates.');
+                            // Get service worker registration
+                            let registration = await navigator.serviceWorker.getRegistration();
+                            if (!registration) {
+                              registration = await navigator.serviceWorker.register('/sw.js');
+                              await new Promise(resolve => setTimeout(resolve, 1000));
+                            }
+                            
+                            await navigator.serviceWorker.ready;
+                            
+                            // Create subscription
+                            const subscription = await registration.pushManager.subscribe({
+                              userVisibleOnly: true,
+                              applicationServerKey: new Uint8Array([4, 73, 123, 168, 20, 24, 129, 72, 175, 200, 135, 155, 133, 219, 55, 44, 140, 51, 184, 1, 192, 137, 10, 205, 125, 83, 159, 27, 44, 170, 186, 5, 17, 39, 133, 12, 97, 170, 125, 84, 179, 95, 169, 0, 211, 28, 30, 198, 141, 87, 45, 189, 168, 56, 221, 113, 199, 107, 142, 91, 75, 246, 26, 58])
+                            });
+                            
+                            // Save to server
+                            const token = localStorage.getItem('auth_token');
+                            const response = await fetch('/api/push-subscribe', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                              },
+                              body: JSON.stringify({
+                                endpoint: subscription.endpoint,
+                                keys: subscription.toJSON().keys
+                              })
+                            });
+                            
+                            if (response.ok) {
+                              alert('✅ Push notifications enabled successfully!');
                             } else {
-                              console.log('❌ Push notification registration failed');
-                              alert('❌ Push notification registration failed. Check console for details.');
+                              alert('❌ Failed to save subscription to server');
                             }
                           } catch (error) {
-                            console.error('❌ Failed to register push notifications:', error);
-                            alert('❌ Error registering push notifications: ' + error.message);
+                            alert('❌ Error: ' + error.message);
                           }
 
                           const token = localStorage.getItem('auth_token');
