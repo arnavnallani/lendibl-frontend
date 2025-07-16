@@ -16,6 +16,7 @@ export interface EmailParams {
   subject: string;
   text?: string;
   html?: string;
+  type?: 'password-reset' | 'misbehavior-report' | 'general';
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
@@ -24,26 +25,30 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     console.log(`📧 From: ${process.env.SENDGRID_FROM_EMAIL}`);
     console.log(`📧 Subject: ${params.subject}`);
     
+    const emailType = params.type || 'general';
+    const isPasswordReset = emailType === 'password-reset';
+    const isMisbehaviorReport = emailType === 'misbehavior-report';
+    
     const result = await mailService.send({
       to: params.to,
       from: {
         email: process.env.SENDGRID_FROM_EMAIL!,
-        name: 'lendibl Support'
+        name: isMisbehaviorReport ? 'lendibl Disputes' : 'lendibl Support'
       },
       replyTo: process.env.SENDGRID_FROM_EMAIL!,
       subject: params.subject,
       text: params.text,
       html: params.html,
       headers: {
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
-        'Importance': 'high',
-        'X-Mailer': 'lendibl Password Reset System',
+        'X-Priority': isMisbehaviorReport ? '1' : '3',
+        'X-MSMail-Priority': isMisbehaviorReport ? 'High' : 'Normal',
+        'Importance': isMisbehaviorReport ? 'high' : 'normal',
+        'X-Mailer': isMisbehaviorReport ? 'lendibl Dispute System' : (isPasswordReset ? 'lendibl Password Reset System' : 'lendibl Platform'),
         'List-Unsubscribe': '<mailto:accounts@lendibl.com>',
       },
-      categories: ['password-reset', 'security', 'authentication'],
+      categories: isMisbehaviorReport ? ['dispute', 'misbehavior-report', 'moderation'] : (isPasswordReset ? ['password-reset', 'security', 'authentication'] : ['general', 'platform']),
       customArgs: {
-        'email_type': 'password_reset',
+        'email_type': emailType,
         'platform': 'lendibl'
       },
     });
@@ -102,6 +107,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
   const emailParams: EmailParams = {
     to: email,
     subject: '[lendibl] Password Reset Request - Action Required',
+    type: 'password-reset',
     text: `Hello,
 
 You recently requested to reset your password for your lendibl account. To complete this process, please click the link below:
