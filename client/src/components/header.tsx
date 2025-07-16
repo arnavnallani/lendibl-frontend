@@ -10,6 +10,7 @@ import AuthModal from "./auth-modal";
 import { DynamicSearch } from "./DynamicSearch";
 import { NotificationsPanel, useNotificationCount } from "./notifications-panel";
 import { useAuth } from "@/hooks/use-auth";
+import { registerPushOnLogin } from "@/lib/pwa";
 import logoImage from "@assets/lendibl_logo1_1750383971030.png";
 import mobileLogoImage from "@assets/Image_Editor_1750901898287.png";
 
@@ -248,6 +249,16 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                     <DropdownMenuItem 
                       onClick={async () => {
                         try {
+                          console.log('🧪 Starting manual push notification test...');
+                          
+                          // First try to register push notifications if they don't exist
+                          try {
+                            console.log('🔄 Attempting to register push notifications...');
+                            await registerPushOnLogin();
+                          } catch (error) {
+                            console.error('❌ Failed to register push notifications:', error);
+                          }
+                          
                           // First check if notifications are granted
                           if (Notification.permission !== 'granted') {
                             const permission = await Notification.requestPermission();
