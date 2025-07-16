@@ -69,6 +69,7 @@ function generateSmartCompletions(query: string, items: any[]): any[] {
 }
 import { stripeService } from "./stripe-service";
 import { paypalService } from "./paypal-service";
+import { registerPushRoutes } from "./routes/push";
 import { z } from "zod";
 
 // Initialize Stripe (will be null if no secret key is provided)
@@ -2284,6 +2285,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to confirm condition" });
     }
   });
+
+  // Register push notification routes
+  registerPushRoutes(app);
 
   const httpServer = createServer(app);
   

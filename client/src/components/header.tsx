@@ -245,6 +245,26 @@ export default function Header({ currentMode, onModeChange, onSearch }: HeaderPr
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/push-test', {
+                            method: 'POST',
+                            headers: {
+                              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+                              'Content-Type': 'application/json'
+                            }
+                          });
+                          const result = await response.json();
+                          console.log('Push test result:', result);
+                        } catch (error) {
+                          console.error('Push test error:', error);
+                        }
+                      }}
+                    >
+                      🔔 Test Push Notification
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>

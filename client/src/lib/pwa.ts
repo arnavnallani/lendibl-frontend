@@ -35,7 +35,7 @@ async function subscribeToPushNotifications(registration: ServiceWorkerRegistrat
     // Create new subscription
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: 'BEl62iUYgUivyIebhd_XXXXX' // This would be your VAPID public key
+      applicationServerKey: 'BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo'
     });
 
     console.log('Push notification subscription created:', subscription);

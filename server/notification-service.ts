@@ -2,6 +2,7 @@ import { db } from "./db";
 import { notifications, users } from "@shared/schema";
 import type { InsertNotification } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { pushNotificationService } from './push-service';
 
 export interface NotificationData {
   userId: number;
@@ -35,10 +36,10 @@ export class NotificationService {
       });
 
       // Send push notification to device
-      await this.sendPushNotification(data.userId, {
+      await pushNotificationService.sendPushToUser(data.userId, {
         title: data.title,
         body: data.message,
-        url: data.actionUrl,
+        actionUrl: data.actionUrl,
         data: {
           notificationId: notification.id,
           type: data.type,
@@ -120,41 +121,7 @@ export class NotificationService {
     }
   }
 
-  private async sendPushNotification(userId: number, payload: {
-    title: string;
-    body: string;
-    url?: string;
-    data?: any;
-  }) {
-    try {
-      // Get user's push subscription from database (we'll add this field)
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
-
-      if (!user[0]) return;
-
-      // For now, we'll store the notification to be sent when user visits
-      // In a full implementation, you'd use web-push library with VAPID keys
-      console.log(`Push notification for user ${userId}:`, payload);
-      
-      // Store for client-side push notification sending
-      if (!global.pendingPushNotifications) {
-        global.pendingPushNotifications = new Map();
-      }
-      
-      if (!global.pendingPushNotifications.has(userId)) {
-        global.pendingPushNotifications.set(userId, []);
-      }
-      
-      global.pendingPushNotifications.get(userId)?.push(payload);
-      
-    } catch (error) {
-      console.error('Error sending push notification:', error);
-    }
-  }
+  // Push notifications are now handled by pushNotificationService
 
   // Helper methods for specific notification types
   async notifyBookingRequest(ownerId: number, renterName: string, itemTitle: string, bookingId: number) {
