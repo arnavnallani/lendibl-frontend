@@ -146,12 +146,10 @@ export async function registerPushOnLogin(): Promise<boolean> {
       
       await navigator.serviceWorker.ready;
       
-      // Create subscription using Uint8Array for VAPID key
-      const vapidKey = new Uint8Array([4, 73, 123, 168, 20, 24, 129, 72, 175, 200, 135, 155, 133, 219, 55, 44, 140, 51, 184, 1, 192, 137, 10, 205, 125, 83, 159, 27, 44, 170, 186, 5, 17, 39, 133, 12, 97, 170, 125, 84, 179, 95, 169, 0, 211, 28, 30, 198, 141, 87, 45, 189, 168, 56, 221, 113, 199, 107, 142, 91, 75, 246, 26, 58]);
-      
+      // Create subscription using base64 VAPID key
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidKey
+        applicationServerKey: 'BEl62iUYgUivyIebhds3LIwzuAHAiQrNfVOfGyyqugUScaFMhBGqfVSzX6kA0xwexo1XLb2kON1x2LuOW0v2Gjo'
       });
 
       // Save to server
