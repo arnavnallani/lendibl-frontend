@@ -105,11 +105,19 @@ export default function ItemScanModal({
     saveScanMutation.mutate(scanData);
   };
 
-  // Fetch actual scan data for viewing mode
+  // Fetch actual scan data for both viewing and editing mode
   const { data: existingScan, isLoading: isLoadingScan } = useQuery({
     queryKey: ['/api/item-scans', rental?.id],
-    enabled: mode === 'view' && !!rental?.id,
+    enabled: !!rental?.id,
   }) as { data: { images: string[]; notes: string; scannedAt: string } | undefined; isLoading: boolean };
+
+  // Pre-populate scan data when in scan mode and existing scan is loaded
+  useEffect(() => {
+    if (mode === 'scan' && existingScan && scanImages.length === 0) {
+      setScanImages(existingScan.images || []);
+      setScanNotes(existingScan.notes || '');
+    }
+  }, [mode, existingScan, scanImages.length]);
 
   if (mode === 'view') {
     return (

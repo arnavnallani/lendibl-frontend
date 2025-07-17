@@ -2366,15 +2366,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Not authorized to scan this item" });
       }
 
-      // Store the scan data in the database
-      const scanData = {
-        bookingId: rentalId,
-        scanType: 'pre_rental',
-        scanImages: images,
-        userId: req.user!.id,
-      };
+      // Check if scan already exists and update it, otherwise create new one
+      const existingScan = await db
+        .select()
+        .from(itemScans)
+        .where(eq(itemScans.bookingId, rentalId))
+        .limit(1);
 
-      const [savedScan] = await db.insert(itemScans).values(scanData).returning();
+      let savedScan;
+      if (existingScan.length > 0) {
+        // Update existing scan
+        [savedScan] = await db
+          .update(itemScans)
+          .set({
+            scanImages: images,
+            userId: req.user!.id,
+          })
+          .where(eq(itemScans.bookingId, rentalId))
+          .returning();
+      } else {
+        // Create new scan
+        const scanData = {
+          bookingId: rentalId,
+          scanType: 'pre_rental',
+          scanImages: images,
+          userId: req.user!.id,
+        };
+        [savedScan] = await db.insert(itemScans).values(scanData).returning();
+      }
       
       console.log(`📷 Item scan saved for rental ${rentalId} by owner ${req.user!.id}`);
       console.log(`Images: ${images.length}, Notes: ${notes || 'None'}`);
@@ -2411,7 +2430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user is either the owner or renter
-      if (item.ownerId !== req.user!.id && booking.userId !== req.user!.id) {
+      if (item.ownerId !== req.user!.id && booking.renterId !== req.user!.id) {
         return res.status(403).json({ message: "Not authorized to view this scan" });
       }
 
