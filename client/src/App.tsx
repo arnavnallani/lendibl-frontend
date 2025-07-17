@@ -46,30 +46,36 @@ function Router() {
 }
 
 function App() {
-  const auth = useAuthProvider();
-
-  // Debug white screen - start with minimal components
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthContext.Provider value={auth}>
-          <TooltipProvider>
-            <div className="min-h-screen bg-gray-50">
-              <div className="p-8 text-center">
-                <h1 className="text-2xl font-bold text-blue-600 mb-4">lendibl - Debug Mode</h1>
-                <p className="text-gray-600 mb-4">Testing basic functionality...</p>
-                <div className="bg-white p-4 rounded-lg shadow">
-                  <p>Auth Status: {auth.isLoading ? 'Loading...' : auth.user ? `Logged in as ${auth.user.username}` : 'Not logged in'}</p>
-                </div>
-                <BrowserNotificationProvider />
-                <Router />
-              </div>
+  console.log('App component rendering...');
+  
+  try {
+    return (
+      <div style={{ padding: '20px', backgroundColor: '#f0f0f0', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: 'white', padding: '30px', borderRadius: '8px' }}>
+          <h1 style={{ color: '#2563eb', fontSize: '2rem', marginBottom: '1rem' }}>lendibl - Ultra Minimal Test</h1>
+          <p style={{ color: '#666', marginBottom: '1rem' }}>If you see this, React is working!</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginTop: '20px' }}>
+            <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <h3>Test Item 1</h3>
+              <p>$25/day</p>
             </div>
-          </TooltipProvider>
-        </AuthContext.Provider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
+            <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <h3>Test Item 2</h3>
+              <p>$35/day</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error('App render error:', error);
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        <h1>Error in App component</h1>
+        <p>{error.toString()}</p>
+      </div>
+    );
+  }
 }
 
 function BrowserNotificationProvider() {
