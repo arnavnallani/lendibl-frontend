@@ -1,6 +1,17 @@
-import React from "react";
+import { Switch, Route } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthContext, useAuthProvider } from "@/hooks/use-auth";
+import { BrowserNotificationProvider } from "@/hooks/use-browser-notifications";
+import { AIBanner } from "@/components/ai-banner";
+import { WhoWeAreBanner } from "@/components/who-we-are-banner";
+import AiChatbot from "@/components/AiChatbot";
+import ReviewPromptProvider from "@/components/ReviewPromptProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
-import DebugHome from "@/pages/debug-home";
+import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
 import MyProfile from "@/pages/my-profile";
@@ -17,7 +28,7 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={DebugHome} />
+      <Route path="/" component={Home} />
       <Route path="/item/:id" component={ItemDetails} />
       <Route path="/list-item" component={ListItem} />
       <Route path="/my-profile" component={MyProfile} />
@@ -35,37 +46,27 @@ function Router() {
 }
 
 function App() {
-  console.log('App component started rendering');
-  
-  return React.createElement('div', {
-    style: { 
-      padding: '20px', 
-      backgroundColor: '#f0f0f0', 
-      minHeight: '100vh',
-      fontFamily: 'Arial, sans-serif'
-    }
-  }, [
-    React.createElement('h1', {
-      key: 'title',
-      style: { color: '#2563eb', fontSize: '2rem', marginBottom: '1rem' }
-    }, 'lendibl - React Working!'),
-    React.createElement('p', {
-      key: 'subtitle',
-      style: { color: '#666', marginBottom: '1rem' }
-    }, 'This confirms React is rendering correctly'),
-    React.createElement('div', {
-      key: 'items',
-      style: { backgroundColor: 'white', padding: '20px', borderRadius: '8px', marginTop: '20px' }
-    }, [
-      React.createElement('h3', { key: 'item1' }, 'Test Item 1 - $25/day'),
-      React.createElement('h3', { key: 'item2' }, 'Test Item 2 - $35/day')
-    ])
-  ]);
-}
+  const auth = useAuthProvider();
 
-function BrowserNotificationProvider() {
-  useBrowserNotifications();
-  return null;
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider value={auth}>
+          <TooltipProvider>
+            <BrowserNotificationProvider />
+            <Toaster />
+            <AIBanner />
+            <WhoWeAreBanner />
+            <Router />
+            <AiChatbot />
+            <ErrorBoundary>
+              <ReviewPromptProvider />
+            </ErrorBoundary>
+          </TooltipProvider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 }
 
 export default App;

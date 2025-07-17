@@ -2,6 +2,11 @@ import { useEffect } from 'react';
 import { useAuth } from './use-auth';
 import { browserNotifications } from '@/lib/browser-notifications';
 
+export function BrowserNotificationProvider() {
+  useBrowserNotifications();
+  return null;
+}
+
 export function useBrowserNotifications() {
   const { user } = useAuth();
 
