@@ -1,6 +1,7 @@
 import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, notInArray, sql } from "drizzle-orm";
+import { calculateAvailabilityStatus } from "@shared/availability-utils";
 
 export interface IStorage {
   // Users
@@ -525,14 +526,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createItem(insertItem: InsertItem): Promise<Item> {
+    // Calculate availability status based on available from date
+    const availabilityStatus = calculateAvailabilityStatus(insertItem.availableFrom);
+    
     const [item] = await db
       .insert(items)
-      .values(insertItem)
+      .values({
+        ...insertItem,
+        availabilityStatus
+      })
       .returning();
     return item;
   }
 
   async updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined> {
+    // If availableFrom is being updated, recalculate availability status
+    if (updates.availableFrom !== undefined) {
+      updates.availabilityStatus = calculateAvailabilityStatus(updates.availableFrom);
+    }
+    
     const [item] = await db
       .update(items)
       .set(updates)

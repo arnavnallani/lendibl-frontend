@@ -33,7 +33,7 @@ const editItemSchema = z.object({
   images: z.array(z.string()).default([]),
   included: z.array(z.string()).default([]),
   available: z.boolean().default(true),
-  availabilityStatus: z.string().default("available now"),
+
   availableFrom: z.date().optional(),
   availableTo: z.date().optional(),
 });
