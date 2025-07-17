@@ -285,6 +285,35 @@ export class MemStorage implements IStorage {
     return itemsWithDetails;
   }
 
+  async getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }> {
+    // For MemStorage, use the existing getItems method and add pagination/sorting in memory
+    const allItems = await this.getItems(options.filters);
+    
+    // Apply sorting
+    if (options.sortBy) {
+      switch (options.sortBy) {
+        case 'price-low':
+          allItems.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+          break;
+        case 'price-high':
+          allItems.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+          break;
+        case 'rating':
+          allItems.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          break;
+        case 'newest':
+          allItems.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+          break;
+      }
+    }
+
+    const total = allItems.length;
+    const offset = (options.page - 1) * options.limit;
+    const items = allItems.slice(offset, offset + options.limit);
+
+    return { items, total };
+  }
+
   async getItem(id: number): Promise<ItemWithDetails | undefined> {
     const item = this.items.get(id);
     if (!item) return undefined;
@@ -636,7 +665,8 @@ export class DatabaseStorage implements IStorage {
       }
 
       if (conditions.length > 0) {
-        countQuery.where(and(...conditions));
+        let updatedCountQuery = countQuery.where(and(...conditions));
+        countQuery = updatedCountQuery;
       }
     }
 

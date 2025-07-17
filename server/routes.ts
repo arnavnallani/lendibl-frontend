@@ -657,17 +657,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Pagination parameters
       const pageNumber = page ? parseInt(page as string) : 1;
       const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
-      const offset = (pageNumber - 1) * pageSize;
 
-      let allItems = await storage.getItemsPaginated({
-        filters: Object.keys(filters).length > 0 ? filters : undefined,
-        sortBy,
-        page: pageNumber,
-        limit: pageSize
-      });
+      // Get all items first, then apply sorting and pagination in JavaScript (temporarily)
+      let allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
       
-      const paginatedItems = allItems.items;
-      const totalItems = allItems.total;
+      // Apply sorting
+      if (sortBy) {
+        switch (sortBy) {
+          case 'price-low':
+            allItems.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+            break;
+          case 'price-high':
+            allItems.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+            break;
+          case 'rating':
+            allItems.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            break;
+          case 'newest':
+            allItems.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            break;
+          default:
+            // Default sorting - no change
+            break;
+        }
+      }
+      
+      // Apply pagination
+      const offset = (pageNumber - 1) * pageSize;
+      const paginatedItems = allItems.slice(offset, offset + pageSize);
+      const totalItems = allItems.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       const hasMore = pageNumber < totalPages;
 
@@ -682,6 +700,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
+      console.error("Failed to fetch items:", error);
       res.status(500).json({ message: "Failed to fetch items" });
     }
   });
