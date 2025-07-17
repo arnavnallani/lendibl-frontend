@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte } from "drizzle-orm";
 import { calculateAvailabilityStatus } from "@shared/availability-utils";
@@ -82,6 +82,10 @@ export interface IStorage {
   // Additional methods
   getAllUsers(): Promise<User[]>;
   getBookingWithDetails(id: number): Promise<any | undefined>;
+
+  // Early access signup methods
+  createEarlyAccessSignup(signup: InsertEarlyAccessSignup): Promise<EarlyAccessSignup>;
+  getEarlyAccessSignups(): Promise<EarlyAccessSignup[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -1116,6 +1120,22 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return result || undefined;
+  }
+
+  // Early access signup methods
+  async createEarlyAccessSignup(signup: InsertEarlyAccessSignup): Promise<EarlyAccessSignup> {
+    const [result] = await db
+      .insert(earlyAccessSignups)
+      .values(signup)
+      .returning();
+    return result;
+  }
+
+  async getEarlyAccessSignups(): Promise<EarlyAccessSignup[]> {
+    return await db
+      .select()
+      .from(earlyAccessSignups)
+      .orderBy(desc(earlyAccessSignups.createdAt));
   }
 }
 

@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInteractionSchema } from "@shared/schema";
+import { insertItemSchema, insertBookingSchema, insertUserSchema, insertUserInteractionSchema, insertEarlyAccessSignupSchema } from "@shared/schema";
 import { hashPassword, comparePassword, generateToken, authenticateToken, optionalAuth, type AuthRequest } from "./auth";
 import { recommendationEngine } from "./recommendation-engine";
 import { paymentScheduler } from "./payment-scheduler";
@@ -1415,6 +1415,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(500).json({ message: "Failed to setup payment method" });
+    }
+  });
+
+  // Early access signup endpoints
+  app.post("/api/early-access-signup", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertEarlyAccessSignupSchema.parse(req.body);
+      const signup = await storage.createEarlyAccessSignup(validatedData);
+      
+      console.log(`📧 New early access signup: ${signup.firstName} ${signup.lastName} - ${signup.email}`);
+      
+      res.status(201).json({ 
+        message: "Thank you for joining our early access list!",
+        signup: {
+          id: signup.id,
+          firstName: signup.firstName,
+          lastName: signup.lastName,
+          email: signup.email
+        }
+      });
+    } catch (error: any) {
+      console.error("Early access signup error:", error);
+      
+      // Handle email already exists error
+      if (error.code === '23505' && error.constraint === 'early_access_signups_email_unique') {
+        return res.status(400).json({ 
+          message: "This email is already on our early access list!" 
+        });
+      }
+      
+      res.status(500).json({ message: "Failed to sign up for early access" });
+    }
+  });
+
+  app.get("/api/early-access-signups", async (req: Request, res: Response) => {
+    try {
+      const signups = await storage.getEarlyAccessSignups();
+      res.json(signups);
+    } catch (error) {
+      console.error("Failed to get early access signups:", error);
+      res.status(500).json({ message: "Failed to get early access signups" });
     }
   });
 

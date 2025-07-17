@@ -23,6 +23,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms";
 import WhoWeAre from "@/pages/WhoWeAre";
 import ResetPassword from "@/pages/reset-password";
+import EarlyAccess from "@/pages/early-access";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/terms" component={TermsOfService} />
       <Route path="/who-we-are" component={WhoWeAre} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/early-access" component={EarlyAccess} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -2,6 +2,15 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "dri
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Early access signups table
+export const earlyAccessSignups = pgTable("early_access_signups", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  lastName: text("last_name").notNull(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Payment setup reminders table
 export const paymentReminders = pgTable("payment_reminders", {
   id: serial("id").primaryKey(),
@@ -324,6 +333,11 @@ export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetTo
   createdAt: true,
 });
 
+export const insertEarlyAccessSignupSchema = createInsertSchema(earlyAccessSignups).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -372,6 +386,9 @@ export type InsertPasswordResetToken = z.infer<typeof insertPasswordResetTokenSc
 
 export type PhoneVerification = typeof phoneVerifications.$inferSelect;
 export type InsertPhoneVerification = z.infer<typeof insertPhoneVerificationSchema>;
+
+export type EarlyAccessSignup = typeof earlyAccessSignups.$inferSelect;
+export type InsertEarlyAccessSignup = z.infer<typeof insertEarlyAccessSignupSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {
