@@ -230,19 +230,15 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
             </div>
           </div>
 
-          {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {suggestedItems.map((item) => (
-                <ItemCard 
-                  key={item.id} 
-                  item={item} 
-                  onClick={onItemClick}
-                />
-              ))}
-            </div>
-          ) : (
-            <ItemList items={suggestedItems} onItemClick={onItemClick} />
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {suggestedItems.map((item) => (
+              <ItemCard 
+                key={item.id} 
+                item={item} 
+                onClick={onItemClick}
+              />
+            ))}
+          </div>
         </main>
       );
     }
@@ -303,7 +299,18 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
           ))}
         </div>
       ) : (
-        <ItemList items={items} onItemClick={onItemClick} />
+        <div className="space-y-4">
+          <p className="text-center">List view temporarily disabled - debugging mode</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {items.map((item) => (
+              <ItemCard 
+                key={item.id} 
+                item={item} 
+                onClick={onItemClick}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Load More Button */}
