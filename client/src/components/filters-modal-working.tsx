@@ -64,9 +64,9 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Minimum Rating */}
+          {/* Minimum Owner Rating */}
           <div className="space-y-2">
-            <Label>Minimum Rating</Label>
+            <Label>Minimum Owner Rating</Label>
             <div className="flex items-center space-x-2">
               {[1, 2, 3, 4, 5].map((rating) => (
                 <button

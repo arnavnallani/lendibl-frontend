@@ -155,11 +155,11 @@ export default function FiltersModal({
             />
           </div>
 
-          {/* Minimum Rating */}
+          {/* Minimum Owner Rating */}
           <div className="space-y-3">
             <Label className="text-sm font-medium flex items-center gap-2">
               <Star className="h-4 w-4" />
-              Minimum Rating: {minRating[0] > 0 ? `${minRating[0]} stars` : "Any rating"}
+              Minimum Owner Rating: {minRating[0] > 0 ? `${minRating[0]} stars` : "Any rating"}
             </Label>
             <Slider
               value={minRating}
