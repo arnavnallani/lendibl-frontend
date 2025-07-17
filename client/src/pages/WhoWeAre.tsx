@@ -3,9 +3,14 @@ import { AIAgentCard } from '@/components/AIAgentCard';
 import { DollarSign, TrendingUp, Leaf, Sparkles, Search, MessageCircle, Shield, ArrowDown, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'wouter';
+import { useEffect } from 'react';
 
 
 export default function WhoWeAre() {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Tech Gadgets Background */}
