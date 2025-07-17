@@ -106,14 +106,28 @@ export default function ItemScanModal({
   };
 
   // Fetch actual scan data for both viewing and editing mode
-  const { data: existingScan, isLoading: isLoadingScan } = useQuery({
+  const { data: existingScan, isLoading: isLoadingScan, error: scanError } = useQuery({
     queryKey: ['/api/item-scans', rental?.id],
     enabled: !!rental?.id,
-  }) as { data: { images: string[]; notes: string; scannedAt: string } | undefined; isLoading: boolean };
+    queryFn: () => api.getItemScan(rental!.id),
+  }) as { data: { images: string[]; notes: string; scannedAt: string } | undefined; isLoading: boolean; error: any };
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 ItemScanModal scan query status:', {
+      rentalId: rental?.id,
+      mode,
+      isLoading: isLoadingScan,
+      hasData: !!existingScan,
+      error: scanError,
+      imagesCount: existingScan?.images?.length || 0
+    });
+  }, [rental?.id, mode, isLoadingScan, existingScan, scanError]);
 
   // Pre-populate scan data when in scan mode and existing scan is loaded
   useEffect(() => {
     if (mode === 'scan' && existingScan && scanImages.length === 0) {
+      console.log('🎯 Pre-populating scan data:', existingScan);
       setScanImages(existingScan.images || []);
       setScanNotes(existingScan.notes || '');
     }

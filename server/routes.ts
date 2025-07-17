@@ -2417,6 +2417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/item-scans/:rentalId", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const rentalId = parseInt(req.params.rentalId);
+      console.log(`🔍 GET item scan request for rental ${rentalId} by user ${req.user?.id}`);
       
       // Verify the user has access to this rental
       const booking = await storage.getBooking(rentalId);
