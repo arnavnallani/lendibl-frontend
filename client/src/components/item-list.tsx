@@ -61,7 +61,11 @@ export default function ItemList({ items, onItemClick }: ItemListProps) {
                       </div>
                     </div>
 
-                    <p className="text-gray-medium text-sm mb-3 line-clamp-2">
+                    <p className="text-gray-medium text-sm mb-3 overflow-hidden" style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical'
+                    }}>
                       {item.description}
                     </p>
 

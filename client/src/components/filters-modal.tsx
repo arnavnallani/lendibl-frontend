@@ -38,9 +38,9 @@ export default function FiltersModal({
   currentFilters = {} 
 }: FiltersModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>(currentFilters.categoryId?.toString() || "");
-  const [priceRange, setPriceRange] = useState<[number]>([currentFilters.priceRange === "0-25" ? 25 : currentFilters.priceRange === "25-50" ? 50 : currentFilters.priceRange === "50-100" ? 100 : 150]);
+  const [priceRange, setPriceRange] = useState<number[]>([currentFilters.priceRange === "0-25" ? 25 : currentFilters.priceRange === "25-50" ? 50 : currentFilters.priceRange === "50-100" ? 100 : 150]);
   const [location, setLocation] = useState<string>(currentFilters.location || "");
-  const [minRating, setMinRating] = useState<[number]>([currentFilters.minRating || 0]);
+  const [minRating, setMinRating] = useState<number[]>([currentFilters.minRating || 0]);
   const [availability, setAvailability] = useState<string>(currentFilters.availability || "");
   const [sortBy, setSortBy] = useState<string>(currentFilters.sortBy || "");
   const [instantBooking, setInstantBooking] = useState<boolean>(false);
