@@ -123,10 +123,6 @@ export default function ItemDetails() {
             <div className="mb-4">
               <span className="text-sm text-gray-medium font-medium">{item.category.name}</span>
               <div className="flex items-center mt-1">
-                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                <span className="font-medium text-gray-dark ml-1">{item.rating}</span>
-                <span className="text-gray-medium ml-1">({item.reviewCount} reviews)</span>
-                <span className="mx-2 text-gray-light">•</span>
                 <MapPin className="h-4 w-4 text-gray-medium" />
                 <span className="text-gray-medium ml-1">{getDisplayLocation(item.location)}</span>
               </div>

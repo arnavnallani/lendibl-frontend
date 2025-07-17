@@ -56,12 +56,7 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
           alt={item.title} 
           className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        <div className="absolute top-3 right-3">
-          <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
-            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-            <span className="text-xs font-semibold text-gray-dark">{item.rating}</span>
-          </div>
-        </div>
+
         <div className="absolute top-3 left-3 flex gap-2">
           <span className="bg-primary-blue text-white text-xs px-3 py-1 rounded-full font-medium">
             {item.category.name}
