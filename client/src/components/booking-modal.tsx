@@ -303,7 +303,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       min={item.availableFrom ? new Date(item.availableFrom).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                       max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      onFocus={(e) => {
+                        // Prevent calendar from opening automatically on focus
+                        // Only allow it on actual click/tap
+                        e.target.blur();
+                      }}
+                      onClick={(e) => {
+                        // Re-focus when explicitly clicked to open calendar
+                        e.target.focus();
+                      }}
+                      className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
                   </div>
@@ -318,7 +327,16 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       min={startDate || (item.availableFrom ? new Date(item.availableFrom).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])}
                       max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      onFocus={(e) => {
+                        // Prevent calendar from opening automatically on focus
+                        // Only allow it on actual click/tap
+                        e.target.blur();
+                      }}
+                      onClick={(e) => {
+                        // Re-focus when explicitly clicked to open calendar
+                        e.target.focus();
+                      }}
+                      className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
                   </div>
