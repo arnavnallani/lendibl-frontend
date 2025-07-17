@@ -49,12 +49,15 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
       setClientSecret("");
       setAllowFocus(false);
       
-      // After a small delay, allow date fields to be focusable
+      // After a longer delay, allow date fields to be focusable
       const timer = setTimeout(() => {
         setAllowFocus(true);
-      }, 300);
+      }, 800);
       
       return () => clearTimeout(timer);
+    } else {
+      // Reset when modal closes
+      setAllowFocus(false);
     }
   }, [isOpen]);
 
@@ -325,10 +328,13 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       onChange={(e) => setStartDate(e.target.value)}
                       onFocus={(e) => {
                         if (!allowFocus) {
+                          e.preventDefault();
                           e.target.blur();
+                          return false;
                         }
                       }}
                       readOnly={!allowFocus}
+                      tabIndex={allowFocus ? 0 : -1}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
@@ -346,10 +352,13 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       onChange={(e) => setEndDate(e.target.value)}
                       onFocus={(e) => {
                         if (!allowFocus) {
+                          e.preventDefault();
                           e.target.blur();
+                          return false;
                         }
                       }}
                       readOnly={!allowFocus}
+                      tabIndex={allowFocus ? 0 : -1}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
