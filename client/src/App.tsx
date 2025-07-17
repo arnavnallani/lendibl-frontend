@@ -9,6 +9,7 @@ import { AIBanner } from "@/components/ai-banner";
 import { WhoWeAreBanner } from "@/components/who-we-are-banner";
 import AiChatbot from "@/components/AiChatbot";
 import ReviewPromptProvider from "@/components/ReviewPromptProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 import Home from "@/pages/home";
 import ItemDetails from "@/pages/item-details";
@@ -48,20 +49,24 @@ function App() {
   const auth = useAuthProvider();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={auth}>
-        <TooltipProvider>
-          <BrowserNotificationProvider />
-          <Toaster />
-          <AIBanner />
-          <WhoWeAreBanner />
-          <Router />
-          <AiChatbot />
-          <ReviewPromptProvider />
-
-        </TooltipProvider>
-      </AuthContext.Provider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider value={auth}>
+          <TooltipProvider>
+            <BrowserNotificationProvider />
+            <Toaster />
+            <AIBanner />
+            <WhoWeAreBanner />
+            <Router />
+            <AiChatbot />
+            {/* Temporarily disabled to debug white screen */}
+            {/* <ErrorBoundary>
+              <ReviewPromptProvider />
+            </ErrorBoundary> */}
+          </TooltipProvider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
