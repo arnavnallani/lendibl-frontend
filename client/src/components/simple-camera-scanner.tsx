@@ -17,6 +17,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
   const [cameraReady, setCameraReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
   // Function to explicitly stop camera
@@ -28,6 +29,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
         console.log('🔇 Track stopped:', track.kind, track.readyState);
       });
       setStream(null);
+      streamRef.current = null;
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
@@ -36,24 +38,18 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
 
   useEffect(() => {
     startCamera();
-    return () => {
-      if (stream) {
-        console.log('🛑 SimpleCameraScanner: Stopping camera stream on cleanup');
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [facingMode, stream]);
+  }, [facingMode]);
 
   // Additional cleanup on component unmount
   useEffect(() => {
     return () => {
-      if (stream) {
+      if (streamRef.current) {
         console.log('🛑 SimpleCameraScanner: Final cleanup - stopping all camera tracks');
-        stream.getTracks().forEach(track => {
+        streamRef.current.getTracks().forEach(track => {
           track.stop();
           console.log('🔇 Track stopped:', track.kind, track.readyState);
         });
-        setStream(null);
+        streamRef.current = null;
       }
     };
   }, []);
@@ -80,6 +76,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('✅ Camera access granted');
       setStream(newStream);
+      streamRef.current = newStream;
 
       if (videoRef.current) {
         videoRef.current.srcObject = newStream;

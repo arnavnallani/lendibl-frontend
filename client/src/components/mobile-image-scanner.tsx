@@ -19,6 +19,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
   // Function to explicitly stop camera
@@ -30,6 +31,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
         console.log('🔇 Track stopped:', track.kind, track.readyState);
       });
       setStream(null);
+      streamRef.current = null;
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
@@ -38,24 +40,18 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
 
   useEffect(() => {
     startCamera();
-    return () => {
-      if (stream) {
-        console.log('🛑 MobileImageScanner: Stopping camera stream on cleanup');
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [facingMode, stream]);
+  }, [facingMode]);
 
   // Additional cleanup on component unmount
   useEffect(() => {
     return () => {
-      if (stream) {
+      if (streamRef.current) {
         console.log('🛑 MobileImageScanner: Final cleanup - stopping all camera tracks');
-        stream.getTracks().forEach(track => {
+        streamRef.current.getTracks().forEach(track => {
           track.stop();
           console.log('🔇 Track stopped:', track.kind, track.readyState);
         });
-        setStream(null);
+        streamRef.current = null;
       }
     };
   }, []);
@@ -80,6 +76,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('✅ Camera stream received');
       setStream(newStream);
+      streamRef.current = newStream;
 
       if (videoRef.current) {
         console.log('🎬 Setting video source and playing');
