@@ -230,38 +230,8 @@ export default function MyProfile() {
     },
   });
 
-  const handleBookingAction = (bookingId: number, status: string, force: boolean = false) => {
-    const url = force ? `/api/bookings/${bookingId}?force=true` : `/api/bookings/${bookingId}`;
-    
-    if (force) {
-      // Direct API call for force approve
-      fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        },
-        body: JSON.stringify({ status })
-      })
-      .then(response => response.json())
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
-        toast({
-          title: 'Booking Force Approved',
-          description: 'The rental request has been approved (bypassing payment check).',
-        });
-      })
-      .catch(error => {
-        console.error('Force approve failed:', error);
-        toast({
-          title: 'Force Approve Failed',
-          description: 'Unable to force approve the booking.',
-          variant: 'destructive',
-        });
-      });
-    } else {
-      bookingActionMutation.mutate({ bookingId, status });
-    }
+  const handleBookingAction = (bookingId: number, status: string) => {
+    bookingActionMutation.mutate({ bookingId, status });
   };
 
   const handleCancelBooking = async (bookingId: number, bookingStatus: string) => {
@@ -636,32 +606,22 @@ export default function MyProfile() {
                               {rental.status}
                             </Badge>
                             {rental.status === 'pending' && (
-                              <div className="flex flex-col gap-2">
-                                <div className="flex gap-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => handleBookingAction(rental.id, 'approved')}
-                                    disabled={bookingActionMutation.isPending}
-                                  >
-                                    {bookingActionMutation.isPending ? 'Approving...' : 'Approve'}
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="destructive"
-                                    onClick={() => handleBookingAction(rental.id, 'rejected')}
-                                    disabled={bookingActionMutation.isPending}
-                                  >
-                                    {bookingActionMutation.isPending ? 'Declining...' : 'Decline'}
-                                  </Button>
-                                </div>
+                              <div className="flex gap-2">
                                 <Button 
                                   size="sm" 
-                                  variant="secondary"
-                                  onClick={() => handleBookingAction(rental.id, 'approved', true)}
-                                  className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-300"
+                                  variant="outline"
+                                  onClick={() => handleBookingAction(rental.id, 'approved')}
+                                  disabled={bookingActionMutation.isPending}
                                 >
-                                  Force Approve (Test)
+                                  {bookingActionMutation.isPending ? 'Approving...' : 'Approve'}
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => handleBookingAction(rental.id, 'rejected')}
+                                  disabled={bookingActionMutation.isPending}
+                                >
+                                  {bookingActionMutation.isPending ? 'Declining...' : 'Decline'}
                                 </Button>
                               </div>
                             )}
