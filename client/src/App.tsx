@@ -11,7 +11,7 @@ import AiChatbot from "@/components/AiChatbot";
 import ReviewPromptProvider from "@/components/ReviewPromptProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-import Home from "@/pages/home";
+import DebugHome from "@/pages/debug-home";
 import ItemDetails from "@/pages/item-details";
 import ListItem from "@/pages/list-item";
 import MyProfile from "@/pages/my-profile";
@@ -28,7 +28,7 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={DebugHome} />
       <Route path="/item/:id" component={ItemDetails} />
       <Route path="/list-item" component={ListItem} />
       <Route path="/my-profile" component={MyProfile} />
@@ -48,21 +48,23 @@ function Router() {
 function App() {
   const auth = useAuthProvider();
 
+  // Debug white screen - start with minimal components
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={auth}>
           <TooltipProvider>
-            <BrowserNotificationProvider />
-            <Toaster />
-            <AIBanner />
-            <WhoWeAreBanner />
-            <Router />
-            <AiChatbot />
-            {/* Temporarily disabled to debug white screen */}
-            {/* <ErrorBoundary>
-              <ReviewPromptProvider />
-            </ErrorBoundary> */}
+            <div className="min-h-screen bg-gray-50">
+              <div className="p-8 text-center">
+                <h1 className="text-2xl font-bold text-blue-600 mb-4">lendibl - Debug Mode</h1>
+                <p className="text-gray-600 mb-4">Testing basic functionality...</p>
+                <div className="bg-white p-4 rounded-lg shadow">
+                  <p>Auth Status: {auth.isLoading ? 'Loading...' : auth.user ? `Logged in as ${auth.user.username}` : 'Not logged in'}</p>
+                </div>
+                <BrowserNotificationProvider />
+                <Router />
+              </div>
+            </div>
           </TooltipProvider>
         </AuthContext.Provider>
       </QueryClientProvider>
