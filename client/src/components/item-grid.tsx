@@ -317,11 +317,11 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate pr-4">{item.title}</h3>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-right flex-shrink-0 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
                       <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         ${item.pricePerDay}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">per day</div>
+                      <div className="text-sm text-blue-500 dark:text-blue-300 font-medium">per day</div>
                     </div>
                   </div>
                   <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2">
