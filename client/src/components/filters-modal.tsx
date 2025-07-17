@@ -187,9 +187,10 @@ export default function FiltersModal({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Any availability</SelectItem>
-                <SelectItem value="today">Available today</SelectItem>
-                <SelectItem value="week">Available this week</SelectItem>
-                <SelectItem value="month">Available this month</SelectItem>
+                <SelectItem value="now">available now</SelectItem>
+                <SelectItem value="later_this_week">available later this week</SelectItem>
+                <SelectItem value="next_week">available next week</SelectItem>
+                <SelectItem value="later_than_next_week">available later than next week</SelectItem>
               </SelectContent>
             </Select>
           </div>
