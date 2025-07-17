@@ -19,6 +19,8 @@ export const api = {
     limit?: number;
     ownerId?: number;
     sortBy?: string;
+    minRating?: number;
+    availability?: string;
   }): Promise<{
     items: ItemWithDetails[];
     pagination: {
@@ -39,6 +41,8 @@ export const api = {
     if (filters?.limit) params.set("limit", filters.limit.toString());
     if (filters?.ownerId) params.set("ownerId", filters.ownerId.toString());
     if (filters?.sortBy) params.set("sortBy", filters.sortBy);
+    if (filters?.minRating) params.set("minRating", filters.minRating.toString());
+    if (filters?.availability) params.set("availability", filters.availability);
 
     const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
     const res = await apiRequest("GET", url);
@@ -52,6 +56,8 @@ export const api = {
     minPrice?: number;
     maxPrice?: number;
     location?: string;
+    minRating?: number;
+    availability?: string;
   }): Promise<ItemWithDetails[]> => {
     const params = new URLSearchParams();
     if (filters?.categoryId) params.set("categoryId", filters.categoryId.toString());
@@ -59,6 +65,8 @@ export const api = {
     if (filters?.minPrice) params.set("minPrice", filters.minPrice.toString());
     if (filters?.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
     if (filters?.location) params.set("location", filters.location);
+    if (filters?.minRating) params.set("minRating", filters.minRating.toString());
+    if (filters?.availability) params.set("availability", filters.availability);
     params.set("limit", "1000"); // Get all items
 
     const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
