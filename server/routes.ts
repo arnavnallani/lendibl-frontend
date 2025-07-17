@@ -658,7 +658,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pageNumber = page ? parseInt(page as string) : 1;
       const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
 
-      // Use optimized database-level filtering and pagination
+      // Use optimized pagination method
       const result = await storage.getItemsPaginated({
         filters: Object.keys(filters).length > 0 ? filters : undefined,
         sortBy,
