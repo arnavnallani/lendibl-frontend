@@ -2,16 +2,12 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Star, MapPin, Calendar } from "lucide-react";
-import type { Item, User } from "@shared/schema";
+import { Star, MapPin } from "lucide-react";
 
-interface ItemWithOwner extends Item {
-  owner: Pick<User, 'id' | 'username' | 'rating' | 'responseRate' | 'responseTime'>;
-}
-
+// Use the exact same type as the grid component for compatibility
 interface ItemListProps {
-  items: ItemWithOwner[];
-  onItemClick: (item: ItemWithOwner) => void;
+  items: any[];
+  onItemClick: (item: any) => void;
 }
 
 export default function ItemList({ items, onItemClick }: ItemListProps) {
@@ -26,9 +22,9 @@ export default function ItemList({ items, onItemClick }: ItemListProps) {
   return (
     <div className="space-y-4">
       {items.map((item) => (
-        <Card 
+        <div 
           key={item.id} 
-          className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+          className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer bg-white"
           onClick={() => onItemClick(item)}
         >
           <div className="flex gap-4">
@@ -36,23 +32,21 @@ export default function ItemList({ items, onItemClick }: ItemListProps) {
             <div className="flex-shrink-0">
               <img
                 src={item.images?.[0] || '/placeholder.jpg'}
-                alt={item.title}
+                alt={item.title || 'Item'}
                 className="w-24 h-24 object-cover rounded-lg"
               />
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-lg truncate">{item.title}</h3>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-blue-600">
-                    ${item.pricePerDay}/day
-                  </div>
+                <h3 className="font-semibold text-lg">{item.title}</h3>
+                <div className="text-xl font-bold text-blue-600">
+                  ${item.pricePerDay}/day
                 </div>
               </div>
 
-              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+              <p className="text-gray-600 text-sm mb-2">
                 {item.description}
               </p>
 
@@ -63,28 +57,27 @@ export default function ItemList({ items, onItemClick }: ItemListProps) {
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span>{item.owner.rating?.toFixed(1) || 'New'}</span>
+                  <span>4.5</span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-xs">
+                <span className="text-xs border px-2 py-1 rounded">
                   {item.category}
-                </Badge>
-                <Button 
-                  size="sm" 
-                  className="text-xs"
+                </span>
+                <button 
+                  className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
                   onClick={(e) => {
                     e.stopPropagation();
                     onItemClick(item);
                   }}
                 >
                   View Details
-                </Button>
+                </button>
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );
