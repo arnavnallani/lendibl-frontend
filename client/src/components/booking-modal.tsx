@@ -32,11 +32,31 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
+  const [allowFocus, setAllowFocus] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Reset form when modal opens and control calendar behavior
+  useEffect(() => {
+    if (isOpen) {
+      setStartDate("");
+      setEndDate("");
+      setMessage("");
+      setShowPayment(false);
+      setClientSecret("");
+      setAllowFocus(false);
+      
+      // After a small delay, allow date fields to be focusable
+      const timer = setTimeout(() => {
+        setAllowFocus(true);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const createPaymentIntentMutation = useMutation({
     mutationFn: async (amount: number) => {
@@ -304,14 +324,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setStartDate(e.target.value)}
                       onFocus={(e) => {
-                        // Prevent calendar from opening automatically on focus
-                        // Only allow it on actual click/tap
-                        e.target.blur();
+                        if (!allowFocus) {
+                          e.target.blur();
+                        }
                       }}
-                      onClick={(e) => {
-                        // Re-focus when explicitly clicked to open calendar
-                        e.target.focus();
-                      }}
+                      readOnly={!allowFocus}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
@@ -328,14 +345,11 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
                       max={item.availableTo ? new Date(item.availableTo).toISOString().split('T')[0] : undefined}
                       onChange={(e) => setEndDate(e.target.value)}
                       onFocus={(e) => {
-                        // Prevent calendar from opening automatically on focus
-                        // Only allow it on actual click/tap
-                        e.target.blur();
+                        if (!allowFocus) {
+                          e.target.blur();
+                        }
                       }}
-                      onClick={(e) => {
-                        // Re-focus when explicitly clicked to open calendar
-                        e.target.focus();
-                      }}
+                      readOnly={!allowFocus}
                       className="w-full p-3 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                       required
                     />
