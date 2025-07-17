@@ -22,12 +22,16 @@ export default function Home() {
     search?: string;
     priceRange?: string;
     location?: string;
+    minRating?: number;
+    availability?: string;
+    sortBy?: string;
   }>({});
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(true);
   const [useAIResults, setUseAIResults] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
   // Get AI search results
   const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
@@ -119,6 +123,8 @@ export default function Home() {
             <FilterBar 
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
+              currentViewMode={viewMode}
+              onViewModeChange={setViewMode}
             />
             <ItemGrid 
               filters={filters} 
@@ -126,6 +132,7 @@ export default function Home() {
               useAIResults={useAIResults}
               aiLoading={aiLoading}
               onItemClick={handleItemClick} 
+              viewMode={viewMode}
             />
           </div>
         </div>
@@ -143,6 +150,8 @@ export default function Home() {
             <FilterBar 
               onFiltersChange={handleFiltersChange} 
               selectedCategoryId={filters.categoryId}
+              currentViewMode={viewMode}
+              onViewModeChange={setViewMode}
             />
             <ItemGrid 
               filters={filters} 
@@ -150,6 +159,7 @@ export default function Home() {
               useAIResults={useAIResults}
               aiLoading={aiLoading}
               onItemClick={handleItemClick} 
+              viewMode={viewMode}
             />
           </div>
         </div>

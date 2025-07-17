@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ItemCard from "./item-card";
+import ItemList from "./item-list";
 import { api } from "@/lib/api";
 import type { ItemWithDetails } from "@shared/schema";
 
@@ -20,14 +21,18 @@ interface ItemGridProps {
     search?: string;
     priceRange?: string;
     location?: string;
+    minRating?: number;
+    availability?: string;
+    sortBy?: string;
   };
   aiResults?: EnhancedItem[];
   useAIResults?: boolean;
   aiLoading?: boolean;
   onItemClick: (item: ItemWithDetails) => void;
+  viewMode?: 'grid' | 'list';
 }
 
-export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, onItemClick }: ItemGridProps) {
+export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, onItemClick, viewMode = 'grid' }: ItemGridProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [allLoadedItems, setAllLoadedItems] = useState<ItemWithDetails[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -225,15 +230,19 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {suggestedItems.map((item) => (
-              <ItemCard 
-                key={item.id} 
-                item={item} 
-                onClick={onItemClick}
-              />
-            ))}
-          </div>
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {suggestedItems.map((item) => (
+                <ItemCard 
+                  key={item.id} 
+                  item={item} 
+                  onClick={onItemClick}
+                />
+              ))}
+            </div>
+          ) : (
+            <ItemList items={suggestedItems} onItemClick={onItemClick} />
+          )}
         </main>
       );
     }
@@ -283,15 +292,19 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {items.map((item) => (
-          <ItemCard 
-            key={item.id} 
-            item={item} 
-            onClick={onItemClick}
-          />
-        ))}
-      </div>
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {items.map((item) => (
+            <ItemCard 
+              key={item.id} 
+              item={item} 
+              onClick={onItemClick}
+            />
+          ))}
+        </div>
+      ) : (
+        <ItemList items={items} onItemClick={onItemClick} />
+      )}
 
       {/* Load More Button */}
       {!useAIResults && hasMore && (
