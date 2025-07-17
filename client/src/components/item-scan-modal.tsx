@@ -131,17 +131,24 @@ export default function ItemScanModal({
 
   // Pre-populate scan data when in scan mode and existing scan is loaded
   useEffect(() => {
-    if (mode === 'scan' && existingScan && scanImages.length === 0) {
+    if (mode === 'scan' && existingScan && isOpen) {
       console.log('🎯 Pre-populating scan data:', existingScan);
       console.log('🎯 Setting images count:', existingScan.images?.length || 0);
-      setScanImages(existingScan.images || []);
-      setScanNotes(existingScan.notes || '');
+      console.log('🎯 Current scanImages.length:', scanImages.length);
+      
+      // Only populate if we don't already have the same data
+      const existingImageCount = existingScan.images?.length || 0;
+      if (existingImageCount > 0 && scanImages.length !== existingImageCount) {
+        setScanImages(existingScan.images || []);
+        setScanNotes(existingScan.notes || '');
+      }
     }
-  }, [mode, existingScan, scanImages.length]);
+  }, [mode, existingScan, isOpen]);
 
   // Clear state when modal closes
   useEffect(() => {
     if (!isOpen) {
+      console.log('🚪 Modal closed, clearing state');
       setScanImages([]);
       setScanNotes('');
     }
