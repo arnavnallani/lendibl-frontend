@@ -17,8 +17,8 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   
   // Items
-  getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]>;
-  getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }>;
+  getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }): Promise<ItemWithDetails[]>;
+  getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }>;
   getItem(id: number): Promise<ItemWithDetails | undefined>;
   createItem(item: InsertItem): Promise<Item>;
   updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined>;
@@ -243,7 +243,7 @@ export class MemStorage implements IStorage {
   }
 
   // Items
-  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]> {
+  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }): Promise<ItemWithDetails[]> {
     let items = Array.from(this.items.values());
 
     if (filters) {
@@ -270,6 +270,12 @@ export class MemStorage implements IStorage {
       }
       if (filters.ownerId) {
         items = items.filter(item => item.ownerId === filters.ownerId);
+      }
+      if (filters.minRating) {
+        items = items.filter(item => (item.rating || 0) >= filters.minRating!);
+      }
+      if (filters.availability) {
+        items = items.filter(item => item.availabilityStatus === filters.availability);
       }
     }
 
@@ -487,7 +493,7 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
-  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]> {
+  async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }): Promise<ItemWithDetails[]> {
     // Get items that don't have approved bookings (simpler approach)
     const approvedBookings = await db
       .select({ itemId: bookings.itemId })
@@ -536,6 +542,12 @@ export class DatabaseStorage implements IStorage {
       if (filters.ownerId) {
         conditions.push(eq(items.ownerId, filters.ownerId));
       }
+      if (filters.minRating) {
+        conditions.push(gte(users.rating, filters.minRating));
+      }
+      if (filters.availability) {
+        conditions.push(eq(items.availabilityStatus, filters.availability));
+      }
     }
 
     // Apply conditions if any exist
@@ -557,7 +569,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Simplified pagination method that works reliably
-  async getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }> {
+  async getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }> {
     // Use the existing working getItems method and handle pagination in JavaScript
     const allItems = await this.getItems(options.filters);
     

@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Items
   app.get("/api/items", async (req, res) => {
     try {
-      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId, sortBy } = req.query;
+      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId, sortBy, minRating, availability } = req.query;
       
       const filters: any = {};
       if (categoryId) filters.categoryId = parseInt(categoryId as string);
@@ -653,6 +653,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
       if (location) filters.location = location as string;
       if (ownerId) filters.ownerId = parseInt(ownerId as string);
+      if (minRating) filters.minRating = parseFloat(minRating as string);
+      if (availability) filters.availability = availability as string;
 
       // Pagination parameters
       const pageNumber = page ? parseInt(page as string) : 1;
