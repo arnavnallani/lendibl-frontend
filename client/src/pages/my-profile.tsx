@@ -216,13 +216,15 @@ export default function MyProfile() {
         toast({
           title: 'Payment Setup Required',
           description: 'Please set up a payment method first so that you can actually receive money after the transaction happens.',
-          variant: 'destructive',
+          variant: 'default',
+          className: 'border-orange-200 bg-orange-50 text-orange-800',
         });
       } else {
         toast({
           title: 'Action Failed',
           description: 'Unable to update the booking. Please try again.',
-          variant: 'destructive',
+          variant: 'default',
+          className: 'border-amber-200 bg-amber-50 text-amber-800',
         });
       }
     },

@@ -47,7 +47,8 @@ const DebitCardForm: React.FC<StripeDebitCardFormProps> = ({ onSuccess, onCancel
         toast({
           title: "Card Error",
           description: error.message || "Invalid card information",
-          variant: "destructive",
+          variant: "default",
+          className: 'border-orange-200 bg-orange-50 text-orange-800',
         });
         setIsProcessing(false);
         return;
@@ -58,7 +59,8 @@ const DebitCardForm: React.FC<StripeDebitCardFormProps> = ({ onSuccess, onCancel
         toast({
           title: "Credit Card Not Supported",
           description: "Only debit cards are supported for payouts. Please use a debit card instead.",
-          variant: "destructive",
+          variant: "default",
+          className: 'border-blue-200 bg-blue-50 text-blue-800',
         });
         setIsProcessing(false);
         return;
@@ -85,7 +87,8 @@ const DebitCardForm: React.FC<StripeDebitCardFormProps> = ({ onSuccess, onCancel
         toast({
           title: "Failed to Add Card",
           description: data.message || "Unable to add debit card. Please try again.",
-          variant: "destructive",
+          variant: "default",
+          className: 'border-amber-200 bg-amber-50 text-amber-800',
         });
       }
     } catch (error) {
@@ -93,7 +96,8 @@ const DebitCardForm: React.FC<StripeDebitCardFormProps> = ({ onSuccess, onCancel
       toast({
         title: "Network Error",
         description: "Connection failed. Please check your network and try again.",
-        variant: "destructive",
+        variant: "default",
+        className: 'border-amber-200 bg-amber-50 text-amber-800',
       });
     } finally {
       setIsProcessing(false);

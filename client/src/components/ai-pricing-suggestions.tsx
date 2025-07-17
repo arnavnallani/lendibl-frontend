@@ -73,7 +73,8 @@ export function AIPricingSuggestions({
       toast({
         title: "AI Pricing Unavailable",
         description: "Unable to generate pricing suggestions at the moment. Please set your own price.",
-        variant: "destructive"
+        variant: "default",
+        className: 'border-amber-200 bg-amber-50 text-amber-800'
       });
     } finally {
       setLoading(false);
