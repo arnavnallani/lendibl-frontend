@@ -45,7 +45,9 @@ export default function ItemScanModal({
         title: "Item Scan Saved",
         description: "Pre-rental item documentation has been saved successfully.",
       });
+      // Invalidate both action dashboard and scan data caches
       queryClient.invalidateQueries({ queryKey: ['/api/action-dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/item-scans', rental?.id] });
       onClose();
       setScanImages([]);
       setScanNotes('');
