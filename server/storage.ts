@@ -665,11 +665,11 @@ export class DatabaseStorage implements IStorage {
       }
 
       if (conditions.length > 0) {
-        let updatedCountQuery = countQuery.where(and(...conditions));
-        countQuery = updatedCountQuery;
+        countQuery = countQuery.where(and(...conditions));
       }
     }
 
+    // Execute count and paginated queries concurrently for speed
     const [totalResult, paginatedResult] = await Promise.all([
       countQuery,
       query.limit(limit).offset(offset)
