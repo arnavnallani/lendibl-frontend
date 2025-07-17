@@ -995,7 +995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const canApprove = await paymentReminderService.checkPaymentSetupForApproval(req.user!.id, id);
         if (!canApprove) {
           return res.status(400).json({ 
-            message: "Payment setup required",
+            message: "Please set up a payment method to be able to receive money first.",
             requiresPaymentSetup: true,
             pendingAmount: booking.ownerPayout
           });

@@ -206,13 +206,25 @@ export default function MyProfile() {
           : 'The rental request has been declined.',
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Failed to update booking:', error);
-      toast({
-        title: 'Action Failed',
-        description: 'Unable to update the booking. Please try again.',
-        variant: 'destructive',
-      });
+      
+      // Check if this is a payment setup error
+      const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
+      
+      if (errorMessage === 'Please set up a payment method to be able to receive money first.') {
+        toast({
+          title: 'Payment Setup Required',
+          description: 'Please set up a payment method to be able to receive money first.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Action Failed',
+          description: 'Unable to update the booking. Please try again.',
+          variant: 'destructive',
+        });
+      }
     },
   });
 
