@@ -991,14 +991,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Handle payment based on status
       if (updatedBooking && status === 'approved') {
-        // Check payment setup before approval
-        const canApprove = await paymentReminderService.checkPaymentSetupForApproval(req.user!.id, id);
-        if (!canApprove) {
-          return res.status(400).json({ 
-            message: "Please set up a payment method first so you can be able to receive money.",
-            requiresPaymentSetup: true,
-            pendingAmount: booking.ownerPayout
-          });
+        // Check payment setup before approval (unless force approve is requested)
+        const forceApprove = req.query.force === 'true';
+        if (!forceApprove) {
+          const canApprove = await paymentReminderService.checkPaymentSetupForApproval(req.user!.id, id);
+          if (!canApprove) {
+            return res.status(400).json({ 
+              message: "Please set up a payment method first so you can be able to receive money.",
+              requiresPaymentSetup: true,
+              pendingAmount: booking.ownerPayout
+            });
+          }
         }
         
         // Payment already captured, just schedule payout
