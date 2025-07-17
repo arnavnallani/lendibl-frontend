@@ -98,10 +98,10 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All items</SelectItem>
-                <SelectItem value="available_now">available now</SelectItem>
-                <SelectItem value="available_later_this_week">available later this week</SelectItem>
-                <SelectItem value="available_next_week">available next week</SelectItem>
-                <SelectItem value="available_later_than_next_week">available later than next week</SelectItem>
+                <SelectItem value="Available now">Available now</SelectItem>
+                <SelectItem value="Available later this week">Available later this week</SelectItem>
+                <SelectItem value="Available next week">Available next week</SelectItem>
+                <SelectItem value="Available later than next week">Available later than next week</SelectItem>
               </SelectContent>
             </Select>
           </div>
