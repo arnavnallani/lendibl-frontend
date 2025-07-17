@@ -299,7 +299,17 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
           ))}
         </div>
       ) : (
-        <ItemListSimple items={items} onItemClick={onItemClick} />
+        <div className="p-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">List View</h2>
+          <p className="text-gray-600 mb-4">Found {items.length} items</p>
+          <div className="text-left max-w-md mx-auto space-y-2">
+            {items.slice(0, 3).map((item) => (
+              <div key={item.id} className="p-2 border rounded">
+                <strong>{item.title}</strong> - ${item.pricePerDay}/day
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Load More Button */}
