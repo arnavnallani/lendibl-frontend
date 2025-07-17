@@ -505,7 +505,7 @@ export class DatabaseStorage implements IStorage {
     let query = db
       .select()
       .from(items)
-      .leftJoin(users, eq(items.ownerId, users.id))
+      .innerJoin(users, eq(items.ownerId, users.id))
       .leftJoin(categories, eq(items.categoryId, categories.id));
     
     // Apply where conditions

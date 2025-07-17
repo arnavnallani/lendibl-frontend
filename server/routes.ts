@@ -653,7 +653,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
       if (location) filters.location = location as string;
       if (ownerId) filters.ownerId = parseInt(ownerId as string);
-      if (minRating) filters.minRating = parseFloat(minRating as string);
+      if (minRating) {
+        filters.minRating = parseFloat(minRating as string);
+      }
       if (availability) filters.availability = availability as string;
 
       // Pagination parameters
