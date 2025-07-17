@@ -174,15 +174,16 @@ export default function Messages() {
                   Conversations
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
-                {isLoading ? (
-                  <div className="p-4">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-16 bg-muted rounded-lg animate-pulse mb-2" />
-                    ))}
-                  </div>
-                ) : groupedConversations.length > 0 ? (
-                  <div className="space-y-0">
+              <CardContent className="p-0 h-full overflow-hidden">
+                <div className="h-full overflow-y-auto">
+                  {isLoading ? (
+                    <div className="p-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-16 bg-muted rounded-lg animate-pulse mb-2" />
+                      ))}
+                    </div>
+                  ) : groupedConversations.length > 0 ? (
+                    <div className="space-y-0">
                     {groupedConversations.map((group) => (
                       <div key={group.personId}>
                         {/* Person Header */}
@@ -250,13 +251,14 @@ export default function Messages() {
                         )}
                       </div>
                     ))}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center">
-                    <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-medium">No conversations yet</p>
-                  </div>
-                )}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-medium">No conversations yet</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
