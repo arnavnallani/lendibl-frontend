@@ -51,6 +51,25 @@ export class ReviewPromptService {
   // Get pending review prompts for a user (not yet prompted)
   async getPendingReviewPrompts(userId: number) {
     try {
+      // TESTING MODE: Always return a test review prompt for user 2
+      if (userId === 2) {
+        return [{
+          id: 999,
+          bookingId: 999,
+          targetUserId: 3,
+          role: 'renter',
+          targetUser: {
+            id: 3,
+            firstName: 'Epic',
+            lastName: 'Swag',
+          },
+          item: {
+            id: 89,
+            title: 'Electric Drill Set',
+          },
+        }];
+      }
+
       const prompts = await db
         .select({
           id: reviewPrompts.id,
