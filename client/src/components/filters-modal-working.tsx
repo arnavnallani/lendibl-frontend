@@ -23,6 +23,7 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
 
   const handleApply = () => {
     const filters = {
+      ...currentFilters, // Keep existing filters (categoryId, priceRange, location, etc.)
       minRating: minRating > 0 ? minRating : undefined,
       availability: availability !== "all" ? availability : undefined,
       sortBy: sortBy !== "relevance" ? sortBy : undefined,
@@ -115,8 +116,8 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="relevance">Relevance</SelectItem>
-                <SelectItem value="price_low">Price: Low to High</SelectItem>
-                <SelectItem value="price_high">Price: High to Low</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
                 <SelectItem value="rating">Highest Owner Rating</SelectItem>
               </SelectContent>
             </Select>
