@@ -1,7 +1,7 @@
 // Utility function to calculate availability status based on dates
 export function calculateAvailabilityStatus(availableFrom?: Date): string {
   if (!availableFrom) {
-    return "Available now";
+    return "Available Now";
   }
 
   const today = new Date();
@@ -21,12 +21,12 @@ export function calculateAvailabilityStatus(availableFrom?: Date): string {
   const daysUntilNextSunday = daysUntilSunday + 7; // Days until the Sunday after next week
   
   if (daysDiff <= 0) {
-    return "Available now";
+    return "Available Now";
   } else if (daysDiff <= daysUntilSunday) {
-    return "Available later this week";
+    return "Available Later This Week";
   } else if (daysDiff <= daysUntilNextSunday) {
-    return "Available next week";
+    return "Available Next Week";
   } else {
-    return "Available later than next week";
+    return "Available Later Than Next Week";
   }
 }

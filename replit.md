@@ -353,6 +353,7 @@ The application uses PostgreSQL with the following main entities:
 - July 17, 2025: Fixed messaging board conversation list scrolling behavior - implemented proper flex layout with overflow controls so scrolling is contained within the conversation panel instead of scrolling the entire page, created 10 test conversations with 31 messages for testing functionality
 - July 17, 2025: Diagnosed and resolved Replit preview pane white screen issue - identified as environment-specific display problem not affecting actual application functionality. Application works correctly in new browser tabs. Fixed duplicate BrowserNotificationProvider declaration and confirmed all core systems operational.
 - July 17, 2025: Implemented item visibility management - items now automatically disappear from website listings once rental requests are approved by owners. Updated database queries to filter out items with approved bookings, ensuring approved items are no longer available for additional rentals.
+- July 17, 2025: Implemented automatic availability status calculation system - removed manual dropdown selection and created smart calculation based on availability dates. System automatically determines "Available Now", "Available Later This Week", "Available Next Week", or "Available Later Than Next Week" based on start date. Updated all 106 existing items and filter options to use proper title case capitalization.
 
 ## User Preferences
 
