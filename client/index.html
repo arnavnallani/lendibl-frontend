@@ -14,9 +14,18 @@
     <meta name="apple-mobile-web-app-title" content="lendibl" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 20px; color: blue; font-family: Arial;">
+        Loading lendibl...
+      </div>
+    </div>
+    <script>
+      console.log('Base HTML loaded');
+      window.addEventListener('error', function(e) {
+        console.error('Global error:', e.error);
+        document.getElementById('root').innerHTML = '<div style="padding: 20px; color: red;">JavaScript Error: ' + e.error + '</div>';
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>
