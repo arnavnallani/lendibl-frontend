@@ -19,14 +19,44 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
+  // Function to explicitly stop camera
+  const stopCamera = () => {
+    console.log('🛑 SimpleCameraScanner: Explicitly stopping camera');
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🔇 Track stopped:', track.kind, track.readyState);
+      });
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
   useEffect(() => {
     startCamera();
     return () => {
       if (stream) {
+        console.log('🛑 SimpleCameraScanner: Stopping camera stream on cleanup');
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [facingMode]);
+  }, [facingMode, stream]);
+
+  // Additional cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        console.log('🛑 SimpleCameraScanner: Final cleanup - stopping all camera tracks');
+        stream.getTracks().forEach(track => {
+          track.stop();
+          console.log('🔇 Track stopped:', track.kind, track.readyState);
+        });
+        setStream(null);
+      }
+    };
+  }, []);
 
   const startCamera = async () => {
     console.log('📱 Starting camera with mode:', facingMode);
@@ -145,11 +175,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
       console.log('📸 Captured images:', capturedImages.length);
       onCapture(capturedImages);
     }
-    // Only close the camera scanner, not the parent modal
-    if (stream) {
-      console.log('📱 Stopping camera stream');
-      stream.getTracks().forEach(track => track.stop());
-    }
+    stopCamera();
     console.log('❌ Calling onClose to return to scan modal');
     onClose(); // This will close the camera and return to the scan modal
   };
@@ -185,6 +211,7 @@ export default function SimpleCameraScanner({ onCapture, onClose, maxImages = 8 
             console.log('❌ X button clicked');
             e.preventDefault();
             e.stopPropagation();
+            stopCamera();
             onClose();
           }}
           className="p-3 cursor-pointer bg-white/10 rounded-lg active:bg-white/20"

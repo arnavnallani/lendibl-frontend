@@ -21,14 +21,44 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
+  // Function to explicitly stop camera
+  const stopCamera = () => {
+    console.log('🛑 MobileImageScanner: Explicitly stopping camera');
+    if (stream) {
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('🔇 Track stopped:', track.kind, track.readyState);
+      });
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
   useEffect(() => {
     startCamera();
     return () => {
       if (stream) {
+        console.log('🛑 MobileImageScanner: Stopping camera stream on cleanup');
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [facingMode]);
+  }, [facingMode, stream]);
+
+  // Additional cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        console.log('🛑 MobileImageScanner: Final cleanup - stopping all camera tracks');
+        stream.getTracks().forEach(track => {
+          track.stop();
+          console.log('🔇 Track stopped:', track.kind, track.readyState);
+        });
+        setStream(null);
+      }
+    };
+  }, []);
 
   const startCamera = async () => {
     console.log('📱 Starting camera...');
@@ -232,6 +262,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
   };
 
   const finishScanning = () => {
+    stopCamera();
     if (capturedImages.length > 0) {
       onCapture(capturedImages);
     }
@@ -281,6 +312,7 @@ export default function MobileImageScanner({ onCapture, onClose, maxImages = 8 }
             console.log('❌ CLOSE BUTTON CLICKED!', e);
             e.preventDefault();
             e.stopPropagation();
+            stopCamera();
             onClose();
           }}
           onTouchStart={(e) => {
