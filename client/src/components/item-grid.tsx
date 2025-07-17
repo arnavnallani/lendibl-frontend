@@ -61,6 +61,8 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
     enabled: !useAIResults, // Only fetch regular items when not using AI
+    staleTime: 30000, // Cache for 30 seconds
+    cacheTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 
   // Reset pagination when filters change
@@ -95,19 +97,15 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const items: EnhancedItem[] = useAIResults ? (aiResults || []) : allLoadedItems;
   const isLoading = useAIResults ? aiLoading : regularLoading;
 
-  // Get total count for display
-  const { data: totalCountData } = useQuery({
-    queryKey: ["/api/items", { ...queryFilters, limit: 1000 }],
-    queryFn: () => api.getItems({ ...queryFilters, limit: 1000 }),
-    enabled: !useAIResults,
-  });
-  const totalItemCount = totalCountData?.pagination?.total || totalCountData?.items?.length || 0;
+  // Get total count from pagination data instead of separate query
+  const totalItemCount = paginatedData?.pagination?.total || 0;
 
   // Always call hooks - use enabled to control when they run
   const { data: allItemsData } = useQuery({
-    queryKey: ["/api/items", { limit: 1000 }],
-    queryFn: () => api.getItems({ limit: 1000 }),
+    queryKey: ["/api/items", { limit: 100 }], // Reduced from 1000 to 100
+    queryFn: () => api.getItems({ limit: 100 }),
     enabled: !useAIResults && !regularLoading && items.length === 0, // Only fetch for alternative suggestions
+    staleTime: 60000, // Cache for 1 minute
   });
   const allItems = allItemsData?.items || [];
 

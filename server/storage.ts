@@ -1,6 +1,6 @@
 import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gt, notInArray, sql } from "drizzle-orm";
+import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte } from "drizzle-orm";
 import { calculateAvailabilityStatus } from "@shared/availability-utils";
 
 export interface IStorage {
@@ -18,6 +18,7 @@ export interface IStorage {
   
   // Items
   getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]>;
+  getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }>;
   getItem(id: number): Promise<ItemWithDetails | undefined>;
   createItem(item: InsertItem): Promise<Item>;
   updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined>;
@@ -464,7 +465,7 @@ export class DatabaseStorage implements IStorage {
       .from(bookings)
       .where(eq(bookings.status, 'approved'));
 
-    const query = db
+    let query = db
       .select()
       .from(items)
       .leftJoin(users, eq(items.ownerId, users.id))
@@ -473,27 +474,41 @@ export class DatabaseStorage implements IStorage {
         notInArray(items.id, approvedBookingsSubquery)
       );
 
-    let result = await query;
-
+    // Apply SQL-level filtering for much better performance
     if (filters) {
-      result = result.filter(row => {
-        const item = row.items;
-        if (!item) return false;
+      const conditions = [];
+      
+      if (filters.categoryId) {
+        conditions.push(eq(items.categoryId, filters.categoryId));
+      }
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+        conditions.push(
+          or(
+            ilike(items.title, `%${search}%`),
+            ilike(items.description, `%${search}%`)
+          )
+        );
+      }
+      if (filters.minPrice) {
+        conditions.push(gte(items.price, filters.minPrice.toString()));
+      }
+      if (filters.maxPrice) {
+        conditions.push(lte(items.price, filters.maxPrice.toString()));
+      }
+      if (filters.location) {
+        conditions.push(ilike(items.location, `%${filters.location}%`));
+      }
+      if (filters.ownerId) {
+        conditions.push(eq(items.ownerId, filters.ownerId));
+      }
 
-        if (filters.categoryId && item.categoryId !== filters.categoryId) return false;
-        if (filters.search) {
-          const search = filters.search.toLowerCase();
-          if (!item.title.toLowerCase().includes(search) && 
-              !item.description.toLowerCase().includes(search)) return false;
-        }
-        if (filters.minPrice && parseFloat(item.price) < filters.minPrice) return false;
-        if (filters.maxPrice && parseFloat(item.price) > filters.maxPrice) return false;
-        if (filters.location && !item.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
-        if (filters.ownerId && item.ownerId !== filters.ownerId) return false;
-
-        return true;
-      });
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
     }
+
+    const result = await query;
 
     return result
       .filter(row => row.items && row.users && row.categories)
@@ -504,6 +519,145 @@ export class DatabaseStorage implements IStorage {
         owner: row.users!,
         category: row.categories!,
       }));
+  }
+
+  async getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }> {
+    const { filters, sortBy, page, limit } = options;
+    const offset = (page - 1) * limit;
+
+    // First, get items that don't have approved bookings (are available)
+    const approvedBookingsSubquery = db
+      .select({ itemId: bookings.itemId })
+      .from(bookings)
+      .where(eq(bookings.status, 'approved'));
+
+    let query = db
+      .select()
+      .from(items)
+      .leftJoin(users, eq(items.ownerId, users.id))
+      .leftJoin(categories, eq(items.categoryId, categories.id))
+      .where(
+        notInArray(items.id, approvedBookingsSubquery)
+      );
+
+    // Apply SQL-level filtering for much better performance
+    if (filters) {
+      const conditions = [];
+      
+      if (filters.categoryId) {
+        conditions.push(eq(items.categoryId, filters.categoryId));
+      }
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+        conditions.push(
+          or(
+            ilike(items.title, `%${search}%`),
+            ilike(items.description, `%${search}%`)
+          )
+        );
+      }
+      if (filters.minPrice) {
+        conditions.push(gte(items.price, filters.minPrice.toString()));
+      }
+      if (filters.maxPrice) {
+        conditions.push(lte(items.price, filters.maxPrice.toString()));
+      }
+      if (filters.location) {
+        conditions.push(ilike(items.location, `%${filters.location}%`));
+      }
+      if (filters.ownerId) {
+        conditions.push(eq(items.ownerId, filters.ownerId));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+    }
+
+    // Apply SQL-level sorting for better performance
+    if (sortBy) {
+      switch (sortBy) {
+        case 'price-low':
+          query = query.orderBy(items.price);
+          break;
+        case 'price-high':
+          query = query.orderBy(desc(items.price));
+          break;
+        case 'rating':
+          query = query.orderBy(desc(users.rating));
+          break;
+        case 'newest':
+          query = query.orderBy(desc(items.createdAt));
+          break;
+        default:
+          // Default ordering by creation date
+          query = query.orderBy(desc(items.id));
+          break;
+      }
+    } else {
+      query = query.orderBy(desc(items.id));
+    }
+
+    // Get total count first (without pagination)
+    const countQuery = db
+      .select({ count: sql<number>`count(*)` })
+      .from(items)
+      .where(
+        notInArray(items.id, approvedBookingsSubquery)
+      );
+
+    // Apply same filters to count query
+    if (filters) {
+      const conditions = [];
+      
+      if (filters.categoryId) {
+        conditions.push(eq(items.categoryId, filters.categoryId));
+      }
+      if (filters.search) {
+        const search = filters.search.toLowerCase();
+        conditions.push(
+          or(
+            ilike(items.title, `%${search}%`),
+            ilike(items.description, `%${search}%`)
+          )
+        );
+      }
+      if (filters.minPrice) {
+        conditions.push(gte(items.price, filters.minPrice.toString()));
+      }
+      if (filters.maxPrice) {
+        conditions.push(lte(items.price, filters.maxPrice.toString()));
+      }
+      if (filters.location) {
+        conditions.push(ilike(items.location, `%${filters.location}%`));
+      }
+      if (filters.ownerId) {
+        conditions.push(eq(items.ownerId, filters.ownerId));
+      }
+
+      if (conditions.length > 0) {
+        countQuery.where(and(...conditions));
+      }
+    }
+
+    const [totalResult, paginatedResult] = await Promise.all([
+      countQuery,
+      query.limit(limit).offset(offset)
+    ]);
+
+    const total = totalResult[0]?.count || 0;
+    
+    const items = paginatedResult
+      .filter(row => row.items && row.users && row.categories)
+      .map(row => ({
+        ...row.items!,
+        rating: row.users!.rating,
+        reviewCount: row.users!.reviewCount,
+        owner: row.users!,
+        category: row.categories!,
+      }));
+
+    return { items, total };
   }
 
   async getItem(id: number): Promise<ItemWithDetails | undefined> {
