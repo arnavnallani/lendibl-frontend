@@ -88,6 +88,7 @@ export default function ItemScanModal({
     setScanImages(prev => {
       const newImages = prev.filter((_, i) => i !== index);
       console.log('🗑️ Images after removal:', newImages.length);
+      console.log('🔘 Save button should be:', newImages.length > 0 ? 'ENABLED' : 'DISABLED');
       return newImages;
     });
   };
@@ -359,6 +360,7 @@ export default function ItemScanModal({
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               {saveScanMutation.isPending ? 'Saving...' : 'Save Scan'}
+              {scanImages.length > 0 && ` (${scanImages.length})`}
             </Button>
           </div>
         </div>
