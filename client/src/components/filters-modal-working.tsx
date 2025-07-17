@@ -117,8 +117,7 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
                 <SelectItem value="relevance">Relevance</SelectItem>
                 <SelectItem value="price_low">Price: Low to High</SelectItem>
                 <SelectItem value="price_high">Price: High to Low</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="rating">Highest Owner Rating</SelectItem>
               </SelectContent>
             </Select>
           </div>

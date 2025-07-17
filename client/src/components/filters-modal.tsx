@@ -206,8 +206,7 @@ export default function FiltersModal({
                 <SelectItem value="">Default sorting</SelectItem>
                 <SelectItem value="price-low">Price: Low to High</SelectItem>
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="rating">Highest Owner Rating</SelectItem>
                 <SelectItem value="distance">Closest to Me</SelectItem>
               </SelectContent>
             </Select>
