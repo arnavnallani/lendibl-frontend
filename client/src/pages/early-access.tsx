@@ -126,19 +126,30 @@ export default function EarlyAccess() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          {/* Main heading with glow effect */}
+          {/* Main heading with enhanced readability */}
           <motion.h1 
-            className="text-4xl md:text-6xl font-bold text-white mb-12 relative"
+            className="text-4xl md:text-6xl font-bold mb-12 relative"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
           >
-            <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent drop-shadow-2xl">
+            <span 
+              className="text-white font-black"
+              style={{
+                textShadow: '2px 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.3)'
+              }}
+            >
               It all starts Friday,
             </span>
             <br />
             <motion.span 
-              className="bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent filter drop-shadow-lg"
+              className="font-black"
+              style={{
+                background: 'linear-gradient(135deg, #ffd700, #ff8c00, #ffd700)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '2px 2px 8px rgba(0,0,0,0.9), 0 0 30px rgba(255,215,0,0.5)'
+              }}
               animate={{ 
                 backgroundPosition: ['0%', '100%', '0%'],
               }}
@@ -151,12 +162,12 @@ export default function EarlyAccess() {
               July 18th
             </motion.span>
             
-            {/* Glow effect */}
+            {/* Enhanced glow effect */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/20 blur-3xl -z-10"
+              className="absolute inset-0 bg-gradient-to-r from-white/10 via-yellow-300/20 to-white/10 blur-3xl -z-10"
               animate={{ 
                 scale: [1, 1.2, 1],
-                opacity: [0.3, 0.6, 0.3]
+                opacity: [0.4, 0.7, 0.4]
               }}
               transition={{ 
                 duration: 3, 
@@ -166,13 +177,13 @@ export default function EarlyAccess() {
             />
           </motion.h1>
 
-          {/* Form card with glass morphism */}
+          {/* Form card with enhanced glass morphism */}
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:bg-white/15">
+            <Card className="bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:bg-white/25">
               <CardContent className="p-8">
                 {!isSubmitted ? (
                   <Form {...form}>
@@ -194,15 +205,27 @@ export default function EarlyAccess() {
                             name="firstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white/90 font-medium text-sm">First Name *</FormLabel>
+                                <FormLabel 
+                                  className="text-white font-semibold text-sm"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                >
+                                  First Name *
+                                </FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
-                                    className="bg-white/15 backdrop-blur-sm border-white/30 focus:border-white/60 focus:ring-white/20 text-white placeholder:text-white/60 transition-all duration-300 hover:bg-white/20"
+                                    className="bg-white/25 backdrop-blur-sm border-white/40 focus:border-white/70 focus:ring-white/30 text-gray-900 placeholder:text-gray-600 transition-all duration-300 hover:bg-white/30 font-medium"
                                     placeholder="Enter your first name"
                                   />
                                 </FormControl>
-                                <FormMessage className="text-red-300" />
+                                <FormMessage 
+                                  className="text-red-200 font-medium"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                />
                               </FormItem>
                             )}
                           />
@@ -218,15 +241,27 @@ export default function EarlyAccess() {
                             name="lastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white/90 font-medium text-sm">Last Name *</FormLabel>
+                                <FormLabel 
+                                  className="text-white font-semibold text-sm"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                >
+                                  Last Name *
+                                </FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
-                                    className="bg-white/15 backdrop-blur-sm border-white/30 focus:border-white/60 focus:ring-white/20 text-white placeholder:text-white/60 transition-all duration-300 hover:bg-white/20"
+                                    className="bg-white/25 backdrop-blur-sm border-white/40 focus:border-white/70 focus:ring-white/30 text-gray-900 placeholder:text-gray-600 transition-all duration-300 hover:bg-white/30 font-medium"
                                     placeholder="Enter your last name"
                                   />
                                 </FormControl>
-                                <FormMessage className="text-red-300" />
+                                <FormMessage 
+                                  className="text-red-200 font-medium"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                />
                               </FormItem>
                             )}
                           />
@@ -242,16 +277,28 @@ export default function EarlyAccess() {
                             name="email"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-white/90 font-medium text-sm">Email Address *</FormLabel>
+                                <FormLabel 
+                                  className="text-white font-semibold text-sm"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                >
+                                  Email Address *
+                                </FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
                                     type="email"
-                                    className="bg-white/15 backdrop-blur-sm border-white/30 focus:border-white/60 focus:ring-white/20 text-white placeholder:text-white/60 transition-all duration-300 hover:bg-white/20"
+                                    className="bg-white/25 backdrop-blur-sm border-white/40 focus:border-white/70 focus:ring-white/30 text-gray-900 placeholder:text-gray-600 transition-all duration-300 hover:bg-white/30 font-medium"
                                     placeholder="Enter your email address"
                                   />
                                 </FormControl>
-                                <FormMessage className="text-red-300" />
+                                <FormMessage 
+                                  className="text-red-200 font-medium"
+                                  style={{
+                                    textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+                                  }}
+                                />
                               </FormItem>
                             )}
                           />
@@ -316,6 +363,9 @@ export default function EarlyAccess() {
                     </motion.div>
                     <motion.h2 
                       className="text-3xl font-bold text-white mb-4"
+                      style={{
+                        textShadow: '2px 2px 8px rgba(0,0,0,0.8)'
+                      }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 }}
@@ -323,7 +373,10 @@ export default function EarlyAccess() {
                       Welcome aboard!
                     </motion.h2>
                     <motion.p 
-                      className="text-white/80 text-lg leading-relaxed"
+                      className="text-white text-lg leading-relaxed font-medium"
+                      style={{
+                        textShadow: '1px 1px 6px rgba(0,0,0,0.8)'
+                      }}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
@@ -398,9 +451,12 @@ export default function EarlyAccess() {
           </motion.a>
         </motion.div>
 
-        {/* Subtle tagline */}
+        {/* Enhanced tagline */}
         <motion.p
-          className="text-white/60 text-center text-sm font-light tracking-wide"
+          className="text-white text-center text-sm font-medium tracking-wide"
+          style={{
+            textShadow: '1px 1px 4px rgba(0,0,0,0.8)'
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
