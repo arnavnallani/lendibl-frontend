@@ -114,6 +114,7 @@ export const items = pgTable("items", {
   state: text("state").default(""),
   zipCode: text("zip_code").default(""),
   available: boolean("available").default(true),
+  availabilityStatus: text("availability_status").default("available now"), // "available now", "available later this week", "available next week", "available later than next week"
   availableFrom: timestamp("available_from"),
   availableTo: timestamp("available_to"),
   rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),

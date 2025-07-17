@@ -36,6 +36,7 @@ const formSchema = insertItemSchema.extend({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipCode: z.string().min(5, "Valid zip code is required"),
+  availabilityStatus: z.string().default("available now"),
   availableFrom: z.date().optional(),
   availableTo: z.date().optional(),
 });
@@ -191,6 +192,7 @@ export default function ListItem() {
       state: "",
       zipCode: "",
       available: true,
+      availabilityStatus: "available now",
       included: [],
       includedItems: "",
       availableFrom: undefined,
@@ -680,6 +682,31 @@ export default function ListItem() {
                 {/* Availability Dates */}
                 <div className="space-y-6">
                   <h3 className="text-xl font-semibold text-gray-dark">Availability</h3>
+                  
+                  {/* Availability Status */}
+                  <FormField
+                    control={form.control}
+                    name="availabilityStatus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Availability Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select availability status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="available now">available now</SelectItem>
+                            <SelectItem value="available later this week">available later this week</SelectItem>
+                            <SelectItem value="available next week">available next week</SelectItem>
+                            <SelectItem value="available later than next week">available later than next week</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField

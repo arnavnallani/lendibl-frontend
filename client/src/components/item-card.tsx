@@ -92,7 +92,7 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
         {/* Availability indicator */}
         <div className="flex items-center mt-3 pt-3 border-t border-gray-light/50">
           <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-          <span className="text-xs text-gray-medium font-medium">Available now</span>
+          <span className="text-xs text-gray-medium font-medium">{item.availabilityStatus || "available now"}</span>
         </div>
       </CardContent>
     </Card>
