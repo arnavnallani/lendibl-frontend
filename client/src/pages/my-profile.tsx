@@ -210,12 +210,12 @@ export default function MyProfile() {
       console.error('Failed to update booking:', error);
       
       // Check if this is a payment setup error
-      const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
+      const errorMessage = error?.data?.message || error?.message || 'Unknown error';
       
-      if (errorMessage === 'Please set up a payment method to be able to receive money first.') {
+      if (errorMessage.includes('Please set up a payment method')) {
         toast({
           title: 'Payment Setup Required',
-          description: 'Please set up a payment method to be able to receive money first.',
+          description: 'Please set up a payment method first so that you can actually receive money after the transaction happens.',
           variant: 'destructive',
         });
       } else {
