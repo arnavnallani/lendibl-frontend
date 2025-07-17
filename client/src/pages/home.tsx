@@ -104,7 +104,7 @@ export default function Home() {
 
   const handleFiltersChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
-    setShowRecommendations(Object.keys(newFilters).length === 0);
+    setShowRecommendations(!newFilters.search || newFilters.search.length === 0);
   };
 
   const handleItemClick = (item: ItemWithDetails) => {
@@ -141,7 +141,7 @@ export default function Home() {
         <div className="space-y-8">
           <HeroSection onCategorySelect={handleCategorySelect} />
           
-          {user && showRecommendations && Object.keys(filters).length === 0 && (
+          {user && showRecommendations && !filters.search && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <RecommendationsSection onItemClick={handleItemClick} />
             </div>
@@ -168,7 +168,7 @@ export default function Home() {
         <div className="space-y-8">
           <HeroSection onCategorySelect={handleCategorySelect} />
           
-          {user && showRecommendations && Object.keys(filters).length === 0 && (
+          {user && showRecommendations && !filters.search && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <RecommendationsSection onItemClick={handleItemClick} />
             </div>
