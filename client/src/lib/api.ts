@@ -18,6 +18,7 @@ export const api = {
     page?: number;
     limit?: number;
     ownerId?: number;
+    sortBy?: string;
   }): Promise<{
     items: ItemWithDetails[];
     pagination: {
@@ -37,6 +38,7 @@ export const api = {
     if (filters?.page) params.set("page", filters.page.toString());
     if (filters?.limit) params.set("limit", filters.limit.toString());
     if (filters?.ownerId) params.set("ownerId", filters.ownerId.toString());
+    if (filters?.sortBy) params.set("sortBy", filters.sortBy);
 
     const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
     const res = await apiRequest("GET", url);

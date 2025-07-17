@@ -43,6 +43,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     categoryId: filters.categoryId,
     search: filters.search,
     location: filters.location,
+    sortBy: filters.sortBy,
     page: currentPage,
     limit: 30,
     ...(filters.priceRange && filters.priceRange !== "all" ? {
@@ -67,7 +68,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     setCurrentPage(1);
     setAllLoadedItems([]);
     setHasMore(true);
-  }, [filters?.categoryId, filters?.search, filters?.priceRange, filters?.location]);
+  }, [filters?.categoryId, filters?.search, filters?.priceRange, filters?.location, filters?.sortBy]);
 
   // Update items when new data is received
   useEffect(() => {

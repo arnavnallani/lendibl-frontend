@@ -644,7 +644,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Items
   app.get("/api/items", async (req, res) => {
     try {
-      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId } = req.query;
+      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId, sortBy } = req.query;
       
       const filters: any = {};
       if (categoryId) filters.categoryId = parseInt(categoryId as string);
@@ -659,7 +659,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
       const offset = (pageNumber - 1) * pageSize;
 
-      const allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
+      let allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
+      
+      // Apply sorting
+      if (sortBy) {
+        switch (sortBy) {
+          case 'price-low':
+            allItems.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+            break;
+          case 'price-high':
+            allItems.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+            break;
+          case 'rating':
+            allItems.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            break;
+          case 'newest':
+            allItems.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            break;
+          default:
+            // Default sorting - no change
+            break;
+        }
+      }
       
       // Apply pagination
       const paginatedItems = allItems.slice(offset, offset + pageSize);
