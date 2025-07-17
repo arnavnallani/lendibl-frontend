@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
-import TestModal from "./test-modal";
+import FiltersModal from "./filters-modal-working";
 
 interface FilterBarProps {
   onFiltersChange: (filters: {
@@ -167,10 +167,12 @@ export default function FilterBar({
       </div>
       </section>
 
-      {/* Test Modal */}
-      <TestModal
+      {/* Advanced Filters Modal */}
+      <FiltersModal
         open={showFiltersModal}
         onOpenChange={setShowFiltersModal}
+        onFiltersApply={handleAdvancedFilters}
+        currentFilters={currentFilters}
       />
     </>
   );

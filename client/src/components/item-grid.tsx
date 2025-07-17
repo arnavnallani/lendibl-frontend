@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ItemCard from "./item-card";
-import ItemList from "./item-list";
+import ItemListSimple from "./item-list-simple";
 import { api } from "@/lib/api";
 import type { ItemWithDetails } from "@shared/schema";
 
@@ -299,18 +299,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
           ))}
         </div>
       ) : (
-        <div className="space-y-4">
-          <p className="text-center">List view temporarily disabled - debugging mode</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {items.map((item) => (
-              <ItemCard 
-                key={item.id} 
-                item={item} 
-                onClick={onItemClick}
-              />
-            ))}
-          </div>
-        </div>
+        <ItemListSimple items={items} onItemClick={onItemClick} />
       )}
 
       {/* Load More Button */}
