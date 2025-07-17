@@ -215,7 +215,7 @@ export default function MyProfile() {
       if (errorMessage.includes('Please set up a payment method')) {
         toast({
           title: 'Payment Setup Required',
-          description: 'Please set up a payment method first so you can be able to receive money.',
+          description: 'Please set up a payment method first so you can be able to receive money after the transaction.',
           variant: 'default',
           className: 'border-orange-200 bg-orange-50 text-orange-800',
         });
