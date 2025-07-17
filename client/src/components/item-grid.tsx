@@ -299,16 +299,63 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
           ))}
         </div>
       ) : (
-        <div className="p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">List View</h2>
-          <p className="text-gray-600 mb-4">Found {items.length} items</p>
-          <div className="text-left max-w-md mx-auto space-y-2">
-            {items.slice(0, 3).map((item) => (
-              <div key={item.id} className="p-2 border rounded">
-                <strong>{item.title}</strong> - ${item.pricePerDay}/day
+        <div className="space-y-4">
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 dark:border-gray-700 overflow-hidden"
+              onClick={() => onItemClick(item)}
+            >
+              <div className="flex gap-4 p-4">
+                <div className="flex-shrink-0">
+                  <img
+                    src={item.images?.[0] || 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop'}
+                    alt={item.title}
+                    className="w-32 h-24 object-cover rounded-lg"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 truncate pr-4">{item.title}</h3>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        ${item.pricePerDay}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">per day</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2">
+                    {item.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                        </svg>
+                        {item.city}, {item.state}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <svg className="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        4.5
+                      </span>
+                    </div>
+                    <button 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onItemClick(item);
+                      }}
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
 
