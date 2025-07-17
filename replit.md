@@ -350,6 +350,7 @@ The application uses PostgreSQL with the following main entities:
 - July 16, 2025: Updated favicon and app icons to match lendibl brand identity - circular sharing symbol with two people connected by curved arrows, consistent across all icon sizes (favicon, PWA icons), replaced generic "L" with authentic lendibl logo design
 - July 16, 2025: Fixed push notification registration issues by correcting subscription data format and improving error handling - enhanced test button to detect blocked notifications and provide clear instructions to users on how to enable notifications in browser settings
 - July 16, 2025: Completely redesigned push notification registration - test button now directly registers push subscriptions instead of relying on login timing, using proper VAPID key encoding and immediate subscription creation for reliable notification setup
+- July 17, 2025: Fixed messaging board conversation list scrolling behavior - implemented proper flex layout with overflow controls so scrolling is contained within the conversation panel instead of scrolling the entire page, created 10 test conversations with 31 messages for testing functionality
 
 ## User Preferences
 
