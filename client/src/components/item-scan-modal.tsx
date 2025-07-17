@@ -82,7 +82,12 @@ export default function ItemScanModal({
   };
 
   const removeImage = (index: number) => {
-    setScanImages(prev => prev.filter((_, i) => i !== index));
+    console.log('🗑️ Removing image at index:', index, 'Current images:', scanImages.length);
+    setScanImages(prev => {
+      const newImages = prev.filter((_, i) => i !== index);
+      console.log('🗑️ Images after removal:', newImages.length);
+      return newImages;
+    });
   };
 
   const handleSaveScan = () => {
@@ -128,10 +133,19 @@ export default function ItemScanModal({
   useEffect(() => {
     if (mode === 'scan' && existingScan && scanImages.length === 0) {
       console.log('🎯 Pre-populating scan data:', existingScan);
+      console.log('🎯 Setting images count:', existingScan.images?.length || 0);
       setScanImages(existingScan.images || []);
       setScanNotes(existingScan.notes || '');
     }
   }, [mode, existingScan, scanImages.length]);
+
+  // Clear state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setScanImages([]);
+      setScanNotes('');
+    }
+  }, [isOpen]);
 
   if (mode === 'view') {
     return (
@@ -299,8 +313,13 @@ export default function ItemScanModal({
                       className="w-full h-32 object-cover rounded-lg border"
                     />
                     <button
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🗑️ Delete button clicked for index:', index);
+                        removeImage(index);
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                     >
                       <X className="h-4 w-4" />
                     </button>
