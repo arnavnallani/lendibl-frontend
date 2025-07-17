@@ -32,6 +32,34 @@ export default function Home() {
   const [showRecommendations, setShowRecommendations] = useState(true);
   const [useAIResults, setUseAIResults] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      localStorage.setItem('lendibl_filters', JSON.stringify(filters));
+    }
+  }, [filters]);
+
+  // Restore filters from localStorage on component mount
+  useEffect(() => {
+    const savedFilters = localStorage.getItem('lendibl_filters');
+    if (savedFilters) {
+      try {
+        const parsedFilters = JSON.parse(savedFilters);
+        setFilters(parsedFilters);
+        
+        // If we have a search query, set AI results state accordingly
+        if (parsedFilters.search && parsedFilters.search.length >= 3) {
+          setUseAIResults(true);
+          setShowRecommendations(false);
+        } else if (parsedFilters.search && parsedFilters.search.length >= 1) {
+          setShowRecommendations(false);
+        }
+      } catch (error) {
+        console.error('Error parsing saved filters:', error);
+      }
+    }
+  }, []);
   
   // Get AI search results
   const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');

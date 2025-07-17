@@ -33,6 +33,28 @@ export default function FilterBar({
   const [showFiltersModal, setShowFiltersModal] = useState<boolean>(false);
   const [currentFilters, setCurrentFilters] = useState<any>({});
 
+  // Restore filter values from localStorage on component mount
+  React.useEffect(() => {
+    const savedFilters = localStorage.getItem('lendibl_filters');
+    if (savedFilters) {
+      try {
+        const parsedFilters = JSON.parse(savedFilters);
+        if (parsedFilters.categoryId) {
+          setSelectedCategory(parsedFilters.categoryId.toString());
+        }
+        if (parsedFilters.priceRange) {
+          setSelectedPriceRange(parsedFilters.priceRange);
+        }
+        if (parsedFilters.location) {
+          setLocation(parsedFilters.location);
+        }
+        setCurrentFilters(parsedFilters);
+      } catch (error) {
+        console.error('Error parsing saved filters:', error);
+      }
+    }
+  }, []);
+
   // Update selected category when prop changes (from hero section)
   React.useEffect(() => {
     if (selectedCategoryId) {

@@ -21,6 +21,15 @@ export default function FiltersModal({ open, onOpenChange, onFiltersApply, curre
   const [minPrice, setMinPrice] = useState(currentFilters.minPrice || "");
   const [maxPrice, setMaxPrice] = useState(currentFilters.maxPrice || "");
 
+  // Update state when currentFilters change (from localStorage restoration)
+  React.useEffect(() => {
+    setMinRating(currentFilters.minRating || 0);
+    setAvailability(currentFilters.availability || "all");
+    setSortBy(currentFilters.sortBy || "relevance");
+    setMinPrice(currentFilters.minPrice || "");
+    setMaxPrice(currentFilters.maxPrice || "");
+  }, [currentFilters]);
+
   const handleApply = () => {
     const filters = {
       ...currentFilters, // Keep existing filters (categoryId, priceRange, location, etc.)
