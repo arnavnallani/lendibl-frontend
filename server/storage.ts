@@ -1,6 +1,6 @@
 import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gt } from "drizzle-orm";
+import { eq, desc, and, gt, notInArray, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -457,11 +457,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getItems(filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number }): Promise<ItemWithDetails[]> {
+    // First, get items that don't have approved bookings (are available)
+    const approvedBookingsSubquery = db
+      .select({ itemId: bookings.itemId })
+      .from(bookings)
+      .where(eq(bookings.status, 'approved'));
+
     const query = db
       .select()
       .from(items)
       .leftJoin(users, eq(items.ownerId, users.id))
-      .leftJoin(categories, eq(items.categoryId, categories.id));
+      .leftJoin(categories, eq(items.categoryId, categories.id))
+      .where(
+        notInArray(items.id, approvedBookingsSubquery)
+      );
 
     let result = await query;
 
