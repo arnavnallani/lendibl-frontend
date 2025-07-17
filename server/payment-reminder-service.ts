@@ -84,7 +84,7 @@ export class PaymentReminderService {
 
   // Helper method to create payment setup reminders
   private async createPaymentSetupReminder(userId: number, type: string, amount: string) {
-    const validTypes = ['credit_card_required', 'paypal_setup_required', 'stripe_connect_required', 'stripe_onboarding_required', 'payout_blocked'];
+    const validTypes = ['credit_card_required', 'paypal_setup_required', 'stripe_connect_required', 'stripe_onboarding_required', 'payout_blocked', 'approval_required'];
     if (!validTypes.includes(type)) {
       console.error(`Invalid reminder type: ${type}`);
       return;
