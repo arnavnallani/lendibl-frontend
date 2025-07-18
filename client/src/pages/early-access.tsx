@@ -138,6 +138,14 @@ export default function EarlyAccess() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
           >
+            <span 
+              className="text-white font-black leading-tight"
+              style={{
+                textShadow: '3px 3px 0px rgba(0,0,0,1), 6px 6px 12px rgba(0,0,0,0.8)'
+              }}
+            >
+              The wait is{" "}
+            </span>
             <motion.span 
               className="font-black leading-tight"
               style={{
@@ -153,7 +161,7 @@ export default function EarlyAccess() {
                 ease: "easeInOut"
               }}
             >
-              The wait is almost over...
+              almost over...
             </motion.span>
             
             {/* Subtle glow effect */}
