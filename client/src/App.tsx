@@ -54,31 +54,31 @@ function MarketplaceRouter() {
 
 function Router() {
   const [location] = useLocation();
-  const [isLaunched, setIsLaunched] = useState(false);
+  const [showPreLaunch, setShowPreLaunch] = useState(false);
 
-  // Check URL parameters for launch commands
+  // Check URL parameters for pre-launch screen
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const launchParam = urlParams.get('launch');
+    const prelaunchParam = urlParams.get('prelaunch');
     const hash = window.location.hash;
     
-    // Launch marketplace if specific parameters are found
-    if (launchParam === 'marketplace' || 
-        launchParam === 'app' || 
-        hash === '#launch') {
-      setIsLaunched(true);
+    // Show pre-launch screen if specific parameters are found
+    if (prelaunchParam === 'true' || 
+        hash === '#prelaunch' ||
+        location === '/early-access') {
+      setShowPreLaunch(true);
     }
   }, [location]);
 
-  // Listen for global launch event
+  // Listen for global pre-launch event
   useEffect(() => {
-    const handleLaunch = () => setIsLaunched(true);
-    window.addEventListener('launchMarketplace', handleLaunch);
-    return () => window.removeEventListener('launchMarketplace', handleLaunch);
+    const handleShowPreLaunch = () => setShowPreLaunch(true);
+    window.addEventListener('showPreLaunch', handleShowPreLaunch);
+    return () => window.removeEventListener('showPreLaunch', handleShowPreLaunch);
   }, []);
 
-  // Show pre-launch screen by default, marketplace when launched
-  return isLaunched ? <MarketplaceRouter /> : <PreLaunchRouter />;
+  // Show marketplace by default, pre-launch when specifically requested
+  return showPreLaunch ? <PreLaunchRouter /> : <MarketplaceRouter />;
 }
 
 function App() {
