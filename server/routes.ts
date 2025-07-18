@@ -123,7 +123,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Root API endpoint
   app.get("/api", (req, res) => {
-    res.json({ message: "lendibl API is running" });
+    res.json({ 
+      message: "lendibl API is running",
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString(),
+      deployment_test: "WORKING_JULY_18_2025"
+    });
   });
 
   // Authentication routes
