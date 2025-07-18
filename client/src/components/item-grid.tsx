@@ -254,8 +254,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
               Be the first to list an item!
             </h3>
             <p className="text-gray-600 mb-6">
-              Start the marketplace by sharing something you own. 
-              Others will follow and the community will grow!
+              Kickstart the marketplace with one of your awesome items...
             </p>
             <Link to="/list-item">
               <Button 
