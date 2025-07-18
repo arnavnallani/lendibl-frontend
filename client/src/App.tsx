@@ -54,31 +54,41 @@ function MarketplaceRouter() {
 
 function Router() {
   const [location] = useLocation();
-  const [showPreLaunch, setShowPreLaunch] = useState(false);
+  const [showMarketplace, setShowMarketplace] = useState(false);
 
-  // Check URL parameters for pre-launch screen
+  // Check URL parameters for marketplace access
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const prelaunchParam = urlParams.get('prelaunch');
+    const launchParam = urlParams.get('launch');
     const hash = window.location.hash;
     
-    // Show pre-launch screen if specific parameters are found
-    if (prelaunchParam === 'true' || 
-        hash === '#prelaunch' ||
-        location === '/early-access') {
-      setShowPreLaunch(true);
+    // Show marketplace only when specific parameters are found
+    if (launchParam === 'marketplace' || 
+        hash === '#launch' ||
+        location.startsWith('/item/') ||
+        location.startsWith('/list-item') ||
+        location.startsWith('/my-profile') ||
+        location.startsWith('/user/') ||
+        location.startsWith('/settings') ||
+        location.startsWith('/action-dashboard') ||
+        location.startsWith('/messages') ||
+        location.startsWith('/privacy-policy') ||
+        location.startsWith('/terms') ||
+        location.startsWith('/who-we-are') ||
+        location.startsWith('/reset-password')) {
+      setShowMarketplace(true);
     }
   }, [location]);
 
-  // Listen for global pre-launch event
+  // Listen for global marketplace launch event
   useEffect(() => {
-    const handleShowPreLaunch = () => setShowPreLaunch(true);
-    window.addEventListener('showPreLaunch', handleShowPreLaunch);
-    return () => window.removeEventListener('showPreLaunch', handleShowPreLaunch);
+    const handleLaunchMarketplace = () => setShowMarketplace(true);
+    window.addEventListener('launchMarketplace', handleLaunchMarketplace);
+    return () => window.removeEventListener('launchMarketplace', handleLaunchMarketplace);
   }, []);
 
-  // Show marketplace by default, pre-launch when specifically requested
-  return showPreLaunch ? <PreLaunchRouter /> : <MarketplaceRouter />;
+  // Show pre-launch by default, marketplace when specifically requested
+  return showMarketplace ? <MarketplaceRouter /> : <PreLaunchRouter />;
 }
 
 function App() {
