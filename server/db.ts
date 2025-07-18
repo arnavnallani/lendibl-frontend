@@ -19,27 +19,19 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create pool with more resilient configuration
+// Create pool with lightweight configuration for deployment
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 5, // Reduced pool size
-  idleTimeoutMillis: 10000, // Shorter idle timeout
-  connectionTimeoutMillis: 5000, // Increased timeout
+  max: 3, // Minimal pool size for deployment
+  idleTimeoutMillis: 30000, // Longer idle timeout
+  connectionTimeoutMillis: 10000, // Longer connection timeout
   ssl: { rejectUnauthorized: false },
-  allowExitOnIdle: false,
+  allowExitOnIdle: true, // Allow clean shutdown
 });
 
-// Handle pool errors gracefully
+// Minimal error handling without excessive logging
 pool.on('error', (err) => {
-  console.error('Database pool error:', err);
-});
-
-// Handle client connection errors
-pool.on('connect', (client) => {
-  console.log('Database client connected');
-  client.on('error', (err) => {
-    console.error('Database client error:', err);
-  });
+  console.error('DB error:', err.message);
 });
 
 export const db = drizzle({ client: pool, schema });

@@ -69,26 +69,30 @@ app.use((req, res, next) => {
     const server = await registerRoutes(app);
     console.log('Routes registered successfully');
     
-    // Start payment reminder scheduler
-    const { paymentReminderService } = await import("./payment-reminder-service");
-    paymentReminderService.startPeriodicReminderScheduler();
-    console.log('Payment reminder scheduler started');
+    // Skip background schedulers in production deployment to reduce resource usage
+    if (process.env.NODE_ENV !== 'production') {
+      const { paymentReminderService } = await import("./payment-reminder-service");
+      paymentReminderService.startPeriodicReminderScheduler();
+      console.log('Payment reminder scheduler started');
+    }
     
-    // Start automatic payout checker for completed rentals
-    const { paymentScheduler } = await import("./payment-scheduler");
-    setInterval(async () => {
-      try {
-        await paymentScheduler.checkPendingBookings();
-      } catch (error) {
-        console.error('Error in automatic payout check:', error);
-      }
-    }, 60000); // Check every minute for completed rentals
-    console.log('Automatic payout checker started');
-    
-    // Start automatic refund checker for pending bookings
-    const { refundService } = await import("./refund-service");
-    refundService.startTimeoutChecker();
-    console.log('Automatic refund timeout checker started');
+    // Skip automatic payout checker in production to reduce resource usage
+    if (process.env.NODE_ENV !== 'production') {
+      const { paymentScheduler } = await import("./payment-scheduler");
+      setInterval(async () => {
+        try {
+          await paymentScheduler.checkPendingBookings();
+        } catch (error) {
+          console.error('Error in automatic payout check:', error);
+        }
+      }, 60000); // Check every minute for completed rentals
+      console.log('Automatic payout checker started');
+      
+      // Start automatic refund checker for pending bookings
+      const { refundService } = await import("./refund-service");
+      refundService.startTimeoutChecker();
+      console.log('Automatic refund timeout checker started');
+    }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
