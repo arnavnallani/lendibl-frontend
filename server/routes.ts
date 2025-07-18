@@ -111,6 +111,21 @@ function notifyUser(userId: number, notification: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for deployment debugging
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || "unknown",
+      version: "1.0.0"
+    });
+  });
+
+  // Root API endpoint
+  app.get("/api", (req, res) => {
+    res.json({ message: "lendibl API is running" });
+  });
+
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {

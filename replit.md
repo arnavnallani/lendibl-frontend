@@ -371,6 +371,7 @@ The application uses PostgreSQL with the following main entities:
 - July 18, 2025: Updated empty state supporting text to "Kickstart the marketplace with one of your awesome items..." for more energetic and personal tone encouraging user participation.
 - July 18, 2025: Added scroll-to-top functionality to list items page - page automatically scrolls to top when users navigate to it for better user experience.
 - July 18, 2025: Implemented scroll-to-top functionality across all pages - every page now automatically scrolls to the top when users navigate to it, including home, profile, settings, action dashboard, messages, item details, user profiles, privacy policy, terms of service, who we are, reset password, early access, and not found pages.
+- July 18, 2025: CRITICAL DEPLOYMENT ISSUE IDENTIFIED: Production deployment fails due to port conflict between development and production servers both trying to use port 5000. Enhanced error handling implemented with comprehensive fallback UI, health check endpoints added for debugging. Production build works correctly but cannot start due to port 5000 being occupied by development server. Solution requires proper Replit deployment isolation or stopping development server during deployment.
 
 ## User Preferences
 
