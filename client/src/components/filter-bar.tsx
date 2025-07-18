@@ -116,6 +116,45 @@ export default function FilterBar({
     onViewModeChange?.(newMode);
   };
 
+  // Count active advanced filters
+  const getActiveAdvancedFiltersCount = () => {
+    let count = 0;
+    if (currentFilters.minRating && currentFilters.minRating > 0) count++;
+    if (currentFilters.availability && currentFilters.availability !== "all") count++;
+    if (currentFilters.sortBy && currentFilters.sortBy !== "relevance") count++;
+    if (currentFilters.minPrice) count++;
+    if (currentFilters.maxPrice) count++;
+    return count;
+  };
+
+  const getActiveFiltersDisplay = () => {
+    const filters = [];
+    if (currentFilters.minRating && currentFilters.minRating > 0) {
+      filters.push(`${currentFilters.minRating}+ stars`);
+    }
+    if (currentFilters.availability && currentFilters.availability !== "all") {
+      filters.push(currentFilters.availability);
+    }
+    if (currentFilters.sortBy && currentFilters.sortBy !== "relevance") {
+      filters.push(`Sort: ${currentFilters.sortBy}`);
+    }
+    if (currentFilters.minPrice || currentFilters.maxPrice) {
+      const min = currentFilters.minPrice ? `$${currentFilters.minPrice}` : "";
+      const max = currentFilters.maxPrice ? `$${currentFilters.maxPrice}` : "";
+      if (min && max) {
+        filters.push(`$${currentFilters.minPrice}-$${currentFilters.maxPrice}`);
+      } else if (min) {
+        filters.push(`$${currentFilters.minPrice}+`);
+      } else if (max) {
+        filters.push(`Under $${currentFilters.maxPrice}`);
+      }
+    }
+    return filters;
+  };
+
+  const activeFiltersCount = getActiveAdvancedFiltersCount();
+  const activeFiltersDisplay = getActiveFiltersDisplay();
+
   return (
     <>
       <section className="bg-white border-b border-gray-light py-4">
@@ -124,10 +163,16 @@ export default function FilterBar({
             <Button 
               variant="outline" 
               onClick={() => setShowFiltersModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-light rounded-full hover:border-gray-dark transition-colors"
+              className={`flex items-center space-x-2 px-4 py-2 border rounded-full transition-colors ${
+                activeFiltersCount > 0 
+                  ? 'border-primary bg-primary/10 text-primary' 
+                  : 'border-gray-light hover:border-gray-dark'
+              }`}
             >
-              <SlidersHorizontal className="h-4 w-4 text-gray-medium" />
-              <span className="text-gray-dark font-medium">Filters</span>
+              <SlidersHorizontal className="h-4 w-4" />
+              <span className="font-medium">
+                Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+              </span>
             </Button>
           
           <Select value={selectedCategory} onValueChange={handleCategoryChange}>
@@ -186,6 +231,20 @@ export default function FilterBar({
             )}
           </Button>
         </div>
+        
+        {/* Active Filters Display */}
+        {activeFiltersDisplay.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {activeFiltersDisplay.map((filter, index) => (
+              <div
+                key={index}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+              >
+                {filter}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       </section>
 
