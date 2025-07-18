@@ -31,7 +31,7 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -176,5 +176,3 @@ export function useAuthProvider(): AuthContextType {
     isLoading,
   };
 }
-
-export { AuthContext };
