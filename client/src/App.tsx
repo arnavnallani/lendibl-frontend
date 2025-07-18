@@ -1,4 +1,5 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -26,7 +27,11 @@ import ResetPassword from "@/pages/reset-password";
 import EarlyAccess from "@/pages/early-access";
 import NotFound from "@/pages/not-found";
 
-function Router() {
+function PreLaunchRouter() {
+  return <EarlyAccess />;
+}
+
+function MarketplaceRouter() {
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -45,6 +50,35 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
+}
+
+function Router() {
+  const [location] = useLocation();
+  const [isLaunched, setIsLaunched] = useState(false);
+
+  // Check URL parameters for launch commands
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const launchParam = urlParams.get('launch');
+    const hash = window.location.hash;
+    
+    // Launch marketplace if specific parameters are found
+    if (launchParam === 'marketplace' || 
+        launchParam === 'app' || 
+        hash === '#launch') {
+      setIsLaunched(true);
+    }
+  }, [location]);
+
+  // Listen for global launch event
+  useEffect(() => {
+    const handleLaunch = () => setIsLaunched(true);
+    window.addEventListener('launchMarketplace', handleLaunch);
+    return () => window.removeEventListener('launchMarketplace', handleLaunch);
+  }, []);
+
+  // Show pre-launch screen by default, marketplace when launched
+  return isLaunched ? <MarketplaceRouter /> : <PreLaunchRouter />;
 }
 
 function App() {

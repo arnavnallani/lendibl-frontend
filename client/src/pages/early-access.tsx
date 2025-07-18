@@ -410,6 +410,20 @@ export default function EarlyAccess() {
         >
           The future of sharing starts here
         </motion.p>
+
+        {/* Hidden launch trigger - only visible to developers */}
+        <div className="fixed bottom-4 right-4 opacity-10 hover:opacity-100 transition-opacity duration-300">
+          <button
+            onClick={() => {
+              // Trigger marketplace launch
+              window.dispatchEvent(new CustomEvent('launchMarketplace'));
+              window.history.pushState({}, '', '/?launch=marketplace');
+            }}
+            className="text-xs text-white/50 hover:text-white bg-black/20 hover:bg-black/40 px-2 py-1 rounded border border-white/20"
+          >
+            Launch Marketplace
+          </button>
+        </div>
       </motion.footer>
     </div>
   );
