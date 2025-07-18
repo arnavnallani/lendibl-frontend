@@ -408,7 +408,7 @@ export default function EarlyAccess() {
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
         >
-          The future of sharing starts here
+          The future of renting starts here
         </motion.p>
 
         {/* Hidden launch trigger - only visible to developers */}
