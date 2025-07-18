@@ -138,15 +138,6 @@ export default function EarlyAccess() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
           >
-            <span 
-              className="text-white font-black leading-tight"
-              style={{
-                textShadow: '3px 3px 0px rgba(0,0,0,1), 6px 6px 12px rgba(0,0,0,0.8)'
-              }}
-            >
-              It all starts Friday,
-            </span>
-            <br />
             <motion.span 
               className="font-black leading-tight"
               style={{
@@ -162,7 +153,7 @@ export default function EarlyAccess() {
                 ease: "easeInOut"
               }}
             >
-              July 18th
+              The wait is almost over...
             </motion.span>
             
             {/* Subtle glow effect */}
