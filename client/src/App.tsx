@@ -93,6 +93,33 @@ function Router() {
 
 function App() {
   const auth = useAuthProvider();
+  const [location] = useLocation();
+  const [showMarketplace, setShowMarketplace] = useState(false);
+
+  // Check if marketplace should be shown (same logic as Router)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const launchParam = urlParams.get('launch');
+    const hash = window.location.hash;
+    
+    if (launchParam === 'marketplace' || 
+        hash === '#launch' ||
+        location.startsWith('/item/') ||
+        location.startsWith('/list-item') ||
+        location.startsWith('/my-profile') ||
+        location.startsWith('/user/') ||
+        location.startsWith('/settings') ||
+        location.startsWith('/action-dashboard') ||
+        location.startsWith('/messages') ||
+        location.startsWith('/privacy-policy') ||
+        location.startsWith('/terms') ||
+        location.startsWith('/who-we-are') ||
+        location.startsWith('/reset-password')) {
+      setShowMarketplace(true);
+    } else {
+      setShowMarketplace(false);
+    }
+  }, [location]);
 
   return (
     <ErrorBoundary>
@@ -101,10 +128,10 @@ function App() {
           <TooltipProvider>
             <BrowserNotificationProvider />
             <Toaster />
-            <AIBanner />
-            <WhoWeAreBanner />
+            {showMarketplace && <AIBanner />}
+            {showMarketplace && <WhoWeAreBanner />}
             <Router />
-            <AiChatbot />
+            {showMarketplace && <AiChatbot />}
             <ErrorBoundary>
               <ReviewPromptProvider />
             </ErrorBoundary>
