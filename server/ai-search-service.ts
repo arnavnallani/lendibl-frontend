@@ -67,12 +67,12 @@ export class AISearchService {
   }
 
   async analyzeSearchQuery(query: string): Promise<SearchAnalysis> {
-    // Start timer for 1.5-second timeout (leaving 0.5s for processing)
+    // Start timer for 3-second timeout
     const timeout = new Promise<SearchAnalysis>((_, reject) => {
       setTimeout(() => {
-        console.log(`⏰ AI search timeout after 1.5 seconds for query: "${query}"`);
+        console.log(`⏰ AI search timeout after 3 seconds for query: "${query}"`);
         reject(new Error('AI search timeout'));
-      }, 1500); // 1.5 second timeout for AI analysis
+      }, 3000); // 3 second timeout
     });
 
     const aiAnalysis = async (): Promise<SearchAnalysis> => {
@@ -109,8 +109,8 @@ Examples:
             }
           ],
           response_format: { type: "json_object" },
-          temperature: 0.1, // Lower temperature for faster processing
-          max_tokens: 300 // Reduced tokens for faster response
+          temperature: 0.3,
+          max_tokens: 500 // Limit response size for faster processing
         });
 
         const rawJson = response.choices[0].message.content;
@@ -131,8 +131,8 @@ Examples:
       console.log(`✅ AI search completed for query: "${query}"`);
       return result;
     } catch (error) {
-      // Use smart fallback instantly - no delay
-      console.log(`🔄 Using instant fallback analysis for: "${query}"`);
+      // Use smart fallback with enhanced semantic understanding
+      console.log(`🔄 Using smart fallback analysis for: "${query}"`);
       return this.getSmartFallbackAnalysis(query);
     }
   }
@@ -272,8 +272,8 @@ Examples:
     
     // Return top matches with scores above threshold
     const relevantItems = scoredItems
-      .filter(item => item.score >= 6) // Lower threshold for faster results
-      .slice(0, 15) // Return more results to avoid alternatives
+      .filter(item => item.score >= 8) // Higher threshold for direct matches
+      .slice(0, 10)
       .map(match => {
         const originalItem = allItems.find(item => item.id === match.id);
         return {
@@ -283,7 +283,20 @@ Examples:
         };
       });
 
-    // Skip alternative suggestions for performance - just return direct matches
+    // Check if we should show alternative suggestions
+    // Show alternatives if no high-quality matches OR if query contains specific brand not found
+    const shouldShowAlternatives = relevantItems.length === 0 || this.shouldTriggerAlternatives(query, relevantItems);
+    
+    if (shouldShowAlternatives) {
+      const alternativeMatches = await this.findAlternativeSuggestions(query, allItems, searchAnalysis);
+      console.log(`No exact matches for "${query}", suggesting ${alternativeMatches.length} alternatives`);
+      return alternativeMatches.map(match => ({
+        ...match,
+        isAlternativeSuggestion: true,
+        originalQuery: query
+      }));
+    }
+
     console.log(`AI Search found ${relevantItems.length} relevant items for "${query}"`);
     return relevantItems;
   }

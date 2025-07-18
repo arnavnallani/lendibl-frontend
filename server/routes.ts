@@ -478,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // AI-powered search endpoint with 2-second timeout
+  // AI-powered search endpoint with 3-second timeout
   app.get("/api/ai-search", async (req, res) => {
     const startTime = Date.now();
     
@@ -488,12 +488,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      // Set 2-second timeout for entire search operation
+      // Set 3-second timeout for entire search operation
       const timeout = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log(`⏰ Search API timeout after 2 seconds for query: "${q}"`);
+          console.log(`⏰ Search API timeout after 3 seconds for query: "${q}"`);
           reject(new Error('Search timeout'));
-        }, 2000);
+        }, 3000);
       });
 
       const searchOperation = async () => {
@@ -529,12 +529,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const query = q.toLowerCase().trim();
       
-      // Set 1.5-second timeout for search suggestions
+      // Set 2.5-second timeout for search suggestions
       const timeout = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log(`⏰ Search suggestions timeout after 1.5 seconds for query: "${q}"`);
+          console.log(`⏰ Search suggestions timeout after 2.5 seconds for query: "${q}"`);
           reject(new Error('Suggestions timeout'));
-        }, 1500);
+        }, 2500);
       });
 
       const suggestionsOperation = async () => {

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from './use-debounce';
 
 export function useAISearch(query: string) {
-  const debouncedQuery = useDebounce(query, 300); // Reduced debounce delay
+  const debouncedQuery = useDebounce(query, 500);
 
   return useQuery({
     queryKey: ['/api/ai-search', debouncedQuery],
