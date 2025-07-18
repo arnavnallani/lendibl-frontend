@@ -1,5 +1,5 @@
 // PWA Service Worker Registration with Push Notifications
-export function registerServiceWorker() {
+export async function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
       try {
