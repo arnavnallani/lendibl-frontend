@@ -359,6 +359,7 @@ The application uses PostgreSQL with the following main entities:
 - July 18, 2025: Updated early access page tagline from "The future of sharing starts here" to "The future of renting starts here" to match business branding requirements. Fixed review popup system by removing testing mode - review prompts now only appear after actual completed rental transactions instead of test scenarios.
 - July 18, 2025: Reversed pre-launch architecture - marketplace app is now the default when opening the app. Pre-launch screen only appears when specifically requested via URL parameters (?prelaunch=true, #prelaunch, /early-access route). This provides normal marketplace access by default while keeping early access page available for special use cases.
 - July 18, 2025: Enhanced filter bar with visual active filter indicators - filter button shows count and changes color when advanced filters are active, displays filter badges below showing exactly what's applied (rating, availability, sorting, price ranges) without reopening the modal.
+- July 18, 2025: Removed test notification buttons from account dropdown menu - cleaned up production interface by removing "Test Simple Notification" and "Test Advanced Push" buttons for cleaner user experience.
 
 ## User Preferences
 
