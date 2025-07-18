@@ -126,7 +126,6 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={auth}>
           <TooltipProvider>
-            <BrowserNotificationProvider />
             <Toaster />
             {showMarketplace && <AIBanner />}
             {showMarketplace && <WhoWeAreBanner />}
@@ -135,6 +134,8 @@ function App() {
             <ErrorBoundary>
               <ReviewPromptProvider />
             </ErrorBoundary>
+            {/* Only render BrowserNotificationProvider after auth is set up */}
+            {auth && !auth.isLoading && <BrowserNotificationProvider />}
           </TooltipProvider>
         </AuthContext.Provider>
       </QueryClientProvider>
