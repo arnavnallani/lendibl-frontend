@@ -179,6 +179,19 @@ export default function EarlyAccess() {
             />
           </motion.h1>
 
+          {/* Subtitle */}
+          <motion.p 
+            className="text-lg md:text-xl text-white/90 mb-8 font-medium"
+            style={{
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.0 }}
+          >
+            Join the waitlist to get notified right when we launch.
+          </motion.p>
+
           {/* Form card with enhanced glass morphism */}
           <motion.div
             initial={{ opacity: 0, y: 50 }}
