@@ -60,24 +60,31 @@ export function useAuthProvider(): AuthContextType {
 
   const verifyToken = async (authToken: string) => {
     try {
+      console.log('Verifying token...');
       const response = await fetch('/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
+        credentials: 'include',
       });
+
+      console.log('Token verification response:', response.status);
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Token verification successful');
         setUser(data.user);
         setToken(authToken);
       } else {
         // Token is invalid
+        console.log('Token invalid, removing from storage');
         localStorage.removeItem('auth_token');
         setToken(null);
         setUser(null);
       }
     } catch (error) {
       console.error('Token verification failed:', error);
+      // Don't crash the app, just clear auth state
       localStorage.removeItem('auth_token');
       setToken(null);
       setUser(null);

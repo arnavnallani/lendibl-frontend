@@ -13,13 +13,18 @@ export function useBrowserNotifications() {
   useEffect(() => {
     if (!user) return;
 
-    // Request notification permission when user is authenticated
-    browserNotifications.requestPermission();
+    try {
+      // Request notification permission when user is authenticated
+      browserNotifications.requestPermission().catch((error) => {
+        console.warn('Failed to request notification permission:', error);
+      });
 
-    // Set up WebSocket connection for real-time notifications
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const socket = new WebSocket(wsUrl);
+      // Set up WebSocket connection for real-time notifications
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      console.log('Attempting WebSocket connection to:', wsUrl);
+      const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
       console.log('Connected to notification WebSocket');
@@ -99,17 +104,25 @@ export function useBrowserNotifications() {
       }
     };
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
 
-    socket.onclose = () => {
-      console.log('Disconnected from notification WebSocket');
-    };
+      socket.onclose = () => {
+        console.log('Disconnected from notification WebSocket');
+      };
 
-    // Cleanup on unmount
-    return () => {
-      socket.close();
-    };
+      // Cleanup on unmount
+      return () => {
+        try {
+          socket.close();
+        } catch (error) {
+          console.warn('Error closing WebSocket:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Failed to set up notifications:', error);
+      // Don't throw error, just log it to prevent app crash
+    }
   }, [user]);
 }
