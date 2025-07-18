@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Star, MapPin, User } from "lucide-react";
@@ -11,6 +12,11 @@ import type { ItemWithDetails } from "@shared/schema";
 export default function UserProfile() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
+
+  // Scroll to top when component mounts  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const { data: userItems = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["/api/items", { ownerId: parseInt(id!) }],

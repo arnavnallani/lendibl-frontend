@@ -34,6 +34,11 @@ export default function Messages() {
   const [expandedPersons, setExpandedPersons] = useState<Set<number>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['/api/bookings', 'conversations'],
     queryFn: async (): Promise<BookingWithDetails[]> => {

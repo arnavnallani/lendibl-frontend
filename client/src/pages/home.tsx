@@ -33,6 +33,11 @@ export default function Home() {
   const [useAIResults, setUseAIResults] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Save filters to localStorage whenever they change
   useEffect(() => {
     if (Object.keys(filters).length > 0) {

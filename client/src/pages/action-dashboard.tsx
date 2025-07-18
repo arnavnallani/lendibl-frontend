@@ -41,6 +41,11 @@ export default function ActionDashboard() {
   const [scanMode, setScanMode] = useState<'scan' | 'view'>('scan');
   const [reportUserRole, setReportUserRole] = useState<'owner' | 'renter'>('owner');
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   
   // Extract city and state from location for privacy
   const getDisplayLocation = (location: string) => {

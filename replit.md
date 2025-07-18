@@ -364,6 +364,7 @@ The application uses PostgreSQL with the following main entities:
 - July 18, 2025: Updated empty state message to "Be the first to list an item!" with attractive call-to-action button - replaced "We don't have that yet..." message with community-focused encouragement and prominent "List an Item" button to motivate users to start the marketplace.
 - July 18, 2025: Updated empty state supporting text to "Kickstart the marketplace with one of your awesome items..." for more energetic and personal tone encouraging user participation.
 - July 18, 2025: Added scroll-to-top functionality to list items page - page automatically scrolls to top when users navigate to it for better user experience.
+- July 18, 2025: Implemented scroll-to-top functionality across all pages - every page now automatically scrolls to the top when users navigate to it, including home, profile, settings, action dashboard, messages, item details, user profiles, privacy policy, terms of service, who we are, reset password, early access, and not found pages.
 
 ## User Preferences
 

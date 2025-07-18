@@ -25,6 +25,11 @@ export default function EarlyAccess() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { toast } = useToast();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Track mouse movement for interactive background
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {

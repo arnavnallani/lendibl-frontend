@@ -53,6 +53,11 @@ export default function MyProfile() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('listings');
   const [selectedItem, setSelectedItem] = useState<ItemWithDetails | null>(null);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditItemOpen, setIsEditItemOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ItemWithDetails | null>(null);

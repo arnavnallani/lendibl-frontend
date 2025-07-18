@@ -23,6 +23,11 @@ export default function ItemDetails() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   // Extract city and state from location for privacy
   const getDisplayLocation = (location: string) => {
     const parts = location.split(',').map(part => part.trim());
