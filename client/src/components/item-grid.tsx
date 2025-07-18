@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ItemCard from "./item-card";
 import ItemListSimple from "./item-list-simple";
 import { api } from "@/lib/api";
+import { Link } from "wouter";
 import type { ItemWithDetails } from "@shared/schema";
 
 interface EnhancedItem extends ItemWithDetails {
@@ -245,9 +246,27 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     }
 
     return (
-      <div className="text-center py-12">
-        <p className="text-gray-medium text-lg mb-4">We don't have that yet...</p>
-        <p className="text-gray-medium">New items can be added at any time though!</p>
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 rounded-2xl border border-blue-200 shadow-lg">
+            <div className="text-6xl mb-4">🎉</div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-3">
+              Be the first to list an item!
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Start the marketplace by sharing something you own. 
+              Others will follow and the community will grow!
+            </p>
+            <Link to="/list-item">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                List an Item
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
