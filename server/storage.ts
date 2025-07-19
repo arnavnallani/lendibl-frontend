@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, first100Users, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type First100User, type InsertFirst100User, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte } from "drizzle-orm";
 import { calculateAvailabilityStatus } from "@shared/availability-utils";
@@ -86,10 +86,6 @@ export interface IStorage {
   // Early access signup methods
   createEarlyAccessSignup(signup: InsertEarlyAccessSignup): Promise<EarlyAccessSignup>;
   getEarlyAccessSignups(): Promise<EarlyAccessSignup[]>;
-  
-  // First 100 users tracking methods
-  trackFirst100User(user: User): Promise<void>;
-  getFirst100Users(): Promise<First100User[]>;
 }
 
 export class MemStorage implements IStorage {
