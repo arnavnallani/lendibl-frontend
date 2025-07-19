@@ -11,6 +11,17 @@ export const earlyAccessSignups = pgTable("early_access_signups", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// First 100 users tracking table (excluding founder)
+export const first100Users = pgTable("first_100_users", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  userNumber: integer("user_number").notNull().unique(), // 1-100
+  username: text("username").notNull(),
+  email: text("email").notNull(),
+  registrationDate: timestamp("registration_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Payment setup reminders table
 export const paymentReminders = pgTable("payment_reminders", {
   id: serial("id").primaryKey(),
@@ -338,6 +349,11 @@ export const insertEarlyAccessSignupSchema = createInsertSchema(earlyAccessSignu
   createdAt: true,
 });
 
+export const insertFirst100UserSchema = createInsertSchema(first100Users).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -389,6 +405,9 @@ export type InsertPhoneVerification = z.infer<typeof insertPhoneVerificationSche
 
 export type EarlyAccessSignup = typeof earlyAccessSignups.$inferSelect;
 export type InsertEarlyAccessSignup = z.infer<typeof insertEarlyAccessSignupSchema>;
+
+export type First100User = typeof first100Users.$inferSelect;
+export type InsertFirst100User = z.infer<typeof insertFirst100UserSchema>;
 
 // Extended types for API responses
 export type ItemWithDetails = Item & {

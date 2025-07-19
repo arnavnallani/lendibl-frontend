@@ -157,6 +157,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
       });
 
+      // Track first 100 users (excluding founder)
+      const founderEmail = "arnav.nallani@gmail.com";
+      if (user.email !== founderEmail) {
+        try {
+          await storage.trackFirst100User(user);
+        } catch (error) {
+          console.log("Note: First 100 tracking may be complete or failed:", error);
+        }
+      }
+
       // Generate token
       const token = generateToken({
         id: user.id,
