@@ -372,6 +372,8 @@ The application uses PostgreSQL with the following main entities:
 - July 18, 2025: Added scroll-to-top functionality to list items page - page automatically scrolls to top when users navigate to it for better user experience.
 - July 18, 2025: Implemented scroll-to-top functionality across all pages - every page now automatically scrolls to the top when users navigate to it, including home, profile, settings, action dashboard, messages, item details, user profiles, privacy policy, terms of service, who we are, reset password, early access, and not found pages.
 - July 18, 2025: DEPLOYMENT SUCCESSFUL: lendibl.replit.app is now live and showing early access page correctly. Issue was browser cache storing old broken version - deployment worked in incognito mode confirming successful production deployment. Optimized database connections (max 3), disabled background schedulers in production, added deployment test endpoints. Production server fully functional with API endpoints, static file serving, database connections working perfectly.
+- July 18, 2025: Domain transfer completed - lendibl.com is now live and working perfectly, serving the early access page with all backend functionality operational
+- July 18, 2025: Database completely cleaned for production launch - removed all 47 test users, notifications, preferences, payment data, and related records for fresh start
 
 ## User Preferences
 
