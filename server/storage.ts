@@ -1,4 +1,4 @@
-import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
+import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, first100Users, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type First100User, type InsertFirst100User, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte } from "drizzle-orm";
 import { calculateAvailabilityStatus } from "@shared/availability-utils";
@@ -86,6 +86,11 @@ export interface IStorage {
   // Early access signup methods
   createEarlyAccessSignup(signup: InsertEarlyAccessSignup): Promise<EarlyAccessSignup>;
   getEarlyAccessSignups(): Promise<EarlyAccessSignup[]>;
+
+  // First 100 users tracking
+  getFirst100Users(): Promise<First100User[]>;
+  trackFirst100User(userId: number, username: string, email: string): Promise<First100User | null>;
+  getFirst100UserCount(): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -1136,6 +1141,51 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(earlyAccessSignups)
       .orderBy(desc(earlyAccessSignups.createdAt));
+  }
+
+  // First 100 users tracking methods
+  async getFirst100Users(): Promise<First100User[]> {
+    return await db
+      .select()
+      .from(first100Users)
+      .orderBy(first100Users.registrationOrder);
+  }
+
+  async trackFirst100User(userId: number, username: string, email: string): Promise<First100User | null> {
+    // Skip Arnav Nallani
+    if (email.toLowerCase().includes('arnav.nallani') || username.toLowerCase().includes('arnav')) {
+      return null;
+    }
+
+    // Check if we already have 100 users
+    const currentCount = await this.getFirst100UserCount();
+    if (currentCount >= 100) {
+      return null;
+    }
+
+    try {
+      const [result] = await db
+        .insert(first100Users)
+        .values({
+          userId,
+          registrationOrder: currentCount + 1,
+          username,
+          email,
+        })
+        .returning();
+      return result;
+    } catch (error) {
+      // User might already be tracked or other constraint violation
+      console.log(`Failed to track user ${username} in first 100:`, error);
+      return null;
+    }
+  }
+
+  async getFirst100UserCount(): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(first100Users);
+    return result[0]?.count || 0;
   }
 }
 

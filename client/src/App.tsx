@@ -25,6 +25,7 @@ import TermsOfService from "@/pages/terms";
 import WhoWeAre from "@/pages/WhoWeAre";
 import ResetPassword from "@/pages/reset-password";
 import EarlyAccess from "@/pages/early-access";
+import AdminFirst100 from "@/pages/admin-first-100";
 import NotFound from "@/pages/not-found";
 
 function PreLaunchRouter() {
@@ -47,6 +48,7 @@ function MarketplaceRouter() {
       <Route path="/who-we-are" component={WhoWeAre} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/early-access" component={EarlyAccess} />
+      <Route path="/admin/first-100" component={AdminFirst100} />
       <Route component={NotFound} />
     </Switch>
   );
