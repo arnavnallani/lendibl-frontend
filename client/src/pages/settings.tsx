@@ -558,30 +558,28 @@ export default function Settings() {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-500 mb-2">
-                    Debug: Has items: {paymentStatus.hasItems ? 'Yes' : 'No'}, PayPal configured: {paymentStatus.paypalConfigured ? 'Yes' : 'No'}
-                  </div>
-                  {paymentStatus.hasItems && (
-                    <div className="space-y-4">
-                      {/* Connect Account Status */}
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h4 className="font-medium text-gray-dark">Stripe Connect Account</h4>
-                            <p className="text-sm text-gray-medium">Required to receive rental payments</p>
-                          </div>
-                          {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
-                            <div className="flex items-center gap-2 text-green-600">
-                              <CheckCircle className="h-5 w-5" />
-                              <span className="text-sm font-medium">Active</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-orange-600">
-                              <AlertCircle className="h-5 w-5" />
-                              <span className="text-sm font-medium">Setup Required</span>
-                            </div>
-                          )}
+
+                  {/* Payment Setup - Available for everyone */}
+                  <div className="space-y-4">
+                    {/* Connect Account Status */}
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h4 className="font-medium text-gray-dark">Stripe Connect Account</h4>
+                          <p className="text-sm text-gray-medium">Required to receive rental payments</p>
                         </div>
+                        {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
+                          <div className="flex items-center gap-2 text-green-600">
+                            <CheckCircle className="h-5 w-5" />
+                            <span className="text-sm font-medium">Active</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-orange-600">
+                            <AlertCircle className="h-5 w-5" />
+                            <span className="text-sm font-medium">Setup Required</span>
+                          </div>
+                        )}
+                      </div>
                         
                         {paymentStatus.stripeAccountStatus?.payoutsEnabled ? (
                           <div className="space-y-2">
@@ -741,7 +739,8 @@ export default function Settings() {
                         )}
                       </div>
                       
-                      {/* Earnings Summary */}
+                    {/* Earnings Summary */}
+                    {paymentStatus.hasItems && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <div className="flex items-center gap-2 mb-2">
                           <DollarSign className="h-5 w-5 text-blue-600" />
@@ -758,25 +757,21 @@ export default function Settings() {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {!paymentStatus.hasItems && (
-                    <div className="space-y-4">
-                      <div className="text-center py-6">
-                        <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                        <h4 className="font-medium text-gray-600 mb-2">No Items Listed</h4>
-                        <p className="text-sm text-gray-500 mb-4">
-                          List items to start earning and set up payment processing.
+                    )}
+                    
+                    {/* Information for users without items */}
+                    {!paymentStatus.hasItems && (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Package className="h-5 w-5 text-blue-600" />
+                          <h4 className="font-medium text-blue-800">Ready to Start Earning</h4>
+                        </div>
+                        <p className="text-sm text-blue-700">
+                          Set up your payment method now, then list items to start earning money from rentals.
                         </p>
-                        <Link href="/my-profile">
-                          <Button variant="outline">Add Your First Item</Button>
-                        </Link>
                       </div>
-                      
-
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}

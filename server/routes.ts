@@ -1602,7 +1602,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       const userItems = await storage.getItems({ ownerId: userId });
 
-      const needsPaymentSetup = userItems.length > 0 && !user?.paymentSetupComplete;
+      const needsPaymentSetup = !user?.paymentSetupComplete;
       
       const paymentReminders = await storage.getPaymentReminders(userId);
       
@@ -1633,7 +1633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stripeAccountStatus: stripeStatus,
         onboardingUrl: user?.stripeAccountId && stripeStatus && !stripeStatus.payoutsEnabled ? 
           await stripeService.createAccountOnboardingLink(user.stripeAccountId, userId) : null,
-        needsPaymentMethod: userItems.length > 0 && !hasAnyPaymentMethod,
+        needsPaymentMethod: !hasAnyPaymentMethod,
         debitCard: hasDebitCard ? {
           last4: user?.debitCardLast4,
           brand: user?.debitCardBrand,
