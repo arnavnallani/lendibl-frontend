@@ -374,6 +374,7 @@ The application uses PostgreSQL with the following main entities:
 - July 18, 2025: DEPLOYMENT SUCCESSFUL: lendibl.replit.app is now live and showing early access page correctly. Issue was browser cache storing old broken version - deployment worked in incognito mode confirming successful production deployment. Optimized database connections (max 3), disabled background schedulers in production, added deployment test endpoints. Production server fully functional with API endpoints, static file serving, database connections working perfectly.
 - July 18, 2025: Domain transfer completed - lendibl.com is now live and working perfectly, serving the early access page with all backend functionality operational
 - July 18, 2025: Database completely cleaned for production launch - removed all 47 test users, notifications, preferences, payment data, and related records for fresh start
+- July 18, 2025: LENDIBL MARKETPLACE OFFICIALLY LAUNCHED: Switched from pre-launch screen to full marketplace app as default experience on lendibl.com. Pre-launch page now only accessible via ?prelaunch=true parameter. Full rental marketplace with AI search, smart pricing, Stripe payments, and all features now live
 
 ## User Preferences
 

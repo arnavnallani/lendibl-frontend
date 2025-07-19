@@ -54,28 +54,21 @@ function MarketplaceRouter() {
 
 function Router() {
   const [location] = useLocation();
-  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [showMarketplace, setShowMarketplace] = useState(true);
 
-  // Check URL parameters for marketplace access
+  // Check URL parameters for pre-launch access
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const launchParam = urlParams.get('launch');
+    const prelaunchParam = urlParams.get('prelaunch');
     const hash = window.location.hash;
     
-    // Show marketplace only when specific parameters are found
-    if (launchParam === 'marketplace' || 
-        hash === '#launch' ||
-        location.startsWith('/item/') ||
-        location.startsWith('/list-item') ||
-        location.startsWith('/my-profile') ||
-        location.startsWith('/user/') ||
-        location.startsWith('/settings') ||
-        location.startsWith('/action-dashboard') ||
-        location.startsWith('/messages') ||
-        location.startsWith('/privacy-policy') ||
-        location.startsWith('/terms') ||
-        location.startsWith('/who-we-are') ||
-        location.startsWith('/reset-password')) {
+    // Show pre-launch only when specifically requested
+    if (prelaunchParam === 'true' || 
+        hash === '#prelaunch' ||
+        location === '/early-access') {
+      setShowMarketplace(false);
+    } else {
+      // Default to marketplace (app launched)
       setShowMarketplace(true);
     }
   }, [location]);
@@ -87,37 +80,29 @@ function Router() {
     return () => window.removeEventListener('launchMarketplace', handleLaunchMarketplace);
   }, []);
 
-  // Show pre-launch by default, marketplace when specifically requested
+  // Show marketplace by default, pre-launch when specifically requested
   return showMarketplace ? <MarketplaceRouter /> : <PreLaunchRouter />;
 }
 
 function App() {
   const auth = useAuthProvider();
   const [location] = useLocation();
-  const [showMarketplace, setShowMarketplace] = useState(false);
+  const [showMarketplace, setShowMarketplace] = useState(true);
 
-  // Check if marketplace should be shown (same logic as Router)
+  // Check if pre-launch should be shown (same logic as Router)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const launchParam = urlParams.get('launch');
+    const prelaunchParam = urlParams.get('prelaunch');
     const hash = window.location.hash;
     
-    if (launchParam === 'marketplace' || 
-        hash === '#launch' ||
-        location.startsWith('/item/') ||
-        location.startsWith('/list-item') ||
-        location.startsWith('/my-profile') ||
-        location.startsWith('/user/') ||
-        location.startsWith('/settings') ||
-        location.startsWith('/action-dashboard') ||
-        location.startsWith('/messages') ||
-        location.startsWith('/privacy-policy') ||
-        location.startsWith('/terms') ||
-        location.startsWith('/who-we-are') ||
-        location.startsWith('/reset-password')) {
-      setShowMarketplace(true);
-    } else {
+    // Show pre-launch only when specifically requested
+    if (prelaunchParam === 'true' || 
+        hash === '#prelaunch' ||
+        location === '/early-access') {
       setShowMarketplace(false);
+    } else {
+      // Default to marketplace (app launched)
+      setShowMarketplace(true);
     }
   }, [location]);
 
