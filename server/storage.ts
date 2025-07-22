@@ -549,7 +549,8 @@ export class DatabaseStorage implements IStorage {
       .from(items)
       .innerJoin(users, eq(items.ownerId, users.id))
       .leftJoin(categories, eq(items.categoryId, categories.id))
-      .where(eq(items.available, true)); // Only get available items
+      .where(eq(items.available, true)) // Only get available items
+      .orderBy(items.createdAt); // Default order by creation time (oldest first)
     
     // Apply additional filters if provided
     const additionalConditions = [];
