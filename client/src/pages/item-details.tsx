@@ -183,6 +183,7 @@ export default function ItemDetails() {
                       {item.owner.firstName} {item.owner.lastName}
                     </h4>
                     <div className="flex items-center space-x-4 text-sm text-gray-medium">
+                      <span>⭐ {item.owner.rating} rating</span>
                       <span>📞 {item.owner.responseRate}% response rate</span>
                       <span>⏱️ {item.owner.responseTime}</span>
                     </div>
