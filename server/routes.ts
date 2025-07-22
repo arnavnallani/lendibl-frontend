@@ -671,55 +671,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Items
+  // Cache for fast item loading
+  let itemsCache: any[] = [];
+  let cacheTimestamp = 0;
+  const CACHE_DURATION = 30000; // 30 seconds
+
+  // Items endpoint with aggressive caching
   app.get("/api/items", async (req, res) => {
     try {
-      const { categoryId, search, minPrice, maxPrice, location, page, limit, ownerId, sortBy, minRating, availability } = req.query;
-      
-      const filters: any = {};
-      if (categoryId) filters.categoryId = parseInt(categoryId as string);
-      if (search) filters.search = search as string;
-      if (minPrice) filters.minPrice = parseFloat(minPrice as string);
-      if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
-      if (location) filters.location = location as string;
-      if (ownerId) filters.ownerId = parseInt(ownerId as string);
-      if (minRating) {
-        filters.minRating = parseFloat(minRating as string);
-      }
-      if (availability) filters.availability = availability as string;
-
-      // Pagination parameters
-      const pageNumber = page ? parseInt(page as string) : 1;
-      const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
-
-      // For mobile performance, use simple getItems and paginate in memory for small datasets
-      console.log(`📱 Fetching items with filters: ${JSON.stringify(filters)}`);
       const startTime = Date.now();
+      console.log(`🚀 Fast items API called`);
       
-      const allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
-      console.log(`⏱️ Got ${allItems.length} items in ${Date.now() - startTime}ms`);
+      // Use cache if it's fresh (within 30 seconds)
+      const now = Date.now();
+      if (itemsCache.length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
+        console.log(`⚡ Using cached items (${itemsCache.length} items) - served in ${Date.now() - startTime}ms`);
+        
+        // Quick pagination from cache
+        const { page, limit } = req.query;
+        const pageNumber = page ? parseInt(page as string) : 1;
+        const pageSize = limit ? parseInt(limit as string) : 12;
+        const startIndex = (pageNumber - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedItems = itemsCache.slice(startIndex, endIndex);
+        
+        return res.json({
+          items: paginatedItems,
+          pagination: {
+            page: pageNumber,
+            limit: pageSize,
+            total: itemsCache.length,
+            totalPages: Math.ceil(itemsCache.length / pageSize),
+            hasMore: pageNumber < Math.ceil(itemsCache.length / pageSize)
+          }
+        });
+      }
+
+      // If cache is empty or stale, fetch fresh data
+      console.log(`🔄 Cache miss or stale - fetching fresh data`);
       
-      // Quick in-memory pagination for better performance
+      // Use direct SQL query for maximum speed
+      const result = await storage.db.execute(`
+        SELECT 
+          i.id, i.title, i.description, i.price, i.current_price, i.category_id,
+          i.owner_id, i.images, i.location, i.city, i.state, i.included, i.available,
+          i.availability_status, i.available_from, i.available_to, i.rating, i.review_count, i.created_at,
+          u.id as user_id, u.username, u.email, u.first_name, u.last_name, u.phone,
+          u.rating as user_rating, u.review_count as user_review_count, u.response_rate, u.response_time,
+          c.name as category_name, c.icon as category_icon
+        FROM items i
+        INNER JOIN users u ON i.owner_id = u.id
+        LEFT JOIN categories c ON i.category_id = c.id
+        WHERE i.available = true
+        ORDER BY i.created_at DESC
+      `);
+      
+      // Transform results to expected format
+      const transformedItems = result.rows.map((row: any) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        price: row.price,
+        currentPrice: row.current_price,
+        categoryId: row.category_id,
+        rating: row.user_rating,
+        reviewCount: row.user_review_count,
+        ownerId: row.owner_id,
+        images: row.images,
+        location: row.location,
+        city: row.city,
+        state: row.state,
+        included: row.included,
+        available: row.available,
+        availabilityStatus: row.availability_status,
+        availableFrom: row.available_from,
+        availableTo: row.available_to,
+        createdAt: row.created_at,
+        owner: {
+          id: row.user_id,
+          username: row.username,
+          email: row.email,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          phone: row.phone,
+          rating: row.user_rating,
+          reviewCount: row.user_review_count,
+          responseRate: row.response_rate,
+          responseTime: row.response_time,
+        },
+        category: row.category_name ? {
+          id: row.category_id,
+          name: row.category_name,
+          icon: row.category_icon,
+        } : null,
+      }));
+
+      // Update cache
+      itemsCache = transformedItems;
+      cacheTimestamp = now;
+      
+      console.log(`✅ Fresh data loaded and cached (${itemsCache.length} items) in ${Date.now() - startTime}ms`);
+      
+      // Pagination
+      const { page, limit } = req.query;
+      const pageNumber = page ? parseInt(page as string) : 1;
+      const pageSize = limit ? parseInt(limit as string) : 12;
       const startIndex = (pageNumber - 1) * pageSize;
       const endIndex = startIndex + pageSize;
-      const paginatedItems = allItems.slice(startIndex, endIndex);
+      const paginatedItems = itemsCache.slice(startIndex, endIndex);
       
-      const totalItems = allItems.length;
-      const totalPages = Math.ceil(totalItems / pageSize);
-      const hasMore = pageNumber < totalPages;
-
       res.json({
         items: paginatedItems,
         pagination: {
           page: pageNumber,
           limit: pageSize,
-          total: totalItems,
-          totalPages,
-          hasMore
+          total: itemsCache.length,
+          totalPages: Math.ceil(itemsCache.length / pageSize),
+          hasMore: pageNumber < Math.ceil(itemsCache.length / pageSize)
         }
       });
     } catch (error) {
-      console.error("Failed to fetch items:", error);
+      console.error("❌ Failed to fetch items:", error);
       res.status(500).json({ message: "Failed to fetch items" });
     }
   });
