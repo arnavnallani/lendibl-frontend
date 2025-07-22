@@ -64,10 +64,18 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
     enabled: !useAIResults, // Only fetch regular items when not using AI
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - longer cache for performance
-    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
-    retry: false, // No retries - immediate failure for faster UX
-    networkMode: 'online', // Only run when online
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes - match server cache
+    gcTime: 20 * 60 * 1000, // Keep in cache for 20 minutes
+    retry: (failureCount, error: any) => {
+      // Special handling for database timeout errors
+      if (error?.message?.includes('timeout') || error?.message?.includes('DB_TIMEOUT') || 
+          error?.message?.includes('Database temporarily unavailable')) {
+        return failureCount < 1; // Only retry once for DB issues
+      }
+      return failureCount < 2; // Normal retry for other errors
+    },
+    retryDelay: 2000, // 2 second delay between retries
+    networkMode: 'online',
   });
 
   // Reset pagination when filters change

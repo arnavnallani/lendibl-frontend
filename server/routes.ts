@@ -674,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cache for fast item loading
   let itemsCache: any[] = [];
   let cacheTimestamp = 0;
-  const CACHE_DURATION = 300000; // 5 minutes for better mobile performance
+  const CACHE_DURATION = 600000; // 10 minutes for better performance after updates
 
   // Items endpoint with aggressive caching
   app.get("/api/items", async (req, res) => {
@@ -710,14 +710,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If cache is empty or stale, fetch fresh data
       console.log(`🔄 Cache miss or stale - fetching fresh data`);
       
-      // Use simplified database query for maximum speed
-      const allItems = await storage.getItems();
-      
-      // Update cache with fresh data
-      itemsCache = allItems;
-      cacheTimestamp = now;
-      
-      console.log(`✅ Fresh data loaded and cached (${itemsCache.length} items) in ${Date.now() - startTime}ms`);
+      try {
+        // Use simplified database query with timeout handling
+        console.log('⏱️ Starting database query...');
+        const queryStart = Date.now();
+        const allItems = await storage.getItems();
+        const queryDuration = Date.now() - queryStart;
+        
+        // Update cache with fresh data
+        itemsCache = allItems;
+        cacheTimestamp = now;
+        
+        console.log(`✅ Fresh data loaded and cached (${itemsCache.length} items) - DB query: ${queryDuration}ms, Total: ${Date.now() - startTime}ms`);
+      } catch (dbError) {
+        console.error(`❌ Database query failed after ${Date.now() - startTime}ms:`, dbError);
+        
+        // If we have stale cache, use it with a warning
+        if (itemsCache.length > 0) {
+          console.log(`⚠️ Using stale cache (${itemsCache.length} items) due to DB error`);
+        } else {
+          // No cache available, return error
+          return res.status(500).json({ 
+            message: "Database temporarily unavailable. Please try again in a moment.",
+            error: "DB_TIMEOUT"
+          });
+        }
+      }
       
       // Pagination
       const { page, limit } = req.query;
@@ -883,10 +901,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Item not found after update" });
       }
 
-      // Clear cache after item update
-      itemsCache = [];
-      cacheTimestamp = 0;
-      console.log('🗑️ Cache cleared after item update');
+      // Update the specific item in cache instead of clearing everything
+      if (itemsCache.length > 0) {
+        const itemIndex = itemsCache.findIndex(cachedItem => cachedItem.id === id);
+        if (itemIndex !== -1) {
+          // Update the cached item with new data
+          const updatedCacheItem = { ...itemsCache[itemIndex], ...updates };
+          itemsCache[itemIndex] = updatedCacheItem;
+          console.log('🔄 Updated item in cache instead of clearing');
+        } else {
+          // If item not found in cache, just clear cache
+          itemsCache = [];
+          cacheTimestamp = 0;
+          console.log('🗑️ Cache cleared - item not found in cache');
+        }
+      }
 
       res.json(item);
     } catch (error) {
