@@ -708,17 +708,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateItem(id: number, updates: Partial<Item>): Promise<Item | undefined> {
+    console.log(`🔄 Updating item ${id} with:`, Object.keys(updates));
+    const startTime = Date.now();
+    
     // If availableFrom is being updated, recalculate availability status
     if (updates.availableFrom !== undefined) {
       updates.availabilityStatus = calculateAvailabilityStatus(updates.availableFrom);
     }
     
-    const [item] = await db
-      .update(items)
-      .set(updates)
-      .where(eq(items.id, id))
-      .returning();
-    return item || undefined;
+    try {
+      const [item] = await db
+        .update(items)
+        .set(updates)
+        .where(eq(items.id, id))
+        .returning();
+      
+      const duration = Date.now() - startTime;
+      console.log(`✅ Item ${id} updated successfully in ${duration}ms`);
+      
+      return item || undefined;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error(`❌ Item ${id} update failed after ${duration}ms:`, error);
+      throw error;
+    }
   }
 
   async deleteItem(id: number): Promise<boolean> {

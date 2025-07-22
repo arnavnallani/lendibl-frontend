@@ -879,6 +879,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const item = await storage.updateItem(id, updates);
 
+      if (!item) {
+        return res.status(404).json({ message: "Item not found after update" });
+      }
+
+      // Clear cache after item update
+      itemsCache = [];
+      cacheTimestamp = 0;
+      console.log('🗑️ Cache cleared after item update');
+
       res.json(item);
     } catch (error) {
       console.error("Error updating item:", error);

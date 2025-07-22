@@ -36,9 +36,12 @@ export async function apiRequest(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Create AbortController for timeout - reduced to 5 seconds for faster failures
+  // Use longer timeout for item updates since they involve database operations
+  const isItemUpdate = method === 'PUT' && url.includes('/api/items/');
+  const timeout = isItemUpdate ? 10000 : 5000; // 10 seconds for updates, 5 for others
+  
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
     const res = await fetch(url, {
