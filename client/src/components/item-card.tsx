@@ -1,4 +1,4 @@
-import { Star, MapPin, Edit } from "lucide-react";
+import { MapPin, Edit } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/lib/api";
