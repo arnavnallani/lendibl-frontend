@@ -274,10 +274,23 @@ export default function MyProfile() {
       });
       setIsEditItemOpen(false);
       setSelectedItem(null);
-      // Refresh items
-      window.location.reload();
+      
+      // Smart cache update - only invalidate items queries without full reload
+      queryClient.invalidateQueries({ queryKey: ['/api/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/items', { ownerId: user?.id }] });
+      
+      // Show success feedback
+      toast({
+        title: "✅ Item Updated Successfully!",
+        description: "Your listing has been updated and will maintain its position.",
+      });
     } catch (error) {
       console.error('Failed to update item:', error);
+      toast({
+        title: "❌ Update Failed",
+        description: "There was an error updating your item. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -285,10 +298,22 @@ export default function MyProfile() {
     try {
       await api.deleteItem(item.id);
       setItemToDelete(null);
-      // Refresh items
-      window.location.reload();
+      
+      // Smart cache update for deletions
+      queryClient.invalidateQueries({ queryKey: ['/api/items'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/items', { ownerId: user?.id }] });
+      
+      toast({
+        title: "Item Deleted Successfully",
+        description: "Your listing has been permanently removed.",
+      });
     } catch (error) {
       console.error('Failed to delete item:', error);
+      toast({
+        title: "Delete Failed", 
+        description: "There was an error deleting your item. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 

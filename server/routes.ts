@@ -901,19 +901,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Item not found after update" });
       }
 
-      // Update the specific item in cache instead of clearing everything
+      // Update the specific item in cache while preserving its exact position and all properties
       if (itemsCache.length > 0) {
         const itemIndex = itemsCache.findIndex(cachedItem => cachedItem.id === id);
         if (itemIndex !== -1) {
-          // Update the cached item with new data
-          const updatedCacheItem = { ...itemsCache[itemIndex], ...updates };
+          // Preserve the original cached item structure and update only changed fields
+          const originalCachedItem = itemsCache[itemIndex];
+          const updatedCacheItem = {
+            ...originalCachedItem, // Keep all original properties (owner, category, etc.)
+            ...updates, // Apply only the actual updates
+            id: originalCachedItem.id, // Ensure ID stays the same
+            // Preserve critical display properties that shouldn't change
+            owner: originalCachedItem.owner,
+            category: originalCachedItem.category,
+            rating: originalCachedItem.rating,
+            reviewCount: originalCachedItem.reviewCount,
+          };
+          
+          // Update cache at the exact same position
           itemsCache[itemIndex] = updatedCacheItem;
-          console.log('🔄 Updated item in cache instead of clearing');
+          console.log(`🔄 Updated item ${id} in cache at position ${itemIndex} (preserved order)`);
         } else {
-          // If item not found in cache, just clear cache
-          itemsCache = [];
-          cacheTimestamp = 0;
-          console.log('🗑️ Cache cleared - item not found in cache');
+          // If item not found in cache, don't clear - let it refresh naturally
+          console.log('⚠️ Item not found in cache - will refresh on next request');
         }
       }
 
