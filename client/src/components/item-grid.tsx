@@ -64,8 +64,9 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
     enabled: !useAIResults, // Only fetch regular items when not using AI
-    staleTime: 60000, // Cache for 60 seconds for faster filters
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 30000, // Cache for 30 seconds for mobile optimization
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes (reduced for mobile)
+    retry: 1, // Only retry once on mobile to prevent long loading times
   });
 
   // Reset pagination when filters change
@@ -130,9 +131,23 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   }
 
   if (error) {
+    console.error('ItemGrid error:', error);
     return (
       <div className="text-center py-12">
-        <p className="text-red-500 mb-4">Failed to load items. Please try again.</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+          <p className="text-red-600 mb-4 font-medium">
+            {error instanceof Error && error.message.includes('timeout') ? 
+              'Connection timeout. Please check your internet connection and try again.' :
+              'Failed to load items. Please try again.'
+            }
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
     );
   }
