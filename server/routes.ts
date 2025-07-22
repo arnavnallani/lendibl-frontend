@@ -674,7 +674,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cache for fast item loading
   let itemsCache: any[] = [];
   let cacheTimestamp = 0;
-  const CACHE_DURATION = 30000; // 30 seconds
+  const CACHE_DURATION = 300000; // 5 minutes for better mobile performance
 
   // Items endpoint with aggressive caching
   app.get("/api/items", async (req, res) => {
@@ -710,64 +710,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If cache is empty or stale, fetch fresh data
       console.log(`🔄 Cache miss or stale - fetching fresh data`);
       
-      // Use direct SQL query for maximum speed
-      const result = await storage.db.execute(`
-        SELECT 
-          i.id, i.title, i.description, i.price, i.current_price, i.category_id,
-          i.owner_id, i.images, i.location, i.city, i.state, i.included, i.available,
-          i.availability_status, i.available_from, i.available_to, i.rating, i.review_count, i.created_at,
-          u.id as user_id, u.username, u.email, u.first_name, u.last_name, u.phone,
-          u.rating as user_rating, u.review_count as user_review_count, u.response_rate, u.response_time,
-          c.name as category_name, c.icon as category_icon
-        FROM items i
-        INNER JOIN users u ON i.owner_id = u.id
-        LEFT JOIN categories c ON i.category_id = c.id
-        WHERE i.available = true
-        ORDER BY i.created_at DESC
-      `);
+      // Use simplified database query for maximum speed
+      const allItems = await storage.getItems();
       
-      // Transform results to expected format
-      const transformedItems = result.rows.map((row: any) => ({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        price: row.price,
-        currentPrice: row.current_price,
-        categoryId: row.category_id,
-        rating: row.user_rating,
-        reviewCount: row.user_review_count,
-        ownerId: row.owner_id,
-        images: row.images,
-        location: row.location,
-        city: row.city,
-        state: row.state,
-        included: row.included,
-        available: row.available,
-        availabilityStatus: row.availability_status,
-        availableFrom: row.available_from,
-        availableTo: row.available_to,
-        createdAt: row.created_at,
-        owner: {
-          id: row.user_id,
-          username: row.username,
-          email: row.email,
-          firstName: row.first_name,
-          lastName: row.last_name,
-          phone: row.phone,
-          rating: row.user_rating,
-          reviewCount: row.user_review_count,
-          responseRate: row.response_rate,
-          responseTime: row.response_time,
-        },
-        category: row.category_name ? {
-          id: row.category_id,
-          name: row.category_name,
-          icon: row.category_icon,
-        } : null,
-      }));
-
-      // Update cache
-      itemsCache = transformedItems;
+      // Update cache with fresh data
+      itemsCache = allItems;
       cacheTimestamp = now;
       
       console.log(`✅ Fresh data loaded and cached (${itemsCache.length} items) in ${Date.now() - startTime}ms`);
