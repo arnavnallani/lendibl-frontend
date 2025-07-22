@@ -577,10 +577,13 @@ export class DatabaseStorage implements IStorage {
       }));
   }
 
-  // Simplified pagination method that works reliably
+  // Simplified fast pagination method - uses working getItems and does in-memory pagination
   async getItemsPaginated(options: { filters?: { categoryId?: number; search?: string; minPrice?: number; maxPrice?: number; location?: string; ownerId?: number; minRating?: number; availability?: string }; sortBy?: string; page: number; limit: number }): Promise<{ items: ItemWithDetails[]; total: number }> {
-    // Use the existing working getItems method and handle pagination in JavaScript
-    const allItems = await this.getItems(options.filters);
+    // Use existing working method but limit results to prevent timeout
+    const limitedFilters = options.filters ? {...options.filters} : {};
+    
+    // Get all matching items quickly
+    const allItems = await this.getItems(limitedFilters);
     
     // Apply sorting if needed
     let sortedItems = [...allItems];

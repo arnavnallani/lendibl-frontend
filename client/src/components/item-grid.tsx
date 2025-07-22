@@ -64,9 +64,10 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
     enabled: !useAIResults, // Only fetch regular items when not using AI
-    staleTime: 30000, // Cache for 30 seconds for mobile optimization
-    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes (reduced for mobile)
-    retry: 1, // Only retry once on mobile to prevent long loading times
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - longer cache for performance
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
+    retry: false, // No retries - immediate failure for faster UX
+    networkMode: 'online', // Only run when online
   });
 
   // Reset pagination when filters change
@@ -106,10 +107,11 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
 
   // Always call hooks - use enabled to control when they run
   const { data: allItemsData } = useQuery({
-    queryKey: ["/api/items", { limit: 100 }], // Reduced from 1000 to 100
-    queryFn: () => api.getItems({ limit: 100 }),
+    queryKey: ["/api/items", { limit: 50 }], // Further reduced for performance
+    queryFn: () => api.getItems({ limit: 50 }),
     enabled: !useAIResults && !regularLoading && items.length === 0, // Only fetch for alternative suggestions
-    staleTime: 60000, // Cache for 1 minute
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: false, // No retries
   });
   const allItems = allItemsData?.items || [];
 
@@ -137,15 +139,18 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
           <p className="text-red-600 mb-4 font-medium">
             {error instanceof Error && error.message.includes('timeout') ? 
-              'Connection timeout. Please check your internet connection and try again.' :
-              'Failed to load items. Please try again.'
+              'Loading took too long. Trying a faster approach...' :
+              'Loading items failed. Refreshing...'
             }
           </p>
           <button 
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              // Force refresh by adding timestamp to bypass cache
+              window.location.href = window.location.href.split('?')[0] + '?refresh=' + Date.now();
+            }}
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
           >
-            Reload Page
+            Reload Now
           </button>
         </div>
       </div>

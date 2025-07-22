@@ -36,9 +36,9 @@ export async function apiRequest(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Create AbortController for timeout
+  // Create AbortController for timeout - reduced to 5 seconds for faster failures
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
   try {
     const res = await fetch(url, {
@@ -69,9 +69,9 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = localStorage.getItem('auth_token');
     
-    // Create AbortController for timeout
+    // Create AbortController for timeout - reduced to 5 seconds for faster failures
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
     try {
       const res = await fetch(queryKey[0] as string, {

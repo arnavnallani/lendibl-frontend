@@ -692,16 +692,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pageNumber = page ? parseInt(page as string) : 1;
       const pageSize = limit ? parseInt(limit as string) : 12; // Default 12 items per page
 
-      // Use optimized pagination method
-      const result = await storage.getItemsPaginated({
-        filters: Object.keys(filters).length > 0 ? filters : undefined,
-        sortBy,
-        page: pageNumber,
-        limit: pageSize
-      });
+      // For mobile performance, use simple getItems and paginate in memory for small datasets
+      console.log(`📱 Fetching items with filters: ${JSON.stringify(filters)}`);
+      const startTime = Date.now();
       
-      const paginatedItems = result.items;
-      const totalItems = result.total;
+      const allItems = await storage.getItems(Object.keys(filters).length > 0 ? filters : undefined);
+      console.log(`⏱️ Got ${allItems.length} items in ${Date.now() - startTime}ms`);
+      
+      // Quick in-memory pagination for better performance
+      const startIndex = (pageNumber - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const paginatedItems = allItems.slice(startIndex, endIndex);
+      
+      const totalItems = allItems.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       const hasMore = pageNumber < totalPages;
 
