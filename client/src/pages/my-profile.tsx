@@ -385,7 +385,7 @@ export default function MyProfile() {
                     <div className="text-xs text-gray-medium">Active Listings</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">${totalEarnings.toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-green-600">${totalEarnings.toFixed(0)}</div>
                     <div className="text-xs text-gray-medium">Total Earnings</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
@@ -552,7 +552,7 @@ export default function MyProfile() {
                             <p className="text-sm text-gray-medium">
                               {new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}
                             </p>
-                            <p className="text-lg font-bold text-primary-blue">${parseFloat(booking.totalPrice).toFixed(2)}</p>
+                            <p className="text-lg font-bold text-primary-blue">${booking.totalPrice}</p>
                             {booking.message && (
                               <p className="text-sm text-gray-medium mt-2">Message: {booking.message}</p>
                             )}
@@ -625,7 +625,7 @@ export default function MyProfile() {
                             <p className="text-sm text-gray-medium">
                               {new Date(rental.startDate).toLocaleDateString()} - {new Date(rental.endDate).toLocaleDateString()}
                             </p>
-                            <p className="text-lg font-bold text-primary-blue">${parseFloat(rental.totalPrice).toFixed(2)}</p>
+                            <p className="text-lg font-bold text-primary-blue">${rental.totalPrice}</p>
                           </div>
                           <div className="flex flex-col gap-2">
                             <Badge variant={

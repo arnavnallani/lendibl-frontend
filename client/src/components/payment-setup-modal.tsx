@@ -154,7 +154,7 @@ function PaymentSetupForm({ onComplete, onClose, estimatedEarnings }: {
             <CardTitle className="text-lg text-center">Potential Earnings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600 text-center">${parseFloat(estimatedEarnings || 0).toFixed(2)}</div>
+            <div className="text-2xl font-bold text-blue-600 text-center">${estimatedEarnings}</div>
             <CardDescription className="text-center">Per month</CardDescription>
           </CardContent>
         </Card>

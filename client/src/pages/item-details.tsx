@@ -136,7 +136,7 @@ export default function ItemDetails() {
             <h1 className="text-3xl font-bold text-gray-dark mb-4">{item.title}</h1>
             
             <div className="flex items-baseline space-x-2 mb-6">
-              <span className="text-4xl font-bold text-gray-dark">${parseFloat(item.price).toFixed(2)}</span>
+              <span className="text-4xl font-bold text-gray-dark">${item.price}</span>
               <span className="text-xl text-gray-medium">/day</span>
             </div>
 

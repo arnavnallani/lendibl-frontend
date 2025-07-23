@@ -177,7 +177,7 @@ export function AIPricingSuggestions({
             <div className="text-center">
               <DollarSign className="h-6 w-6 text-green-600 mx-auto mb-2" />
               <p className="text-sm text-gray-600 mb-1">AI Recommended Daily Rate</p>
-              <p className="text-3xl font-bold text-gray-900">${parseFloat(suggestions.dailyRate).toFixed(2)}</p>
+              <p className="text-3xl font-bold text-gray-900">${suggestions.dailyRate}</p>
               <p className="text-xs text-gray-500 mt-1">Based on market analysis</p>
             </div>
           </div>
