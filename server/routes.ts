@@ -829,6 +829,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       cacheTimestamp = 0;
       console.log(`✨ Items cache cleared after creating new item`);
       
+      // Clear recommendations cache since new item affects recommendations
+      recommendationEngine.clearCache();
+      
       res.status(201).json(item);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -931,6 +934,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('⚠️ Item not found in cache - will refresh on next request');
         }
       }
+      
+      // Clear recommendations cache since item updates affect recommendations
+      recommendationEngine.clearCache();
 
       res.json(item);
     } catch (error) {
@@ -976,6 +982,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       itemsCache = [];
       cacheTimestamp = 0;
       console.log(`🗑️ Items cache cleared after deleting item ${id}`);
+      
+      // Clear recommendations cache since item deletion affects recommendations
+      recommendationEngine.clearCache();
 
       res.json({ message: "Item deleted successfully" });
     } catch (error) {
@@ -1300,15 +1309,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Recommendation endpoints
+  // Recommendation endpoints with timeout for better performance
   app.get("/api/recommendations", authenticateToken, async (req: AuthRequest, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 6;
-      const recommendations = await recommendationEngine.getRecommendations(req.user!.id, limit);
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Recommendations timeout')), 3000)
+      );
+      
+      const recommendationsPromise = recommendationEngine.getRecommendations(req.user!.id, limit);
+      
+      const recommendations = await Promise.race([recommendationsPromise, timeoutPromise]);
       res.json(recommendations);
     } catch (error) {
       console.error("Error getting recommendations:", error);
-      res.status(500).json({ message: "Failed to get recommendations" });
+      // Return empty recommendations instead of error for better UX
+      res.json({ items: [], scores: [] });
     }
   });
 

@@ -14,6 +14,10 @@ export interface RecommendationResult {
 
 export class RecommendationEngine {
   
+  // Cache for recommendations to avoid recomputing frequently
+  private recommendationCache = new Map<number, { data: RecommendationResult; timestamp: number; }>();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  
   // Track user interactions for learning preferences
   async trackInteraction(userId: number, itemId: number, interactionType: string, weight: number = 1.0) {
     try {
@@ -39,14 +43,33 @@ export class RecommendationEngine {
   // Get personalized recommendations for a user
   async getRecommendations(userId: number, limit: number = 6): Promise<RecommendationResult> {
     try {
-      // Get user's interaction history
-      const interactions = await storage.getUserInteractions(userId);
-      const preferences = await storage.getUserPreferences(userId);
-      const user = await storage.getUser(userId);
+      // Check cache first
+      const cached = this.recommendationCache.get(userId);
+      if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
+        console.log(`📦 Using cached recommendations for user ${userId}`);
+        return {
+          items: cached.data.items.slice(0, limit),
+          scores: cached.data.scores.slice(0, limit)
+        };
+      }
+
+      console.log(`🔄 Computing fresh recommendations for user ${userId}`);
       
-      // Get all available items (excluding user's own items)
-      const allItems = await storage.getItems();
+      // Get all data in parallel to reduce latency
+      const [interactions, preferences, user, allItems] = await Promise.all([
+        storage.getUserInteractions(userId),
+        storage.getUserPreferences(userId),  
+        storage.getUser(userId),
+        storage.getItems()
+      ]);
+      
+      // Filter available items early
       const availableItems = allItems.filter(item => item.ownerId !== userId && item.available);
+      
+      // If no items available, return empty result immediately
+      if (availableItems.length === 0) {
+        return { items: [], scores: [] };
+      }
       
       // Calculate recommendation scores
       const scores = await this.calculateRecommendationScores(
@@ -58,16 +81,28 @@ export class RecommendationEngine {
       
       // Sort by score and get top items
       const topScores = scores
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit);
+        .sort((a, b) => b.score - a.score);
       
       const recommendedItems = topScores.map(score => 
         availableItems.find(item => item.id === score.itemId)!
-      );
+      ).filter(Boolean);
       
-      return {
+      const result = {
         items: recommendedItems,
         scores: topScores,
+      };
+      
+      // Cache the result
+      this.recommendationCache.set(userId, {
+        data: result,
+        timestamp: Date.now()
+      });
+      
+      console.log(`✅ Computed ${recommendedItems.length} recommendations for user ${userId}`);
+      
+      return {
+        items: recommendedItems.slice(0, limit),
+        scores: topScores.slice(0, limit)
       };
     } catch (error) {
       console.error("Error generating recommendations:", error);
@@ -164,13 +199,20 @@ export class RecommendationEngine {
     return Math.min(itemViewCount * 0.2, 1.0);
   }
   
+  // Clear cache when items change
+  clearCache() {
+    this.recommendationCache.clear();
+    console.log('🗑️ Recommendations cache cleared');
+  }
+  
   // Fallback to trending items when personalization fails
   private async getTrendingItems(limit: number): Promise<RecommendationResult> {
     try {
+      console.log('🔥 Using trending items fallback');
       const items = await storage.getItems();
       const availableItems = items.filter(item => item.available);
       
-      // Sort by rating and review count for trending
+      // Quick trending algorithm - sort by rating and recent activity
       const trending = availableItems
         .sort((a, b) => {
           const scoreA = parseFloat(a.rating) * a.reviewCount;
