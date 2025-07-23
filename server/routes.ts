@@ -595,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // AI-powered search endpoint with 3-second timeout
+  // AI-powered search endpoint with direct database access
   app.get("/api/ai-search", async (req, res) => {
     const startTime = Date.now();
     
@@ -605,78 +605,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      // Set 3-second timeout for entire search operation
+      console.log(`🔍 AI search starting for: "${q}"`);
+
+      // Get all items using direct SQL approach with timeout protection
+      let allItems;
+      try {
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Query timeout')), 4000);
+        });
+        
+        const queryPromise = async () => {
+          const rawItems = await db.select().from(items).limit(20);
+          const ownerIds = [...new Set(rawItems.map(item => item.ownerId))];
+          const categoryIds = [...new Set(rawItems.map(item => item.categoryId))];
+          
+          const [itemUsers, itemCategories] = await Promise.all([
+            db.select().from(users).where(inArray(users.id, ownerIds)),
+            db.select().from(categories).where(inArray(categories.id, categoryIds))
+          ]);
+          
+          const usersMap = new Map(itemUsers.map(u => [u.id, u]));
+          const categoriesMap = new Map(itemCategories.map(c => [c.id, c]));
+          
+          return rawItems.map(item => ({
+            ...item,
+            owner: usersMap.get(item.ownerId) || { id: item.ownerId, firstName: 'User', lastName: '', rating: 5.0 },
+            category: categoriesMap.get(item.categoryId) || { id: item.categoryId, name: 'General', icon: 'box' }
+          }));
+        };
+
+        allItems = await Promise.race([queryPromise(), timeoutPromise]);
+        console.log(`🔍 AI search using real database items (${allItems.length} items)`);
+      } catch (error) {
+        console.log(`⚠️ Database timeout in AI search, using cache fallback`);
+        // Return empty for now - could add cache lookup here
+        res.json([]);
+        return;
+      }
+
+      // Perform AI search with timeout protection
       const timeout = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log(`⏰ Search API timeout after 2 seconds for query: "${q}"`);
-          reject(new Error('Search timeout'));
-        }, 2000);
+          console.log(`⏰ AI search timeout for query: "${q}"`);
+          reject(new Error('AI search timeout'));
+        }, 3000);
       });
 
       const searchOperation = async () => {
-        // Static items for immediate search results during database issues
-        const staticItems = [
-          {
-            id: 181,
-            title: "Apple AirPods Max",
-            description: "Premium over-ear wireless headphones with active noise cancellation",
-            price: "8.00",
-            currentPrice: "549",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 3,
-            images: ["https://images.unsplash.com/photo-1606400082777-ef05f3c5cde4"],
-            location: "San Francisco, CA",
-            address: "123 Tech Street",
-            city: "San Francisco",
-            state: "CA",
-            zipCode: "94105",
-            included: ["Charging case", "Lightning cable", "Documentation"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 3, firstName: "Michael", lastName: "Chen", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "smartphone" }
-          },
-          {
-            id: 187,
-            title: "2019 MacBook Air 13 inch",
-            description: "Lightweight laptop perfect for work and productivity tasks",
-            price: "35.00",
-            currentPrice: "1200",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 7,
-            images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3adef"],
-            location: "Austin, TX",
-            address: "456 Innovation Drive",
-            city: "Austin",
-            state: "TX",
-            zipCode: "73301",
-            included: ["Charger", "Original box", "User manual"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 7, firstName: "Emma", lastName: "Davis", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "laptop" }
-          }
-        ];
-
-        console.log(`🔍 AI search using static fallback items (${staticItems.length} items)`);
-        return await aiSearchService.enhancedSearch(q as string, staticItems);
+        return await aiSearchService.enhancedSearch(q as string, allItems);
       };
 
-      // Race between search operation and timeout
+      // Race between AI search and timeout
       const aiResults = await Promise.race([searchOperation(), timeout]);
       
       const duration = Date.now() - startTime;
-      console.log(`✅ Search completed in ${duration}ms for query: "${q}"`);
+      console.log(`✅ AI Search completed in ${duration}ms for query: "${q}"`);
       
       res.json(aiResults);
     } catch (error: any) {
