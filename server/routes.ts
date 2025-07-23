@@ -154,13 +154,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Emergency fallback endpoint for items (simple query)
+  app.get("/api/items-simple", async (req, res) => {
+    try {
+      console.log('🚨 Simple items API called (emergency fallback)');
+      const startTime = Date.now();
+      
+      // Use direct database query with aggressive timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Simple query timeout')), 5000);
+      });
+      
+      // Simple query without joins
+      const simpleQueryPromise = db.select({
+        id: items.id,
+        title: items.title,
+        description: items.description,
+        price: items.price,
+        currentPrice: items.currentPrice,
+        images: items.images,
+        categoryId: items.categoryId,
+        ownerId: items.ownerId,
+        location: items.location,
+        available: items.available
+      }).from(items).limit(50);
+      
+      const simpleItems = await Promise.race([simpleQueryPromise, timeoutPromise]);
+      
+      console.log(`✅ Simple query completed in ${Date.now() - startTime}ms - ${simpleItems.length} items`);
+      
+      res.json({
+        items: simpleItems,
+        pagination: {
+          page: 1,
+          limit: 50,
+          total: simpleItems.length,
+          totalPages: 1,
+          hasMore: false
+        },
+        fallback: true
+      });
+    } catch (error) {
+      console.error('❌ Simple query failed:', error);
+      res.json({
+        items: [],
+        pagination: {
+          page: 1,
+          limit: 12,
+          total: 0,
+          totalPages: 0,
+          hasMore: false
+        },
+        error: "Unable to load items"
+      });
+    }
+  });
+
   // Root API endpoint
   app.get("/api", (req, res) => {
     res.json({ 
       message: "lendibl API is running",
       environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString(),
-      deployment_test: "TIMEOUT_FIX_JULY_23_2025"
+      deployment_test: "SIMPLE_QUERY_FIX_JULY_23_2025"
     });
   });
 
@@ -753,8 +809,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000);
         });
         
-        const dbQueryPromise = storage.getItems();
-        const allItems = await Promise.race([dbQueryPromise, timeoutPromise]);
+        // Try simple query first, then fall back to complex query
+        let allItems;
+        try {
+          // First try simple direct database query
+          console.log('⚡ Trying simple query first...');
+          const simpleQueryPromise = db.select({
+            id: items.id,
+            title: items.title,
+            description: items.description,
+            price: items.price,
+            currentPrice: items.currentPrice,
+            images: items.images,
+            categoryId: items.categoryId,
+            ownerId: items.ownerId,
+            location: items.location,
+            available: items.available,
+            rating: items.rating,
+            reviewCount: items.reviewCount
+          }).from(items).limit(100);
+          
+          const simpleTimeout = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Simple query timeout')), 5000);
+          });
+          
+          allItems = await Promise.race([simpleQueryPromise, simpleTimeout]);
+          console.log(`✅ Simple query succeeded - ${allItems.length} items`);
+        } catch (simpleError) {
+          console.log('⚠️ Simple query failed, trying complex query...');
+          const dbQueryPromise = storage.getItems();
+          allItems = await Promise.race([dbQueryPromise, timeoutPromise]);
+        }
         const queryDuration = Date.now() - queryStart;
         
         // Update cache with fresh data
