@@ -143,6 +143,13 @@ export default function ItemDetails() {
             <div className="mb-8">
               <h3 className="font-semibold text-gray-dark mb-3">Description</h3>
               <p className="text-gray-medium leading-relaxed">{item.description}</p>
+              {item.currentPrice && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">Original retail price:</span> ${parseFloat(item.currentPrice).toFixed(2)}
+                  </p>
+                </div>
+              )}
             </div>
 
             {item.included && item.included.length > 0 && (

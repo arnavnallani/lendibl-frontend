@@ -74,9 +74,14 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
         <h4 className="font-bold text-gray-dark mb-2 text-lg group-hover:text-primary-blue transition-colors">
           {item.title}
         </h4>
-        <p className="text-sm text-gray-medium mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-sm text-gray-medium mb-3 line-clamp-2 leading-relaxed">
           {item.description}
         </p>
+        {item.currentPrice && (
+          <div className="mb-4 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md inline-block">
+            Original: ${parseFloat(item.currentPrice).toFixed(2)}
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div className="flex items-baseline">
