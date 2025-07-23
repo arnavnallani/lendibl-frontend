@@ -17,6 +17,7 @@ import { db } from "./db";
 import { users, itemScans, items, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { refundService } from "./refund-service";
+import { stripeService, stripe } from "./stripe-service";
 import { responseTrackingService } from "./response-tracking-service";
 import { sendPasswordResetEmail, sendEmail } from "./email-service";
 import { phoneVerificationService } from "./phone-verification-service";
@@ -68,13 +69,10 @@ function generateSmartCompletions(query: string, items: any[]): any[] {
   
   return suggestions.slice(0, 3);
 }
-import { stripeService } from "./stripe-service";
+
 import { paypalService } from "./paypal-service";
 import { registerPushRoutes } from "./routes/push";
 import { z } from "zod";
-
-// Initialize Stripe (will be null if no secret key is provided)
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
 // WebSocket connection management
 const connectedClients = new Map<number, WebSocket[]>();
@@ -764,8 +762,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       const query = db.select().from(categories).limit(10);
-      const categories = await Promise.race([query, timeout]);
-      res.json(categories);
+      const categoriesResult = await Promise.race([query, timeout]);
+      res.json(categoriesResult);
     } catch (error) {
       console.error("Categories query failed:", error);
       // Emergency fallback with hardcoded categories
