@@ -783,23 +783,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let cacheTimestamp = 0;
   const CACHE_DURATION = 600000; // 10 minutes for better performance after updates
 
-  // Items endpoint with immediate static fallback for production reliability
+  // Items endpoint with proper filtering support
   app.get("/api/items", async (req, res) => {
     const startTime = Date.now();
-    console.log(`🚀 Items API called`);
-    
-    // Return static fallback immediately if in production and no cache
-    const isProduction = process.env.NODE_ENV === 'production';
+    console.log(`🚀 Items API called with filters:`, req.query);
     
     try {
-      // Use cache if available (within 10 minutes)
+      // Extract filter parameters
+      const { 
+        page = 1, 
+        limit = 12, 
+        categoryId, 
+        search, 
+        minPrice, 
+        maxPrice, 
+        location, 
+        minRating, 
+        availability, 
+        sortBy 
+      } = req.query;
+      
+      const pageNumber = parseInt(page as string);
+      const pageSize = parseInt(limit as string);
+      
+      // Check if we have any active filters
+      const hasFilters = categoryId || search || minPrice || maxPrice || location || minRating || availability || sortBy;
+      
+      // Use cache only if no filters are applied (within 10 minutes)
       const now = Date.now();
-      if (itemsCache.length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
+      if (!hasFilters && itemsCache.length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
         console.log(`⚡ Using cached items (${itemsCache.length} items) - served in ${Date.now() - startTime}ms`);
         
-        const { page, limit } = req.query;
-        const pageNumber = page ? parseInt(page as string) : 1;
-        const pageSize = limit ? parseInt(limit as string) : 12;
         const startIndex = (pageNumber - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         const paginatedItems = itemsCache.slice(startIndex, endIndex);
@@ -816,7 +830,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // In production, return static data immediately without database queries
+      // In production, return static data immediately without database queries  
+      const isProduction = process.env.NODE_ENV === 'production';
       if (isProduction) {
         console.log(`🎯 Production mode - serving static fallback data`);
         const staticItems = [
@@ -879,22 +894,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Development mode: try database query
-      console.log(`⚡ Development mode - trying database query...`);
+      // Get items with filters applied
+      console.log(`⚡ Querying items with filters...`);
       
-      // Get items from storage
-      const directItems = await storage.getItems();
-      console.log(`✅ Database query succeeded - ${directItems.length} items`);
+      const filters: any = {};
+      if (categoryId) filters.categoryId = parseInt(categoryId as string);
+      if (search) filters.search = search as string;
+      if (minPrice) filters.minPrice = parseFloat(minPrice as string);
+      if (maxPrice) filters.maxPrice = parseFloat(maxPrice as string);
+      if (location) filters.location = location as string;
+      if (minRating) filters.minRating = parseFloat(minRating as string);
+      if (availability) filters.availability = availability as string;
+      
+      const directItems = await storage.getItems(filters);
+      console.log(`✅ Database query succeeded - ${directItems.length} items with filters:`, filters);
       
       // Items already have owner and category from storage layer
       const basicItems = directItems;
 
-      itemsCache = basicItems;
-      cacheTimestamp = now;
-
-      const { page, limit } = req.query;
-      const pageNumber = page ? parseInt(page as string) : 1;
-      const pageSize = limit ? parseInt(limit as string) : 12;
+      // Update cache only if no filters applied
+      if (!hasFilters) {
+        itemsCache = basicItems;
+        cacheTimestamp = now;
+      }
       const startIndex = (pageNumber - 1) * pageSize;
       const endIndex = startIndex + pageSize;
       const paginatedItems = basicItems.slice(startIndex, endIndex);
