@@ -824,6 +824,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         relatedId: item.id
       });
       
+      // Clear items cache to include new item
+      itemsCache = [];
+      cacheTimestamp = 0;
+      console.log(`✨ Items cache cleared after creating new item`);
+      
       res.status(201).json(item);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -966,6 +971,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deleted) {
         return res.status(400).json({ message: "Failed to delete item" });
       }
+
+      // Clear items cache immediately to reflect deletion
+      itemsCache = [];
+      cacheTimestamp = 0;
+      console.log(`🗑️ Items cache cleared after deleting item ${id}`);
 
       res.json({ message: "Item deleted successfully" });
     } catch (error) {
