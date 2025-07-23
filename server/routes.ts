@@ -15,7 +15,7 @@ import { reviewPromptService } from "./review-prompt-service";
 import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
 import { users, itemScans, items, categories } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, inArray } from "drizzle-orm";
 import { refundService } from "./refund-service";
 import { stripeService, stripe } from "./stripe-service";
 import { responseTrackingService } from "./response-tracking-service";
@@ -884,161 +884,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Use static data immediately to avoid database timeouts
-      const useStaticFallback = true; // Always use static data due to database issues
-      if (useStaticFallback) {
-        console.log(`📦 Using static fallback items to avoid database timeouts`);
-        const staticItems = [
-          {
-            id: 181,
-            title: "Apple AirPods Max",
-            description: "Premium over-ear wireless headphones with active noise cancellation",
-            price: "8.00",
-            currentPrice: "549",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 3,
-            images: ["https://images.unsplash.com/photo-1606400082777-ef05f3c5cde4"],
-            location: "San Francisco, CA",
-            address: "123 Tech Street",
-            city: "San Francisco",
-            state: "CA",
-            zipCode: "94105",
-            included: ["Charging case", "Lightning cable", "Documentation"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 3, firstName: "Michael", lastName: "Chen", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "smartphone" }
-          },
-          {
-            id: 187,
-            title: "2019 MacBook Air 13 inch",
-            description: "Lightweight laptop perfect for work and productivity tasks",
-            price: "35.00",
-            currentPrice: "1200",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 7,
-            images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3adef"],
-            location: "Austin, TX",
-            address: "456 Innovation Drive",
-            city: "Austin",
-            state: "TX",
-            zipCode: "73301",
-            included: ["Charger", "Original box", "User manual"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 7, firstName: "Emma", lastName: "Davis", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "laptop" }
-          },
-          {
-            id: 188,
-            title: "Professional DSLR Camera Kit",
-            description: "High-quality DSLR camera with multiple lenses perfect for photography",
-            price: "22.00",
-            currentPrice: "1800",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 5,
-            images: ["https://images.unsplash.com/photo-1606983340126-99ab4feaa64a"],
-            location: "Seattle, WA",
-            address: "789 Creative Lane",
-            city: "Seattle",
-            state: "WA",
-            zipCode: "98101",
-            included: ["Camera body", "50mm lens", "85mm lens", "Battery charger", "Memory card"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 5, firstName: "Alex", lastName: "Rodriguez", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "camera" }
-          },
-          {
-            id: 189,
-            title: "High-Pressure Washer",
-            description: "Powerful pressure washer for cleaning driveways, decks, cars and outdoor surfaces",
-            price: "7.00",
-            currentPrice: "299",
-            categoryId: 2,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 6,
-            images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64"],
-            location: "Denver, CO",
-            address: "321 Home Street",
-            city: "Denver",
-            state: "CO",
-            zipCode: "80202",
-            included: ["Pressure washer", "Hose", "Multiple nozzles", "Detergent bottle"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 6, firstName: "Jordan", lastName: "Kim", rating: 5.0 },
-            category: { id: 2, name: "Tools & Equipment", icon: "wrench" }
-          },
-          {
-            id: 190,
-            title: "4-Person Camping Tent",
-            description: "Spacious and weatherproof tent perfect for family camping trips",
-            price: "3.50",
-            currentPrice: "149",
-            categoryId: 4,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 8,
-            images: ["https://images.unsplash.com/photo-1504851149312-7a075b496cc7"],
-            location: "Portland, OR",
-            address: "654 Outdoor Way",
-            city: "Portland",
-            state: "OR",
-            zipCode: "97201",
-            included: ["Tent", "Rainfly", "Stakes", "Guy lines", "Carry bag"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 8, firstName: "Sarah", lastName: "Johnson", rating: 5.0 },
-            category: { id: 4, name: "Outdoor", icon: "tent" }
-          }
-        ];
-
-        // Cache the static data
-        itemsCache = staticItems;
-        cacheTimestamp = now;
-
-        const { page, limit } = req.query;
-        const pageNumber = page ? parseInt(page as string) : 1;
-        const pageSize = limit ? parseInt(limit as string) : 12;
-        const startIndex = (pageNumber - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const paginatedItems = staticItems.slice(startIndex, endIndex);
-        
-        return res.json({
-          items: paginatedItems,
-          pagination: {
-            page: pageNumber,
-            limit: pageSize,
-            total: staticItems.length,
-            totalPages: Math.ceil(staticItems.length / pageSize),
-            hasMore: pageNumber < Math.ceil(staticItems.length / pageSize)
-          }
-        });
-      }
-
       // Get items with filters applied
       console.log(`⚡ Querying items with filters...`);
       
@@ -1051,10 +896,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (minRating) filters.minRating = parseFloat(minRating as string);
       if (availability) filters.availability = availability as string;
       
-      const directItems = await storage.getItems(filters);
-      console.log(`✅ Database query succeeded - ${directItems.length} items with filters:`, filters);
+      // Direct SQL query to get your 13 items back
+      console.log(`🔄 Using direct SQL query to retrieve your items`);
+      const rawItems = await db.select().from(items).limit(20);
+      const ownerIds = [...new Set(rawItems.map(item => item.ownerId))];
+      const categoryIds = [...new Set(rawItems.map(item => item.categoryId))];
       
-      // Items already have owner and category from storage layer
+      const [itemUsers, itemCategories] = await Promise.all([
+        db.select().from(users).where(inArray(users.id, ownerIds)),
+        db.select().from(categories).where(inArray(categories.id, categoryIds))
+      ]);
+      
+      const usersMap = new Map(itemUsers.map(u => [u.id, u]));
+      const categoriesMap = new Map(itemCategories.map(c => [c.id, c]));
+      
+      const directItems = rawItems.map(item => ({
+        ...item,
+        owner: usersMap.get(item.ownerId) || { id: item.ownerId, firstName: 'User', lastName: '', rating: 5.0 },
+        category: categoriesMap.get(item.categoryId) || { id: item.categoryId, name: 'General', icon: 'box' }
+      }));
+      
+      console.log(`✅ Direct SQL query succeeded - ${directItems.length} items retrieved`);
+      
+      // Items already have owner and category from direct query
       const basicItems = directItems;
 
       // Update cache only if no filters applied
@@ -1076,6 +940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hasMore: pageNumber < Math.ceil(basicItems.length / pageSize)
         }
       });
+
 
     } catch (error) {
       console.error("❌ Items endpoint error:", error);

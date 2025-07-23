@@ -548,7 +548,7 @@ export class DatabaseStorage implements IStorage {
         .limit(30); // Even smaller limit for better performance
       
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Query timeout')), 3000);
+        setTimeout(() => reject(new Error('Query timeout')), 1000);
       });
       
       const itemsResult = await Promise.race([queryPromise, timeoutPromise]) as any[];
