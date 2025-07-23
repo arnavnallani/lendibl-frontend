@@ -19,14 +19,16 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create pool with lightweight configuration for deployment
+// Create pool with optimized configuration for production
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 3, // Minimal pool size for deployment
-  idleTimeoutMillis: 30000, // Longer idle timeout
-  connectionTimeoutMillis: 10000, // Longer connection timeout
+  max: 1, // Single connection for simple queries
+  idleTimeoutMillis: 60000, // 1 minute idle timeout
+  connectionTimeoutMillis: 5000, // 5 second connection timeout
+  statement_timeout: 5000, // 5 second query timeout
+  query_timeout: 5000, // 5 second query timeout  
   ssl: { rejectUnauthorized: false },
-  allowExitOnIdle: true, // Allow clean shutdown
+  allowExitOnIdle: true,
 });
 
 // Minimal error handling without excessive logging
