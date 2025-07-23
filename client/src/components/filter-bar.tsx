@@ -171,7 +171,7 @@ export default function FilterBar({
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="font-medium">
-                Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                Advanced Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
               </span>
             </Button>
           
@@ -186,19 +186,6 @@ export default function FilterBar({
                   {category.name}
                 </SelectItem>
               ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedPriceRange} onValueChange={handlePriceRangeChange}>
-            <SelectTrigger className="w-48 px-4 py-2 border border-gray-light rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-dark">
-              <SelectValue placeholder="Price Range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Prices</SelectItem>
-              <SelectItem value="0-25">Under $25/day</SelectItem>
-              <SelectItem value="25-50">$25-50/day</SelectItem>
-              <SelectItem value="50-100">$50-100/day</SelectItem>
-              <SelectItem value="100+">Over $100/day</SelectItem>
             </SelectContent>
           </Select>
 
