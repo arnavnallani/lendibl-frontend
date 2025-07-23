@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       message: "lendibl API is running",
       environment: process.env.NODE_ENV,
       timestamp: new Date().toISOString(),
-      deployment_test: "WORKING_JULY_18_2025"
+      deployment_test: "TIMEOUT_FIX_JULY_23_2025"
     });
   });
 
