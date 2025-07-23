@@ -289,7 +289,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
             {/* Price */}
             <div className="mb-6">
               <div className="flex items-baseline space-x-2 mb-2">
-                <span className="text-3xl font-bold text-gray-dark">${item.price}</span>
+                <span className="text-3xl font-bold text-gray-dark">${parseFloat(item.price).toFixed(2)}</span>
                 <span className="text-lg text-gray-medium">/day</span>
               </div>
               <div className="flex items-center space-x-1">
@@ -385,7 +385,7 @@ export default function BookingModal({ item, isOpen, onClose }: BookingModalProp
               {days > 0 && (
                 <div className="p-4 bg-gray-bg rounded-lg">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-medium">${item.price} × {days} days</span>
+                    <span className="text-gray-medium">${parseFloat(item.price).toFixed(2)} × {days} days</span>
                     <span className="text-gray-dark">${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center mb-2">

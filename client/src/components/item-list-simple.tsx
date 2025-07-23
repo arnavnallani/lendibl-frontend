@@ -42,7 +42,7 @@ export default function ItemList({ items, onItemClick }: ItemListProps) {
               <div className="flex justify-between items-start mb-2">
                 <h3 className="font-semibold text-lg">{item.title}</h3>
                 <div className="text-xl font-bold text-blue-600">
-                  ${item.pricePerDay}/day
+                  ${parseFloat(item.pricePerDay || item.price).toFixed(2)}/day
                 </div>
               </div>
 

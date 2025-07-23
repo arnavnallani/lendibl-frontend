@@ -80,7 +80,7 @@ export default function ItemCard({ item, onClick }: ItemCardProps) {
         
         <div className="flex items-center justify-between">
           <div className="flex items-baseline">
-            <span className="text-2xl font-bold text-gray-dark">${item.price}</span>
+            <span className="text-2xl font-bold text-gray-dark">${parseFloat(item.price).toFixed(2)}</span>
             <span className="text-sm text-gray-medium ml-1">/day</span>
           </div>
           <div className="flex items-center text-sm text-gray-medium bg-gray-light/50 px-3 py-1 rounded-full">
