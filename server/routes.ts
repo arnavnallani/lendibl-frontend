@@ -800,46 +800,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`🔄 Cache miss or stale - fetching fresh data`);
       
       try {
-        // Use simplified database query with timeout handling
+        // Use storage method directly with timeout handling
         console.log('⏱️ Starting database query...');
         const queryStart = Date.now();
         
         // Add timeout to database query to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000);
+        const timeoutPromise = new Promise<any[]>((_, reject) => {
+          setTimeout(() => reject(new Error('Database query timeout after 10 seconds')), 10000);
         });
         
-        // Try simple query first, then fall back to complex query
-        let allItems;
-        try {
-          // First try simple direct database query
-          console.log('⚡ Trying simple query first...');
-          const simpleQueryPromise = db.select({
-            id: items.id,
-            title: items.title,
-            description: items.description,
-            price: items.price,
-            currentPrice: items.currentPrice,
-            images: items.images,
-            categoryId: items.categoryId,
-            ownerId: items.ownerId,
-            location: items.location,
-            available: items.available,
-            rating: items.rating,
-            reviewCount: items.reviewCount
-          }).from(items).limit(100);
-          
-          const simpleTimeout = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Simple query timeout')), 5000);
-          });
-          
-          allItems = await Promise.race([simpleQueryPromise, simpleTimeout]);
-          console.log(`✅ Simple query succeeded - ${allItems.length} items`);
-        } catch (simpleError) {
-          console.log('⚠️ Simple query failed, trying complex query...');
-          const dbQueryPromise = storage.getItems();
-          allItems = await Promise.race([dbQueryPromise, timeoutPromise]);
-        }
+        const dbQueryPromise = storage.getItems();
+        const allItems = await Promise.race([dbQueryPromise, timeoutPromise]);
+        
         const queryDuration = Date.now() - queryStart;
         
         // Update cache with fresh data

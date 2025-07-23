@@ -1,6 +1,6 @@
 import { users, items, categories, bookings, reviews, userInteractions, userPreferences, rentalMessages, paymentReminders, reviewPrompts, itemScans, damageReports, passwordResetTokens, phoneVerifications, earlyAccessSignups, first100Users, type User, type InsertUser, type Item, type InsertItem, type Category, type InsertCategory, type Booking, type InsertBooking, type Review, type InsertReview, type UserInteraction, type InsertUserInteraction, type UserPreferences, type InsertUserPreferences, type RentalMessage, type InsertRentalMessage, type PaymentReminder, type InsertPaymentReminder, type ReviewPrompt, type InsertReviewPrompt, type ItemScan, type InsertItemScan, type DamageReport, type InsertDamageReport, type PasswordResetToken, type InsertPasswordResetToken, type PhoneVerification, type InsertPhoneVerification, type EarlyAccessSignup, type InsertEarlyAccessSignup, type First100User, type InsertFirst100User, type ItemWithDetails, type BookingWithDetails } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte } from "drizzle-orm";
+import { eq, desc, and, gt, notInArray, sql, or, ilike, gte, lte, inArray } from "drizzle-orm";
 import { calculateAvailabilityStatus } from "@shared/availability-utils";
 
 export interface IStorage {
@@ -507,134 +507,103 @@ export class DatabaseStorage implements IStorage {
     const startTime = Date.now();
     
     try {
-      // Simplified query to reduce load time - get basic item data first
-      console.log('⏱️ Executing optimized query...');
-      let query = db
-        .select({
-          // Items fields only - fetch user/category data separately if needed
-          itemId: items.id,
-          title: items.title,
-          description: items.description,
-          price: items.price,
-          currentPrice: items.currentPrice,
-          categoryId: items.categoryId,
-          ownerId: items.ownerId,
-          images: items.images,
-          location: items.location,
-          address: items.address,
-          city: items.city,
-          state: items.state,
-          zipCode: items.zipCode,
-          included: items.included,
-          available: items.available,
-          availabilityStatus: items.availabilityStatus,
-          availableFrom: items.availableFrom,
-          availableTo: items.availableTo,
-          rating: items.rating,
-          reviewCount: items.reviewCount,
-          createdAt: items.createdAt,
-          // Essential joined data only
-          userId: users.id,
-          username: users.username,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          userRating: users.rating,
-          userReviewCount: users.reviewCount,
-          userResponseRate: users.responseRate,
-          userResponseTime: users.responseTime,
-          categoryName: categories.name,
-          categoryIcon: categories.icon,
-        })
-        .from(items)
-        .innerJoin(users, eq(items.ownerId, users.id))
-        .leftJoin(categories, eq(items.categoryId, categories.id))
-        .where(eq(items.available, true))
-        .orderBy(items.createdAt)
-        .limit(100); // Limit results to prevent huge queries
-    
-    // Apply additional filters if provided
-    const additionalConditions = [];
-    if (filters) {
-      if (filters.categoryId) {
-        additionalConditions.push(eq(items.categoryId, filters.categoryId));
-      }
-      if (filters.search) {
-        const search = filters.search.toLowerCase();
-        additionalConditions.push(
-          or(
+      // Very simple query first - just get items without complex joins
+      console.log('⏱️ Executing simple items query...');
+      let whereConditions = [eq(items.available, true)];
+      
+      // Apply filters
+      if (filters) {
+        if (filters.categoryId) {
+          whereConditions.push(eq(items.categoryId, filters.categoryId));
+        }
+        if (filters.search) {
+          const search = filters.search.toLowerCase();
+          const searchCondition = or(
             ilike(items.title, `%${search}%`),
             ilike(items.description, `%${search}%`)
-          )
-        );
+          );
+          if (searchCondition) {
+            whereConditions.push(searchCondition);
+          }
+        }
+        if (filters.minPrice) {
+          whereConditions.push(gte(items.price, filters.minPrice.toString()));
+        }
+        if (filters.maxPrice) {
+          whereConditions.push(lte(items.price, filters.maxPrice.toString()));
+        }
+        if (filters.ownerId) {
+          whereConditions.push(eq(items.ownerId, filters.ownerId));
+        }
       }
-      if (filters.minPrice) {
-        additionalConditions.push(gte(items.price, filters.minPrice.toString()));
-      }
-      if (filters.maxPrice) {
-        additionalConditions.push(lte(items.price, filters.maxPrice.toString()));
-      }
-      if (filters.ownerId) {
-        additionalConditions.push(eq(items.ownerId, filters.ownerId));
-      }
-    }
 
-    // Apply additional conditions if any exist
-    if (additionalConditions.length > 0) {
-      query = query.where(and(eq(items.available, true), ...additionalConditions));
-    }
+      const queryStart = Date.now();
+      const itemsResult = await db
+        .select()
+        .from(items)
+        .where(and(...whereConditions))
+        .orderBy(items.createdAt)
+        .limit(50); // Smaller limit for better performance
 
-    console.log(`⏱️ Executing optimized query...`);
-    const queryStart = Date.now();
-    const result = await query;
-    console.log(`✅ Query completed in ${Date.now() - queryStart}ms`);
+      console.log(`✅ Items query completed in ${Date.now() - queryStart}ms - ${itemsResult.length} items`);
 
-    // Transform to expected format
-    const transformedItems = result.map(row => ({
-      id: row.itemId,
-      title: row.title,
-      description: row.description,
-      price: row.price,
-      currentPrice: row.currentPrice,
-      categoryId: row.categoryId,
-      rating: row.userRating, // Use owner's rating
-      reviewCount: row.userReviewCount, // Use owner's review count
-      ownerId: row.ownerId,
-      images: row.images,
-      location: row.location,
-      address: row.address,
-      city: row.city,
-      state: row.state,
-      zipCode: row.zipCode,
-      included: row.included,
-      available: row.available,
-      availabilityStatus: row.availabilityStatus,
-      availableFrom: row.availableFrom,
-      availableTo: row.availableTo,
-      createdAt: row.createdAt,
-      owner: {
-        id: row.userId,
-        username: row.username,
-        email: row.email,
-        firstName: row.firstName,
-        lastName: row.lastName,
-        phone: row.phone,
-        rating: row.userRating,
-        reviewCount: row.userReviewCount,
-        responseRate: row.userResponseRate,
-        responseTime: row.userResponseTime,
-      },
-      category: row.categoryName ? {
-        id: row.categoryId,
-        name: row.categoryName,
-        icon: row.categoryIcon,
-      } : null,
-    }));
+      // Get all users in a separate query
+      const ownerIds = Array.from(new Set(itemsResult.map(item => item.ownerId)));
+      const usersResult = ownerIds.length > 0 ? await db
+        .select()
+        .from(users)
+        .where(inArray(users.id, ownerIds)) : [];
 
-      // For now, skip the approved bookings filter to maximize performance
-      // We'll add this back later when we need it
+      // Get all categories in a separate query  
+      const categoryIds = Array.from(new Set(itemsResult.map(item => item.categoryId)));
+      const categoriesResult = categoryIds.length > 0 ? await db
+        .select()
+        .from(categories)
+        .where(inArray(categories.id, categoryIds)) : [];
+
+      // Create lookup maps
+      const usersMap = new Map(usersResult.map(user => [user.id, user]));
+      const categoriesMap = new Map(categoriesResult.map(cat => [cat.id, cat]));
+
+      // Transform to expected format
+      const transformedItems: ItemWithDetails[] = itemsResult.map(item => {
+        const owner = usersMap.get(item.ownerId);
+        const category = categoriesMap.get(item.categoryId);
+        
+        if (!owner) {
+          throw new Error(`Owner not found for item ${item.id}`);
+        }
+
+        return {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          price: item.price,
+          currentPrice: item.currentPrice,
+          categoryId: item.categoryId,
+          rating: item.rating,
+          reviewCount: item.reviewCount,
+          ownerId: item.ownerId,
+          images: item.images,
+          location: item.location,
+          address: item.address,
+          city: item.city,
+          state: item.state,
+          zipCode: item.zipCode,
+          included: item.included,
+          available: item.available,
+          availabilityStatus: item.availabilityStatus,
+          availableFrom: item.availableFrom,
+          availableTo: item.availableTo,
+          createdAt: item.createdAt,
+          owner: owner,
+          category: category || null,
+        };
+      });
+
       console.log(`🎯 getItems completed in ${Date.now() - startTime}ms - returned ${transformedItems.length} items`);
       return transformedItems;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Database query error in getItems:`, error);
       throw new Error(`Database query failed: ${error.message}`);
     }
