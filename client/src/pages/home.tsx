@@ -53,8 +53,11 @@ export default function Home() {
         const parsedFilters = JSON.parse(savedFilters);
         setFilters(parsedFilters);
         
-        // Always use regular search, disable AI search
-        if (parsedFilters.search && parsedFilters.search.length >= 1) {
+        // If we have a search query, set AI results state accordingly
+        if (parsedFilters.search && parsedFilters.search.length >= 3) {
+          setUseAIResults(true);
+          setShowRecommendations(false);
+        } else if (parsedFilters.search && parsedFilters.search.length >= 1) {
           setUseAIResults(false);
           setShowRecommendations(false);
         }
@@ -80,12 +83,13 @@ export default function Home() {
 
   const handleSearch = (query: string) => {
     setFilters(prev => ({ ...prev, search: query }));
-    // Disable AI search temporarily - use regular search for all queries
-    setUseAIResults(false);
+    // Use AI search for queries 3+ characters, regular search for shorter ones
+    setUseAIResults(query.length >= 3);
     if (query.length >= 1) {
       setShowRecommendations(false);
     } else {
       setShowRecommendations(true);
+      setUseAIResults(false);
     }
   };
 

@@ -12,7 +12,7 @@ import { aiPricingService } from "./ai-pricing-service-clean";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
-import { aiSearchService } from "./ai-search-service";
+import { aiSearchService } from "./ai-search-service-simple";
 import { db } from "./db";
 import { users, itemScans, items, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -608,13 +608,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set 3-second timeout for entire search operation
       const timeout = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log(`⏰ Search API timeout after 3 seconds for query: "${q}"`);
+          console.log(`⏰ Search API timeout after 2 seconds for query: "${q}"`);
           reject(new Error('Search timeout'));
-        }, 3000);
+        }, 2000);
       });
 
       const searchOperation = async () => {
-        const allItems = await storage.getItems();
+        // Use cache or quick database query for AI search
+        let allItems;
+        if (itemsCache.length > 0 && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
+          console.log(`🔍 AI search using cached items (${itemsCache.length} items)`);
+          allItems = itemsCache;
+        } else {
+          console.log(`🔍 AI search fetching fresh items from database`);
+          allItems = await storage.getItems();
+        }
         return await aiSearchService.enhancedSearch(q as string, allItems);
       };
 

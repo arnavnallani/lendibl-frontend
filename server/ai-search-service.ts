@@ -263,100 +263,42 @@ Examples:
       return [];
     }
 
-    // Analyze the search query with AI
-    const searchAnalysis = await this.analyzeSearchQuery(query);
-    console.log('AI Search Analysis:', searchAnalysis);
+    try {
+      // Analyze the search query with AI (with built-in timeout)
+      const searchAnalysis = await this.analyzeSearchQuery(query);
+      console.log('AI Search Analysis:', searchAnalysis);
 
-    // Score items based on AI analysis
-    const scoredItems = await this.scoreItemRelevance(allItems, searchAnalysis);
-    
-    // Return top matches with scores above threshold
-    const relevantItems = scoredItems
-      .filter(item => item.score >= 8) // Higher threshold for direct matches
-      .slice(0, 10)
-      .map(match => {
-        const originalItem = allItems.find(item => item.id === match.id);
-        return {
-          ...originalItem,
-          aiScore: match.score,
-          aiReason: match.reason
-        };
-      });
-
-    // Check if we should show alternative suggestions
-    // Show alternatives if no high-quality matches OR if query contains specific brand not found
-    const shouldShowAlternatives = relevantItems.length === 0 || this.shouldTriggerAlternatives(query, relevantItems);
-    
-    if (shouldShowAlternatives) {
-      const alternativeMatches = await this.findAlternativeSuggestions(query, allItems, searchAnalysis);
-      console.log(`No exact matches for "${query}", suggesting ${alternativeMatches.length} alternatives`);
-      return alternativeMatches.map(match => ({
-        ...match,
-        isAlternativeSuggestion: true,
-        originalQuery: query
-      }));
-    }
-
-    console.log(`AI Search found ${relevantItems.length} relevant items for "${query}"`);
-    return relevantItems;
-  }
-
-  async findAlternativeSuggestions(originalQuery: string, allItems: any[], searchAnalysis: SearchAnalysis): Promise<any[]> {
-    // Create broader search terms based on the query category
-    const broadSearchTerms = this.getBroadSearchTerms(originalQuery, searchAnalysis);
-    
-    const suggestions: any[] = [];
-    
-    for (const broadTerm of broadSearchTerms) {
-      const broadAnalysis = await this.analyzeSearchQuery(broadTerm);
-      const scoredItems = await this.scoreItemRelevance(allItems, broadAnalysis);
+      // Score items based on AI analysis (fast scoring)
+      const scoredItems = await this.scoreItemRelevance(allItems, searchAnalysis);
       
-      const matches = scoredItems
-        .filter(item => item.score >= 2) // Lower threshold for suggestions
-        .slice(0, 3)
+      // Return top matches with scores above threshold
+      const relevantItems = scoredItems
+        .filter(item => item.score >= 8) // Higher threshold for direct matches
+        .slice(0, 10)
         .map(match => {
           const originalItem = allItems.find(item => item.id === match.id);
           return {
             ...originalItem,
             aiScore: match.score,
-            aiReason: match.reason,
-            suggestionReason: `Similar to ${originalQuery}`
+            aiReason: match.reason
           };
         });
-      
-      suggestions.push(...matches);
-    }
-    
-    // Remove duplicates and return top 4 suggestions
-    const uniqueSuggestions = suggestions.filter((item, index, self) => 
-      index === self.findIndex(t => t.id === item.id)
-    );
-    
-    return uniqueSuggestions.slice(0, 4);
-  }
 
-  private getBroadSearchTerms(query: string, searchAnalysis: SearchAnalysis): string[] {
-    const queryLower = query.toLowerCase();
-    
-    // Mapping specific brands/products to broader categories
-    if (queryLower.includes('bose') && queryLower.includes('headphone')) {
-      return ['headphones', 'wireless earbuds', 'audio equipment'];
+      console.log(`AI Search found ${relevantItems.length} relevant items for "${query}"`);
+
+      // If we have good results, return them
+      if (relevantItems.length > 0) {
+        return relevantItems;
+      }
+
+      // Return empty array if no matches (simplified)
+      return [];
+    } catch (error) {
+      console.error(`❌ AI search error for "${query}":`, error);
+      return [];
     }
-    if (queryLower.includes('airpods')) {
-      return ['wireless earbuds', 'headphones', 'apple accessories'];
-    }
-    if (queryLower.includes('iphone')) {
-      return ['smartphone', 'phone', 'mobile device'];
-    }
-    if (queryLower.includes('macbook')) {
-      return ['laptop', 'computer', 'apple laptop'];
-    }
-    if (queryLower.includes('canon') && queryLower.includes('camera')) {
-      return ['camera', 'photography equipment', 'dslr'];
-    }
-    if (queryLower.includes('nintendo')) {
-      return ['gaming console', 'gaming', 'console'];
-    }
+  }
+}
     if (queryLower.includes('tesla')) {
       return ['electric car', 'vehicle', 'car'];
     }
