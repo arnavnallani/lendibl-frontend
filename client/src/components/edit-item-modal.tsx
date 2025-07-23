@@ -187,12 +187,25 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
         updateData.availableTo = values.availableTo.toISOString();
       }
 
-      await api.updateItem(item.id, updateData);
+      console.log('Starting item update...', item.id);
+      
+      // Show a progress toast for long updates
+      const progressToast = toast({
+        title: "⏳ Saving changes...",
+        description: "This may take a moment for large images.",
+        duration: 8000,
+      });
+      
+      const result = await api.updateItem(item.id, updateData);
+      console.log('Item update completed successfully:', result);
+      
+      // Clear the progress toast
+      progressToast.dismiss?.();
       
       // Show success message
       setShowSuccess(true);
       
-      // Also try the toast
+      // Show success toast
       toast({
         title: "✅ Changes Saved Successfully!",
         description: "Your item listing has been updated.",
@@ -204,12 +217,45 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
         onItemUpdated?.();
         setShowSuccess(false);
       }, 1500);
-    } catch (error) {
-      console.error('Failed to update item:', error);
+    } catch (error: any) {
+      console.error('Failed to update item - Full error details:', {
+        error,
+        message: error?.message,
+        status: error?.status,
+        stack: error?.stack,
+        name: error?.name
+      });
+      
+      // More specific error handling
+      let errorMessage = "There was an error saving your changes. Please try again.";
+      let shouldRefresh = false;
+      
+      if (error?.message?.includes('timeout') || error?.name === 'AbortError') {
+        errorMessage = "The update is taking longer than expected. Your changes might have been saved - please refresh to check.";
+        shouldRefresh = true;
+      } else if (error?.status === 413) {
+        errorMessage = "The images are too large. Please try with smaller image files.";
+      } else if (error?.status >= 500) {
+        errorMessage = "Server error occurred. Your changes may have been saved - please refresh the page to check.";
+        shouldRefresh = true;
+      } else if (error?.status === 0 || !error?.status) {
+        errorMessage = "Network error. Your changes might have been saved - please refresh to check.";
+        shouldRefresh = true;
+      }
+      
       toast({
-        title: "❌ Update Failed",
-        description: "There was an error saving your changes. Please try again.",
-        variant: "destructive"
+        title: "❌ Update Issue",
+        description: errorMessage + (shouldRefresh ? " Click to refresh and check." : ""),
+        variant: "destructive",
+        action: shouldRefresh ? (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.location.reload()}
+          >
+            Refresh
+          </Button>
+        ) : undefined,
       });
     } finally {
       setIsSubmitting(false);
@@ -558,7 +604,7 @@ export default function EditItemModal({ item, isOpen, onClose, onItemUpdated }: 
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save Changes"}
+                  {isSubmitting ? "Saving changes..." : "Save Changes"}
                 </Button>
               </div>
             </div>
