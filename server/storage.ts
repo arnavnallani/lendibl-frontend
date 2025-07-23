@@ -538,12 +538,20 @@ export class DatabaseStorage implements IStorage {
       }
 
       const queryStart = Date.now();
-      const itemsResult = await db
+      
+      // Add timeout protection for database query
+      const queryPromise = db
         .select()
         .from(items)
         .where(and(...whereConditions))
         .orderBy(items.createdAt)
-        .limit(50); // Smaller limit for better performance
+        .limit(30); // Even smaller limit for better performance
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Query timeout')), 3000);
+      });
+      
+      const itemsResult = await Promise.race([queryPromise, timeoutPromise]) as any[];
 
       console.log(`✅ Items query completed in ${Date.now() - queryStart}ms - ${itemsResult.length} items`);
 
