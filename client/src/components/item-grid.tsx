@@ -63,9 +63,9 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
   const { data: paginatedData, isLoading: regularLoading, error } = useQuery({
     queryKey: ["/api/items", queryFilters],
     queryFn: () => api.getItems(queryFilters),
-    enabled: !useAIResults, // Only fetch regular items when not using AI
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes - match server cache
-    gcTime: 20 * 60 * 1000, // Keep in cache for 20 minutes
+    enabled: true, // Always use regular API for all searches
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute to see filter changes quickly
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     retry: (failureCount, error: any) => {
       // Special handling for database timeout errors
       if (error?.message?.includes('timeout') || error?.message?.includes('DB_TIMEOUT') || 
