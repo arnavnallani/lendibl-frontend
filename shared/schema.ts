@@ -92,7 +92,7 @@ export const users = pgTable("users", {
   phoneVerified: boolean("phone_verified").default(false),
   emailVerified: boolean("email_verified").default(false),
   avatar: text("avatar"),
-  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("5.0"),
   reviewCount: integer("review_count").default(0),
   responseRate: integer("response_rate").default(100),
   responseTime: text("response_time").default("Within 1 hour"),

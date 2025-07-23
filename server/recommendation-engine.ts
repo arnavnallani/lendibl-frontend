@@ -55,60 +55,76 @@ export class RecommendationEngine {
 
       console.log(`🔄 Computing fresh recommendations for user ${userId}`);
       
-      // Get all data in parallel to reduce latency
-      const [interactions, preferences, user, allItems] = await Promise.all([
-        storage.getUserInteractions(userId),
-        storage.getUserPreferences(userId),  
-        storage.getUser(userId),
-        storage.getItems()
-      ]);
-      
-      // Filter available items early
-      const availableItems = allItems.filter(item => item.ownerId !== userId && item.available);
-      
-      // If no items available, return empty result immediately
-      if (availableItems.length === 0) {
-        return { items: [], scores: [] };
-      }
-      
-      // Calculate recommendation scores
-      const scores = await this.calculateRecommendationScores(
-        availableItems,
-        interactions,
-        preferences,
-        user
+      // Add timeout for complex operations
+      const timeoutMs = 2000; // 2 seconds max for computation
+      const computationPromise = this.computeRecommendations(userId, limit);
+      const timeoutPromise = new Promise<RecommendationResult>((_, reject) => 
+        setTimeout(() => reject(new Error('Computation timeout')), timeoutMs)
       );
       
-      // Sort by score and get top items
-      const topScores = scores
-        .sort((a, b) => b.score - a.score);
-      
-      const recommendedItems = topScores.map(score => 
-        availableItems.find(item => item.id === score.itemId)!
-      ).filter(Boolean);
-      
-      const result = {
-        items: recommendedItems,
-        scores: topScores,
-      };
-      
-      // Cache the result
-      this.recommendationCache.set(userId, {
-        data: result,
-        timestamp: Date.now()
-      });
-      
-      console.log(`✅ Computed ${recommendedItems.length} recommendations for user ${userId}`);
-      
-      return {
-        items: recommendedItems.slice(0, limit),
-        scores: topScores.slice(0, limit)
-      };
+      try {
+        return await Promise.race([computationPromise, timeoutPromise]);
+      } catch (error) {
+        console.log('⚡ Falling back to simple trending items due to timeout');
+        return await this.getTrendingItems(limit);
+      }
     } catch (error) {
-      console.error("Error generating recommendations:", error);
-      // Fallback to trending items
-      return this.getTrendingItems(limit);
+      console.error('Error in getRecommendations:', error);
+      return await this.getTrendingItems(limit);
     }
+  }
+
+  // Separate computation method for timeout handling
+  private async computeRecommendations(userId: number, limit: number): Promise<RecommendationResult> {
+    // Get all data in parallel to reduce latency
+    const [interactions, preferences, user, allItems] = await Promise.all([
+      storage.getUserInteractions(userId),
+      storage.getUserPreferences(userId),  
+      storage.getUser(userId),
+      storage.getItems()
+    ]);
+    
+    // Filter available items early
+    const availableItems = allItems.filter(item => item.ownerId !== userId && item.available);
+    
+    // If no items available, return empty result immediately
+    if (availableItems.length === 0) {
+      return { items: [], scores: [] };
+    }
+    
+    // Calculate recommendation scores
+    const scores = await this.calculateRecommendationScores(
+      availableItems,
+      interactions,
+      preferences,
+      user
+    );
+    
+    // Sort by score and get top items
+    const topScores = scores
+      .sort((a, b) => b.score - a.score);
+    
+    const recommendedItems = topScores.map(score => 
+      availableItems.find(item => item.id === score.itemId)!
+    ).filter(Boolean);
+    
+    const result = {
+      items: recommendedItems,
+      scores: topScores,
+    };
+    
+    // Cache the result
+    this.recommendationCache.set(userId, {
+      data: result,
+      timestamp: Date.now()
+    });
+    
+    console.log(`✅ Computed ${recommendedItems.length} recommendations for user ${userId}`);
+    
+    return {
+      items: recommendedItems.slice(0, limit),
+      scores: topScores.slice(0, limit)
+    };
   }
 
   // Calculate recommendation scores based on multiple factors
