@@ -617,8 +617,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // Direct database query - no timeouts
         console.log(`📦 Loading items from database...`);
-        const items = await storage.getItems({}, 1, 50);
-        allItems = items?.items || [];
+        allItems = await storage.getItems({});
         
         // Cache the results
         if (allItems.length > 0) {
@@ -762,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cache for fast item loading
-  let itemsCache: any[] = [];
+  let itemsCache: { data: any[], timestamp: number } = { data: [], timestamp: 0 };
   let cacheTimestamp = 0;
   const CACHE_DURATION = 600000; // 10 minutes for better performance after updates
 
@@ -794,21 +793,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Use cache only if no filters are applied (within 10 minutes)
       const now = Date.now();
-      if (!hasFilters && itemsCache.length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
-        console.log(`⚡ Using cached items (${itemsCache.length} items) - served in ${Date.now() - startTime}ms`);
+      if (!hasFilters && itemsCache.data.length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
+        console.log(`⚡ Using cached items (${itemsCache.data.length} items) - served in ${Date.now() - startTime}ms`);
         
         const startIndex = (pageNumber - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        const paginatedItems = itemsCache.slice(startIndex, endIndex);
+        const paginatedItems = itemsCache.data.slice(startIndex, endIndex);
         
         return res.json({
           items: paginatedItems,
           pagination: {
             page: pageNumber,
             limit: pageSize,
-            total: itemsCache.length,
-            totalPages: Math.ceil(itemsCache.length / pageSize),
-            hasMore: pageNumber < Math.ceil(itemsCache.length / pageSize)
+            total: itemsCache.data.length,
+            totalPages: Math.ceil(itemsCache.data.length / pageSize),
+            hasMore: pageNumber < Math.ceil(itemsCache.data.length / pageSize)
           }
         });
       }
@@ -852,7 +851,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update cache only if no filters applied
       if (!hasFilters) {
-        itemsCache = basicItems;
+        itemsCache.data = basicItems;
+        itemsCache.timestamp = now;
         cacheTimestamp = now;
       }
       const startIndex = (pageNumber - 1) * pageSize;

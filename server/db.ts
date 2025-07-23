@@ -22,13 +22,13 @@ if (!process.env.DATABASE_URL) {
 // Create pool with optimized configuration for production
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 2, // Reduce connection pool to prevent timeout issues
-  idleTimeoutMillis: 10000, // 10 second idle timeout
-  connectionTimeoutMillis: 3000, // 3 second connection timeout
-  statement_timeout: 5000, // 5 second query timeout
-  query_timeout: 5000, // 5 second query timeout  
+  max: 1, // Single connection to prevent timeout issues
+  idleTimeoutMillis: 30000, // 30 second idle timeout
+  connectionTimeoutMillis: 10000, // 10 second connection timeout
+  statement_timeout: 15000, // 15 second query timeout
+  query_timeout: 15000, // 15 second query timeout  
   ssl: { rejectUnauthorized: false },
-  allowExitOnIdle: true,
+  allowExitOnIdle: false, // Keep connection alive
 });
 
 // Minimal error handling without excessive logging
