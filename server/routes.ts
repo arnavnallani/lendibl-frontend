@@ -14,8 +14,8 @@ import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
 import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
-import { users, itemScans } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { users, itemScans, items } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 import { refundService } from "./refund-service";
 import { responseTrackingService } from "./response-tracking-service";
 import { sendPasswordResetEmail, sendEmail } from "./email-service";
@@ -119,6 +119,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       environment: process.env.NODE_ENV || "unknown",
       version: "1.0.0"
     });
+  });
+
+  // Debug endpoint for production issues
+  app.get("/api/debug/items", async (req, res) => {
+    try {
+      console.log('🔍 DEBUG: Testing items endpoint...');
+      const startTime = Date.now();
+      
+      // Test database connection
+      const dbTest = await db.select({ count: sql`count(*)` }).from(items);
+      console.log('🔍 DEBUG: Database test result:', dbTest);
+      
+      // Test simplified query
+      const simpleQuery = await db.select({ id: items.id, title: items.title }).from(items).limit(3);
+      console.log('🔍 DEBUG: Simple query result:', simpleQuery);
+      
+      const totalTime = Date.now() - startTime;
+      
+      res.json({
+        status: "debug-ok",
+        dbTest: dbTest[0],
+        sampleItems: simpleQuery,
+        queryTime: `${totalTime}ms`,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('🔍 DEBUG: Error in debug endpoint:', error);
+      res.status(500).json({
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 
   // Root API endpoint
@@ -714,7 +747,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Use simplified database query with timeout handling
         console.log('⏱️ Starting database query...');
         const queryStart = Date.now();
-        const allItems = await storage.getItems();
+        
+        // Add timeout to database query to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Database query timeout after 15 seconds')), 15000);
+        });
+        
+        const dbQueryPromise = storage.getItems();
+        const allItems = await Promise.race([dbQueryPromise, timeoutPromise]);
         const queryDuration = Date.now() - queryStart;
         
         // Update cache with fresh data
@@ -729,10 +769,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (itemsCache.length > 0) {
           console.log(`⚠️ Using stale cache (${itemsCache.length} items) due to DB error`);
         } else {
-          // No cache available, return error
-          return res.status(500).json({ 
-            message: "Database temporarily unavailable. Please try again in a moment.",
-            error: "DB_TIMEOUT"
+          // Return empty array instead of 500 error to prevent frontend crashes
+          console.log(`🔄 No cache available, returning empty items array`);
+          return res.json({
+            items: [],
+            pagination: {
+              page: 1,
+              limit: 12,
+              total: 0,
+              totalPages: 0,
+              hasMore: false
+            },
+            message: "Items are loading... Please refresh the page."
           });
         }
       }

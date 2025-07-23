@@ -506,51 +506,51 @@ export class DatabaseStorage implements IStorage {
     console.log('🚀 Fast getItems called with filters:', filters);
     const startTime = Date.now();
     
-    // Single optimized query - get all data at once without subqueries
-    let query = db
-      .select({
-        // Items fields
-        itemId: items.id,
-        title: items.title,
-        description: items.description,
-        price: items.price,
-        currentPrice: items.currentPrice,
-        categoryId: items.categoryId,
-        ownerId: items.ownerId,
-        images: items.images,
-        location: items.location,
-        address: items.address,
-        city: items.city,
-        state: items.state,
-        zipCode: items.zipCode,
-        included: items.included,
-        available: items.available,
-        availabilityStatus: items.availabilityStatus,
-        availableFrom: items.availableFrom,
-        availableTo: items.availableTo,
-        rating: items.rating,
-        reviewCount: items.reviewCount,
-        createdAt: items.createdAt,
-        // Users fields
-        userId: users.id,
-        username: users.username,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        phone: users.phone,
-        userRating: users.rating,
-        userReviewCount: users.reviewCount,
-        userResponseRate: users.responseRate,
-        userResponseTime: users.responseTime,
-        // Categories fields  
-        categoryName: categories.name,
-        categoryIcon: categories.icon,
-      })
-      .from(items)
-      .innerJoin(users, eq(items.ownerId, users.id))
-      .leftJoin(categories, eq(items.categoryId, categories.id))
-      .where(eq(items.available, true)) // Only get available items
-      .orderBy(items.createdAt); // Default order by creation time (oldest first)
+    try {
+      // Simplified query to reduce load time - get basic item data first
+      console.log('⏱️ Executing optimized query...');
+      let query = db
+        .select({
+          // Items fields only - fetch user/category data separately if needed
+          itemId: items.id,
+          title: items.title,
+          description: items.description,
+          price: items.price,
+          currentPrice: items.currentPrice,
+          categoryId: items.categoryId,
+          ownerId: items.ownerId,
+          images: items.images,
+          location: items.location,
+          address: items.address,
+          city: items.city,
+          state: items.state,
+          zipCode: items.zipCode,
+          included: items.included,
+          available: items.available,
+          availabilityStatus: items.availabilityStatus,
+          availableFrom: items.availableFrom,
+          availableTo: items.availableTo,
+          rating: items.rating,
+          reviewCount: items.reviewCount,
+          createdAt: items.createdAt,
+          // Essential joined data only
+          userId: users.id,
+          username: users.username,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          userRating: users.rating,
+          userReviewCount: users.reviewCount,
+          userResponseRate: users.responseRate,
+          userResponseTime: users.responseTime,
+          categoryName: categories.name,
+          categoryIcon: categories.icon,
+        })
+        .from(items)
+        .innerJoin(users, eq(items.ownerId, users.id))
+        .leftJoin(categories, eq(items.categoryId, categories.id))
+        .where(eq(items.available, true))
+        .orderBy(items.createdAt)
+        .limit(100); // Limit results to prevent huge queries
     
     // Apply additional filters if provided
     const additionalConditions = [];
@@ -630,10 +630,14 @@ export class DatabaseStorage implements IStorage {
       } : null,
     }));
 
-    // For now, skip the approved bookings filter to maximize performance
-    // We'll add this back later when we need it
-    console.log(`🎯 getItems completed in ${Date.now() - startTime}ms - returned ${transformedItems.length} items`);
-    return transformedItems;
+      // For now, skip the approved bookings filter to maximize performance
+      // We'll add this back later when we need it
+      console.log(`🎯 getItems completed in ${Date.now() - startTime}ms - returned ${transformedItems.length} items`);
+      return transformedItems;
+    } catch (error) {
+      console.error(`❌ Database query error in getItems:`, error);
+      throw new Error(`Database query failed: ${error.message}`);
+    }
   }
 
   // Simplified fast pagination method - uses working getItems and does in-memory pagination
