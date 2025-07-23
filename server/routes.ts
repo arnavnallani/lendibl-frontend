@@ -607,98 +607,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`🔍 AI search starting for: "${q}"`);
 
-      // Always use guaranteed static items for reliable AI search (no database dependencies)
-      console.log(`🔍 Using guaranteed static items for reliable AI search (8 items)`);
-      const allItems = [
-          {
-            id: 182,
-            title: "1 Babolat Pure Drive and 1 Pure Aero",
-            description: "Professional tennis rackets for competitive play",
-            price: "3.00",
-            currentPrice: "320",
-            categoryId: 4,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 2,
-            images: ["https://images.unsplash.com/photo-1551698618-1dfe5d97d256"],
-            location: "San Ramon, CA",
-            address: "7800 Kennard Lane",
-            city: "San Ramon",
-            state: "CA",
-            zipCode: "94568",
-            included: ["2 tennis rackets", "Grip tape", "String dampeners"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 2, firstName: "John", lastName: "Smith", rating: 5.0 },
-            category: { id: 4, name: "Sports Gear", icon: "activity" }
-          },
-          {
-            id: 187,
-            title: "2019 MacBook Air 13 inch",
-            description: "Lightweight laptop perfect for work and productivity tasks",
-            price: "35.00",
-            currentPrice: "1200",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 3,
-            images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3edef"],
-            location: "San Ramon, CA",
-            address: "7800 Kennard Lane",
-            city: "San Ramon",
-            state: "CA",
-            zipCode: "94568",
-            included: ["Charger", "Original box", "User manual"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 3, firstName: "Michael", lastName: "Chen", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "laptop" }
-          },
-          {
-            id: 192,
-            title: "Cannondale Road Bike",
-            description: "High-performance road bike for cycling enthusiasts",
-            price: "20.00",
-            currentPrice: "1800",
-            categoryId: 4,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 4,
-            images: ["https://images.unsplash.com/photo-1558618047-3c8c76ca7d13"],
-            location: "San Ramon, CA",
-            address: "7800 Kennard Lane", 
-            city: "San Ramon",
-            state: "CA",
-            zipCode: "94568",
-            included: ["Bike lock", "Helmet", "Water bottle"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 4, firstName: "Sarah", lastName: "Johnson", rating: 5.0 },
-            category: { id: 4, name: "Sports Gear", icon: "activity" }
-          },
+      // Use your real 13 items from cache first, fallback to static only if needed
+      let allItems = [];
+      
+      try {
+        // Force cache population if empty by calling storage directly
+        if (!itemsCache.data || itemsCache.data.length === 0) {
+          console.log(`📦 Cache empty, forcing population for AI search...`);
+          try {
+            // Use storage service directly to populate cache
+            const freshItems = await storage.getItems({}, 1, 50);
+            if (freshItems && freshItems.items && freshItems.items.length > 0) {
+              itemsCache.data = freshItems.items;
+              itemsCache.timestamp = Date.now();
+              console.log(`✅ Cache populated with ${freshItems.items.length} real items`);
+            }
+          } catch (e) {
+            console.log(`⚠️ Failed to populate cache: ${e.message}`);
+          }
+        }
+        
+        // Debug cache status
+        console.log(`📊 Cache status: exists=${!!itemsCache.data}, length=${itemsCache.data?.length || 0}`);
+        
+        // First priority: Use cached items from the items endpoint (your real 13 items)
+        if (itemsCache.data && itemsCache.data.length > 0) {
+          allItems = itemsCache.data;
+          console.log(`🔍 SUCCESS: Using your real cached items for AI search (${allItems.length} items)`);
+          console.log(`📋 Sample items: ${allItems.slice(0,3).map(i => i.title).join(', ')}`);
+        } else {
+          // Second priority: Try a quick database query for your real items
+          const fastTimeout = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Fast query timeout')), 3000);
+          });
+          
+          const fastQuery = async () => {
+            const rawItems = await db.select().from(items).limit(50);
+            if (rawItems.length === 0) return [];
+            
+            const ownerIds = [...new Set(rawItems.map(item => item.ownerId))];
+            const categoryIds = [...new Set(rawItems.map(item => item.categoryId))];
+            
+            const [itemUsers, itemCategories] = await Promise.all([
+              db.select().from(users).where(inArray(users.id, ownerIds)),
+              db.select().from(categories).where(inArray(categories.id, categoryIds))
+            ]);
+            
+            const usersMap = new Map(itemUsers.map(u => [u.id, u]));
+            const categoriesMap = new Map(itemCategories.map(c => [c.id, c]));
+            
+            return rawItems.map(item => ({
+              ...item,
+              owner: usersMap.get(item.ownerId) || { id: item.ownerId, firstName: 'User', lastName: '', rating: 5.0 },
+              category: categoriesMap.get(item.categoryId) || { id: item.categoryId, name: 'General', icon: 'box' }
+            }));
+          };
+
+          allItems = await Promise.race([fastQuery(), fastTimeout]);
+          console.log(`🔍 Using fresh real database items for AI search (${allItems.length} items)`);
+        }
+      } catch (error) {
+        console.log(`🔍 Using your ACTUAL real items as fallback data (13 items)`);
+        // Your actual real items from the database as fallback (when database times out)
+        allItems = [
           {
             id: 181,
             title: "Apple AirPods Max",
-            description: "Premium over-ear wireless headphones with active noise cancellation",
-            price: "8.00",
-            currentPrice: "549",
-            categoryId: 1,
+            description: "Like new. Charger included. Apple-designed dynamic driver provides high-fidelity audio, Active Noise Cancellation blocks outside noise, Transparency mode for hearing and interacting with the world around you, Spatial audio with dynamic head tracking provides theater-like sound that surrounds you",
+            price: "10.00",
+            currentPrice: "549.00",
+            categoryId: 3,
             rating: 0,
             reviewCount: 0,
-            ownerId: 5,
+            ownerId: 1,
             images: ["https://images.unsplash.com/photo-1606400082777-ef05f3c5cde4"],
             location: "San Ramon, CA",
             address: "7800 Kennard Lane",
-            city: "San Ramon", 
+            city: "San Ramon",
             state: "CA",
             zipCode: "94568",
             included: ["Charging case", "Lightning cable", "Documentation"],
@@ -707,111 +692,315 @@ export async function registerRoutes(app: Express): Promise<Server> {
             availabilityStart: "2025-07-18",
             availabilityEnd: "2025-12-31",
             createdAt: new Date(),
-            owner: { id: 5, firstName: "Emily", lastName: "Davis", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "headphones" }
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "headphones" }
           },
           {
-            id: 188,
-            title: "Werner Ladder",
-            description: "Sturdy 8-foot extension ladder for home improvement projects",
-            price: "5.00",
-            currentPrice: "180",
-            categoryId: 1,
+            id: 182,
+            title: "1 Babolat Pure Drive and 2 Wilson 100L rackets",
+            description: "High performing rackets.",
+            price: "12.00",
+            currentPrice: "600.00",
+            categoryId: 5,
             rating: 0,
             reviewCount: 0,
-            ownerId: 6,
-            images: ["https://images.unsplash.com/photo-1581094271901-8022df4466f9"],
-            location: "San Ramon, CA",
-            address: "7800 Kennard Lane",
-            city: "San Ramon",
-            state: "CA", 
-            zipCode: "94568",
-            included: ["Safety instructions", "Stabilizer bars"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 6, firstName: "David", lastName: "Wilson", rating: 5.0 },
-            category: { id: 1, name: "Tools & Equipment", icon: "wrench" }
-          },
-          {
-            id: 190,
-            title: "Workout Set Equipment",
-            description: "Complete home workout set with dumbbells and resistance bands",
-            price: "4.00",
-            currentPrice: "150",
-            categoryId: 4,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 7,
-            images: ["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b"],
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1551698618-1dfe5d97d256"],
             location: "San Ramon, CA",
             address: "7800 Kennard Lane",
             city: "San Ramon",
             state: "CA",
             zipCode: "94568",
-            included: ["Dumbbells", "Resistance bands", "Exercise mat"],
+            included: ["Babolat racket", "2 Wilson rackets", "Grip tape"],
             available: true,
             availabilityStatus: "Available Now",
             availabilityStart: "2025-07-18",
             availabilityEnd: "2025-12-31",
             createdAt: new Date(),
-            owner: { id: 7, firstName: "Alex", lastName: "Brown", rating: 5.0 },
-            category: { id: 4, name: "Sports Gear", icon: "activity" }
-          },
-          {
-            id: 191,
-            title: "Professional DSLR Camera Kit",
-            description: "High-end camera with multiple lenses for professional photography",
-            price: "22.00",
-            currentPrice: "2500",
-            categoryId: 1,
-            rating: 0,
-            reviewCount: 0,
-            ownerId: 8,
-            images: ["https://images.unsplash.com/photo-1606983340126-99ab4feaa64a"],
-            location: "San Ramon, CA",
-            address: "7800 Kennard Lane",
-            city: "San Ramon",
-            state: "CA",
-            zipCode: "94568",
-            included: ["DSLR camera", "Multiple lenses", "Tripod", "Memory cards"],
-            available: true,
-            availabilityStatus: "Available Now",
-            availabilityStart: "2025-07-18",
-            availabilityEnd: "2025-12-31",
-            createdAt: new Date(),
-            owner: { id: 8, firstName: "Jessica", lastName: "Martinez", rating: 5.0 },
-            category: { id: 1, name: "Electronics", icon: "camera" }
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 5, name: "Sports Gear", icon: "activity" }
           },
           {
             id: 183,
-            title: "Drill Set with Bits",
-            description: "Professional cordless drill with comprehensive bit set",
-            price: "6.00",
-            currentPrice: "220",
+            title: "Spectrum 3/4 Acoustic mini guitar",
+            description: "Ready to be played",
+            price: "4.00",
+            currentPrice: "75.00",
+            categoryId: 3,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["Acoustic guitar", "Pick", "Strings"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "music" }
+          },
+          {
+            id: 184,
+            title: "Nerf Gun Set with Ammo",
+            description: "Pistol, shotgun, crossbow, Bow and arrow, and 3 machine guns, ammo included.",
+            price: "8.00",
+            currentPrice: "310.00",
+            categoryId: 5,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1578662996442-48f60103fc96"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["Multiple Nerf guns", "Ammo", "Accessories"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 5, name: "Sports Gear", icon: "target" }
+          },
+          {
+            id: 185,
+            title: "Monitor + keyboards, trackpad, and cables",
+            description: "24 inch gaming monitor that is ready to be used, keyboards, trackpad, and cables included.",
+            price: "11.00",
+            currentPrice: "500.00",
+            categoryId: 3,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1527443224154-c4a3942d3acf"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["24\" gaming monitor", "Keyboards", "Trackpad", "Cables"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "monitor" }
+          },
+          {
+            id: 186,
+            title: "Streetbeat Bluetooth Stereo Boombox with Microphone",
+            description: "This wireless light-up portable boombox from Sharper Image has bluetooth, 1500 mAh rechargeable battery, 10W sound output. Connect via bluetooth or aux port (cable included). This speaker is a fun way to bring music with you wherever you go.",
+            price: "3.00",
+            currentPrice: "60.00",
+            categoryId: 3,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1608043152269-423dbba4e7e1"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["Boombox", "Microphone", "Charging cable"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "speaker" }
+          },
+          {
+            id: 187,
+            title: "2019 MacBook Air 13 inch",
+            description: "Cleaned up and ready to be used.",
+            price: "8.00",
+            currentPrice: "289.00",
+            categoryId: 3,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1541807084-5c52b6b3edef"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["MacBook Air", "Charger", "Original box"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "laptop" }
+          },
+          {
+            id: 188,
+            title: "Board Game Set",
+            description: "Monopoly, Clue, Pictionary, Taboo, and Perfection",
+            price: "4.00",
+            currentPrice: "100.00",
+            categoryId: 4,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["5 board games", "All pieces included"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 4, name: "Entertainment", icon: "gamepad" }
+          },
+          {
+            id: 189,
+            title: "DJI Mini 4 Drone",
+            description: "The DJI Mini 4 Pro is DJI's flagship mini-camera drone, known for its compact size (under 249g) and advanced features. It boasts omnidirectional obstacle sensing, a high-quality camera with a 1/1.3-inch sensor, and impressive 20km FHD video transmission range.",
+            price: "18.00",
+            currentPrice: "760.00",
+            categoryId: 3,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1507582020474-9a35b7d455d9"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["DJI Mini 4 drone", "Controller", "Battery", "Charger"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 3, name: "Electronics", icon: "camera" }
+          },
+          {
+            id: 191,
+            title: "Multi-Piece Mechanics Toolset",
+            description: "Ready to be used",
+            price: "9.00",
+            currentPrice: "200.00",
             categoryId: 1,
             rating: 0,
             reviewCount: 0,
-            ownerId: 9,
+            ownerId: 1,
             images: ["https://images.unsplash.com/photo-1572981779307-38b8cabb2407"],
             location: "San Ramon, CA",
             address: "7800 Kennard Lane",
             city: "San Ramon",
             state: "CA",
             zipCode: "94568",
-            included: ["Cordless drill", "Drill bits", "Screwdriver bits", "Carrying case"],
+            included: ["Complete toolset", "Carrying case"],
             available: true,
             availabilityStatus: "Available Now",
             availabilityStart: "2025-07-18",
             availabilityEnd: "2025-12-31",
             createdAt: new Date(),
-            owner: { id: 9, firstName: "Robert", lastName: "Taylor", rating: 5.0 },
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
             category: { id: 1, name: "Tools & Equipment", icon: "wrench" }
+          },
+          {
+            id: 192,
+            title: "Cannondale Road Bike",
+            description: "Ready to be used.",
+            price: "20.00",
+            currentPrice: "1300.00",
+            categoryId: 8,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1558618047-3c8c76ca7d13"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["Road bike", "Helmet"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 8, name: "Outdoor", icon: "bicycle" }
+          },
+          {
+            id: 193,
+            title: "Werner 3-Step Steel Platform Ladder",
+            description: "Ready to be used.",
+            price: "5.00",
+            currentPrice: "100.00",
+            categoryId: 1,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1581094271901-8022df4466f9"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["3-step ladder", "Safety instructions"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 1, name: "Tools & Equipment", icon: "wrench" }
+          },
+          {
+            id: 195,
+            title: "Workout Set",
+            description: "Workout set",
+            price: "6.00",
+            currentPrice: "175.00",
+            categoryId: 1,
+            rating: 0,
+            reviewCount: 0,
+            ownerId: 1,
+            images: ["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b"],
+            location: "San Ramon, CA",
+            address: "7800 Kennard Lane",
+            city: "San Ramon",
+            state: "CA",
+            zipCode: "94568",
+            included: ["Workout equipment", "Instructions"],
+            available: true,
+            availabilityStatus: "Available Now",
+            availabilityStart: "2025-07-18",
+            availabilityEnd: "2025-12-31",
+            createdAt: new Date(),
+            owner: { id: 1, firstName: "Owner", lastName: "", rating: 5.0 },
+            category: { id: 1, name: "Tools & Equipment", icon: "dumbbell" }
           }
         ];
+      }
 
+      // Debug the items being passed to AI search
+      console.log(`🔍 Passing ${allItems.length} items to AI search:`, allItems.slice(0,3).map(i => i.title));
+      
       // Perform AI search with ChatGPT - full intelligent semantic analysis
       const aiResults = await aiSearchService.enhancedSearch(q as string, allItems);
       
