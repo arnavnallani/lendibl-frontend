@@ -273,7 +273,7 @@ Examples:
       
       // Return top matches with scores above threshold
       const relevantItems = scoredItems
-        .filter(item => item.score >= 8) // Higher threshold for direct matches
+        .filter(item => item.score >= 5) // Lower threshold for better matches
         .slice(0, 10)
         .map(match => {
           const originalItem = allItems.find(item => item.id === match.id);
@@ -297,18 +297,6 @@ Examples:
       console.error(`❌ AI search error for "${query}":`, error);
       return [];
     }
-  }
-}
-    if (queryLower.includes('tesla')) {
-      return ['electric car', 'vehicle', 'car'];
-    }
-    
-    // Fallback to search analysis categories and synonyms
-    return [
-      ...searchAnalysis.categories.map(cat => cat.toLowerCase()),
-      ...searchAnalysis.synonyms.slice(0, 2),
-      ...searchAnalysis.relatedTerms.slice(0, 2)
-    ].filter(term => term && term.length > 2);
   }
 }
 

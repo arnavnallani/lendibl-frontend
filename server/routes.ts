@@ -12,7 +12,7 @@ import { aiPricingService } from "./ai-pricing-service-clean";
 import { getChatbotResponse } from "./chatbot-service";
 import { notificationService } from "./notification-service";
 import { reviewPromptService } from "./review-prompt-service";
-import { aiSearchService } from "./ai-search-service-simple";
+import { aiSearchService } from "./ai-search-service";
 import { db } from "./db";
 import { users, itemScans, items, categories } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
