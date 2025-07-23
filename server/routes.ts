@@ -879,40 +879,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Development mode: try database query with timeout
+      // Development mode: try database query
       console.log(`⚡ Development mode - trying database query...`);
-      const timeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database timeout')), 3000)
-      );
       
-      const query = db
-        .select({
-          id: items.id,
-          title: items.title,
-          description: items.description,
-          price: items.price,
-          currentPrice: items.currentPrice,
-          images: items.images,
-          categoryId: items.categoryId,
-          ownerId: items.ownerId,
-          location: items.location,
-          available: items.available,
-          rating: items.rating,
-          reviewCount: items.reviewCount,
-          createdAt: items.createdAt
-        })
-        .from(items)
-        .where(eq(items.available, true))
-        .limit(15);
-
-      const directItems = await Promise.race([query, timeout]);
+      // Get items from storage
+      const directItems = await storage.getItems();
       console.log(`✅ Database query succeeded - ${directItems.length} items`);
       
-      const basicItems = directItems.map(item => ({
-        ...item,
-        owner: { id: item.ownerId, firstName: "Loading...", lastName: "", rating: 5.0 },
-        category: { id: item.categoryId, name: "Loading...", icon: "" }
-      }));
+      // Items already have owner and category from storage layer
+      const basicItems = directItems;
 
       itemsCache = basicItems;
       cacheTimestamp = now;
