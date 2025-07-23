@@ -595,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // AI-powered search endpoint with direct database access
+  // AI-powered search endpoint with ChatGPT intelligent semantic analysis
   app.get("/api/ai-search", async (req, res) => {
     const startTime = Date.now();
     
@@ -607,56 +607,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`🔍 AI search starting for: "${q}"`);
 
-      // Get all items using direct SQL approach with timeout protection
-      let allItems;
-      try {
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Query timeout')), 4000);
-        });
-        
-        const queryPromise = async () => {
-          const rawItems = await db.select().from(items).limit(20);
-          const ownerIds = [...new Set(rawItems.map(item => item.ownerId))];
-          const categoryIds = [...new Set(rawItems.map(item => item.categoryId))];
-          
-          const [itemUsers, itemCategories] = await Promise.all([
-            db.select().from(users).where(inArray(users.id, ownerIds)),
-            db.select().from(categories).where(inArray(categories.id, categoryIds))
-          ]);
-          
-          const usersMap = new Map(itemUsers.map(u => [u.id, u]));
-          const categoriesMap = new Map(itemCategories.map(c => [c.id, c]));
-          
-          return rawItems.map(item => ({
-            ...item,
-            owner: usersMap.get(item.ownerId) || { id: item.ownerId, firstName: 'User', lastName: '', rating: 5.0 },
-            category: categoriesMap.get(item.categoryId) || { id: item.categoryId, name: 'General', icon: 'box' }
-          }));
-        };
+      // Get all items using direct SQL approach (same as working items endpoint)
+      const rawItems = await db.select().from(items).limit(50);
+      const ownerIds = [...new Set(rawItems.map(item => item.ownerId))];
+      const categoryIds = [...new Set(rawItems.map(item => item.categoryId))];
+      
+      const [itemUsers, itemCategories] = await Promise.all([
+        db.select().from(users).where(inArray(users.id, ownerIds)),
+        db.select().from(categories).where(inArray(categories.id, categoryIds))
+      ]);
+      
+      const usersMap = new Map(itemUsers.map(u => [u.id, u]));
+      const categoriesMap = new Map(itemCategories.map(c => [c.id, c]));
+      
+      const allItems = rawItems.map(item => ({
+        ...item,
+        owner: usersMap.get(item.ownerId) || { id: item.ownerId, firstName: 'User', lastName: '', rating: 5.0 },
+        category: categoriesMap.get(item.categoryId) || { id: item.categoryId, name: 'General', icon: 'box' }
+      }));
 
-        allItems = await Promise.race([queryPromise(), timeoutPromise]);
-        console.log(`🔍 AI search using real database items (${allItems.length} items)`);
-      } catch (error) {
-        console.log(`⚠️ Database timeout in AI search, using cache fallback`);
-        // Return empty for now - could add cache lookup here
-        res.json([]);
-        return;
-      }
+      console.log(`🔍 AI search using real database items (${allItems.length} items)`);
 
-      // Perform AI search with timeout protection
-      const timeout = new Promise((_, reject) => {
-        setTimeout(() => {
-          console.log(`⏰ AI search timeout for query: "${q}"`);
-          reject(new Error('AI search timeout'));
-        }, 3000);
-      });
-
-      const searchOperation = async () => {
-        return await aiSearchService.enhancedSearch(q as string, allItems);
-      };
-
-      // Race between AI search and timeout
-      const aiResults = await Promise.race([searchOperation(), timeout]);
+      // Perform AI search with ChatGPT - no timeout restrictions
+      const aiResults = await aiSearchService.enhancedSearch(q as string, allItems);
       
       const duration = Date.now() - startTime;
       console.log(`✅ AI Search completed in ${duration}ms for query: "${q}"`);
@@ -666,7 +639,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const duration = Date.now() - startTime;
       console.error(`❌ AI search error after ${duration}ms:`, error.message);
       
-      // Return empty results on timeout or error
+      // Return empty results on error
       res.json([]);
     }
   });

@@ -20,6 +20,57 @@ export interface ItemMatch {
 }
 
 export class AISearchService {
+  async analyzeSearchQuery(query: string): Promise<SearchAnalysis> {
+    try {
+      console.log(`🔍 Starting ChatGPT analysis for query: "${query}"`);
+      
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: `You are an intelligent search analyzer for a rental marketplace. Analyze search queries and provide structured insights to help match users with relevant rental items.
+
+Your task is to understand user intent and expand their search with related terms, synonyms, and categories they might be interested in.
+
+Return ONLY a JSON object with this exact structure:
+{
+  "intent": "brief description of what the user is looking for",
+  "keywords": ["primary", "search", "terms"],
+  "categories": ["relevant", "category", "names"],
+  "synonyms": ["alternative", "terms", "for", "the", "same", "thing"],
+  "relatedTerms": ["broader", "related", "items", "they", "might", "want"]
+}
+
+Be intelligent about understanding context. For example:
+- "macbook" should understand laptops, computers, Apple products
+- "camera" should understand photography, lenses, video equipment
+- "drill" should understand tools, construction, DIY projects
+- "cool stuff" should understand trendy electronics, gadgets, interesting items`
+          },
+          {
+            role: "user",
+            content: `Analyze this search query: "${query}"`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 300
+      });
+
+      const responseText = completion.choices[0].message.content?.trim();
+      if (!responseText) {
+        throw new Error('Empty response from ChatGPT');
+      }
+
+      const analysis = JSON.parse(responseText);
+      console.log(`✅ ChatGPT analysis completed for "${query}":`, analysis);
+      return analysis;
+    } catch (error) {
+      console.log(`⚠️ ChatGPT analysis failed for "${query}":`, error);
+      return this.getSmartFallbackAnalysis(query);
+    }
+  }
+
   private getSmartFallbackAnalysis(query: string): SearchAnalysis {
     const lowercaseQuery = query.toLowerCase();
     
@@ -35,17 +86,23 @@ export class AISearchService {
       'awesome': { intent: 'impressive rental items', keywords: ['awesome', 'cool', 'amazing'], categories: ['Electronics', 'Photography', 'Sports'], synonyms: ['cool', 'amazing', 'impressive'], relatedTerms: ['camera', 'drone', 'gaming', 'sports gear'] },
       'stuff': { intent: 'general items for rent', keywords: ['items', 'things', 'stuff'], categories: ['Tools', 'Electronics', 'Sports'], synonyms: ['items', 'things', 'equipment'], relatedTerms: ['tools', 'electronics', 'gear', 'equipment'] },
       
-      // Photography
-      'camera': { intent: 'photography equipment', keywords: ['camera', 'photo'], categories: ['Photography', 'Electronics'], synonyms: ['photography', 'photo', 'lens'], relatedTerms: ['dslr', 'mirrorless', 'lens', 'tripod'] },
-      'photo': { intent: 'photography equipment', keywords: ['photo', 'camera'], categories: ['Photography'], synonyms: ['photography', 'camera', 'picture'], relatedTerms: ['camera', 'lens', 'lighting', 'tripod'] },
+      // Audio equipment
+      'airpods': { intent: 'wireless audio equipment', keywords: ['airpods', 'headphones', 'wireless'], categories: ['Electronics'], synonyms: ['headphones', 'earbuds', 'audio'], relatedTerms: ['apple', 'wireless', 'bluetooth', 'headphones'] },
+      'headphones': { intent: 'audio equipment rental', keywords: ['headphones', 'audio'], categories: ['Electronics'], synonyms: ['airpods', 'earbuds', 'headset'], relatedTerms: ['wireless', 'bluetooth', 'music', 'audio'] },
+      
+      // Sports equipment
+      'racket': { intent: 'sports racket equipment', keywords: ['racket', 'tennis', 'sports'], categories: ['Sports'], synonyms: ['racquet', 'tennis racket'], relatedTerms: ['tennis', 'badminton', 'squash', 'sports'] },
+      'rackets': { intent: 'sports racket equipment', keywords: ['rackets', 'tennis', 'sports'], categories: ['Sports'], synonyms: ['racquets', 'tennis rackets'], relatedTerms: ['tennis', 'badminton', 'squash', 'sports'] },
+      'tennis': { intent: 'tennis equipment rental', keywords: ['tennis', 'racket'], categories: ['Sports'], synonyms: ['racket', 'racquet'], relatedTerms: ['tennis balls', 'court', 'sports'] },
       
       // Tools
       'drill': { intent: 'power tools for projects', keywords: ['drill', 'tool'], categories: ['Tools'], synonyms: ['power drill', 'driver'], relatedTerms: ['screwdriver', 'saw', 'hammer'] },
       'tool': { intent: 'construction and repair tools', keywords: ['tool', 'tools'], categories: ['Tools'], synonyms: ['equipment', 'instrument'], relatedTerms: ['drill', 'saw', 'hammer', 'screwdriver'] },
+      'ladder': { intent: 'climbing and access equipment', keywords: ['ladder', 'climbing'], categories: ['Tools'], synonyms: ['step ladder', 'extension ladder'], relatedTerms: ['tools', 'height', 'construction', 'maintenance'] },
       
-      // Gaming
-      'gaming': { intent: 'gaming equipment rental', keywords: ['gaming', 'game'], categories: ['Electronics'], synonyms: ['video games', 'console'], relatedTerms: ['playstation', 'xbox', 'nintendo', 'pc gaming'] },
-      'game': { intent: 'gaming equipment', keywords: ['game', 'gaming'], categories: ['Electronics'], synonyms: ['gaming', 'console'], relatedTerms: ['controller', 'headset', 'gaming chair'] },
+      // Bikes and transportation
+      'bike': { intent: 'bicycle rental', keywords: ['bike', 'bicycle'], categories: ['Sports', 'Transportation'], synonyms: ['bicycle', 'cycle'], relatedTerms: ['mountain bike', 'road bike', 'cycling', 'exercise'] },
+      'bicycle': { intent: 'bicycle rental', keywords: ['bicycle', 'bike'], categories: ['Sports', 'Transportation'], synonyms: ['bike', 'cycle'], relatedTerms: ['mountain bike', 'road bike', 'cycling', 'exercise'] },
     };
     
     // Find best match
@@ -66,235 +123,89 @@ export class AISearchService {
     };
   }
 
-  async analyzeSearchQuery(query: string): Promise<SearchAnalysis> {
-    // Start timer for 3-second timeout
-    const timeout = new Promise<SearchAnalysis>((_, reject) => {
-      setTimeout(() => {
-        console.log(`⏰ AI search timeout after 3 seconds for query: "${query}"`);
-        reject(new Error('AI search timeout'));
-      }, 3000); // 3 second timeout
-    });
-
-    const aiAnalysis = async (): Promise<SearchAnalysis> => {
-      try {
-        const prompt = `Analyze this search query for a rental marketplace: "${query}"
-
-You must understand semantic meaning and context. Be smart about matching:
-- "computer" should match MacBooks, laptops, PCs, gaming computers
-- "cool stuff" should match trendy electronics, cameras, gaming gear, drones
-- "awesome" should match high-end electronics, professional equipment
-- Be creative with synonyms and related terms
-
-Return JSON with:
-- intent: What the user is really looking for (be specific and semantic)
-- keywords: Key terms plus semantic matches
-- categories: Likely rental categories (Tools, Electronics, Sports, Outdoor, Photography, Gaming, etc.)
-- synonyms: Alternative words including brand names and specific models
-- relatedTerms: Related items they might also want
-
-Examples:
-- "computer" → intent: "computing devices including laptops and desktops", keywords: ["computer", "laptop", "macbook", "pc"], categories: ["Electronics"], synonyms: ["laptop", "macbook", "desktop", "notebook", "gaming pc"], relatedTerms: ["macbook pro", "gaming laptop", "workstation", "tablet"]
-- "cool stuff" → intent: "trendy and interesting rental items", keywords: ["cool", "awesome", "trendy"], categories: ["Electronics", "Photography", "Gaming"], synonyms: ["awesome", "amazing", "popular", "trendy"], relatedTerms: ["camera", "drone", "gaming gear", "macbook", "gadgets"]`;
-
-        const response = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content: "You are a search analysis expert for a rental marketplace. Always respond with valid JSON only."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.3,
-          max_tokens: 500 // Limit response size for faster processing
-        });
-
-        const rawJson = response.choices[0].message.content;
-        if (rawJson) {
-          return JSON.parse(rawJson);
-        } else {
-          throw new Error("Empty response from AI");
-        }
-      } catch (error) {
-        console.error('AI search analysis failed:', error);
-        throw error;
-      }
-    };
-
-    try {
-      // Race between AI response and timeout
-      const result = await Promise.race([aiAnalysis(), timeout]);
-      console.log(`✅ AI search completed for query: "${query}"`);
-      return result;
-    } catch (error) {
-      // Use smart fallback with enhanced semantic understanding
-      console.log(`🔄 Using smart fallback analysis for: "${query}"`);
-      return this.getSmartFallbackAnalysis(query);
-    }
-  }
-
-  async scoreItemRelevance(items: any[], searchAnalysis: SearchAnalysis): Promise<ItemMatch[]> {
-    const scoredItems: ItemMatch[] = [];
-
-    for (const item of items) {
+  async scoreItemRelevance(items: any[], analysis: SearchAnalysis): Promise<any[]> {
+    const scoredItems = items.map(item => {
       let score = 0;
-      const reasons: string[] = [];
+      let reasons = [];
 
-      const titleLower = item.title.toLowerCase();
-      const descLower = item.description.toLowerCase();
-      const fullText = `${titleLower} ${descLower}`;
+      // Title matching with semantic understanding
+      const titleLowercase = item.title.toLowerCase();
+      const descriptionLowercase = item.description.toLowerCase();
       
-      // Enhanced semantic matching
-      // Direct keyword matches (highest score)
-      for (const keyword of searchAnalysis.keywords) {
-        const keywordLower = keyword.toLowerCase();
-        if (titleLower.includes(keywordLower)) {
-          score += 15;
-          reasons.push(`Title contains "${keyword}"`);
-        } else if (descLower.includes(keywordLower)) {
-          score += 8;
-          reasons.push(`Description contains "${keyword}"`);
-        }
-      }
-
-      // Synonym matches with semantic understanding
-      for (const synonym of searchAnalysis.synonyms) {
-        const synonymLower = synonym.toLowerCase();
-        if (titleLower.includes(synonymLower)) {
-          score += 12;
-          reasons.push(`Title matches synonym "${synonym}"`);
-        } else if (descLower.includes(synonymLower)) {
-          score += 6;
-          reasons.push(`Description matches synonym "${synonym}"`);
-        }
-      }
-
-      // Related term matches
-      for (const term of searchAnalysis.relatedTerms) {
-        const termLower = term.toLowerCase();
-        if (titleLower.includes(termLower)) {
+      // Exact keyword matches (highest priority)
+      for (const keyword of analysis.keywords) {
+        if (titleLowercase.includes(keyword.toLowerCase())) {
           score += 10;
-          reasons.push(`Title contains related term "${term}"`);
-        } else if (descLower.includes(termLower)) {
+          reasons.push(`Title matches "${keyword}"`);
+        }
+        if (descriptionLowercase.includes(keyword.toLowerCase())) {
           score += 5;
+          reasons.push(`Description mentions "${keyword}"`);
+        }
+      }
+
+      // Synonym matches (high priority)
+      for (const synonym of analysis.synonyms) {
+        if (titleLowercase.includes(synonym.toLowerCase())) {
+          score += 8;
+          reasons.push(`Title matches synonym "${synonym}"`);
+        }
+        if (descriptionLowercase.includes(synonym.toLowerCase())) {
+          score += 4;
+          reasons.push(`Description mentions synonym "${synonym}"`);
+        }
+      }
+
+      // Related terms (medium priority)
+      for (const term of analysis.relatedTerms) {
+        if (titleLowercase.includes(term.toLowerCase())) {
+          score += 6;
+          reasons.push(`Title contains related term "${term}"`);
+        }
+        if (descriptionLowercase.includes(term.toLowerCase())) {
+          score += 3;
           reasons.push(`Description contains related term "${term}"`);
         }
       }
 
-      // Special semantic boost for high-value items when searching for "cool" or "awesome"
-      const isHighValueQuery = searchAnalysis.intent.toLowerCase().includes('cool') || 
-                              searchAnalysis.intent.toLowerCase().includes('awesome') ||
-                              searchAnalysis.intent.toLowerCase().includes('trendy');
-      
-      if (isHighValueQuery) {
-        // Boost electronics, gaming, photography items
-        if (fullText.includes('macbook') || fullText.includes('camera') || 
-            fullText.includes('gaming') || fullText.includes('drone') ||
-            fullText.includes('pro') || fullText.includes('professional')) {
-          score += 8;
-          reasons.push('High-value tech item');
-        }
+      // Category matching
+      if (item.category && analysis.categories.some(cat => 
+        item.category.name.toLowerCase().includes(cat.toLowerCase()) ||
+        cat.toLowerCase().includes(item.category.name.toLowerCase())
+      )) {
+        score += 5;
+        reasons.push(`Category matches search intent`);
       }
 
-      // Computer query semantic matching
-      const isComputerQuery = searchAnalysis.intent.toLowerCase().includes('computer') ||
-                             searchAnalysis.intent.toLowerCase().includes('computing');
-      
-      if (isComputerQuery) {
-        // Strong boost for laptops, MacBooks, PCs
-        if (fullText.includes('macbook') || fullText.includes('laptop') || 
-            fullText.includes('computer') || fullText.includes('pc')) {
-          score += 12;
-          reasons.push('Computing device match');
-        }
-      }
+      return {
+        ...item,
+        score,
+        reason: reasons.join(', ') || 'General relevance'
+      };
+    });
 
-      // Brand recognition boost
-      const premiumBrands = ['apple', 'macbook', 'canon', 'nikon', 'sony', 'gaming'];
-      for (const brand of premiumBrands) {
-        if (fullText.includes(brand)) {
-          score += 3;
-          reasons.push(`Premium brand: ${brand}`);
-        }
-      }
-
-      if (score > 0) {
-        scoredItems.push({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          score,
-          reason: reasons.join(', ')
-        });
-      }
-    }
-
-    // Sort by score descending
-    return scoredItems.sort((a, b) => b.score - a.score);
+    // Sort by score and return top matches
+    return scoredItems
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score);
   }
 
-  private shouldTriggerAlternatives(query: string, relevantItems: any[]): boolean {
-    const queryLower = query.toLowerCase();
-    
-    // Trigger alternatives for specific brand searches that return low-quality matches
-    const specificBrands = ['bose', 'beats', 'sony', 'samsung', 'lg', 'microsoft', 'google'];
-    const containsSpecificBrand = specificBrands.some(brand => queryLower.includes(brand));
-    
-    if (containsSpecificBrand) {
-      // If we found results but none are high-scoring matches for the specific brand
-      const hasHighQualityBrandMatch = relevantItems.some(item => {
-        const itemText = `${item.title} ${item.description}`.toLowerCase();
-        return specificBrands.some(brand => 
-          queryLower.includes(brand) && itemText.includes(brand)
-        );
-      });
-      return !hasHighQualityBrandMatch;
-    }
-    
-    return false;
-  }
-
-  async enhancedSearch(query: string, allItems: any[]): Promise<any[]> {
-    if (!query || query.trim().length < 2) {
-      return [];
-    }
-
+  async enhancedSearch(query: string, items: any[]): Promise<any[]> {
     try {
-      // Analyze the search query with AI (with built-in timeout)
-      const searchAnalysis = await this.analyzeSearchQuery(query);
-      console.log('AI Search Analysis:', searchAnalysis);
-
-      // Score items based on AI analysis (fast scoring)
-      const scoredItems = await this.scoreItemRelevance(allItems, searchAnalysis);
+      console.log(`✅ AI search starting for query: "${query}"`);
       
-      // Return top matches with scores above threshold
-      const relevantItems = scoredItems
-        .filter(item => item.score >= 5) // Lower threshold for better matches
-        .slice(0, 10)
-        .map(match => {
-          const originalItem = allItems.find(item => item.id === match.id);
-          return {
-            ...originalItem,
-            aiScore: match.score,
-            aiReason: match.reason
-          };
-        });
-
-      console.log(`AI Search found ${relevantItems.length} relevant items for "${query}"`);
-
-      // If we have good results, return them
-      if (relevantItems.length > 0) {
-        return relevantItems;
-      }
-
-      // Return empty array if no matches (simplified)
-      return [];
+      // Step 1: Analyze search query with ChatGPT
+      const analysis = await this.analyzeSearchQuery(query);
+      console.log('AI Search Analysis:', analysis);
+      
+      // Step 2: Score items based on AI analysis
+      const scoredItems = await this.scoreItemRelevance(items, analysis);
+      
+      console.log(`AI Search found ${scoredItems.length} relevant items for "${query}"`);
+      
+      return scoredItems;
     } catch (error) {
-      console.error(`❌ AI search error for "${query}":`, error);
+      console.error('Enhanced search error:', error);
       return [];
     }
   }
