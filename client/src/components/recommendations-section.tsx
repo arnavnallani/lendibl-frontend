@@ -35,6 +35,14 @@ export default function RecommendationsSection({ onItemClick }: RecommendationsS
     queryFn: (): Promise<RecommendationResult> => api.getRecommendations(),
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: (failureCount, error: any) => {
+      // Retry authentication errors up to 2 times
+      if (error?.status === 401 || error?.status === 403) {
+        return failureCount < 2;
+      }
+      return failureCount < 1;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
   });
 
   const handleRefresh = () => {
@@ -88,8 +96,27 @@ export default function RecommendationsSection({ onItemClick }: RecommendationsS
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            {error ? 'Unable to load recommendations.' : 'No recommendations available yet. Browse and interact with items to get personalized suggestions.'}
+            {error ? 
+              (error.status === 401 || error.status === 403 ? 
+                'Please refresh the page to reload recommendations.' :
+                'Unable to load recommendations at the moment. Please try refreshing.'
+              ) : 
+              'No recommendations available yet. Browse and interact with items to get personalized suggestions.'
+            }
           </p>
+          {error && (
+            <div className="mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                className="text-xs"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Try Again
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
