@@ -322,7 +322,7 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
             <p className="text-gray-medium">
               {useAIResults ? 
                 `Found ${items.length} items matching your search with AI analysis` :
-                `Over ${totalItemCount} items available for rent`
+                `${totalItemCount} items available for rent`
               }
             </p>
             {useAIResults && items.length > 0 && (
