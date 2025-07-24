@@ -33,15 +33,27 @@ export default function Home() {
   const [useAIResults, setUseAIResults] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Scroll to top when component mounts
+  // Scroll to top when component mounts and clear any search state
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Clear any residual search state on fresh page load
+    setUseAIResults(false);
+    setShowRecommendations(true);
   }, []);
 
-  // Save filters to localStorage whenever they change
+  // Save filters to localStorage whenever they change (excluding search)
   useEffect(() => {
     if (Object.keys(filters).length > 0) {
-      localStorage.setItem('lendibl_filters', JSON.stringify(filters));
+      // Don't persist search queries to avoid unwanted AI calls on page load
+      const filtersToSave = { ...filters };
+      delete filtersToSave.search;
+      
+      if (Object.keys(filtersToSave).length > 0) {
+        localStorage.setItem('lendibl_filters', JSON.stringify(filtersToSave));
+      } else {
+        localStorage.removeItem('lendibl_filters');
+      }
     }
   }, [filters]);
 
@@ -51,16 +63,17 @@ export default function Home() {
     if (savedFilters) {
       try {
         const parsedFilters = JSON.parse(savedFilters);
-        setFilters(parsedFilters);
         
-        // If we have a search query, set AI results state accordingly
-        if (parsedFilters.search && parsedFilters.search.length >= 3) {
-          setUseAIResults(true);
-          setShowRecommendations(false);
-        } else if (parsedFilters.search && parsedFilters.search.length >= 1) {
-          setUseAIResults(false);
-          setShowRecommendations(false);
-        }
+        // Clear any saved search queries to avoid unwanted AI calls
+        const filtersToRestore = { ...parsedFilters };
+        delete filtersToRestore.search; // Remove search from saved filters
+        
+        setFilters(filtersToRestore);
+        
+        // Start fresh without any search state
+        setUseAIResults(false);
+        setShowRecommendations(true);
+        
       } catch (error) {
         console.error('Error parsing saved filters:', error);
       }
