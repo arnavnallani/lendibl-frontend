@@ -16,7 +16,11 @@ export class RecommendationEngine {
   
   // Cache for recommendations to avoid recomputing frequently
   private recommendationCache = new Map<number, { data: RecommendationResult; timestamp: number; }>();
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes - longer cache
+  
+  // Cache for trending items (shared across users)
+  private trendingCache: { data: RecommendationResult; timestamp: number } | null = null;
+  private readonly TRENDING_CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
   
   // Track user interactions for learning preferences
   async trackInteraction(userId: number, itemId: number, interactionType: string, weight: number = 1.0) {
@@ -56,7 +60,7 @@ export class RecommendationEngine {
       console.log(`🔄 Computing fresh recommendations for user ${userId}`);
       
       // Add timeout for complex operations
-      const timeoutMs = 2000; // 2 seconds max for computation
+      const timeoutMs = 1500; // 1.5 seconds max for computation (faster)
       const computationPromise = this.computeRecommendations(userId, limit);
       const timeoutPromise = new Promise<RecommendationResult>((_, reject) => 
         setTimeout(() => reject(new Error('Computation timeout')), timeoutMs)
@@ -218,13 +222,23 @@ export class RecommendationEngine {
   // Clear cache when items change
   clearCache() {
     this.recommendationCache.clear();
-    console.log('🗑️ Recommendations cache cleared');
+    this.trendingCache = null; // Clear trending cache too
+    console.log('🗑️ Recommendations and trending cache cleared');
   }
   
-  // Fallback to trending items when personalization fails
+  // Fallback to trending items when personalization fails (optimized with caching)
   private async getTrendingItems(limit: number): Promise<RecommendationResult> {
     try {
-      console.log('🔥 Using trending items fallback');
+      // Check trending cache first
+      if (this.trendingCache && (Date.now() - this.trendingCache.timestamp) < this.TRENDING_CACHE_DURATION) {
+        console.log(`⚡ Using cached trending items`);
+        return {
+          items: this.trendingCache.data.items.slice(0, limit),
+          scores: this.trendingCache.data.scores.slice(0, limit)
+        };
+      }
+
+      console.log('🔥 Computing fresh trending items');
       const items = await storage.getItems();
       const availableItems = items.filter(item => item.available);
       
@@ -235,15 +249,26 @@ export class RecommendationEngine {
           const scoreB = parseFloat(b.rating) * b.reviewCount;
           return scoreB - scoreA;
         })
-        .slice(0, limit);
+        .slice(0, Math.max(limit, 12)); // Cache extra items for different limits
       
       const scores = trending.map((item, index) => ({
         itemId: item.id,
-        score: limit - index,
+        score: Math.max(limit - index, 1),
         reasons: ["Trending item"],
       }));
       
-      return { items: trending, scores };
+      const result = { items: trending, scores };
+      
+      // Cache the trending result
+      this.trendingCache = {
+        data: result,
+        timestamp: Date.now()
+      };
+      
+      return {
+        items: result.items.slice(0, limit),
+        scores: result.scores.slice(0, limit)
+      };
     } catch (error) {
       console.error("Error getting trending items:", error);
       return { items: [], scores: [] };

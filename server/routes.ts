@@ -646,7 +646,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search suggestions endpoint with pure AI integration
+  // Search suggestions endpoint with pure AI integration (optimized)
   app.get("/api/search-suggestions", async (req, res) => {
     const startTime = Date.now();
     
@@ -657,23 +657,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const query = q.toLowerCase().trim();
-      const suggestions: any[] = [];
-
-      // Get all items and categories - no timeouts
-      const allItems = await storage.getItems();
-      const categories = await storage.getCategories();
-
-      // Use AI to analyze the query for better suggestions
-      let aiAnalysis = null;
-      try {
-        aiAnalysis = await aiSearchService.analyzeSearchQuery(query);
-      } catch (error) {
-        console.log('AI analysis failed, using basic matching');
+      if (query.length < 2) {
+        return res.json([]);
       }
 
-      // AI-enhanced item matches
+      const suggestions: any[] = [];
+
+      // Use cached items if available, parallel fetch if not
+      let allItems = [];
+      let categories = [];
+      
+      if (itemsCache.data && itemsCache.data.length > 0) {
+        allItems = itemsCache.data;
+        categories = await storage.getCategories();
+      } else {
+        [allItems, categories] = await Promise.all([
+          storage.getItems(),
+          storage.getCategories()
+        ]);
+      }
+
+      // Use AI to analyze the query for better suggestions (with timeout)
+      let aiAnalysis = null;
+      const aiTimeout = 1000; // 1 second max for suggestions
+      
+      try {
+        const aiPromise = aiSearchService.analyzeSearchQuery(query);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('AI timeout')), aiTimeout)
+        );
+        
+        aiAnalysis = await Promise.race([aiPromise, timeoutPromise]);
+      } catch (error) {
+        console.log('AI analysis failed or timed out, using basic matching');
+      }
+
+      // AI-enhanced item matches (only if AI succeeded quickly)
       if (aiAnalysis) {
-        const aiMatches = await aiSearchService.scoreItemRelevance(allItems, aiAnalysis);
+        const aiMatches = await aiSearchService.scoreItemRelevanceOptimized(allItems, aiAnalysis);
         const topAiMatches = aiMatches.slice(0, 3).map(match => ({
           type: 'item',
           text: match.title,

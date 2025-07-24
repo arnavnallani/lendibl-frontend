@@ -15,6 +15,7 @@ export function useAISearch(query: string) {
       return response.json();
     },
     enabled: debouncedQuery.length >= 3,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes - longer cache for AI results
+    cacheTime: 15 * 60 * 1000, // 15 minutes in memory
   });
 }
