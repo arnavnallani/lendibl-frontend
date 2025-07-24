@@ -677,32 +677,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ]);
       }
 
-      // Use AI to analyze the query for better suggestions (with timeout)
+      // Use AI to analyze the query for better suggestions (only for longer queries)
       let aiAnalysis = null;
-      const aiTimeout = 1000; // 1 second max for suggestions
+      const aiTimeout = 800; // Reduced to 0.8 seconds max for suggestions
       
-      try {
-        const aiPromise = aiSearchService.analyzeSearchQuery(query);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('AI timeout')), aiTimeout)
-        );
-        
-        aiAnalysis = await Promise.race([aiPromise, timeoutPromise]);
-      } catch (error) {
-        console.log('AI analysis failed or timed out, using basic matching');
-      }
+      // Only use AI for queries 4+ characters to save resources
+      if (query.length >= 4) {
+        try {
+          const aiPromise = aiSearchService.analyzeSearchQuery(query);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('AI timeout')), aiTimeout)
+          );
+          
+          aiAnalysis = await Promise.race([aiPromise, timeoutPromise]);
+        } catch (error) {
+          console.log('AI analysis failed or timed out, using basic matching');
+        }
 
-      // AI-enhanced item matches (only if AI succeeded quickly)
-      if (aiAnalysis) {
-        const aiMatches = await aiSearchService.scoreItemRelevanceOptimized(allItems, aiAnalysis);
-        const topAiMatches = aiMatches.slice(0, 3).map(match => ({
-          type: 'item',
-          text: match.title,
-          subtitle: `AI match: ${match.reason}`,
-          count: 1,
-          aiScore: match.score
-        }));
-        suggestions.push(...topAiMatches);
+        // AI-enhanced item matches (only if AI succeeded quickly)
+        if (aiAnalysis) {
+          const aiMatches = await aiSearchService.scoreItemRelevanceOptimized(allItems, aiAnalysis);
+          const topAiMatches = aiMatches.slice(0, 2).map(match => ({ // Reduced from 3 to 2
+            type: 'item',
+            text: match.title,
+            subtitle: `AI match: ${match.reason}`,
+            count: 1,
+            aiScore: match.score
+          }));
+          suggestions.push(...topAiMatches);
+        }
       }
 
       // Traditional exact matches as fallback

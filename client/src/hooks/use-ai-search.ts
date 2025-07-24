@@ -14,7 +14,7 @@ export function useAISearch(query: string) {
       
       return response.json();
     },
-    enabled: debouncedQuery.length >= 3,
+    enabled: debouncedQuery.length >= 3 && Boolean(debouncedQuery.trim()),
     staleTime: 10 * 60 * 1000, // 10 minutes - longer cache for AI results
     cacheTime: 15 * 60 * 1000, // 15 minutes in memory
   });

@@ -67,8 +67,10 @@ export default function Home() {
     }
   }, []);
   
-  // Get AI search results
-  const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(filters.search || '');
+  // Get AI search results - only when actually needed for performance
+  const { data: aiSearchResults = [], isLoading: aiLoading } = useAISearch(
+    useAIResults ? (filters.search || '') : '' // Only search when using AI results
+  );
 
   // Restore scroll position when returning from item details
   useEffect(() => {
