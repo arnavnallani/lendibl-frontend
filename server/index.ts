@@ -126,6 +126,18 @@ app.use((req, res, next) => {
     res.status(status).json({ message });
   });
 
+  // Add explicit API route protection before static file serving
+  app.use('/api/*', (req, res, next) => {
+    // If we reach this middleware, it means the API route wasn't handled
+    // Don't let static file serving interfere with API routes
+    console.error(`Unhandled API route: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ 
+      message: 'API endpoint not found',
+      path: req.originalUrl,
+      method: req.method
+    });
+  });
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

@@ -784,15 +784,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Working items endpoint (using different path to avoid caching issues)
+  app.get("/api/listings", async (req, res) => {
+    try {
+      const itemsResult = await db.select().from(items).limit(50);
+      console.log(`✅ Listings endpoint: Found ${itemsResult.length} items`);
+      res.json(itemsResult);
+    } catch (error) {
+      console.error("Listings query failed:", error);
+      res.status(500).json({ message: "Failed to load listings" });
+    }
+  });
+
   // Cache for fast item loading
   let itemsCache: { data: any[], timestamp: number } = { data: [], timestamp: 0 };
   let cacheTimestamp = 0;
   const CACHE_DURATION = 600000; // 10 minutes for better performance after updates
 
-  // Items endpoint with proper filtering support
+  // Items endpoint - simplified for production stability
   app.get("/api/items", async (req, res) => {
+    try {
+      console.log('🚀 Items API called - using simplified query');
+      const itemsResult = await db.select().from(items).limit(50);
+      console.log(`✅ Found ${itemsResult.length} items`);
+      res.json(itemsResult);
+    } catch (error: any) {
+      console.error("Items query failed:", error);
+      res.status(500).json({ message: "Failed to load items", error: error.message });
+    }
+  });
+
+  // Legacy complex items endpoint (temporarily disabled)
+  app.get("/api/items-complex", async (req, res) => {
     const startTime = Date.now();
-    console.log(`🚀 Items API called with filters:`, req.query);
+    console.log(`🚀 Complex Items API called with filters:`, req.query);
     
     try {
       // Extract filter parameters
