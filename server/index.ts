@@ -16,6 +16,7 @@ const corsOptions = {
     'https://lendibl.com',
     'https://www.lendibl.com',
     'https://api.lendibl.com', // Custom API domain
+    'https://lendibl.replit.app', // Your production backend
     /^https:\/\/.*\.replit\.dev$/, // Allow Replit dev domains
     /^https:\/\/.*\.replit\.app$/, // Allow Replit deployment domains
   ],
