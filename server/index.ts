@@ -1,9 +1,30 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { paymentScheduler } from "./payment-scheduler";
 
 const app = express();
+
+// Configure CORS to allow requests from Vercel and other frontends
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5173', 
+    'http://localhost:5000',
+    /^https:\/\/.*\.vercel\.app$/, // Allow all Vercel subdomains
+    'https://lendibl.com',
+    'https://www.lendibl.com',
+    /^https:\/\/.*\.replit\.dev$/, // Allow Replit dev domains
+  ],
+  credentials: true, // Allow cookies and authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'X-Kuma-Revision'],
+  maxAge: 86400 // Cache preflight for 24 hours
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 

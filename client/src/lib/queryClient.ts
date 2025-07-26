@@ -52,7 +52,8 @@ export async function apiRequest(
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
+      credentials: "include", // Important for cross-origin authentication
+      mode: "cors", // Explicitly enable CORS
       signal: controller.signal,
     });
 
@@ -90,7 +91,8 @@ export const getQueryFn: <T>(options: {
         headers: {
           ...(token && { "Authorization": `Bearer ${token}` }),
         },
-        credentials: "include",
+        credentials: "include", // Important for cross-origin authentication
+        mode: "cors", // Explicitly enable CORS
         signal: controller.signal,
       });
 
