@@ -44,20 +44,9 @@ export const api = {
     if (filters?.minRating) params.set("minRating", filters.minRating.toString());
     if (filters?.availability) params.set("availability", filters.availability);
 
-    // Temporarily use debug endpoint which works consistently
-    const res = await apiRequest("GET", "/api/debug");
-    const debugData = await res.json();
-    // Transform debug data to match expected format
-    return {
-      items: debugData.sampleItems || [],
-      pagination: {
-        page: 1,
-        limit: 12,
-        total: 3,
-        totalPages: 1,
-        hasMore: false
-      }
-    };
+    const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
+    const res = await apiRequest("GET", url);
+    return res.json();
   },
 
   // Get items without pagination (for backward compatibility)
@@ -80,10 +69,10 @@ export const api = {
     if (filters?.availability) params.set("availability", filters.availability);
     params.set("limit", "1000"); // Get all items
 
-    // Temporarily use debug endpoint which works consistently  
-    const res = await apiRequest("GET", "/api/debug");
-    const debugData = await res.json();
-    return debugData.sampleItems || [];
+    const url = `/api/items${params.toString() ? `?${params.toString()}` : ""}`;
+    const res = await apiRequest("GET", url);
+    const data = await res.json();
+    return data.items || data; // Handle both old and new response formats
   },
 
   getItem: async (id: number): Promise<ItemWithDetails> => {
