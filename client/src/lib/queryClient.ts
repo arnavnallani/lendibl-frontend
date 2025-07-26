@@ -28,6 +28,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const token = localStorage.getItem('auth_token');
   
+  // Support both relative URLs (for same-domain) and absolute URLs (for external backend)
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  
   const headers: Record<string, string> = {};
   if (data) {
     headers["Content-Type"] = "application/json";
@@ -44,7 +48,7 @@ export async function apiRequest(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(fullUrl, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
@@ -72,12 +76,17 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = localStorage.getItem('auth_token');
     
+    // Support both relative URLs (for same-domain) and absolute URLs (for external backend)
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    const url = typeof queryKey[0] === 'string' ? queryKey[0] : '';
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    
     // Create AbortController for timeout - reduced to 5 seconds for faster failures
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
     try {
-      const res = await fetch(queryKey[0] as string, {
+      const res = await fetch(fullUrl, {
         headers: {
           ...(token && { "Authorization": `Bearer ${token}` }),
         },
