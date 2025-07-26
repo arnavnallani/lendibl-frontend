@@ -15,7 +15,9 @@ const corsOptions = {
     /^https:\/\/.*\.vercel\.app$/, // Allow all Vercel subdomains
     'https://lendibl.com',
     'https://www.lendibl.com',
+    'https://api.lendibl.com', // Custom API domain
     /^https:\/\/.*\.replit\.dev$/, // Allow Replit dev domains
+    /^https:\/\/.*\.replit\.app$/, // Allow Replit deployment domains
   ],
   credentials: true, // Allow cookies and authorization headers
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
