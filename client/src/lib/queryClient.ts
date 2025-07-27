@@ -28,9 +28,18 @@ export async function apiRequest(
 ): Promise<Response> {
   const token = localStorage.getItem('auth_token');
   
-  // Support both relative URLs (for same-domain) and absolute URLs (for external backend)
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  // Determine the correct base URL for API requests
+  let baseUrl = '';
+  if (import.meta.env.VITE_API_BASE_URL) {
+    baseUrl = import.meta.env.VITE_API_BASE_URL;
+  } else if (import.meta.env.PROD) {
+    // Production fallback to Replit backend
+    baseUrl = 'https://lendibl.replit.app';
+  }
+  
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  // Ensure HTTPS for security
+  const secureUrl = fullUrl.replace(/^http:/, 'https:');
   
   // Enhanced debug logging for Vercel deployment
   console.log('🔗 API Request Debug:', {
@@ -38,9 +47,9 @@ export async function apiRequest(
     originalUrl: url,
     baseUrl,
     fullUrl,
+    secureUrl,
     hasToken: !!token,
-    environment: import.meta.env.MODE,
-    userAgent: navigator.userAgent
+    environment: import.meta.env.MODE
   });
   
   const headers: Record<string, string> = {};
@@ -59,7 +68,7 @@ export async function apiRequest(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const res = await fetch(fullUrl, {
+    const res = await fetch(secureUrl, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
@@ -76,9 +85,9 @@ export async function apiRequest(
     console.error('🚨 API Request Failed:', {
       method,
       fullUrl,
+      secureUrl,
       error: error.message,
       errorName: error.name,
-      errorStack: error.stack,
       environment: import.meta.env.MODE
     });
     
@@ -103,17 +112,26 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = localStorage.getItem('auth_token');
     
-    // Support both relative URLs (for same-domain) and absolute URLs (for external backend)
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    // Determine the correct base URL for API requests
+    let baseUrl = '';
+    if (import.meta.env.VITE_API_BASE_URL) {
+      baseUrl = import.meta.env.VITE_API_BASE_URL;
+    } else if (import.meta.env.PROD) {
+      // Production fallback to Replit backend
+      baseUrl = 'https://lendibl.replit.app';
+    }
+    
     const url = typeof queryKey[0] === 'string' ? queryKey[0] : '';
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    // Ensure HTTPS for security
+    const secureUrl = fullUrl.replace(/^http:/, 'https:');
     
     // Create AbortController for timeout - reduced to 5 seconds for faster failures
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
     try {
-      const res = await fetch(fullUrl, {
+      const res = await fetch(secureUrl, {
         headers: {
           ...(token && { "Authorization": `Bearer ${token}` }),
         },
@@ -135,6 +153,7 @@ export const getQueryFn: <T>(options: {
       
       console.error('🚨 Query Failed:', {
         fullUrl,
+        secureUrl,
         error: error.message,
         errorName: error.name,
         status: error.status,
@@ -165,12 +184,16 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: Infinity,
       retry: (failureCount, error: any) => {
-        // Retry up to 2 times for network errors, but not for timeout or server errors
-        if (failureCount >= 2) return false;
-        if (error?.message?.includes('timeout')) return false;
-        if (error?.status >= 400) return false;
+        // More aggressive retry for Vercel deployment issues
+        if (failureCount >= 3) return false;
+        // Don't retry on authentication errors
+        if (error?.status === 401 || error?.status === 403) return false;
+        // Don't retry on not found errors
+        if (error?.status === 404) return false;
+        // Retry on network errors and timeouts
         return true;
       },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
       retry: false,
