@@ -7,9 +7,16 @@ export const testApiConnection = async () => {
     NODE_ENV: import.meta.env.NODE_ENV,
     MODE: import.meta.env.MODE,
     PROD: import.meta.env.PROD,
+    DEV: import.meta.env.DEV,
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     hostname: window.location.hostname,
-    origin: window.location.origin
+    origin: window.location.origin,
+    isVercelDomain: window.location.hostname.includes('vercel.app') || window.location.hostname.includes('lendibl.com')
+  });
+
+  // Test what the API configuration would be
+  import('../lib/config').then(config => {
+    console.log('🔧 Current API Base URL from config:', config.API_BASE_URL);
   });
 
   try {
@@ -41,9 +48,12 @@ export const testApiConnection = async () => {
   }
 };
 
-// Auto-test on load in production
-if (import.meta.env.PROD) {
+// Auto-test on load in production or when API base URL is set
+if (import.meta.env.PROD || import.meta.env.VITE_API_BASE_URL) {
   setTimeout(() => {
     testApiConnection();
   }, 1000);
 }
+
+// Expose test function globally for manual testing
+(window as any).testApiConnection = testApiConnection;

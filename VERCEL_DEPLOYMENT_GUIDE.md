@@ -36,14 +36,34 @@ If environment variables don't work, the code now forces the Replit backend for 
 
 1. Visit your Vercel URL
 2. Open browser dev tools → Console
-3. Look for API connection test logs
-4. Try logging in - should work without 405 errors
+3. Look for these logs:
+   ```
+   🔧 Using VITE_API_BASE_URL: https://lendibl.replit.app
+   🔍 Testing API Connection...
+   ✅ API Connection successful!
+   ```
+
+## Troubleshooting
+
+If you still see "Using development mode (same origin)":
+- The environment variables might not be propagating
+- Try **redeploying manually** on Vercel
+- Check the deployment logs for build-time environment variables
+
+## Manual Test
+
+To test if your Vercel deployment will work, open the developer console on your deployed site and run:
+```javascript
+fetch('https://lendibl.replit.app/api/categories')
+  .then(r => r.json())
+  .then(data => console.log('✅ Direct API test:', data))
+  .catch(err => console.error('❌ API test failed:', err))
+```
 
 ## Current Status
 
 ✅ Build process fixed  
 ✅ CORS configured on Replit backend  
 ✅ API configuration updated  
-⚠️ Need environment variables set on Vercel  
-
-The fix is ready - just need to set those environment variables on Vercel.
+✅ Environment variables should be set on Vercel  
+⚠️ May need manual redeploy to pick up environment variables
