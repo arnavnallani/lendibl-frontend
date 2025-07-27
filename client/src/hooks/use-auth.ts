@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { queryClient } from '@/lib/queryClient';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import { registerPushOnLogin } from '@/lib/pwa';
 
 export interface User {
@@ -70,27 +70,17 @@ export function useAuthProvider(): AuthContextType {
   const verifyToken = async (authToken: string) => {
     try {
       console.log('Verifying token...');
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-        credentials: 'include',
-      });
-
-      console.log('Token verification response:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Token verification successful');
-        setUser(data.user);
-        setToken(authToken);
-      } else {
-        // Token is invalid
-        console.log('Token invalid, removing from storage');
-        localStorage.removeItem('auth_token');
-        setToken(null);
-        setUser(null);
+      // Temporarily set token in localStorage for apiRequest to use
+      const existingToken = localStorage.getItem('auth_token');
+      if (!existingToken) {
+        localStorage.setItem('auth_token', authToken);
       }
+      
+      const response = await apiRequest('GET', '/api/auth/me');
+      const data = await response.json();
+      console.log('Token verification successful');
+      setUser(data.user);
+      setToken(authToken);
     } catch (error) {
       console.error('Token verification failed:', error);
       // Don't crash the app, just clear auth state
@@ -103,19 +93,8 @@ export function useAuthProvider(): AuthContextType {
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
+    const response = await apiRequest('POST', '/api/auth/login', { email, password });
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Login failed');
-    }
 
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
@@ -145,19 +124,8 @@ export function useAuthProvider(): AuthContextType {
     phone?: string;
     phoneVerified?: boolean;
   }) => {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-
+    const response = await apiRequest('POST', '/api/auth/register', userData);
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Registration failed');
-    }
 
     localStorage.setItem('auth_token', data.token);
     setToken(data.token);
