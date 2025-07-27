@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { API_BASE_URL } from './config';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -28,16 +29,7 @@ export async function apiRequest(
 ): Promise<Response> {
   const token = localStorage.getItem('auth_token');
   
-  // Determine the correct base URL for API requests
-  let baseUrl = '';
-  if (import.meta.env.VITE_API_BASE_URL) {
-    baseUrl = import.meta.env.VITE_API_BASE_URL;
-  } else if (import.meta.env.PROD) {
-    // Production fallback to Replit backend
-    baseUrl = 'https://lendibl.replit.app';
-  }
-  
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
   // Ensure HTTPS for security
   const secureUrl = fullUrl.replace(/^http:/, 'https:');
   
@@ -45,7 +37,7 @@ export async function apiRequest(
   console.log('🔗 API Request Debug:', {
     method,
     originalUrl: url,
-    baseUrl,
+    baseUrl: API_BASE_URL,
     fullUrl,
     secureUrl,
     hasToken: !!token,
@@ -112,17 +104,8 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = localStorage.getItem('auth_token');
     
-    // Determine the correct base URL for API requests
-    let baseUrl = '';
-    if (import.meta.env.VITE_API_BASE_URL) {
-      baseUrl = import.meta.env.VITE_API_BASE_URL;
-    } else if (import.meta.env.PROD) {
-      // Production fallback to Replit backend
-      baseUrl = 'https://lendibl.replit.app';
-    }
-    
     const url = typeof queryKey[0] === 'string' ? queryKey[0] : '';
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     // Ensure HTTPS for security
     const secureUrl = fullUrl.replace(/^http:/, 'https:');
     
