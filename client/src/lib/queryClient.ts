@@ -32,6 +32,16 @@ export async function apiRequest(
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   
+  // Debug logging for Vercel deployment
+  console.log('🔗 API Request Debug:', {
+    method,
+    originalUrl: url,
+    baseUrl,
+    fullUrl,
+    hasToken: !!token,
+    environment: import.meta.env.MODE
+  });
+  
   const headers: Record<string, string> = {};
   if (data) {
     headers["Content-Type"] = "application/json";
