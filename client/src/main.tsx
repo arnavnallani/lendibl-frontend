@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { registerServiceWorker } from "./lib/pwa";
+import "./utils/api-test";
 
 // Add comprehensive error handling for production deployment issues
 window.addEventListener('error', (event) => {

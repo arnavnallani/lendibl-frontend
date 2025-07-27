@@ -1,18 +1,15 @@
 // API configuration for different environments
 export const getApiBaseUrl = (): string => {
-  // Check for explicit environment variable first
+  // Force Replit backend for production builds
+  if (import.meta.env.PROD) {
+    console.log('🚀 Production build detected, forcing Replit backend');
+    return 'https://lendibl.replit.app';
+  }
+  
+  // Check for explicit environment variable
   if (import.meta.env.VITE_API_BASE_URL) {
     console.log('🔧 Using VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
     return import.meta.env.VITE_API_BASE_URL;
-  }
-  
-  // Detect if we're running on Vercel by checking the hostname
-  const hostname = window.location.hostname;
-  const isVercel = hostname.includes('vercel.app') || hostname.includes('lendibl.com');
-  
-  if (isVercel) {
-    console.log('🚀 Detected Vercel deployment, using Replit backend');
-    return 'https://lendibl.replit.app';
   }
   
   // Development fallback - same origin
