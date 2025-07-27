@@ -32,14 +32,15 @@ export async function apiRequest(
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   
-  // Debug logging for Vercel deployment
+  // Enhanced debug logging for Vercel deployment
   console.log('🔗 API Request Debug:', {
     method,
     originalUrl: url,
     baseUrl,
     fullUrl,
     hasToken: !!token,
-    environment: import.meta.env.MODE
+    environment: import.meta.env.MODE,
+    userAgent: navigator.userAgent
   });
   
   const headers: Record<string, string> = {};
@@ -72,9 +73,24 @@ export async function apiRequest(
     return res;
   } catch (error: any) {
     clearTimeout(timeoutId);
+    console.error('🚨 API Request Failed:', {
+      method,
+      fullUrl,
+      error: error.message,
+      errorName: error.name,
+      errorStack: error.stack,
+      environment: import.meta.env.MODE
+    });
+    
     if (error.name === 'AbortError') {
-      throw new Error('Request timeout - please try again');
+      throw new Error(`Request timeout (${timeout}ms) - please try again`);
     }
+    
+    // Enhanced error information for debugging
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      throw new Error(`Network error: Unable to connect to ${fullUrl}`);
+    }
+    
     throw error;
   }
 }
@@ -116,9 +132,27 @@ export const getQueryFn: <T>(options: {
       return await res.json();
     } catch (error: any) {
       clearTimeout(timeoutId);
+      
+      console.error('🚨 Query Failed:', {
+        fullUrl,
+        error: error.message,
+        errorName: error.name,
+        status: error.status,
+        environment: import.meta.env.MODE
+      });
+      
       if (error.name === 'AbortError') {
+        console.warn('⏰ Query timeout for:', fullUrl);
+        if (unauthorizedBehavior === "returnNull") {
+          return null;
+        }
         throw new Error('Request timeout - please try again');
       }
+      
+      if (unauthorizedBehavior === "returnNull") {
+        return null;
+      }
+      
       throw error;
     }
   };
