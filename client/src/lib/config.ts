@@ -1,18 +1,18 @@
 // API configuration for different environments
 export const getApiBaseUrl = (): string => {
-  // Force Replit backend for production builds
-  if (import.meta.env.PROD) {
-    console.log('🚀 Production build detected, forcing Replit backend');
-    return 'https://lendibl.replit.app';
-  }
-  
-  // Check for explicit environment variable
+  // Priority 1: Check for explicit environment variable (highest priority)
   if (import.meta.env.VITE_API_BASE_URL) {
     console.log('🔧 Using VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
     return import.meta.env.VITE_API_BASE_URL;
   }
   
-  // Development fallback - same origin
+  // Priority 2: Force Replit backend for production builds
+  if (import.meta.env.PROD) {
+    console.log('🚀 Production build detected, forcing Replit backend');
+    return 'https://lendibl.replit.app';
+  }
+  
+  // Priority 3: Development fallback - same origin
   console.log('🔧 Using development mode (same origin)');
   return '';
 };
