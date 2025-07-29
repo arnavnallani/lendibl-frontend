@@ -1,12 +1,12 @@
 // API configuration for different environments
 export const getApiBaseUrl = (): string => {
   // Force Replit backend for all Vercel deployments and lendibl.com
-  if (typeof window !== 'undefined') {
+  /* if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname.includes('vercel.app') || hostname === 'lendibl.com' || hostname === 'www.lendibl.com') {
-      console.log('🔧 Forcing Replit backend for Vercel/custom domain deployment');
+      console.log('🔧 Forcing Replit backend for Vercel/custom domain deployment'); */
       return 'https://lendibl.replit.app';
-    }
+    // }
   }
   
   // Check for environment variable
