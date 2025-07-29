@@ -27,7 +27,6 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  console.log("API request url: ", url);
   const token = localStorage.getItem('auth_token');
   
   const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
