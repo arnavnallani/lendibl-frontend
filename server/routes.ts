@@ -158,13 +158,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('🚨 Simple items API called (emergency fallback)');
       const startTime = Date.now();
       
-      // Use direct database query with aggressive timeout
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Simple query timeout')), 5000);
-      });
-      
-      // Simple query without joins
-      const simpleQueryPromise = db.select({
+            // Simple query without joins
+      const simpleItems = await db.select({
         id: items.id,
         title: items.title,
         description: items.description,
@@ -176,8 +171,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location: items.location,
         available: items.available
       }).from(items).limit(50);
-      
-      const simpleItems = await Promise.race([simpleQueryPromise, timeoutPromise]);
       
       console.log(`✅ Simple query completed in ${Date.now() - startTime}ms - ${simpleItems.length} items`);
       
@@ -677,21 +670,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ]);
       }
 
-      // Use AI to analyze the query for better suggestions (only for longer queries)
+            // Use AI to analyze the query for better suggestions (only for longer queries)
       let aiAnalysis = null;
-      const aiTimeout = 800; // Reduced to 0.8 seconds max for suggestions
       
       // Only use AI for queries 4+ characters to save resources
       if (query.length >= 4) {
         try {
-          const aiPromise = aiSearchService.analyzeSearchQuery(query);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('AI timeout')), aiTimeout)
-          );
-          
-          aiAnalysis = await Promise.race([aiPromise, timeoutPromise]);
+          aiAnalysis = await aiSearchService.analyzeSearchQuery(query);
         } catch (error) {
-          console.log('AI analysis failed or timed out, using basic matching');
+          console.log('AI analysis failed, using basic matching');
         }
 
         // AI-enhanced item matches (only if AI succeeded quickly)
@@ -1460,14 +1447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 6;
       
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Recommendations timeout')), 3000)
-      );
-      
-      const recommendationsPromise = recommendationEngine.getRecommendations(req.user!.id, limit);
-      
-      const recommendations = await Promise.race([recommendationsPromise, timeoutPromise]);
+            const recommendations = await recommendationEngine.getRecommendations(req.user!.id, limit);
       res.json(recommendations);
     } catch (error) {
       console.error("Error getting recommendations:", error);
