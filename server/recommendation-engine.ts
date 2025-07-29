@@ -59,23 +59,15 @@ export class RecommendationEngine {
 
       console.log(`🔄 Computing fresh recommendations for user ${userId}`);
       
-      // Add timeout for complex operations
-      const timeoutMs = 1500; // 1.5 seconds max for computation (faster)
+            // Perform computation without timeout
       const computationPromise = this.computeRecommendations(userId, limit);
-      const timeoutPromise = new Promise<RecommendationResult>((_, reject) => 
-        setTimeout(() => reject(new Error('Computation timeout')), timeoutMs)
-      );
       
       try {
-        return await Promise.race([computationPromise, timeoutPromise]);
+        return await computationPromise;
       } catch (error) {
-        console.log('⚡ Falling back to simple trending items due to timeout');
+        console.log('⚡ Falling back to simple trending items due to error');
         return await this.getTrendingItems(limit);
       }
-    } catch (error) {
-      console.error('Error in getRecommendations:', error);
-      return await this.getTrendingItems(limit);
-    }
   }
 
   // Separate computation method for timeout handling
