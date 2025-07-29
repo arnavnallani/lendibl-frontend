@@ -93,7 +93,7 @@ export function useAuthProvider(): AuthContextType {
   };
 
   const login = async (email: string, password: string) => {
-    const response = await apiRequest('POST', '/api/auth/login', { email, password });
+    const response = await apiRequest('POST', 'https://lendibl.replit.app/api/auth/login', { email, password });
     const data = await response.json();
 
     localStorage.setItem('auth_token', data.token);
