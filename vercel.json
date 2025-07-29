@@ -3,7 +3,31 @@
   "outputDirectory": "public",
   "installCommand": "npm install",
   "framework": null,
+  "headers": [
+    {
+      "source": "/assets/(.*).js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*).css", 
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
