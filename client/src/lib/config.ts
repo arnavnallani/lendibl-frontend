@@ -29,7 +29,7 @@ export const getApiBaseUrl = (): string => {
 export const API_BASE_URL = getApiBaseUrl();
 
 console.log('🌐 API Configuration:', {
-  baseUrl: API_BASE_URL,
+  baseUrl: VITE_API_BASE_URL,
   hostname: window.location.hostname,
   environment: import.meta.env.MODE,
   hasViteApiUrl: !!import.meta.env.VITE_API_BASE_URL,
