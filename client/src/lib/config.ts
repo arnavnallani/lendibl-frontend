@@ -1,12 +1,12 @@
 // API configuration for different environments
 export const getApiBaseUrl = (): string => {
   // Force Replit backend for all Vercel deployments and lendibl.com
-  /* if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname.includes('vercel.app') || hostname === 'lendibl.com' || hostname === 'www.lendibl.com') {
-      console.log('🔧 Forcing Replit backend for Vercel/custom domain deployment'); */
+      console.log('🔧 Forcing Replit backend for Vercel/custom domain deployment');
       return 'https://lendibl.replit.app';
-    // }
+    }
   }
   
   // Check for environment variable
@@ -29,7 +29,7 @@ export const getApiBaseUrl = (): string => {
 export const API_BASE_URL = getApiBaseUrl();
 
 console.log('🌐 API Configuration:', {
-  baseUrl: VITE_API_BASE_URL,
+  baseUrl: API_BASE_URL,
   hostname: window.location.hostname,
   environment: import.meta.env.MODE,
   hasViteApiUrl: !!import.meta.env.VITE_API_BASE_URL,
