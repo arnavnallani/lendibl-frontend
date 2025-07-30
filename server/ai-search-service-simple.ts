@@ -1,7 +1,10 @@
 import OpenAI from "openai";
 
 // ChatGPT 3.5 for AI-powered search analysis
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 0 // No timeout - let AI complete naturally
+});
 
 export interface SearchAnalysis {
   intent: string;
