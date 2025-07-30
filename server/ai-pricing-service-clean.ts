@@ -21,7 +21,10 @@ export interface PricingAnalysisInput {
 }
 
 // OpenAI ChatGPT 3.5 pricing analysis
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 0 // No timeout - let AI complete naturally
+});
 
 async function getChatGPTPricing(currentPrice: number): Promise<any> {
   const enhancedPrompt = `You are an expert rental marketplace pricing analyst with deep knowledge of consumer behavior, market dynamics, and rental economics. 
