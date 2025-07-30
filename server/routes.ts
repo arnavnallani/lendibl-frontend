@@ -958,7 +958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Clear items cache to include new item
-      itemsCache = [];
+      itemsCache = { data: [], timestamp: 0 };
       cacheTimestamp = 0;
       console.log(`✨ Items cache cleared after creating new item`);
       
@@ -1042,12 +1042,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Item not found after update" });
       }
 
-      // Update the specific item in cache while preserving its exact position and all properties
-      if (itemsCache.length > 0) {
-        const itemIndex = itemsCache.findIndex(cachedItem => cachedItem.id === id);
+      // Update cache if item exists in cache
+      if (itemsCache.data.length > 0) {
+        const itemIndex = itemsCache.data.findIndex(cachedItem => cachedItem.id === id);
         if (itemIndex !== -1) {
-          // Preserve the original cached item structure and update only changed fields
-          const originalCachedItem = itemsCache[itemIndex];
+          const originalCachedItem = itemsCache.data[itemIndex];
           const updatedCacheItem = {
             ...originalCachedItem, // Keep all original properties (owner, category, etc.)
             ...updates, // Apply only the actual updates
@@ -1060,7 +1059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           // Update cache at the exact same position
-          itemsCache[itemIndex] = updatedCacheItem;
+          itemsCache.data[itemIndex] = updatedCacheItem;
           console.log(`🔄 Updated item ${id} in cache at position ${itemIndex} (preserved order)`);
         } else {
           // If item not found in cache, don't clear - let it refresh naturally
@@ -1112,7 +1111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Clear items cache immediately to reflect deletion
-      itemsCache = [];
+      itemsCache = { data: [], timestamp: 0 };
       cacheTimestamp = 0;
       console.log(`🗑️ Items cache cleared after deleting item ${id}`);
       
