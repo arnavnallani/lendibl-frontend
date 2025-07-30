@@ -1,6 +1,9 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 0 // No timeout - let AI complete naturally
+});
 
 export async function getChatbotResponse(userMessage: string): Promise<string> {
   try {
