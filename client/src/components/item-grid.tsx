@@ -73,9 +73,13 @@ export default function ItemGrid({ filters, aiResults, useAIResults, aiLoading, 
         return failureCount < 1; // Only retry once for DB issues
       }
       return failureCount < 2; // Normal retry for other errors
-    },
+        },
     retryDelay: 2000, // 2 second delay between retries
     networkMode: 'online',
+    // Disable any built-in timeouts
+    meta: {
+      noTimeout: true
+    }
   });
 
   // Reset pagination when filters change
