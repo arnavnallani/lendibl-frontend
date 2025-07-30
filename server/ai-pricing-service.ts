@@ -2,7 +2,10 @@ import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 0 // No timeout - let AI complete naturally
+});
 
 // ChatGPT 3.5-turbo for intelligent pricing analysis
 async function getChatGPTPricing(prompt: string): Promise<any> {
