@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { API_BASE_URL } from './config';
+import './fetch-wrapper'; // Import to apply global fetch override
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
