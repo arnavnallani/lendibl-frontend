@@ -8,17 +8,42 @@ const app = express();
 
 // Configure CORS to allow requests from Vercel and other frontends
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173', 
-    'http://localhost:5000',
-    /^https:\/\/.*\.vercel\.app$/, // Allow all Vercel subdomains
-    'https://lendibl.com',
-    'https://www.lendibl.com',
-    'https://api.lendibl.com', // Custom API domain
-    /^https:\/\/.*\.replit\.dev$/, // Allow Replit dev domains
-    /^https:\/\/.*\.replit\.app$/, // Allow Replit deployment domains
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173', 
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
+      'http://127.0.0.1:5173',
+      'https://lendibl.com',
+      'https://www.lendibl.com',
+      'https://api.lendibl.com',
+    ];
+    
+    const allowedPatterns = [
+      /^https:\/\/.*\.vercel\.app$/,
+      /^https:\/\/.*\.replit\.dev$/,
+      /^https:\/\/.*\.replit\.app$/,
+    ];
+    
+    // Check exact matches
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Check pattern matches
+    for (const pattern of allowedPatterns) {
+      if (pattern.test(origin)) {
+        return callback(null, true);
+      }
+    }
+    
+    console.log(`🚫 CORS blocked origin: ${origin}`);
+    callback(null, false);
+  },
   credentials: true, // Allow cookies and authorization headers
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -29,6 +54,23 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Additional CORS headers for all requests
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
+
 app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
